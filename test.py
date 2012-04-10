@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 
+import os.path
+
 import avalonms.scan
 import avalonms.models
 
-files = avalonms.scan.get_files('/home/pillin/music/audio/CIVET')
+files = avalonms.scan.get_files(
+    os.path.join(os.path.expanduser('~'), 'music/audio/CIVET'))
 tags = avalonms.scan.get_tags(files)
 insert = []
 

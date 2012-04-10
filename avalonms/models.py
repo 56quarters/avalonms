@@ -4,6 +4,7 @@
 from sqlalchemy import (
     create_engine,
     Column,
+    ForeignKey,
     Integer,
     String)
 
@@ -31,7 +32,12 @@ class Track(Base):
     __tablename__ = 'tracks'
 
     track = Column(Integer)
-    year = Column(Integer)    
+    year = Column(Integer)
+
+    #album = Column(Integer, ForeignKey('albums.id'))
+    #artist = Column(Integer, ForeignKey('artists.id'))
+    #genre = Column(Integer, ForeignKey('genres.id'))
+
 
 
 class Artist(Base):
