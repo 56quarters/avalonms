@@ -1,0 +1,3 @@
+tagpy>=0.94
+cherrypy>=3.2.0
+
