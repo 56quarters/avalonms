@@ -11,8 +11,6 @@ import os.path
 
 import tagpy
 
-from avalonms.models import TrackModel
-
 
 __all__ = [
     'get_files',

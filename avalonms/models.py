@@ -7,6 +7,7 @@ from sqlalchemy import (
     Integer,
     String)
 
+from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
 
@@ -29,10 +30,8 @@ class Track(Base):
     
     __tablename__ = 'tracks'
 
-    comment = Column(String)
     track = Column(Integer)
-    year = Column(Integer)
-    
+    year = Column(Integer)    
 
 
 class Artist(Base):
@@ -57,4 +56,30 @@ class Genre(Base):
     """
 
     __tablename__ = 'genres'
+
+
+class SessionHandler(object):
+
+    def __init__(self):
+        """
+        """
+        self._session_factory = sessionmaker()
+        self._engine = None
+
+    def connect(self):
+        """
+        """
+        self._engine = create_engine('sqlite:////tmp/avalonms.sqlite', echo=True)
+        self._session_factory.configure(bind=self._engine)
+
+    def create_tables(self):
+        """
+        """
+        Base.metadata.create_all(self._engine)
+
+    def get_session(self):
+        """
+        """
+        return self._session_factory()
+
 
