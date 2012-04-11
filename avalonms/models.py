@@ -34,9 +34,9 @@ class Track(Base):
     track = Column(Integer)
     year = Column(Integer)
 
-    #album = Column(Integer, ForeignKey('albums.id'))
-    #artist = Column(Integer, ForeignKey('artists.id'))
-    #genre = Column(Integer, ForeignKey('genres.id'))
+    album_id = Column(Integer, ForeignKey('albums.id'))
+    artist_id = Column(Integer, ForeignKey('artists.id'))
+    genre_id = Column(Integer, ForeignKey('genres.id'))
 
 
 
@@ -76,6 +76,7 @@ class SessionHandler(object):
         """
         """
         self._engine = create_engine('sqlite:////tmp/avalonms.sqlite', echo=True)
+        #self._engine = create_engine('sqlite:///:memory:', echo=True)
         self._session_factory.configure(bind=self._engine)
 
     def create_tables(self):
