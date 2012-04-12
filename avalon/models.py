@@ -20,6 +20,14 @@ class Base(object):
     id = Column(Integer, primary_key=True)
     name = Column(String)
 
+    def to_json(self):
+        """
+        """
+        return {
+            'id': self.id,
+            'name': self.name}
+
+
 
 Base = declarative_base(cls=Base)
 
@@ -37,6 +45,14 @@ class Track(Base):
     album_id = Column(Integer, ForeignKey('albums.id'))
     artist_id = Column(Integer, ForeignKey('artists.id'))
     genre_id = Column(Integer, ForeignKey('genres.id'))
+
+    def to_json(self):
+        """
+        """
+        base = super(Track, self).to_json()
+        base['track'] = self.track
+        base['year'] = self.year
+        return base
 
 
 class Artist(Base):
