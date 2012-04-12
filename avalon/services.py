@@ -6,7 +6,7 @@
 """
 
 
-from avalonms.models import (
+from avalon.models import (
     Album,
     Artist,
     Genre,

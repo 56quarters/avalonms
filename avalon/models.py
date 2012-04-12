@@ -39,7 +39,6 @@ class Track(Base):
     genre_id = Column(Integer, ForeignKey('genres.id'))
 
 
-
 class Artist(Base):
 
     """
