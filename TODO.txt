@@ -1,0 +1,14 @@
+
+For v1:
+* Real launcher script
+* Join other tables to tracks on SELECT
+* Case sensitivity
+* Comments
+* README
+
+For v2:
+* Tests
+* Daemon mode
+* Testing with MySQL backend
+* In memory stores?
+

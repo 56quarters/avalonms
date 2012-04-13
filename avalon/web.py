@@ -16,6 +16,9 @@ from avalon.models import (
     Track)
 
 
+__all__ = []
+
+
 class AvalonServer(object):
     pass
 
@@ -95,13 +98,13 @@ class AvalonHandler(object):
         """
         """
         out = []
-        sess = self.session()
+        session = self._session_handler.get_session()
 
         try:
-            res = sess.query(Artist)
+            res = session.query(Artist)
             out = res.all()
         finally:
-            sess.close()
+            session.close()
         return self.list_to_json(out)
         
     @cherrypy.expose
@@ -110,13 +113,13 @@ class AvalonHandler(object):
         """
         """
         out = []
-        sess = self.session()
+        session = self._session_handler.get_session()
 
         try:
-            res = sess.query(Album)
+            res = session.query(Album)
             out = res.all()
         finally:
-            sess.close()
+            session.close()
         return self.list_to_json(out)
 
     @cherrypy.expose
@@ -125,12 +128,12 @@ class AvalonHandler(object):
         """
         """
         out = []
-        sess = self.session()
+        session = self._session_handler.get_session()
 
         try:
-            res = sess.query(Genre)
+            res = session.query(Genre)
             out = res.all()
         finally:
-            sess.close()
+            session.close()
         return self.list_to_json(out)
 
