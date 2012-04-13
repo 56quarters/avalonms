@@ -8,6 +8,7 @@
 import cherrypy
 from cherrypy.wsgiserver import CherryPyWSGIServer
 
+import avalon.services
 from avalon.models import (
     Album,
     Artist,
@@ -70,18 +71,14 @@ class RequestFilter(object):
         return f
             
 
-
 class AvalonHandler(object):
 
     def __init__(self, session_handler):
         """
         """
         self._session_handler = session_handler
-
-    def session(self):
-        """
-        """
-        return self._session_handler.get_session()
+        self._id_cache = avalon.services.IdService(session_handler)
+        self._id_cache.load()
 
     def list_to_json(self, res):
         """
@@ -94,22 +91,21 @@ class AvalonHandler(object):
         """
         """
         out = []
-        tracks = []
-        sess = self.session()
         filters = RequestFilter.from_params(*args, **kwargs)
+        session = self._session_handler.get_session()
 
         try:
-            res = sess.query(Track)
+            res = session.query(Track)
             if 0 != filters.album_id:
                 res = res.filter(Track.album_id == filters.album_id)
             if 0 != filters.artist_id:
                 res = res.filter(Track.artist_id == filters.artist_id)
             if 0 != filters.genre_id:
                 res = res.filter(Track.genre_id == filters.genre_id)
-            tracks = res.all()
+            out = res.join(Album).join(Artist).join(Genre).all()
         finally:
-            sess.close()
-        return self.list_to_json(tracks)
+            session.close()
+        return self.list_to_json(out)
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
@@ -120,12 +116,11 @@ class AvalonHandler(object):
         sess = self.session()
 
         try:
-            artists = sess.query(Artist).all()
-            for artist in artists:
-                out.append(artist.to_json())
+            res = sess.query(Artist)
+            out = res.all()
         finally:
             sess.close()
-        return out
+        return self.list_to_json(out)
         
     @cherrypy.expose
     @cherrypy.tools.json_out()
@@ -136,12 +131,11 @@ class AvalonHandler(object):
         sess = self.session()
 
         try:
-            albums = sess.query(Album).all()
-            for album in albums:
-                out.append(album.to_json())
+            res = sess.query(Album)
+            out = res.all()
         finally:
             sess.close()
-        return out
+        return self.list_to_json(out)
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
@@ -152,10 +146,9 @@ class AvalonHandler(object):
         sess = self.session()
 
         try:
-            genres = sess.query(Genre).all()
-            for genre in genres:
-                out.append(genre.to_json())
+            res = sess.query(Genre)
+            out = res.all()
         finally:
             sess.close()
-        return out
+        return self.list_to_json(out)
 

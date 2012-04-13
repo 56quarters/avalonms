@@ -13,81 +13,125 @@ from avalon.models import (
     Track)
 
 
-__all__ = []
+__all__ = [
+    'IdService',
+    'InsertService'
+    ]
 
 
-class InsertService(object):
 
-    """
-    """
+class IdService(object):
 
-    def __init__(self, scanned, session):
-        """
-        """
-        self._scanned = scanned
-        self._session = session
+    def __init__(self, session_handler, case_insensitive=False):
+        self._session_handler = session_handler
+        self._case_insensitive = case_insensitive
         self._cache = {
             'album': {},
             'artist': {},
             'genre': {}
             }
 
-    def _get_id(self, field, val):
+    def get_id(self, field, val):
         """
         """
-        return self._cache[field][val].id
+        try:
+            return self._cache[field][self._get_val(val)]
+        except KeyError:
+            return 0
+
+    def _get_val(self, val):
+        """
+        """
+        if self._case_insensitive:
+            return val.lower()
+        return val
+
+    def load(self):
+        """
+        """
+        session = self._session_handler.get_session()
+
+        try:
+            self._load_mapping(session, 'album', Album)
+            self._load_mapping(session, 'artist', Artist)
+            self._load_mapping(session, 'genre', Genre)
+        finally:
+            session.close()
+
+    def _load_mapping(self, session, field, cls):
+        """
+        """
+        things = session.query(cls).all()
+        for thing in things:
+            self._cache[field][self._get_val(thing.name)] = thing.id
+            
+
+class InsertService(object):
+
+    """
+    """
+
+    def __init__(self, scanned, session_handler):
+        """
+        """
+        self._scanned = scanned
+        self._session_handler = session_handler
 
     def _load_relations(self):
         """
         """
         insert = []
-        
-        for tag in self._scanned:
-            album = self._populate_relation(tag, 'album', Album)
-            artist = self._populate_relation(tag, 'artist', Artist)
-            genre = self._populate_relation(tag, 'genre', Genre)
+        values = {'album': set(), 'artist': set(), 'genre': set()}
+        session = self._session_handler.get_session()
 
-            if album is not None:
-                insert.append(album)
-            if artist is not None:
-                insert.append(artist)
-            if genre is not None:
-                insert.append(genre)
+        try:
+            for tag in self._scanned:
+                # Insert all the values into sets to eliminate
+                # duplicates before saving them to the DB.
+                for field in ('album', 'artist', 'genre'):
+                    values[field].add(getattr(tag, field))
 
-        self._session.add_all(insert)
-        self._session.commit()
+            # Build a list of brand new objects to insert
+            self._queue_inserts(insert, values['album'], Album)
+            self._queue_inserts(insert, values['artist'], Artist)
+            self._queue_inserts(insert, values['genre'], Genre)
 
+            session.add_all(insert)
+            session.commit()
+        finally:
+            session.close()
 
-    def _populate_relation(self, tag, field, model_cls):
+    def _queue_inserts(self, queue, values, cls):
         """
         """
-        cache = self._cache[field]
-        val = getattr(tag, field)
-
-        if val in cache:
-            return None
-
-        obj = model_cls()
-        obj.name = val
-        cache[val] = obj
-        return obj
+        for val in values:
+            obj = cls()
+            obj.name = val
+            queue.append(obj)
 
     def insert_tracks(self):
         """
         """
         self._load_relations()
+        cache = IdService(self._session_handler)
+        cache.load()
+
         insert = []
+        session = self._session_handler.get_session()
 
-        for tag in self._scanned:
-            track = Track()
-            track.name = tag.title
-            track.track = tag.track
-            track.year = tag.year
+        try:
+            for tag in self._scanned:
+                track = Track()
+                track.name = tag.title
+                track.track = tag.track
+                track.year = tag.year
 
-            track.album_id = self._get_id('album', tag.album)
-            track.artist_id = self._get_id('artist', tag.artist)
-            track.genre_id = self._get_id('genre', tag.genre)
+                track.album_id = cache.get_id('album', tag.album)
+                track.artist_id = cache.get_id('artist', tag.artist)
+                track.genre_id = cache.get_id('genre', tag.genre)
 
-            insert.append(track)
-        self._session.add_all(insert)
-        self._session.commit()
+                insert.append(track)
+            session.add_all(insert)
+            session.commit()
+        finally:
+            session.close()

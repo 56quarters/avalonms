@@ -52,6 +52,10 @@ class Track(Base):
         base = super(Track, self).to_json()
         base['track'] = self.track
         base['year'] = self.year
+
+        #base['album'] = self.album.name
+        #base['artist'] = self.artist.name
+        #base['genre'] = self.genre.name
         return base
 
 
