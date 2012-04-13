@@ -8,7 +8,12 @@ For v1:
 
 For v2:
 * Tests
+* Docs
 * Daemon mode
 * Testing with MySQL backend
 * In memory stores?
 
+For v3:
+* Echonest integration
+* Foreign ID mapping system
+* Plugins?

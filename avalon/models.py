@@ -1,6 +1,11 @@
 # -*- coding: utf-8 -*-
 #
 
+
+"""
+"""
+
+
 from sqlalchemy import (
     create_engine,
     Column,
@@ -10,6 +15,15 @@ from sqlalchemy import (
 
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
+
+
+__all__ = [
+    'Album',
+    'Artist',
+    'Base',
+    'Genre',
+    'Track'
+    ]
 
 
 class Base(object):
@@ -26,7 +40,6 @@ class Base(object):
         return {
             'id': self.id,
             'name': self.name}
-
 
 
 Base = declarative_base(cls=Base)

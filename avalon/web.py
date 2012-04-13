@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 
-"""
+""" HTTP frontend for handling requests.
 """
 
 
@@ -16,20 +16,20 @@ from avalon.models import (
     Track)
 
 
-__all__ = []
-
-
-class AvalonServer(object):
-    pass
+__all__ = [
+    'AvalonHandler',
+    'RequestFilter'
+    ]
 
 
 class RequestFilter(object):
     
-    """
+    """ Parse and ecapsulate object IDs and names from
+        query string parameters.
     """
     
     def __init__(self):
-        """
+        """ Initialize values for object IDs to None.
         """
         self.album_id = None
         self.artist_id = None
@@ -37,20 +37,32 @@ class RequestFilter(object):
 
     @classmethod
     def from_params(cls, cache, kwargs):
-        """
+        """ Construct a new filter based on the given query
+            string parameters and name to ID cache.
+
+            Recognized params: album, album_id, artist, artist_id,
+            genre, genre_id
         """
         f = cls()
+
         for field in ('album', 'artist', 'genre'):
             if field not in kwargs:
                 continue
+            # Look up a value from the cache and use it to filter
+            # the results. We don't care if the cache returned a
+            # valid ID since we want the request to return 0
+            # results for bad QS params.
             val_id = cache.get_id(field, kwargs[field])
             setattr(f, field + '_id', val_id)
+
         for field in ('album_id', 'artist_id', 'genre_id'):
             if field not in kwargs:
                 continue
             try:
                 val_id = int(kwargs[field])
             except ValueError:
+                # Use an invalid ID anyway since we want the
+                # request to return 0 results for bad QS params.
                 val_id = 0
             setattr(f, field, val_id)
         return f
@@ -58,22 +70,29 @@ class RequestFilter(object):
 
 class AvalonHandler(object):
 
-    def __init__(self, session_handler):
+    """ Handle HTTP requests and return result sets in JSON.
+    """
+
+    def __init__(self, session_handler, cache=None):
+        """ Set the session handler and optionally, cache to use.
         """
-        """
+        if cache is None:
+            cache = avalon.services.IdService(session_handler)
+
         self._session_handler = session_handler
-        self._id_cache = avalon.services.IdService(session_handler)
+        self._id_cache = cache
         self._id_cache.load()
 
     def list_to_json(self, res):
-        """
+        """ Convert a list of models to a list of dictionaries.
         """
         return [thing.to_json() for thing in res]
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
     def songs(self, *args, **kwargs):
-        """
+        """ Return song results based on the given query string
+            parameters.
         """
         out = []
         filters = RequestFilter.from_params(self._id_cache, kwargs)
@@ -94,23 +113,8 @@ class AvalonHandler(object):
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
-    def artists(self, *args, **kwargs):
-        """
-        """
-        out = []
-        session = self._session_handler.get_session()
-
-        try:
-            res = session.query(Artist)
-            out = res.all()
-        finally:
-            session.close()
-        return self.list_to_json(out)
-        
-    @cherrypy.expose
-    @cherrypy.tools.json_out()
     def albums(self, *args, **kwargs):
-        """
+        """ Return a list of all albums.
         """
         out = []
         session = self._session_handler.get_session()
@@ -124,8 +128,23 @@ class AvalonHandler(object):
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
-    def genres(self, *args, **kwargs):
+    def artists(self, *args, **kwargs):
+        """ Return a list of all artists.
         """
+        out = []
+        session = self._session_handler.get_session()
+
+        try:
+            res = session.query(Artist)
+            out = res.all()
+        finally:
+            session.close()
+        return self.list_to_json(out)
+        
+    @cherrypy.expose
+    @cherrypy.tools.json_out()
+    def genres(self, *args, **kwargs):
+        """ Return a list of all genres.
         """
         out = []
         session = self._session_handler.get_session()
