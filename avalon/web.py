@@ -28,48 +28,30 @@ class RequestFilter(object):
     def __init__(self):
         """
         """
-        self.album_id = 0
-        self.artist_id = 0
-        self.genre_id = 0
-        self.album = ''
-        self.artist = ''
-        self.genre = ''
+        self.album_id = None
+        self.artist_id = None
+        self.genre_id = None
 
-    def __repr__(self):
-        """
-        """
-        return (
-            '<%s: '
-            'album_id=%s, '
-            'artist_id=%s, '
-            'genre_id=%s, '
-            'album=%s, '
-            'artist=%s, '
-            'genre=%s>') % (
-            self.__class__.__name__,
-            self.album_id,
-            self.artist_id,
-            self.genre_id,
-            self.album,
-            self.artist,
-            self.genre)
-        
     @classmethod
-    def from_params(cls, *args, **kwargs):
+    def from_params(cls, cache, kwargs):
+        """
+        """
         f = cls()
-
-        for field in ('album_id', 'artist_id', 'genre_id'):
-            if field in kwargs:
-                try:
-                    setattr(f, field, int(kwargs[field]))
-                except ValueError:
-                    setattr(f, field, 0)
         for field in ('album', 'artist', 'genre'):
-            if field in kwargs:
-                setattr(f, field, kwargs[field])
-
+            if field not in kwargs:
+                continue
+            val_id = cache.get_id(field, kwargs[field])
+            setattr(f, field + '_id', val_id)
+        for field in ('album_id', 'artist_id', 'genre_id'):
+            if field not in kwargs:
+                continue
+            try:
+                val_id = int(kwargs[field])
+            except ValueError:
+                val_id = 0
+            setattr(f, field, val_id)
         return f
-            
+
 
 class AvalonHandler(object):
 
@@ -91,16 +73,16 @@ class AvalonHandler(object):
         """
         """
         out = []
-        filters = RequestFilter.from_params(*args, **kwargs)
+        filters = RequestFilter.from_params(self._id_cache, kwargs)
         session = self._session_handler.get_session()
 
         try:
             res = session.query(Track)
-            if 0 != filters.album_id:
+            if None is not filters.album_id:
                 res = res.filter(Track.album_id == filters.album_id)
-            if 0 != filters.artist_id:
+            if None is not filters.artist_id:
                 res = res.filter(Track.artist_id == filters.artist_id)
-            if 0 != filters.genre_id:
+            if None is not filters.genre_id:
                 res = res.filter(Track.genre_id == filters.genre_id)
             out = res.join(Album).join(Artist).join(Genre).all()
         finally:

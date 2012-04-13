@@ -22,9 +22,8 @@ __all__ = [
 
 class IdService(object):
 
-    def __init__(self, session_handler, case_insensitive=False):
+    def __init__(self, session_handler):
         self._session_handler = session_handler
-        self._case_insensitive = case_insensitive
         self._cache = {
             'album': {},
             'artist': {},
@@ -35,16 +34,9 @@ class IdService(object):
         """
         """
         try:
-            return self._cache[field][self._get_val(val)]
+            return self._cache[field][val]
         except KeyError:
             return 0
-
-    def _get_val(self, val):
-        """
-        """
-        if self._case_insensitive:
-            return val.lower()
-        return val
 
     def load(self):
         """
@@ -63,7 +55,7 @@ class IdService(object):
         """
         things = session.query(cls).all()
         for thing in things:
-            self._cache[field][self._get_val(thing.name)] = thing.id
+            self._cache[field][thing.name] = thing.id
             
 
 class InsertService(object):
