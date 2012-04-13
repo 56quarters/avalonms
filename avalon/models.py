@@ -13,7 +13,7 @@ from sqlalchemy import (
     Integer,
     String)
 
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import backref, relationship, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
 
@@ -59,25 +59,20 @@ class Track(Base):
     artist_id = Column(Integer, ForeignKey('artists.id'))
     genre_id = Column(Integer, ForeignKey('genres.id'))
 
+    album = relationship('Album', backref='tracks', lazy='joined', order_by='Track.id')
+    artist = relationship('Artist', backref='tracks', lazy='joined', order_by='Track.id')
+    genre = relationship('Genre', backref='tracks', lazy='joined', order_by='Track.id')
+
     def to_json(self):
         """
         """
         base = super(Track, self).to_json()
         base['track'] = self.track
         base['year'] = self.year
-
-        #base['album'] = self.album.name
-        #base['artist'] = self.artist.name
-        #base['genre'] = self.genre.name
+        base['album'] = self.album.name
+        base['artist'] = self.artist.name
+        base['genre'] = self.genre.name
         return base
-
-
-class Artist(Base):
-
-    """
-    """
-
-    __tablename__ = 'artists'
 
 
 class Album(Base):
@@ -86,6 +81,16 @@ class Album(Base):
     """
     
     __tablename__ = 'albums'
+    #tracks = relationship('Track', order_by='Track.id', backref='album')
+
+
+class Artist(Base):
+
+    """
+    """
+
+    __tablename__ = 'artists'
+    #tracks = relationship('Track', order_by='Track.id', backref='artist')
 
 
 class Genre(Base):
@@ -94,6 +99,7 @@ class Genre(Base):
     """
 
     __tablename__ = 'genres'
+    #tracks = relationship('Track', order_by='Track.id', backref='genre')
 
 
 class SessionHandler(object):

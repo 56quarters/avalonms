@@ -1,8 +1,8 @@
 
 For v1:
 * Real launcher script
-* Join other tables to tracks on SELECT
 * Case sensitivity
+* Performance
 * Comments
 * README
 
@@ -12,6 +12,7 @@ For v2:
 * Daemon mode
 * Testing with MySQL backend
 * In memory stores?
+* LOD output
 
 For v3:
 * Echonest integration
