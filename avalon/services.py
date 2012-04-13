@@ -2,7 +2,8 @@
 #
 
 
-"""
+""" Classes that encompass business logic spaning multiple
+    functional areas.
 """
 
 
@@ -19,10 +20,15 @@ __all__ = [
     ]
 
 
-
 class IdService(object):
 
+    """ Cache for looking up the primary key of albums,
+        artists, and genres based on their name.
+    """
+
     def __init__(self, session_handler):
+        """ Set the session handler and initialize ID caches.
+        """
         self._session_handler = session_handler
         self._cache = {
             'album': {},
@@ -31,7 +37,8 @@ class IdService(object):
             }
 
     def get_id(self, field, val):
-        """
+        """ Get the ID associated with the give field and
+            name, 0 if no ID is found.
         """
         try:
             return self._cache[field][val]
@@ -39,7 +46,7 @@ class IdService(object):
             return 0
 
     def load(self):
-        """
+        """ Load all name to ID mappings from the database.
         """
         session = self._session_handler.get_session()
 
@@ -51,7 +58,8 @@ class IdService(object):
             session.close()
 
     def _load_mapping(self, session, field, cls):
-        """
+        """ Set each of the mappings for a particular type of
+            entity.
         """
         things = session.query(cls).all()
         for thing in things:
@@ -60,17 +68,18 @@ class IdService(object):
 
 class InsertService(object):
 
-    """
+    """ Methods for inserting multiple tracks and all associated
+        relations.
     """
 
     def __init__(self, scanned, session_handler):
-        """
+        """ Set the list of scan result tags and session handler.
         """
         self._scanned = scanned
         self._session_handler = session_handler
 
     def _load_relations(self):
-        """
+        """ Insert relations for each track into the database.
         """
         insert = []
         values = {'album': set(), 'artist': set(), 'genre': set()}
@@ -94,7 +103,8 @@ class InsertService(object):
             session.close()
 
     def _queue_inserts(self, queue, values, cls):
-        """
+        """ Generate new objects for insertion for each of the
+            given values.
         """
         for val in values:
             obj = cls()
@@ -102,7 +112,7 @@ class InsertService(object):
             queue.append(obj)
 
     def insert_tracks(self):
-        """
+        """ Insert the tracks and all related data.
         """
         self._load_relations()
         cache = IdService(self._session_handler)
