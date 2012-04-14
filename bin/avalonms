@@ -37,7 +37,6 @@ service using JSON.
 from __future__ import print_function
 
 import argparse
-import logging
 import os
 import os.path
 import re
@@ -60,17 +59,14 @@ import avalon.web
 
 class ServerHandler(object):
     
-    """
-    """
+    """ Allow the server to shutdown in response to signals."""
 
     def __init__(self, server):
-        """
-        """
+        """ Store a reference to the HTTP server."""
         self._server = server
 
     def handle(self, signum, frame):
-        """
-        """
+        """ Stop the server on SIGTERM of SIGINT."""
         if signal.SIGTERM == signum:
             self._server.stop()
         elif signal.SIGINT == signum:
@@ -82,8 +78,7 @@ class InputDefaults(object):
     """Compute default values for configuration options."""
 
     def __init__(self):
-        """ Set defaults for all arguments or options.
-        """
+        """ Set defaults for all arguments or options."""
         self.collection = None
         self.db_path = os.path.join(tempfile.gettempdir(), 'avalon.sqlite')
         self.server_address = socket.gethostbyname(socket.gethostname())
@@ -136,7 +131,8 @@ class UserInput(object):
         return False
 
     def validate(self):
-        """
+        """ Validate user input values or default values. Raise
+            a ValueError for any invalid input.
         """
         if not self.collection or not os.path.exists(self.collection):
             raise ValueError(
