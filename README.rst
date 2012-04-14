@@ -34,5 +34,31 @@ port at the path '/avalon'. Available endpoints: ::
    http://host:port/avalon/artists
 
    http://host:port/avalon/genres
+      
+Songs endpoint
+~~~~~~~~~~~~~~
+
+- Output Format
+   [
+     {
+       "id": 123,
+       "name": "Basket Case",
+       "year": 1994,
+       "track": 7,
+       "album": "Dookie",
+       "artist": "Green Day",
+       "genre": "Punk"
+     },
+     {
+       "id": 456,
+       "name": "She",
+       "year": 1994,
+       "track": 8,
+       "album": "Dookie",
+       "artist": "Green Day",
+       "genre": "Punk"
+     }
+    ]
+
 
    
