@@ -146,31 +146,49 @@ class SessionHandler(object):
         self._session_factory = sessionmaker()
         self._engine = None
 
+    def close(self, session):
+        """Safely close a session."""
+        if session is None:
+            return
+        session.close()
+
     def connect(self):
         """ Connect to the database and configure the session
             factory to use the connection, and create any needed
             tables.
         """
         try:
-            # Do all these operations here so that we can make
-            # sure to handle all the various things that could
-            # fail at once.
+            # Attempt to connect to the engine immediately after it
+            # is created in order to make sure it's valid and flush
+            # out any errors we're going to encounter before trying
+            # to create tables or insert into it.
             self._engine = create_engine(self._url)
-            self._session_factory.configure(bind=self._engine)
-            Base.metadata.create_all(self._engine)
+            self.validate()
         except ArgumentError, e:
             raise avalon.errors.ConnectionError(
-                'Invalid database path or URL: %s' % self._url)
+                'Invalid database path or URL %s' % self._url)
         except OperationalError, e:
             raise avalon.errors.ConnectionError(
-                'Could not connect to database URL: %s' % self._url)
+                'Could not connect to database URL %s' % self._url)
         except ImportError, e:
             raise avalon.errors.ConnectionError(
                 'Invalid database connector', e)
+
+        self._session_factory.configure(bind=self._engine)
+        Base.metadata.create_all(self._engine)
+
+    def validate(self):
+        """Ensure our database engine is valid by attempting a connection."""
+        conn = None
+        
+        try:
+            conn = self._engine.connect()
+        finally:
+            self.close(conn)
 
     def get_session(self):
         """ Get a new session.
         """
         return self._session_factory()
 
-
+    

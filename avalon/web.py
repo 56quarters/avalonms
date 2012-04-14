@@ -122,7 +122,7 @@ class AvalonHandler(object):
                 res = res.filter(Track.genre_id == filters.genre_id)
             out = res.join(Album).join(Artist).join(Genre).all()
         finally:
-            session.close()
+            self._session_handler.close(session)
         return self.list_to_json(out)
 
     @cherrypy.expose
@@ -152,7 +152,7 @@ class AvalonHandler(object):
             res = session.query(Artist)
             out = res.all()
         finally:
-            session.close()
+            self._session_handler.close(session)
         return self.list_to_json(out)
         
     @cherrypy.expose
@@ -167,7 +167,7 @@ class AvalonHandler(object):
             res = session.query(Genre)
             out = res.all()
         finally:
-            session.close()
+            self._session_handler.close(session)
         return self.list_to_json(out)
 
 
