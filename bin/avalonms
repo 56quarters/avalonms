@@ -53,7 +53,12 @@ def get_db_url(opt_db_url):
     """
     if opt_db_url:
         return opt_db_url
-    return 'sqlite:///' + os.path.join(tempfile.gettempdir(), DEFAULT_DB_FILE)
+    temp_path = os.path.join(tempfile.gettempdir(), DEFAULT_DB_FILE)
+    try:
+        os.unlink(temp_path)
+    except OSError:
+        pass
+    return 'sqlite:///' + temp_path
 
 
 def get_prog():
