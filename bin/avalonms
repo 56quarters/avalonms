@@ -37,9 +37,11 @@ service using JSON.
 from __future__ import print_function
 
 import argparse
+import logging
 import os
 import os.path
 import re
+import socket
 import signal
 import sys
 import tempfile
@@ -54,9 +56,6 @@ import avalon.models
 import avalon.scan
 import avalon.services
 import avalon.web
-
-
-DEFAULT_DB_FILE = 'avalon.sqlite'
 
 
 class ServerHandler(object):
@@ -78,27 +77,97 @@ class ServerHandler(object):
             self._server.stop()
 
 
-def get_db_url(opt_db_url):
+class InputDefaults(object):
+
+    """Compute default values for configuration options."""
+
+    def __init__(self):
+        """ Set defaults for all arguments or options.
+        """
+        self.collection = None
+        self.db_path = os.path.join(tempfile.gettempdir(), 'avalon.sqlite')
+        self.server_address = socket.gethostbyname(socket.gethostname())
+        self.server_port = 8080
+
+
+class UserInput(object):
+
+    """Validation for user options and arguments."""
+
+    def __init__(self, opts, defaults):
+        """ Initialize input to default values and then
+            override it if there is a user supplied value.
+        """
+        self.collection = defaults.collection
+        self.db_path = defaults.db_path
+        self.server_address = defaults.server_address
+        self.server_port = defaults.server_port
+
+        self._set_user_opts(opts)
+
+    def _set_user_opts(self, opts):
+        """ Override default values with user supplied values
+            if provided.
+        """
+        if opts.collection is not None:
+            self.collection = opts.collection
+        if opts.db_path is not None:
+            self.db_path = opts.db_path
+        if opts.server_address is not None:
+            self.server_address = opts.server_address
+        if opts.server_port is not None:
+            self.server_port = opts.server_port
+
+    def _is_valid_addr(self, addr):
+        """ Return true if this is a valid IPv4 or IPv6 address, false
+            otherwise.
+        """
+        protos = [socket.AF_INET]
+        if socket.has_ipv6:
+            protos.append(socket.AF_INET6)
+
+        for proto in protos:
+            try:
+                socket.inet_pton(proto, addr)
+            except socket.error:
+                pass
+            else:
+                return True
+        return False
+
+    def validate(self):
+        """
+        """
+        if not self.collection or not os.path.exists(self.collection):
+            raise ValueError(
+                "That doesn't appear to be a valid music collection path")
+
+        if not self._is_valid_addr(self.server_address):
+            raise ValueError(
+                "That doesn't appear to be valid server address")
+            
+        try:
+            self.server_port = int(self.server_port)
+        except ValueError:
+            raise ValueError("That doesn't appear to be a valid port")
+
+
+def get_db_url(path):
+    """ Convert a file system path to an connection string
+        for an SQLite database.
     """
-    """
-    if opt_db_url:
-        return opt_db_url
-    temp_path = os.path.join(tempfile.gettempdir(), DEFAULT_DB_FILE)
-    try:
-        os.unlink(temp_path)
-    except OSError:
-        pass
-    return 'sqlite:///' + temp_path
+    return 'sqlite:///%s' % path
 
 
 def get_prog():
-    """
+    """ Get a sanitized version of arg[0].
     """
     return re.sub('[^\w]+', '', os.path.basename(sys.argv[0]))
 
 
 def install_signal_handlers(server):
-    """
+    """ Install signal handlers for the HTTP server to allow
+        it to shutdown gracefully.
     """
     handler = ServerHandler(server)
     signal.signal(signal.SIGTERM, handler.handle)
@@ -106,7 +175,8 @@ def install_signal_handlers(server):
 
 
 def get_server(options, session_handler, log):
-    """
+    """ Configure and create a web app and HTTP server but
+        do not start processing requests.
     """
     root = avalon.web.AvalonHandler(session_handler)
     app = cherrypy.tree.mount(root, script_name='/avalon')
@@ -119,8 +189,8 @@ def get_server(options, session_handler, log):
     return avalon.web.AvalonServer(config)
 
 
-def parse_options():
-    """
+def parse_args():
+    """ Parse required and optional program arguments.
     """
     parser = argparse.ArgumentParser(
         prog=get_prog(),
@@ -130,23 +200,15 @@ def parse_options():
         'collection',
         help='Path to the root of your music collection')
     parser.add_argument(
-        '--verbose', 
-        action='store_true',
-        help='Enable extra output and debugging statements')
-    parser.add_argument(
-        '--db-url',
-        metavar='URL',
-        help='Connection string for the database. The URL should '
-        'probably look something like "mysql://user@host/avalon" '
-        'or "sqlite:///music/avalon.sqlite"')
+        '--db-path',
+        metavar='PATH',
+        help='File to use for backing SQLite database')
     parser.add_argument(
         '--server-address',
         metavar='ADDR',
         help='IP Address to bind to')
     parser.add_argument(
         '--server-port',
-        type=int,
-        default=8080,
         metavar='PORT',
         help='Port to serve on')
 
@@ -154,10 +216,17 @@ def parse_options():
 
 
 def main():
-    opts = parse_options()
     prog = get_prog()
-    db_url = get_db_url(opts.db_url)
-    handler = avalon.models.SessionHandler(db_url, verbose=opts.verbose)
+    args = parse_args()
+    user_input = UserInput(args, InputDefaults())
+
+    try:
+        user_input.validate()
+    except ValueError, e:
+        print('%s: %s' % (prog, str(e)), file=sys.stderr)
+        return 1
+
+    handler = avalon.models.SessionHandler(get_db_url(user_input.db_path))
     log = avalon.log.AvalonLog()
 
     try:
@@ -166,11 +235,8 @@ def main():
         print('%s: %s' % (prog, str(e)), file=sys.stderr)
         return 1
 
-    log.info("Creating database tables...")
-    handler.create_tables()
-
     log.info("Scanning music collection...")
-    files = avalon.scan.get_files(os.path.abspath(opts.collection))
+    files = avalon.scan.get_files(os.path.abspath(user_input.collection))
     tags = avalon.scan.get_tags(files)
 
     if not files:
@@ -181,10 +247,15 @@ def main():
     service = avalon.services.InsertService(tags.values(), handler)
     service.insert_tracks()
 
-    log.info("Serving HTTP requests...")
-    server = get_server(opts, handler, log)
+    log.info("Serving HTTP requests on %s...", user_input.server_port)
+    server = get_server(user_input, handler, log)
     install_signal_handlers(server)
-    server.start()
+
+    try:
+        server.start()
+    except socket.error, e:
+        print('%s: Error starting HTTP server: %s' % (prog, str(e)), file=sys.stderr)
+        return 1
 
     log.info("Server stopping")
     return 0

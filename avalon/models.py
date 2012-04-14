@@ -32,7 +32,6 @@ Models representing types of metadata loaded from a music collection
 along with functionality to manage connections to the backing database.
 """
 
-
 from sqlalchemy import (
     create_engine,
     Column,
@@ -140,33 +139,34 @@ class SessionHandler(object):
         new sessions.
     """
 
-    def __init__(self, url, verbose=False):
+    def __init__(self, url):
         """ Initialize the session factory and database connection.
         """
         self._url = url
-        self._verbose = verbose
         self._session_factory = sessionmaker()
         self._engine = None
 
     def connect(self):
         """ Connect to the database and configure the session
-            factory to use the connection.
+            factory to use the connection, and create any needed
+            tables.
         """
         try:
-            self._engine = create_engine(self._url, echo=self._verbose)
-        except (ArgumentError, OperationalError), e:
+            # Do all these operations here so that we can make
+            # sure to handle all the various things that could
+            # fail at once.
+            self._engine = create_engine(self._url)
+            self._session_factory.configure(bind=self._engine)
+            Base.metadata.create_all(self._engine)
+        except ArgumentError, e:
             raise avalon.errors.ConnectionError(
-                'Could not connect to database', e)
+                'Invalid database path or URL: %s' % self._url)
+        except OperationalError, e:
+            raise avalon.errors.ConnectionError(
+                'Could not connect to database URL: %s' % self._url)
         except ImportError, e:
             raise avalon.errors.ConnectionError(
                 'Invalid database connector', e)
-        self._session_factory.configure(bind=self._engine)
-
-    def create_tables(self):
-        """ Create tables for each model if they haven't already 
-            been created.
-        """
-        Base.metadata.create_all(self._engine)
 
     def get_session(self):
         """ Get a new session.
