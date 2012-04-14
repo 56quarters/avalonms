@@ -1,10 +1,19 @@
 # -*- coding: utf-8 -*-
 #
 
+
+"""Errors thrown by the Avalon music server."""
+
+
+__all__ = [
+    'AvalonError',
+    'ConnectionError'
+    ]
+
+
 class AvalonError(Exception):
     
-    """
-    """
+    """Base for all exceptions."""
 
     def __init__(self, msg, err=None):
         self.message = msg
@@ -21,4 +30,6 @@ class AvalonError(Exception):
 
 
 class ConnectionError(AvalonError):
-    pass
+
+    """There was an error connecting to the database."""
+

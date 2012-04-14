@@ -2,7 +2,9 @@
 #
 
 
-"""
+""" Models representing types of metadata loaded from a 
+    music collection along with functionality to manage
+    connections to the backing database.
 """
 
 
@@ -24,7 +26,6 @@ __all__ = [
     'Album',
     'Artist',
     'Base',
-    'ConnectionError',
     'Genre',
     'SessionHandler',
     'Track'
@@ -59,7 +60,7 @@ class Track(Base):
     """
     
     __tablename__ = 'tracks'
-
+ 
     track = Column(Integer)
     year = Column(Integer)
 
