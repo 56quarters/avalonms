@@ -2,7 +2,7 @@
 #
 
 
-"""
+""" Functions for scanning a music collection for metadata.
 """
 
 
@@ -25,18 +25,19 @@ VALID_EXTS = set(['.mp3', '.mp2', '.ogg', '.flac'])
 
 
 def is_valid_file(path):
-    """
+    """ Return true if the path is a audio file that is
+        supported (by extension), false otherwise.
     """
     return os.path.splitext(path)[1] in VALID_EXTS
 
 
 def get_files(root):
-    """
+    """ Get a list of supported files under the given root.
     """
     out = []
     for root, dirs, files in os.walk(root):
         for entry in files:
-            path = os.path.join(root, entry)
+            path = os.path.normpath(os.path.join(root, entry))
             if not is_valid_file(path):
                 continue
             out.append(path)
@@ -44,7 +45,8 @@ def get_files(root):
     
 
 def get_tags(files):
-    """
+    """ Get a dictionary of metadata ScannedTrack objects for
+        each audio file indexed by its path.
     """
     out = {}
     for path in files:
@@ -56,11 +58,11 @@ def get_tags(files):
 
 class ScannedTrack(object):
 
-    """
+    """ Container for metadata of an audio file.
     """
 
     def __init__(self):
-        """
+        """ Initialize each metadata field to None.
         """
         self.album = None
         self.artist = None
@@ -70,8 +72,6 @@ class ScannedTrack(object):
         self.year = None
 
     def __repr__(self):
-        """
-        """
         return (
             '<%s: '
             'album=%s, '
@@ -90,6 +90,8 @@ class ScannedTrack(object):
 
     @classmethod
     def from_tag(cls, tag):
+        """ Create a new instance from a TagPy tag object.
+        """
         out = cls()
         out.album = tag.album
         out.artist = tag.artist
