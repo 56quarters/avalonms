@@ -89,9 +89,9 @@ class Track(Base):
     track = Column(Integer)
     year = Column(Integer)
 
-    album_id = Column(Integer, ForeignKey('albums.id'))
-    artist_id = Column(Integer, ForeignKey('artists.id'))
-    genre_id = Column(Integer, ForeignKey('genres.id'))
+    album_id = Column(Integer, ForeignKey('albums.id'), index=True)
+    artist_id = Column(Integer, ForeignKey('artists.id'), index=True)
+    genre_id = Column(Integer, ForeignKey('genres.id'), index=True)
 
     album = relationship('Album', backref='tracks', lazy='joined', order_by='Track.id')
     artist = relationship('Artist', backref='tracks', lazy='joined', order_by='Track.id')
