@@ -1,6 +1,7 @@
 
 For v1:
-* Real launcher script
+* Daemon mode
+* Logging
 * Case sensitivity
 * Performance
 * README
@@ -8,7 +9,6 @@ For v1:
 For v2:
 * Tests
 * Docs
-* Daemon mode
 * Testing with MySQL backend
 * In memory stores?
 * LOD output
