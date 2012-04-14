@@ -182,7 +182,7 @@ def get_server(options, session_handler, log):
     app = cherrypy.tree.mount(root, script_name='/avalon')
 
     config = avalon.web.AvalonServerConfig()
-    config.bind_addr = (options.server_address, int(options.server_port))
+    config.bind_addr = (options.server_address, options.server_port)
     config.gateway = app
     config.log = log
 
