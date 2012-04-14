@@ -30,6 +30,8 @@
 """ HTTP frontend for handling requests."""
 
 
+import logging
+
 import cherrypy
 from cherrypy.wsgiserver import CherryPyWSGIServer
 
@@ -42,55 +44,42 @@ from avalon.models import (
 
 
 __all__ = [
+    'AvalonServerConfig',
+    'AvalonServer',
     'AvalonHandler',
     'RequestFilter'
     ]
 
 
-class RequestFilter(object):
-    
-    """ Parse and ecapsulate object IDs and names from
-        query string parameters.
+class AvalonServerConfig(object):
+
+    """ Configuration for our HTTP server.
     """
-    
+
     def __init__(self):
-        """ Initialize values for object IDs to None.
+        self.log = None
+        self.bind_addr = None
+        self.gateway = None
+
+
+class AvalonServer(CherryPyWSGIServer):
+
+    """ Wrap the standard CherryPy server to use our own
+        error logging mechanism.
+    """
+
+    def __init__(self, config):
+        """ Call the parent constructor and set our error logger.
         """
-        self.album_id = None
-        self.artist_id = None
-        self.genre_id = None
+        super(AvalonServer, self).__init__(config.bind_addr, config.gateway)
+        self._log = config.log
 
-    @classmethod
-    def from_params(cls, cache, kwargs):
-        """ Construct a new filter based on the given query
-            string parameters and name to ID cache.
-
-            Recognized params: album, album_id, artist, artist_id,
-            genre, genre_id
+    def error_log(self, msg='', level=logging.INFO, trackback=False):
+        """ Write an error to the log, optionally with a traceback.
         """
-        f = cls()
-
-        for field in ('album', 'artist', 'genre'):
-            if field not in kwargs:
-                continue
-            # Look up a value from the cache and use it to filter
-            # the results. We don't care if the cache returned a
-            # valid ID since we want the request to return 0
-            # results for bad QS params.
-            val_id = cache.get_id(field, kwargs[field])
-            setattr(f, field + '_id', val_id)
-
-        for field in ('album_id', 'artist_id', 'genre_id'):
-            if field not in kwargs:
-                continue
-            try:
-                val_id = int(kwargs[field])
-            except ValueError:
-                # Use an invalid ID anyway since we want the
-                # request to return 0 results for bad QS params.
-                val_id = 0
-            setattr(f, field, val_id)
-        return f
+        if traceback:
+            msg = '%s: %s' % (msg, traceback.format_exc())
+        self._log.log(level, msg)
 
 
 class AvalonHandler(object):
@@ -180,4 +169,50 @@ class AvalonHandler(object):
         finally:
             session.close()
         return self.list_to_json(out)
+
+
+class RequestFilter(object):
+    
+    """ Parse and ecapsulate object IDs and names from
+        query string parameters.
+    """
+    
+    def __init__(self):
+        """ Initialize values for object IDs to None.
+        """
+        self.album_id = None
+        self.artist_id = None
+        self.genre_id = None
+
+    @classmethod
+    def from_params(cls, cache, kwargs):
+        """ Construct a new filter based on the given query
+            string parameters and name to ID cache.
+
+            Recognized params: album, album_id, artist, artist_id,
+            genre, genre_id
+        """
+        f = cls()
+
+        for field in ('album', 'artist', 'genre'):
+            if field not in kwargs:
+                continue
+            # Look up a value from the cache and use it to filter
+            # the results. We don't care if the cache returned a
+            # valid ID since we want the request to return 0
+            # results for bad QS params.
+            val_id = cache.get_id(field, kwargs[field])
+            setattr(f, field + '_id', val_id)
+
+        for field in ('album_id', 'artist_id', 'genre_id'):
+            if field not in kwargs:
+                continue
+            try:
+                val_id = int(kwargs[field])
+            except ValueError:
+                # Use an invalid ID anyway since we want the
+                # request to return 0 results for bad QS params.
+                val_id = 0
+            setattr(f, field, val_id)
+        return f
 
