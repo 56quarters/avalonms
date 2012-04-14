@@ -3,7 +3,6 @@ For v1:
 * Real launcher script
 * Case sensitivity
 * Performance
-* Comments
 * README
 
 For v2:
