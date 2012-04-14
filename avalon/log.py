@@ -54,26 +54,21 @@ class AvalonLog(object):
     log_level = logging.INFO
 
     def __init__(self, log_path=None):
-        """ Set the path to the log file or None to use stderr.
-        """
+        """ Set the path to the log file or None to use stderr."""
         self._path = log_path
         self._log = None
         self._handle = None
+        self._setup()
 
     def get_open_fd(self):
-        """ Get the fileno of the open log file.
-        """
+        """ Get the fileno of the open log file."""
         if not self._handle:
             return -1
         return self._handle.fileno()
 
-    def start(self):
-        """ Make sure logging has not already been set up and create
-            and install the appropriate log handlers based on whether
-            or not we should be using stderr or a log file.
+    def _setup(self):
         """
-        self.stop()
-
+        """
         log = logging.getLogger('avalong')
         formatter = logging.Formatter(self.log_msg_fmt, self.log_date_fmt)
 
@@ -90,29 +85,6 @@ class AvalonLog(object):
 
         self._handle = handler.stream
         self._log = log
-
-    def stop(self):
-        """ Close and remove any log handlers that have been set up.
-        """
-        if not self._log or not self._handle:
-            return
-
-        # Ensure we get a copy of the log handlers since access
-        # to them is controlled via locks for threading purposes.
-        for handler in list(self._log.handlers):
-            try:
-                # It's OK to attempt to close the handler even if it's
-                # the stderr handler since the logging StreamHandler
-                # doesn't actually close the stream because it might be
-                # stderr. This allows us to treat all the handlers the same.
-                handler.flush()
-                handler.close()
-            except IOError:
-                pass
-            self._log.removeHandler(handler)
-
-        self._log = None
-        self._handle = None
 
     def debug(self, msg, *args):
         """Log at DEBUG level."""

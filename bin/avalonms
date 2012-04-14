@@ -159,7 +159,6 @@ def main():
     db_url = get_db_url(opts.db_url)
     handler = avalon.models.SessionHandler(db_url, verbose=opts.verbose)
     log = avalon.log.AvalonLog()
-    log.start()
 
     try:
         handler.connect()
