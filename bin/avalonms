@@ -1,0 +1,126 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+#
+
+"""
+AvalonMS: Scan a music collection for metadata and expose
+it as and HTTP service using JSON.
+"""
+
+import argparse
+import os
+import os.path
+import re
+import signal
+import sys
+import tempfile
+
+import cherrypy
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+
+import avalon.errors
+import avalon.models
+import avalon.scan
+import avalon.services
+import avalon.web
+
+
+DEFAULT_DB_FILE = 'avalon.sqlite'
+
+
+class ServerHandler(object):
+    
+    """
+    """
+
+    def __init__(self, server):
+        """
+        """
+        self._server = server
+
+    def handle(self, signum, frame):
+        """
+        """
+        if signal.SIGTERM == signum:
+            self._server.stop()
+        elif signal.SIGINT == signum:
+            self._server.stop()
+
+
+def get_db_url(opt_db_url):
+    """
+    """
+    if opt_db_url:
+        return opt_db_url
+    return 'sqlite:///' + os.path.join(tempfile.gettempdir(), DEFAULT_DB_FILE)
+
+
+def get_prog():
+    """
+    """
+    return re.sub('[^\w]+', '', os.path.basename(sys.argv[0]))
+
+
+def install_sig_handlers(server):
+    """
+    """
+    handler = ServerHandler(server)
+    signal.signal(signal.SIGTERM, handler.handle)
+    signal.signal(signal.SIGINT, handler.handle)
+
+
+def parse_options():
+    """
+    """
+    parser = argparse.ArgumentParser(
+        prog=get_prog(),
+        description=__doc__)
+
+    parser.add_argument(
+        'collection',
+        help='Path to your music collection')
+    parser.add_argument(
+        '--verbose', 
+        action='store_true',
+        help='Enable extra output')
+    parser.add_argument(
+        '--db-url',
+        help='Connection string for the database')
+
+    return parser.parse_args()
+
+
+def main():
+    opts = parse_options()
+    prog = get_prog()
+    db_url = get_db_url(opts.db_url)
+
+    handler = avalon.models.SessionHandler(db_url, verbose=opts.verbose)
+
+    try:
+        handler.connect()
+    except avalon.errors.ConnectionError, e:
+        print >> sys.stderr, '%s: %s' % (prog, str(e))
+        return 1
+
+    handler.create_tables()
+    files = avalon.scan.get_files(os.path.abspath(opts.collection))
+    tags = avalon.scan.get_tags(files)
+
+    if not files:
+        print >> sys.stderr, '%s: No files found in music collection' % prog
+        return 1
+
+    service = avalon.services.InsertService(tags.values(), handler)
+    service.insert_tracks()
+
+    root = avalon.web.AvalonHandler(handler)
+    cherrypy.quickstart(root=root, script_name='/avalon')
+
+    return 0
+    
+
+if __name__ == '__main__':
+    sys.exit(main())
+

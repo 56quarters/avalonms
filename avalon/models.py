@@ -13,14 +13,18 @@ from sqlalchemy import (
     Integer,
     String)
 
-from sqlalchemy.orm import backref, relationship, sessionmaker
+from sqlalchemy.exc import ArgumentError, OperationalError
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import backref, relationship, sessionmaker
+
+import avalon.errors
 
 
 __all__ = [
     'Album',
     'Artist',
     'Base',
+    'ConnectionError',
     'Genre',
     'SessionHandler',
     'Track'
@@ -110,9 +114,11 @@ class SessionHandler(object):
         new sessions.
     """
 
-    def __init__(self):
+    def __init__(self, url, verbose=False):
         """ Initialize the session factory and database connection.
         """
+        self._url = url
+        self._verbose = verbose
         self._session_factory = sessionmaker()
         self._engine = None
 
@@ -120,7 +126,14 @@ class SessionHandler(object):
         """ Connect to the database and configure the session
             factory to use the connection.
         """
-        self._engine = create_engine('sqlite:////tmp/avalonms.sqlite', echo=True)
+        try:
+            self._engine = create_engine(self._url, echo=self._verbose)
+        except (ArgumentError, OperationalError), e:
+            raise avalon.errors.ConnectionError(
+                'Could not connect to database', e)
+        except ImportError, e:
+            raise avalon.errors.ConnectionError(
+                'Invalid database connector', e)
         self._session_factory.configure(bind=self._engine)
 
     def create_tables(self):
