@@ -82,7 +82,7 @@ class InputDefaults(object):
         self.collection = None
         self.db_path = os.path.join(tempfile.gettempdir(), 'avalon.sqlite')
         self.profile_path = os.path.join(tempfile.gettempdir(), 'avalon.out')
-        self.scan = False
+        self.no_scan = False
         self.server_address = socket.gethostbyname(socket.gethostname())
         self.server_port = 8080
 
@@ -98,7 +98,7 @@ class UserInput(object):
         self.collection = defaults.collection
         self.db_path = defaults.db_path
         self.profile_path = defaults.profile_path
-        self.scan = defaults.scan
+        self.no_scan = defaults.no_scan
         self.server_address = defaults.server_address
         self.server_port = defaults.server_port
 
@@ -114,8 +114,8 @@ class UserInput(object):
             self.db_path = opts.db_path
         if opts.profile_path is not None:
             self.profile_path = opts.profile_path
-        if opts.scan is not None:
-            self.scan = opts.scan
+        if opts.no_scan is not None:
+            self.no_scan = opts.no_scan
         if opts.server_address is not None:
             self.server_address = opts.server_address
         if opts.server_port is not None:
@@ -219,9 +219,9 @@ def parse_args():
         help='Specify an output file and enable performance '
         'profiling')
     parser.add_argument(
-        '--scan',
+        '--no-scan',
         action='store_true',
-        help='Scan and rebuild the music collection database')
+        help='Do not rescan and rebuild the music collection database')
     parser.add_argument(
         '--server-address',
         metavar='ADDR',
@@ -249,16 +249,16 @@ def main():
     log = avalon.log.AvalonLog()
 
     try:
-        # If the user requested that we rescan the collection
-        # make sure that we recreate all tables first
-        handler.connect(clean=user_input.scan)
+        # Connect to the DB and drop all existing tables
+        # unless the user asked us not to rescan the collection
+        handler.connect(clean=not user_input.no_scan)
     except avalon.errors.ConnectionError, e:
         print('%s: %s' % (prog, str(e)), file=sys.stderr)
         return 1
 
-    if user_input.scan:
-        # Only rescan and insert data from the music collection
-        # if requested by the user.
+    if not user_input.no_scan:
+        # Scan collection and reinsert metadata unless the user
+        # asked us not to
         log.info("Scanning music collection...")
         files = avalon.scan.get_files(os.path.abspath(user_input.collection))
         tags = avalon.scan.get_tags(files)
