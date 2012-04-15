@@ -85,28 +85,34 @@ Songs endpoint
     + Description: Select only songs belonging to this genre ID
 
 
-* Output Format ::
+* Success output format ::
 
-    [
-      {
-        "id": 123,
-        "name": "Basket Case",
-        "year": 1994,
-        "track": 7,
-        "album": "Dookie",
-        "artist": "Green Day",
-        "genre": "Punk"
-      },
-      {
-        "id": 456,
-        "name": "She",
-        "year": 1994,
-        "track": 8,
-        "album": "Dookie",
-        "artist": "Green Day",
-        "genre": "Punk"
-      }
-    ]
+    {
+      "error": false,
+      "error_code": 0,
+      "error_msg": "",
+      "result_count": 2,
+      "results": [
+        {
+          "id": 123,
+          "name": "Basket Case",
+          "year": 1994,
+          "track": 7,
+          "album": "Dookie",
+          "artist": "Green Day",
+          "genre": "Punk"
+        },
+        {
+          "id": 456,
+          "name": "She",
+          "year": 1994,
+          "track": 8,
+          "album": "Dookie",
+          "artist": "Green Day",
+          "genre": "Punk"
+        }
+      ]
+    }
 
 * Example Requests
 
@@ -131,20 +137,26 @@ Albums endpoint
   - The ``albums`` endpoint doesn't support any parameters and returns all albums.
 
 
-* Output Format ::
+* Success output format ::
 
-    [
-      {
-        "id": 123,
-        "name": "Dookie"      
-      },
-      {
-        "id": 456,
-        "name": "Insomniac"
-      }
-    ]
+    {
+      "error": false,
+      "error_code": 0,
+      "error_msg": "",
+      "result_count": 2,
+      "results": [
+        {
+          "id": 123,
+          "name": "Dookie"      
+        },
+        {
+          "id": 456,
+          "name": "Insomniac"
+        }
+      ]
+    }
 
-* Example Requests
+* Example Request
 
   - ``http://localhost:8080/avalon/albums``
 
@@ -157,20 +169,26 @@ Artists endpoint
   - The ``artists`` endpoint doesn't support any parameters and returns all artists.
 
 
-* Output Format ::
+* Success output format ::
 
-    [
-      {
-        "id": 123,
-        "name": "Green Day"      
-      },
-      {
-        "id": 456,
-        "name": "Bad Religion"
-      }
-    ]
+    {
+      "error": false,
+      "error_code": 0,
+      "error_msg": "",
+      "result_count": 2,
+      "results": [
+        {
+          "id": 123,
+          "name": "Green Day"      
+        },
+        {
+          "id": 456,
+          "name": "Bad Religion"
+        }
+      ]
+    }
 
-* Example Requests
+* Example Request
 
   - ``http://localhost:8080/avalon/artists``
 
@@ -183,20 +201,26 @@ Genre endpoint
   - The ``genre`` endpoint doesn't support any parameters and returns all genres.
 
 
-* Output Format ::
+* Success output format ::
 
-    [
-      {
-        "id": 123,
-        "name": "Punk"      
-      },
-      {
-        "id": 456,
-        "name": "Ska"
-      }
-    ]
+    {
+      "error": false,
+      "error_code": 0,
+      "error_msg": "",
+      "result_count": 2,
+      "results": [
+        {
+          "id": 123,
+          "name": "Punk"      
+        },
+        {
+          "id": 456,
+          "name": "Ska"
+        }
+      ]
+    }
 
-* Example Requests
+* Example Request
 
   - ``http://localhost:8080/avalon/genres``
 
