@@ -56,6 +56,112 @@ __all__ = [
     ]
 
 
+class IdNameElm(object):
+
+    """
+    """
+
+    def __init__(self, elm_id, elm_name):
+        """
+        """
+        self._id = elm_id
+        self._name = elm_name
+
+    @property
+    def id(self):
+        """
+        """
+        return self._id
+
+    @property
+    def name(self):
+        """
+        """
+        return self._name
+
+    def __eq__(self, o):
+        """
+        """
+        if not isinstance(o, self.__class__):
+            return False
+        return o.id == self.id and o.name == self.name
+
+    def __hash__(self):
+       """
+       """
+       return hash(self.id) ^ (hash(self.name) * 7)
+
+
+class TrackElm(IdNameElm):
+
+    """
+    """
+
+    def __init__(self, t_id, t_name, t_track, t_year,
+                 t_album, t_album_id, t_artist, t_artist_id,
+                 t_genre, t_genre_id):
+        """
+        """
+        super(TrackElm, self).__init__(t_id, t_name)
+
+        self._track = t_track
+        self._year = t_year
+        self._album = t_album
+        self._album_id = t_album_id
+        self._artist = t_artist
+        self._artist_id = t_artist_id
+        self._genre = t_genre
+        self._genre_id = t_genre_id
+
+    @property
+    def track(self):
+        """
+        """
+        return self._track
+
+    @property
+    def year(self):
+        """
+        """
+        return self._year
+
+    @property
+    def album(self):
+        """
+        """
+        return self._album
+
+    @property
+    def album_id(self):
+        """
+        """
+        return self._album_id
+
+    @property
+    def artist(self):
+        """
+        """
+        return self._artist
+
+    @property
+    def artist_id(self):
+        """
+        """
+        return self._artist_id
+    
+    @property
+    def genre(self):
+        """
+        """
+        return self._genre
+    
+    @property
+    def genre_id(self):
+        """
+        """
+        return self._genre_id
+
+
 class Base(object):
 
     """ A Base for all models that defines name
@@ -65,13 +171,10 @@ class Base(object):
     id = Column(Integer, primary_key=True)
     name = Column(String)
 
-    def to_json(self):
-        """ Return a representation of this object using builtin
-            data structures that can be easily serialized.
+    def to_elm(self):
         """
-        return {
-            'id': self.id,
-            'name': self.name}
+        """
+        return IdNameElm(self.id, self.name)
 
 
 Base = declarative_base(cls=Base)
@@ -96,17 +199,12 @@ class Track(Base):
     artist = relationship('Artist', backref='tracks', lazy='joined', order_by='Track.id')
     genre = relationship('Genre', backref='tracks', lazy='joined', order_by='Track.id')
 
-    def to_json(self):
-        """ Return a representation of this track including
-            the album, artist, and genre.
+    def to_elm(self):
         """
-        base = super(Track, self).to_json()
-        base['track'] = self.track
-        base['year'] = self.year
-        base['album'] = self.album.name
-        base['artist'] = self.artist.name
-        base['genre'] = self.genre.name
-        return base
+        """
+        return TrackElm(self.id, self.name, self.track, self.year,
+                        self.album.name, self.album_id, self.artist.name,
+                        self.artist_id, self.genre.name, self.genre_id)
 
 
 class Album(Base):

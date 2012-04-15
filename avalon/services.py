@@ -32,6 +32,8 @@ Classes that encompass business logic spaning multiple functional areas.
 """
 
 
+import collections
+
 from avalon.models import (
     Album,
     Artist,
@@ -45,51 +47,6 @@ __all__ = [
     ]
 
 
-class IdService(object):
-
-    """ Cache for looking up the primary key of albums,
-        artists, and genres based on their name.
-    """
-
-    def __init__(self, session_handler):
-        """ Set the session handler and initialize ID caches.
-        """
-        self._session_handler = session_handler
-        self._cache = {
-            'album': {},
-            'artist': {},
-            'genre': {}
-            }
-
-    def get_id(self, field, val):
-        """ Get the ID associated with the give field and
-            name, 0 if no ID is found.
-        """
-        try:
-            return self._cache[field][val]
-        except KeyError:
-            return 0
-
-    def load(self):
-        """ Load all name to ID mappings from the database.
-        """
-        session = self._session_handler.get_session()
-
-        try:
-            self._load_mapping(session, 'album', Album)
-            self._load_mapping(session, 'artist', Artist)
-            self._load_mapping(session, 'genre', Genre)
-        finally:
-            session.close()
-
-    def _load_mapping(self, session, field, cls):
-        """ Set each of the mappings for a particular type of
-            entity.
-        """
-        things = session.query(cls).all()
-        for thing in things:
-            self._cache[field][thing.name] = thing.id
-            
 
 class InsertService(object):
 
@@ -141,7 +98,6 @@ class InsertService(object):
         """
         self._load_relations()
         cache = IdService(self._session_handler)
-        cache.load()
 
         insert = []
         session = self._session_handler.get_session()
@@ -162,3 +118,170 @@ class InsertService(object):
             session.commit()
         finally:
             session.close()
+
+
+class IdService(object):
+
+    """ Cache for looking up the primary key of albums,
+        artists, and genres based on their name.
+    """
+
+    def __init__(self, session_handler):
+        """ Set the session handler and initialize ID caches.
+        """
+        self._session_handler = session_handler
+        self._cache = {
+            'album': {},
+            'artist': {},
+            'genre': {}
+            }
+
+        self.reload()
+
+    def get_id(self, field, val):
+        """ Get the ID associated with the give field and
+            name, 0 if no ID is found.
+        """
+        try:
+            return self._cache[field][val]
+        except KeyError:
+            return 0
+
+    def reload(self):
+        """ Load all name to ID mappings from the database.
+        """
+        session = self._session_handler.get_session()
+
+        try:
+            self._load_mapping(session, 'album', Album)
+            self._load_mapping(session, 'artist', Artist)
+            self._load_mapping(session, 'genre', Genre)
+        finally:
+            session.close()
+
+    def _load_mapping(self, session, field, cls):
+        """ Set each of the mappings for a particular type of
+            entity.
+        """
+        things = session.query(cls).all()
+        for thing in things:
+            self._cache[field][thing.name] = thing.id
+            
+
+class TrackStore(object):
+
+    """
+    """
+
+    def __init__(self, session_handler):
+        """
+        """
+        self._session_handler = session_handler
+        self._id_cache = IdService(self._session_handler)
+
+        self._by_album = collections.defaultdict(set)
+        self._by_artist = collections.defaultdict(set)
+        self._by_genre = collections.defaultdict(set)
+        self._all = set()
+
+        self.reload()
+
+    def reload(self):
+        """
+        """
+        session = self._session_handler.get_session()
+        
+        try:
+            res = session.query(Track).all()
+        finally:
+            self._session_handler.close(session)
+
+        for track in res:
+            data = track.to_elm()
+            self._by_album[track.album_id].add(data)
+            self._by_artist[track.artist_id].add(data)
+            self._by_genre[track.genre_id].add(data)
+            self._all.add(data)
+
+    def by_album_id(self, album_id):
+        """
+        """
+        return self._by_album[album_id]
+
+    def by_artist(self, artist_id):
+        """
+        """
+        return self._by_artist[artist_id]
+
+    def by_genre(self, genre_id):
+        """
+        """
+        return self._by_genre[genre_id]
+
+    def all(self):
+        """
+        """
+        return self._all
+
+class _IdNameStore(object):
+
+    """
+    """
+
+    def __init__(self, session_handler, cls):
+        """
+        """
+        self._session_handler = session_handler
+        self._cls = cls
+        self._all = None
+
+        self.reload()
+
+    def reload(self):
+        """
+        """
+        session = self._session_handler.get_session()
+        
+        try:
+            res = session.query(self._cls).all()
+        finally:
+            self._session_handler.close(session)
+        self._all = [thing.to_elm() for thing in res]
+
+    def all(self):
+        """
+        """
+        return self._all
+
+
+class AlbumStore(_IdNameStore):
+
+    """
+    """
+
+    def __init__(self, session_handler):
+        """
+        """
+        super(AlbumStore, self).__init__(session_handler, Album)
+
+
+class ArtistStore(_IdNameStore):
+
+    """
+    """
+
+    def __init__(self, session_handler):
+        """
+        """
+        super(ArtistStore, self).__init__(session_handler, Artist)
+
+
+class GenreStore(_IdNameStore):
+
+    """
+    """
+
+    def __init__(self, session_handler):
+        """
+        """
+        super(GenreStore, self).__init__(session_handler, Genre)

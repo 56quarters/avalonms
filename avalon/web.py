@@ -87,15 +87,14 @@ class AvalonHandler(object):
     """ Handle HTTP requests and return result sets in JSON.
     """
 
-    def __init__(self, session_handler, cache=None):
+    def __init__(self, session_handler):
         """ Set the session handler and optionally, cache to use.
         """
-        if cache is None:
-            cache = avalon.services.IdService(session_handler)
-
-        self._session_handler = session_handler
-        self._id_cache = cache
-        self._id_cache.load()
+        self._tracks = avalon.services.TrackStore(session_handler)
+        self._albums = avalon.services.AlbumStore(session_handler)
+        self._artists = avalon.services.ArtistStore(session_handler)
+        self._genres = avalon.services.GenreStore(session_handler)
+        self._id_cache = avalon.services.IdService(session_handler)
 
     def get_output(self, res=None, err=None):
         """
@@ -103,7 +102,6 @@ class AvalonHandler(object):
         out = RequestOutput()
         if res is not None:
             out.results = res
-        
         return out.to_json()
 
     @cherrypy.expose
@@ -112,67 +110,53 @@ class AvalonHandler(object):
         """ Return song results based on the given query string
             parameters.
         """
-        out = []
         filters = RequestParams.build(self._id_cache, kwargs)
-        session = self._session_handler.get_session()
+        if filters.is_empty():
+            return self.get_output(self._tracks.all())
 
-        try:
-            res = session.query(Track)
-            if None is not filters.album_id:
-                res = res.filter(Track.album_id == filters.album_id)
-            if None is not filters.artist_id:
-                res = res.filter(Track.artist_id == filters.artist_id)
-            if None is not filters.genre_id:
-                res = res.filter(Track.genre_id == filters.genre_id)
-            out = res.join(Album).join(Artist).join(Genre).all()
-        finally:
-            self._session_handler.close(session)
+        set1 = None
+        set2 = None
+        set3 = None
+
+        if None is not filters.album_id:
+            set1 = self._tracks.by_album(filters.album_id)
+        elif None is not filters.artist_id:
+            set2 = self._tracks.by_artist(filters.artist_id)
+        elif None is not filters.genre_id:
+            set3 = self._tracks.by_genre(filters.genre_id)
+
+        out = self._reduce(set1, set2, set3)
+        print out
+
         return self.get_output(out)
+
+    def _reduce(self, *args):
+        """
+        """
+        intersect = lambda x, y: x.intersection(y)
+        filterer = lambda x: x is not None
+        return reduce(intersect, filter(filterer, args))
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
     def albums(self, *args, **kwargs):
         """ Return a list of all albums.
         """
-        out = []
-        session = self._session_handler.get_session()
-
-        try:
-            res = session.query(Album)
-            out = res.all()
-        finally:
-            session.close()
-        return self.get_output(out)
+        return self.get_output(res=self._albums.all())
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
     def artists(self, *args, **kwargs):
         """ Return a list of all artists.
         """
-        out = []
-        session = self._session_handler.get_session()
-
-        try:
-            res = session.query(Artist)
-            out = res.all()
-        finally:
-            self._session_handler.close(session)
-        return self.get_output(out)
+        return self.get_output(res=self._artists.all())
         
     @cherrypy.expose
     @cherrypy.tools.json_out()
     def genres(self, *args, **kwargs):
         """ Return a list of all genres.
         """
-        out = []
-        session = self._session_handler.get_session()
-
-        try:
-            res = session.query(Genre)
-            out = res.all()
-        finally:
-            self._session_handler.close(session)
-        return self.get_output(out)
+        return self.get_output(res=self._genres.all())
 
 
 class RequestOutput(object):
@@ -209,7 +193,7 @@ class RequestOutput(object):
             }
         if res is not None:
             out['result_count'] = len(res)
-            out['results'] = [thing.to_json() for thing in res]
+            out['results'] = res
         return out
 
     def to_json(self):
@@ -239,6 +223,11 @@ class RequestParams(object):
         self.album_id = None
         self.artist_id = None
         self.genre_id = None
+
+    def is_empty(self):
+        """
+        """
+        return self.album_id is None and self.artist_id is None and self.genre_id is None
 
     @classmethod
     def build(cls, cache, kwargs):

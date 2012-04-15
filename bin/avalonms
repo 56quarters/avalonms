@@ -37,6 +37,7 @@ service using JSON.
 from __future__ import print_function
 
 import argparse
+import gc
 import os
 import os.path
 import re
@@ -46,6 +47,7 @@ import sys
 import tempfile
 
 import cherrypy
+import yappi
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
@@ -196,6 +198,7 @@ def get_server(options, session_handler, log):
 def run_server(options, server):
     """
     """
+    #yappi.start()
     server.start()
 
 
@@ -274,6 +277,7 @@ def main():
     log.info("Serving HTTP requests on %s...", user_input.server_port)
     server = get_server(user_input, handler, log)
     install_signal_handlers(server)
+    gc.collect()
 
     try:
         run_server(user_input, server)
@@ -282,6 +286,21 @@ def main():
         return 1
 
     log.info("Server stopping")
+
+    """
+    yappi.stop()
+
+
+    stats =  yappi.get_stats(yappi.SORTTYPE_TSUB, yappi.SORTORDER_DESC, 50)
+
+    print('FUNC STATS')
+    for line in stats.func_stats:
+        print(line)
+
+    print('THREAD STATS')
+    for line in stats.thread_stats:
+        print(line)
+    """
     return 0
     
 
