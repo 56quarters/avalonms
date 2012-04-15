@@ -4,13 +4,14 @@ Avalon Music Server
 The Avalon Music Server is a BSD licensed server that scans metadata
 from a music collection and provides a JSON interface to it over HTTP.
 
+
 Requirements
 ------------
 
-- Python >= 2.6
-- Argparse >= 1.2.0 (Or Python 2.7)
-- CherryPy >= 3.2.0
-- Tagpy >= 0.94
+* Python >= 2.6
+* Argparse >= 1.2.0 (Or Python 2.7)
+* CherryPy >= 3.2.0
+* Tagpy >= 0.94
 
 
 Installation
@@ -26,6 +27,7 @@ Usage
 
 - Stuff
 
+
 API
 ---
 
@@ -39,6 +41,7 @@ port at the path ``/avalon``. Available endpoints:
 * ``/avalon/artists``
 
 * ``/avalon/genres``
+
       
 Songs endpoint
 ~~~~~~~~~~~~~~
