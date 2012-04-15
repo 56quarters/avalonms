@@ -100,17 +100,17 @@ Songs endpoint
      }
    ]
 
-- Example Requests ::
+- Example Requests
 
-   http://localhost:8080/avalon/songs?artist=NOFX
+  * ``http://localhost:8080/avalon/songs?artist=NOFX``
 
-   http://localhost:8080/avalon/songs?artist_id=123
+  * ``http://localhost:8080/avalon/songs?artist_id=123``
 
-   http://localhost:8080/avalon/songs?album=Live&artist=Bouncing+Souls
+  * ``http://localhost:8080/avalon/songs?album=Live&artist=Bouncing+Souls``
 
-   http://localhost:8080/avalon/songs?album_id=456
+  * ``http://localhost:8080/avalon/songs?album_id=456``
 
-   http://localhost:8080/avalon/songs?genre=Ska
+  * ``http://localhost:8080/avalon/songs?genre=Ska``
 
-   http://localhost:8080/avalon/songs?genre_id=1
+  * ``http://localhost:8080/avalon/songs?genre_id=1``
    
