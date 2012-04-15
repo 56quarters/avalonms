@@ -152,10 +152,10 @@ class SessionHandler(object):
             return
         session.close()
 
-    def connect(self):
+    def connect(self, clean=False):
         """ Connect to the database and configure the session
             factory to use the connection, and create any needed
-            tables.
+            tables (optionally dropping them first).
         """
         try:
             # Attempt to connect to the engine immediately after it
@@ -175,6 +175,9 @@ class SessionHandler(object):
                 'Invalid database connector', e)
 
         self._session_factory.configure(bind=self._engine)
+
+        if clean:
+            Base.metadata.drop_all(self._engine)
         Base.metadata.create_all(self._engine)
 
     def validate(self):

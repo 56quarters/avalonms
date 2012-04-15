@@ -81,7 +81,8 @@ class InputDefaults(object):
         """ Set defaults for all arguments or options."""
         self.collection = None
         self.db_path = os.path.join(tempfile.gettempdir(), 'avalon.sqlite')
-        self.profile = None
+        self.profile_path = os.path.join(tempfile.gettempdir(), 'avalon.out')
+        self.scan = False
         self.server_address = socket.gethostbyname(socket.gethostname())
         self.server_port = 8080
 
@@ -96,7 +97,8 @@ class UserInput(object):
         """
         self.collection = defaults.collection
         self.db_path = defaults.db_path
-        self.profiel = defaults.profile
+        self.profile_path = defaults.profile_path
+        self.scan = defaults.scan
         self.server_address = defaults.server_address
         self.server_port = defaults.server_port
 
@@ -110,8 +112,10 @@ class UserInput(object):
             self.collection = opts.collection
         if opts.db_path is not None:
             self.db_path = opts.db_path
-        if opts.profile is not None:
-            self.profile = opts.profile
+        if opts.profile_path is not None:
+            self.profile_path = opts.profile_path
+        if opts.scan is not None:
+            self.scan = opts.scan
         if opts.server_address is not None:
             self.server_address = opts.server_address
         if opts.server_port is not None:
@@ -210,9 +214,14 @@ def parse_args():
         metavar='PATH',
         help='File to use for backing SQLite database')
     parser.add_argument(
-        '--profile',
+        '--profile-path',
+        metavar='PATH',
         help='Specify an output file and enable performance '
         'profiling')
+    parser.add_argument(
+        '--scan',
+        action='store_true',
+        help='Scan and rebuild the music collection database')
     parser.add_argument(
         '--server-address',
         metavar='ADDR',
@@ -240,22 +249,27 @@ def main():
     log = avalon.log.AvalonLog()
 
     try:
-        handler.connect()
+        # If the user requested that we rescan the collection
+        # make sure that we recreate all tables first
+        handler.connect(clean=user_input.scan)
     except avalon.errors.ConnectionError, e:
         print('%s: %s' % (prog, str(e)), file=sys.stderr)
         return 1
 
-    log.info("Scanning music collection...")
-    files = avalon.scan.get_files(os.path.abspath(user_input.collection))
-    tags = avalon.scan.get_tags(files)
+    if user_input.scan:
+        # Only rescan and insert data from the music collection
+        # if requested by the user.
+        log.info("Scanning music collection...")
+        files = avalon.scan.get_files(os.path.abspath(user_input.collection))
+        tags = avalon.scan.get_tags(files)
 
-    if not files:
-        print('%s: No files found in music collection' % prog, file=sys.stderr)
-        return 1
+        if not files:
+            print('%s: No files found in music collection' % prog, file=sys.stderr)
+            return 1
 
-    log.info("Loading metadata into database...")
-    service = avalon.services.InsertService(tags.values(), handler)
-    service.insert_tracks()
+        log.info("Loading metadata into database...")
+        insert = avalon.services.InsertService(tags.values(), handler)
+        insert.insert_tracks()
 
     log.info("Serving HTTP requests on %s...", user_input.server_port)
     server = get_server(user_input, handler, log)
