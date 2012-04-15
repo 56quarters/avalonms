@@ -81,6 +81,7 @@ class InputDefaults(object):
         """ Set defaults for all arguments or options."""
         self.collection = None
         self.db_path = os.path.join(tempfile.gettempdir(), 'avalon.sqlite')
+        self.profile = None
         self.server_address = socket.gethostbyname(socket.gethostname())
         self.server_port = 8080
 
@@ -95,6 +96,7 @@ class UserInput(object):
         """
         self.collection = defaults.collection
         self.db_path = defaults.db_path
+        self.profiel = defaults.profile
         self.server_address = defaults.server_address
         self.server_port = defaults.server_port
 
@@ -108,6 +110,8 @@ class UserInput(object):
             self.collection = opts.collection
         if opts.db_path is not None:
             self.db_path = opts.db_path
+        if opts.profile is not None:
+            self.profile = opts.profile
         if opts.server_address is not None:
             self.server_address = opts.server_address
         if opts.server_port is not None:
@@ -185,6 +189,12 @@ def get_server(options, session_handler, log):
     return avalon.web.AvalonServer(config)
 
 
+def run_server(options, server):
+    """
+    """
+    server.start()
+
+
 def parse_args():
     """ Parse required and optional program arguments.
     """
@@ -199,6 +209,10 @@ def parse_args():
         '--db-path',
         metavar='PATH',
         help='File to use for backing SQLite database')
+    parser.add_argument(
+        '--profile',
+        help='Specify an output file and enable performance '
+        'profiling')
     parser.add_argument(
         '--server-address',
         metavar='ADDR',
@@ -248,7 +262,7 @@ def main():
     install_signal_handlers(server)
 
     try:
-        server.start()
+        run_server(user_input, server)
     except socket.error, e:
         print('%s: Error starting HTTP server: %s' % (prog, str(e)), file=sys.stderr)
         return 1

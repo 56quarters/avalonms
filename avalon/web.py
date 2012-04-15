@@ -97,10 +97,14 @@ class AvalonHandler(object):
         self._id_cache = cache
         self._id_cache.load()
 
-    def list_to_json(self, res):
-        """ Convert a list of models to a list of dictionaries.
+    def get_output(self, res=None, err=None):
         """
-        return [thing.to_json() for thing in res]
+        """
+        out = RequestOutput()
+        if res is not None:
+            out.results = res
+        
+        return out.to_json()
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
@@ -109,7 +113,7 @@ class AvalonHandler(object):
             parameters.
         """
         out = []
-        filters = RequestFilter.from_params(self._id_cache, kwargs)
+        filters = RequestParams.build(self._id_cache, kwargs)
         session = self._session_handler.get_session()
 
         try:
@@ -123,7 +127,7 @@ class AvalonHandler(object):
             out = res.join(Album).join(Artist).join(Genre).all()
         finally:
             self._session_handler.close(session)
-        return self.list_to_json(out)
+        return self.get_output(out)
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
@@ -138,7 +142,7 @@ class AvalonHandler(object):
             out = res.all()
         finally:
             session.close()
-        return self.list_to_json(out)
+        return self.get_output(out)
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
@@ -153,7 +157,7 @@ class AvalonHandler(object):
             out = res.all()
         finally:
             self._session_handler.close(session)
-        return self.list_to_json(out)
+        return self.get_output(out)
         
     @cherrypy.expose
     @cherrypy.tools.json_out()
@@ -168,10 +172,62 @@ class AvalonHandler(object):
             out = res.all()
         finally:
             self._session_handler.close(session)
-        return self.list_to_json(out)
+        return self.get_output(out)
 
 
-class RequestFilter(object):
+class RequestOutput(object):
+
+    """
+    """
+
+    def __init__(self):
+        """
+        """
+        self.error = None
+        self.results = []
+
+    def format_error(self, err):
+        """
+        """
+        out = {
+            'error': False,
+            'error_code': 0,
+            'error_msg': ''
+            }
+        if err is not None:
+            out['error'] = True
+            out['error_code'] = err.code
+            out['error_msg'] = err.message
+        return out
+        
+    def format_results(self, res):
+        """
+        """
+        out = {
+            'result_count': 0,
+            'results': []
+            }
+        if res is not None:
+            out['result_count'] = len(res)
+            out['results'] = [thing.to_json() for thing in res]
+        return out
+
+    def to_json(self):
+        """
+        """
+        err = self.format_error(self.error)
+        res = self.format_results(self.results)
+
+        return {
+            'error': err['error'],
+            'error_code': err['error_code'],
+            'error_msg': err['error_msg'],
+            'result_count': res['result_count'],
+            'results': res['results']
+            }
+
+
+class RequestParams(object):
     
     """ Parse and ecapsulate object IDs and names from
         query string parameters.
@@ -185,7 +241,7 @@ class RequestFilter(object):
         self.genre_id = None
 
     @classmethod
-    def from_params(cls, cache, kwargs):
+    def build(cls, cache, kwargs):
         """ Construct a new filter based on the given query
             string parameters and name to ID cache.
 
