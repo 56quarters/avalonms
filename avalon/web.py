@@ -185,13 +185,13 @@ class RequestOutput(object):
     """
 
     def __init__(self):
-        """
+        """ Initialize errors and results from this query.
         """
         self.error = None
         self.results = []
 
     def _format_error(self, err):
-        """
+        """ Format a query error (if there was one).
         """
         out = {
             'error': False,
@@ -205,7 +205,7 @@ class RequestOutput(object):
         return out
         
     def _format_results(self, res):
-        """
+        """ Format query results (if any).
         """
         out = {
             'result_count': 0,
@@ -221,7 +221,8 @@ class RequestOutput(object):
         return out
 
     def render(self):
-        """
+        """ Format any results or errors as a dictionary to be
+            turned into a JSON payload.
         """
         err = self._format_error(self.error)
         res = self._format_results(self.results)
