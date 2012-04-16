@@ -233,7 +233,7 @@ class RequestOutput(object):
 
 class RequestParams(object):
     
-    """ Parse and ecapsulate object IDs and names from
+    """ Parse and encapsulate object IDs and names from
         query string parameters.
     """
     

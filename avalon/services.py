@@ -28,7 +28,7 @@
 
 
 """
-Classes that encompass business logic spaning multiple functional areas.
+Classes that encompass business logic spanning multiple functional areas.
 """
 
 
