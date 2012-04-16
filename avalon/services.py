@@ -40,12 +40,32 @@ from avalon.models import (
     Genre,
     Track)
 
+from avalon.views import (
+    IdNameElm,
+    TrackElm)
+
 
 __all__ = [
-    'IdService',
-    'InsertService'
+    'model_to_elm',
+    'AlbumStore',
+    'ArtistStore',
+    'GenreStore',
+    'IdLookupCache',
+    'InsertService',
+    'TrackStore'
     ]
 
+
+def model_to_elm(model):
+    """ Convert and ORM model object to an immutable, hashable
+        object suitable for serialization.
+    """
+    if isinstance(model, Track):
+        return TrackElm(
+            model.id, model.name, model.track, model.year,
+            model.album.name, model.album_id, model.artist.name,
+            model.artist_id, model.genre.name, model.genre_id)
+    return IdNameElm(model.id, model.name)
 
 
 class InsertService(object):
@@ -97,7 +117,7 @@ class InsertService(object):
         """ Insert the tracks and all related data.
         """
         self._load_relations()
-        cache = IdService(self._session_handler)
+        cache = IdLookupCache(self._session_handler)
 
         insert = []
         session = self._session_handler.get_session()
@@ -120,7 +140,7 @@ class InsertService(object):
             session.close()
 
 
-class IdService(object):
+class IdLookupCache(object):
 
     """ Cache for looking up the primary key of albums,
         artists, and genres based on their name.
@@ -165,20 +185,19 @@ class IdService(object):
         """
         things = session.query(cls).all()
         for thing in things:
-            self._cache[field][thing.name] = thing.id
-            
+            self._cache[field][thing.name] = thing.id            
+
 
 class TrackStore(object):
 
-    """
+    """ In memory store for TrackElm objects and methods to
+        fetch them by their attributes.
     """
 
     def __init__(self, session_handler):
-        """
+        """ Initialize lookup structures and populate them.
         """
         self._session_handler = session_handler
-        self._id_cache = IdService(self._session_handler)
-
         self._by_album = collections.defaultdict(set)
         self._by_artist = collections.defaultdict(set)
         self._by_genre = collections.defaultdict(set)
@@ -187,7 +206,8 @@ class TrackStore(object):
         self.reload()
 
     def reload(self):
-        """
+        """ Populate the various structures for looking up track
+            elements by their attributes.
         """
         session = self._session_handler.get_session()
         
@@ -197,39 +217,40 @@ class TrackStore(object):
             self._session_handler.close(session)
 
         for track in res:
-            data = track.to_elm()
-            self._by_album[track.album_id].add(data)
-            self._by_artist[track.artist_id].add(data)
-            self._by_genre[track.genre_id].add(data)
-            self._all.add(data)
+            elm = model_to_elm(track)
+            self._by_album[track.album_id].add(elm)
+            self._by_artist[track.artist_id].add(elm)
+            self._by_genre[track.genre_id].add(elm)
+            self._all.add(elm)
 
     def by_album(self, album_id):
-        """
+        """ Get tracks by an album ID.
         """
         return self._by_album[album_id]
 
     def by_artist(self, artist_id):
-        """
+        """ Get tracks by an artist ID.
         """
         return self._by_artist[artist_id]
 
     def by_genre(self, genre_id):
-        """
+        """ Get tracks by a genre ID.
         """
         return self._by_genre[genre_id]
 
     def all(self):
-        """
+        """ Get all tracks.
         """
         return self._all
 
+
 class _IdNameStore(object):
 
-    """
+    """ Base store for any ID and name element.
     """
 
     def __init__(self, session_handler, cls):
-        """
+        """ Load all elements of the given type.
         """
         self._session_handler = session_handler
         self._cls = cls
@@ -238,7 +259,7 @@ class _IdNameStore(object):
         self.reload()
 
     def reload(self):
-        """
+        """ Populate all elements of the given type.
         """
         session = self._session_handler.get_session()
         
@@ -246,7 +267,7 @@ class _IdNameStore(object):
             res = session.query(self._cls).all()
         finally:
             self._session_handler.close(session)
-        self._all = [thing.to_elm() for thing in res]
+        self._all = set([model_to_elm(thing) for thing in res])
 
     def all(self):
         """
@@ -256,32 +277,27 @@ class _IdNameStore(object):
 
 class AlbumStore(_IdNameStore):
 
-    """
+    """ In memory store for Album models using IdNameElm.
     """
 
     def __init__(self, session_handler):
-        """
-        """
         super(AlbumStore, self).__init__(session_handler, Album)
 
 
 class ArtistStore(_IdNameStore):
 
-    """
+    """ In memory store for Artist models using IdNameElm.
     """
 
     def __init__(self, session_handler):
-        """
-        """
         super(ArtistStore, self).__init__(session_handler, Artist)
 
 
 class GenreStore(_IdNameStore):
 
-    """
+    """ In memory store for Genre models using IdNameElm.
     """
 
     def __init__(self, session_handler):
-        """
-        """
         super(GenreStore, self).__init__(session_handler, Genre)
+

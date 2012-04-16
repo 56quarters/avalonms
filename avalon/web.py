@@ -35,8 +35,10 @@ import logging
 import cherrypy
 from cherrypy.wsgiserver import CherryPyWSGIServer
 
-import avalon.services
+
 import avalon.models
+import avalon.services
+import avalon.views
 
 
 __all__ = [
@@ -49,10 +51,13 @@ __all__ = [
 
 class JSONOutHandler(object):
 
+    """
+    """
+
     def __init__(self):
         """
         """
-        self._encoder = avalon.models.AvalonJSONEncoder()
+        self._encoder = avalon.views.JSONEncoder()
 
     def __call__(self, *args, **kwargs):
         """
@@ -104,15 +109,25 @@ class AvalonHandler(object):
         self._albums = avalon.services.AlbumStore(session_handler)
         self._artists = avalon.services.ArtistStore(session_handler)
         self._genres = avalon.services.GenreStore(session_handler)
-        self._id_cache = avalon.services.IdService(session_handler)
+        self._id_cache = avalon.services.IdLookupCache(session_handler)
 
-    def get_output(self, res=None, err=None):
-        """
+    def _get_output(self, res=None, err=None):
+        """ Render results or an error as an iterable.
         """
         out = RequestOutput()
         if res is not None:
             out.results = res
-        return out.to_json()
+        if err is not None:
+            out.error = err
+        return out.render()
+
+    def _reduce(self, *args):
+        """ Find the intersection of all of the given non-None sets.
+        """
+        set_intersect = lambda x, y: x.intersection(y)
+        set_filter = lambda x: x is not None
+
+        return reduce(set_intersect, filter(set_filter, args))
 
     @cherrypy.expose
     @cherrypy.tools.json_out(handler=JSONOutHandler())
@@ -125,7 +140,7 @@ class AvalonHandler(object):
         # If there are no query string params to filter to input
         # but short circuit and just return all tracks
         if filters.is_empty():
-            return self.get_output(self._tracks.all())
+            return self._get_output(self._tracks.all())
 
         set1 = None
         set2 = None
@@ -139,36 +154,28 @@ class AvalonHandler(object):
             set3 = self._tracks.by_genre(filters.genre_id)
             
         # Return the intersection of any none-None sets
-        return self.get_output(self._reduce(set1, set2, set3))
-
-    def _reduce(self, *args):
-        """ 
-        """
-        set_intersect = lambda x, y: x.intersection(y)
-        set_filter = lambda x: x is not None
-
-        return reduce(set_intersect, filter(set_filter, args))
+        return self._get_output(res=self._reduce(set1, set2, set3))
 
     @cherrypy.expose
     @cherrypy.tools.json_out(handler=JSONOutHandler())
     def albums(self, *args, **kwargs):
         """ Return a list of all albums.
         """
-        return self.get_output(res=self._albums.all())
+        return self._get_output(res=self._albums.all())
 
     @cherrypy.expose
     @cherrypy.tools.json_out(handler=JSONOutHandler())
     def artists(self, *args, **kwargs):
         """ Return a list of all artists.
         """
-        return self.get_output(res=self._artists.all())
+        return self._get_output(res=self._artists.all())
         
     @cherrypy.expose
     @cherrypy.tools.json_out(handler=JSONOutHandler())
     def genres(self, *args, **kwargs):
         """ Return a list of all genres.
         """
-        return self.get_output(res=self._genres.all())
+        return self._get_output(res=self._genres.all())
 
 
 class RequestOutput(object):
@@ -182,7 +189,7 @@ class RequestOutput(object):
         self.error = None
         self.results = []
 
-    def format_error(self, err):
+    def _format_error(self, err):
         """
         """
         out = {
@@ -196,7 +203,7 @@ class RequestOutput(object):
             out['error_msg'] = err.message
         return out
         
-    def format_results(self, res):
+    def _format_results(self, res):
         """
         """
         out = {
@@ -206,13 +213,14 @@ class RequestOutput(object):
         if res is not None:
             out['result_count'] = len(res)
             out['results'] = res
+            print res
         return out
 
-    def to_json(self):
+    def render(self):
         """
         """
-        err = self.format_error(self.error)
-        res = self.format_results(self.results)
+        err = self._format_error(self.error)
+        res = self._format_results(self.results)
 
         return {
             'error': err['error'],

@@ -32,18 +32,13 @@ Models representing types of metadata loaded from a music collection
 along with functionality to manage connections to the backing database.
 """
 
+
 try:
     import simplejson as json
 except ImportError:
     import json
 
-from sqlalchemy import (
-    create_engine,
-    Column,
-    ForeignKey,
-    Integer,
-    String)
-
+from sqlalchemy import create_engine, Column, ForeignKey, Integer, String
 from sqlalchemy.exc import ArgumentError, OperationalError
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import backref, relationship, sessionmaker
@@ -61,137 +56,6 @@ __all__ = [
     ]
 
 
-class AvalonJSONEncoder(json.JSONEncoder):
-
-    def default(self, res):
-        """
-        """
-        out = []
-        for o in res:
-            obj = {
-                'id': o.id,
-                'name': o.name
-                }
-
-            if isinstance(o, TrackElm):
-                obj['track'] = o.track
-                obj['year'] = o.year
-                obj['album'] = o.album
-                obj['album_id'] = o.album_id
-                obj['artist'] = o.artist
-                obj['artist_id'] = o.artist_id
-                obj['genre'] = o.genre
-                obj['genre_id'] = o.genre_id
-            out.append(obj)
-        return out
-
-
-class IdNameElm(object):
-
-    """
-    """
-
-    def __init__(self, elm_id, elm_name):
-        """
-        """
-        self._id = elm_id
-        self._name = elm_name
-
-    @property
-    def id(self):
-        """
-        """
-        return self._id
-
-    @property
-    def name(self):
-        """
-        """
-        return self._name
-
-    def __eq__(self, o):
-        """
-        """
-        if not isinstance(o, self.__class__):
-            return False
-        return o.id == self.id and o.name == self.name
-
-    def __hash__(self):
-       """
-       """
-       return hash(self.id) ^ (hash(self.name) * 7) ^ (hash(self.__class__) * 31)
-
-
-class TrackElm(IdNameElm):
-
-    """
-    """
-
-    def __init__(self, t_id, t_name, t_track, t_year,
-                 t_album, t_album_id, t_artist, t_artist_id,
-                 t_genre, t_genre_id):
-        """
-        """
-        super(TrackElm, self).__init__(t_id, t_name)
-
-        self._track = t_track
-        self._year = t_year
-        self._album = t_album
-        self._album_id = t_album_id
-        self._artist = t_artist
-        self._artist_id = t_artist_id
-        self._genre = t_genre
-        self._genre_id = t_genre_id
-
-    @property
-    def track(self):
-        """
-        """
-        return self._track
-
-    @property
-    def year(self):
-        """
-        """
-        return self._year
-
-    @property
-    def album(self):
-        """
-        """
-        return self._album
-
-    @property
-    def album_id(self):
-        """
-        """
-        return self._album_id
-
-    @property
-    def artist(self):
-        """
-        """
-        return self._artist
-
-    @property
-    def artist_id(self):
-        """
-        """
-        return self._artist_id
-    
-    @property
-    def genre(self):
-        """
-        """
-        return self._genre
-    
-    @property
-    def genre_id(self):
-        """
-        """
-        return self._genre_id
-
-
 class Base(object):
 
     """ A Base for all models that defines name
@@ -200,11 +64,6 @@ class Base(object):
 
     id = Column(Integer, primary_key=True)
     name = Column(String)
-
-    def to_elm(self):
-        """
-        """
-        return IdNameElm(self.id, self.name)
 
 
 Base = declarative_base(cls=Base)
@@ -228,14 +87,6 @@ class Track(Base):
     album = relationship('Album', backref='tracks', lazy='joined', order_by='Track.id')
     artist = relationship('Artist', backref='tracks', lazy='joined', order_by='Track.id')
     genre = relationship('Genre', backref='tracks', lazy='joined', order_by='Track.id')
-
-    def to_elm(self):
-        """
-        """
-        return TrackElm(
-            self.id, self.name, self.track, self.year,
-            self.album.name, self.album_id, self.artist.name,
-            self.artist_id, self.genre.name, self.genre_id)
 
 
 class Album(Base):
