@@ -36,11 +36,7 @@ import cherrypy
 from cherrypy.wsgiserver import CherryPyWSGIServer
 
 import avalon.services
-from avalon.models import (
-    Album,
-    Artist,
-    Genre,
-    Track)
+import avalon.models
 
 
 __all__ = [
@@ -49,6 +45,20 @@ __all__ = [
     'AvalonHandler',
     'RequestFilter'
     ]
+
+
+class JSONOutHandler(object):
+
+    def __init__(self):
+        """
+        """
+        self._encoder = avalon.models.AvalonJSONEncoder()
+
+    def __call__(self, *args, **kwargs):
+        """
+        """
+        value = cherrypy.serving.request._json_inner_handler(*args, **kwargs)
+        return self._encoder.encode(value)
 
 
 class AvalonServerConfig(object):
@@ -105,12 +115,15 @@ class AvalonHandler(object):
         return out.to_json()
 
     @cherrypy.expose
-    @cherrypy.tools.json_out()
+    @cherrypy.tools.json_out(handler=JSONOutHandler())
     def songs(self, *args, **kwargs):
         """ Return song results based on the given query string
             parameters.
         """
         filters = RequestParams.build(self._id_cache, kwargs)
+
+        # If there are no query string params to filter to input
+        # but short circuit and just return all tracks
         if filters.is_empty():
             return self.get_output(self._tracks.all())
 
@@ -120,39 +133,38 @@ class AvalonHandler(object):
 
         if None is not filters.album_id:
             set1 = self._tracks.by_album(filters.album_id)
-        elif None is not filters.artist_id:
+        if None is not filters.artist_id:
             set2 = self._tracks.by_artist(filters.artist_id)
-        elif None is not filters.genre_id:
+        if None is not filters.genre_id:
             set3 = self._tracks.by_genre(filters.genre_id)
-
-        out = self._reduce(set1, set2, set3)
-        print out
-
-        return self.get_output(out)
+            
+        # Return the intersection of any none-None sets
+        return self.get_output(self._reduce(set1, set2, set3))
 
     def _reduce(self, *args):
+        """ 
         """
-        """
-        intersect = lambda x, y: x.intersection(y)
-        filterer = lambda x: x is not None
-        return reduce(intersect, filter(filterer, args))
+        set_intersect = lambda x, y: x.intersection(y)
+        set_filter = lambda x: x is not None
+
+        return reduce(set_intersect, filter(set_filter, args))
 
     @cherrypy.expose
-    @cherrypy.tools.json_out()
+    @cherrypy.tools.json_out(handler=JSONOutHandler())
     def albums(self, *args, **kwargs):
         """ Return a list of all albums.
         """
         return self.get_output(res=self._albums.all())
 
     @cherrypy.expose
-    @cherrypy.tools.json_out()
+    @cherrypy.tools.json_out(handler=JSONOutHandler())
     def artists(self, *args, **kwargs):
         """ Return a list of all artists.
         """
         return self.get_output(res=self._artists.all())
         
     @cherrypy.expose
-    @cherrypy.tools.json_out()
+    @cherrypy.tools.json_out(handler=JSONOutHandler())
     def genres(self, *args, **kwargs):
         """ Return a list of all genres.
         """

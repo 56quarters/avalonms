@@ -32,6 +32,11 @@ Models representing types of metadata loaded from a music collection
 along with functionality to manage connections to the backing database.
 """
 
+try:
+    import simplejson as json
+except ImportError:
+    import json
+
 from sqlalchemy import (
     create_engine,
     Column,
@@ -54,6 +59,31 @@ __all__ = [
     'SessionHandler',
     'Track'
     ]
+
+
+class AvalonJSONEncoder(json.JSONEncoder):
+
+    def default(self, res):
+        """
+        """
+        out = []
+        for o in res:
+            obj = {
+                'id': o.id,
+                'name': o.name
+                }
+
+            if isinstance(o, TrackElm):
+                obj['track'] = o.track
+                obj['year'] = o.year
+                obj['album'] = o.album
+                obj['album_id'] = o.album_id
+                obj['artist'] = o.artist
+                obj['artist_id'] = o.artist_id
+                obj['genre'] = o.genre
+                obj['genre_id'] = o.genre_id
+            out.append(obj)
+        return out
 
 
 class IdNameElm(object):
@@ -89,7 +119,7 @@ class IdNameElm(object):
     def __hash__(self):
        """
        """
-       return hash(self.id) ^ (hash(self.name) * 7)
+       return hash(self.id) ^ (hash(self.name) * 7) ^ (hash(self.__class__) * 31)
 
 
 class TrackElm(IdNameElm):
@@ -202,9 +232,10 @@ class Track(Base):
     def to_elm(self):
         """
         """
-        return TrackElm(self.id, self.name, self.track, self.year,
-                        self.album.name, self.album_id, self.artist.name,
-                        self.artist_id, self.genre.name, self.genre_id)
+        return TrackElm(
+            self.id, self.name, self.track, self.year,
+            self.album.name, self.album_id, self.artist.name,
+            self.artist_id, self.genre.name, self.genre_id)
 
 
 class Album(Base):

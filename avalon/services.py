@@ -203,7 +203,7 @@ class TrackStore(object):
             self._by_genre[track.genre_id].add(data)
             self._all.add(data)
 
-    def by_album_id(self, album_id):
+    def by_album(self, album_id):
         """
         """
         return self._by_album[album_id]
