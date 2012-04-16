@@ -56,21 +56,23 @@ class JSONEncoder(json.JSONEncoder):
     def default(self, o):
         """ Return a dictionary representing IdNameElm or TrackElm objects.
         """
-        obj = {
+        if isinstance(o, TrackElm):
+            return {
+                'id': o.id,
+                'name': o.name,
+                'track': o.track,
+                'year': o.year,
+                'album': o.album,
+                'album_id': o.album_id,
+                'artist': o.artist,
+                'artist_id': o.artist_id,
+                'genre': o.genre,
+                'genre_id': o.genre_id
+                }
+        return {
             'id': o.id,
             'name': o.name
             }
-        
-        if isinstance(o, TrackElm):
-            obj['track'] = o.track
-            obj['year'] = o.year
-            obj['album'] = o.album
-            obj['album_id'] = o.album_id
-            obj['artist'] = o.artist
-            obj['artist_id'] = o.artist_id
-            obj['genre'] = o.genre
-            obj['genre_id'] = o.genre_id
-        return obj
 
 
 class IdNameElm(object):

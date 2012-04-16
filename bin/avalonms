@@ -198,7 +198,6 @@ def get_server(options, session_handler, log):
 def run_server(options, server):
     """
     """
-    #yappi.start()
     server.start()
 
 
@@ -280,6 +279,7 @@ def main():
     gc.collect()
 
     try:
+        #yappi.start()
         run_server(user_input, server)
     except socket.error, e:
         print('%s: Error starting HTTP server: %s' % (prog, str(e)), file=sys.stderr)
