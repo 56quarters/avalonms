@@ -48,8 +48,9 @@ __all__ = [
 
 class JSONEncoder(json.JSONEncoder):
     
-    """ Special JSON encoder to convert an iterable of
-        IdNameElm objects into a list of dictionaries.
+    """ Special JSON encoder to convert the output format from
+        services used by the web layer to datatypes that can be
+        easily rendered.
     """
 
     def default(self, res):
