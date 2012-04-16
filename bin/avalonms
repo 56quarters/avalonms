@@ -38,6 +38,7 @@ from __future__ import print_function
 
 import argparse
 import gc
+import multiprocessing
 import os
 import os.path
 import re
@@ -87,6 +88,7 @@ class InputDefaults(object):
         self.no_scan = False
         self.server_address = socket.gethostbyname(socket.gethostname())
         self.server_port = 8080
+        self.server_threads = multiprocessing.cpu_count() + 1
 
 
 class UserInput(object):
@@ -103,6 +105,7 @@ class UserInput(object):
         self.no_scan = defaults.no_scan
         self.server_address = defaults.server_address
         self.server_port = defaults.server_port
+        self.server_threads = defaults.server_threads
 
         self._set_user_opts(opts)
 
@@ -110,18 +113,14 @@ class UserInput(object):
         """ Override default values with user supplied values
             if provided.
         """
-        if opts.collection is not None:
-            self.collection = opts.collection
-        if opts.db_path is not None:
-            self.db_path = opts.db_path
-        if opts.profile_path is not None:
-            self.profile_path = opts.profile_path
-        if opts.no_scan is not None:
-            self.no_scan = opts.no_scan
-        if opts.server_address is not None:
-            self.server_address = opts.server_address
-        if opts.server_port is not None:
-            self.server_port = opts.server_port
+
+        for attr in dir(opts):
+            if attr.startswith('_'):
+                continue
+            val = getattr(opts, attr)
+            if val is None:
+                continue
+            setattr(self, attr, val)
 
     def _is_valid_addr(self, addr):
         """ Return true if this is a valid IPv4 or IPv6 address, false
@@ -157,6 +156,17 @@ class UserInput(object):
         except ValueError:
             raise ValueError("That doesn't appear to be a valid port")
 
+        if 0 >= self.server_port:
+            raise ValueError("The port for the server must be positive")
+
+        try:
+            self.server_threads = int(self.server_threads)
+        except ValueError:
+            raise ValueError("That doesn't appear to be a valid number of threads")
+
+        if 0 >= self.server_threads:
+            raise ValueError("The number of threads to use must be positive")
+
 
 def get_db_url(path):
     """ Convert a file system path to an connection string
@@ -191,6 +201,8 @@ def get_server(options, session_handler, log):
     config.bind_addr = (options.server_address, options.server_port)
     config.gateway = app
     config.log = log
+    config.num_threads = options.server_threads
+    config.request_queue_size = options.server_threads * 2
 
     return avalon.web.AvalonServer(config)
 
@@ -232,6 +244,11 @@ def parse_args():
         '--server-port',
         metavar='PORT',
         help='Port to serve on')
+    parser.add_argument(
+        '--server-threads',
+        metavar='NUM',
+        help='Number of threads to use for handling requests '
+        '(default is num_cpus + 1)')
 
     return parser.parse_args()
 
@@ -278,6 +295,10 @@ def main():
     install_signal_handlers(server)
     gc.collect()
 
+    #cherrypy.config['tools.caching.on'] = True
+    #cherrypy.config['tools.caching.delay'] = 300
+
+
     try:
         #yappi.start()
         run_server(user_input, server)
@@ -289,8 +310,6 @@ def main():
 
     """
     yappi.stop()
-
-
     stats =  yappi.get_stats(yappi.SORTTYPE_TSUB, yappi.SORTORDER_DESC, 50)
 
     print('FUNC STATS')
@@ -301,6 +320,7 @@ def main():
     for line in stats.thread_stats:
         print(line)
     """
+
     return 0
     
 

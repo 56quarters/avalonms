@@ -180,4 +180,3 @@ class TrackElm(IdNameElm):
         """ Track genre ID.
         """
         return self._genre_id
-

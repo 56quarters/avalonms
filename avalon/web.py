@@ -31,6 +31,7 @@
 
 
 import logging
+import multiprocessing
 
 import cherrypy
 from cherrypy.wsgiserver import CherryPyWSGIServer
@@ -75,6 +76,8 @@ class AvalonServerConfig(object):
         self.log = None
         self.bind_addr = None
         self.gateway = None
+        self.num_threads = None
+        self.request_queue_size = None
 
 
 class AvalonServer(CherryPyWSGIServer):
@@ -86,7 +89,12 @@ class AvalonServer(CherryPyWSGIServer):
     def __init__(self, config):
         """ Call the parent constructor and set our error logger.
         """
-        super(AvalonServer, self).__init__(config.bind_addr, config.gateway)
+        super(AvalonServer, self).__init__(
+            config.bind_addr,
+            config.gateway,
+            numthreads=config.num_threads,
+            request_queue_size=config.request_queue_size)
+
         self._log = config.log
 
     def error_log(self, msg='', level=logging.INFO, trackback=False):
@@ -110,7 +118,7 @@ class AvalonHandler(object):
         self._artists = avalon.services.ArtistStore(session_handler)
         self._genres = avalon.services.GenreStore(session_handler)
         self._id_cache = avalon.services.IdLookupCache(session_handler)
-
+        
     def _get_output(self, res=None, err=None):
         """ Render results or an error as an iterable.
         """
