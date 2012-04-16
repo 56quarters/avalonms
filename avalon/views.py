@@ -53,14 +53,8 @@ class JSONEncoder(json.JSONEncoder):
         easily rendered.
     """
 
-    def default(self, res):
-        """ Return a list of dictionaries representing IdNameElm
-            of TrackElm objects.
-        """
-        return [self._render_elm(o) for o in res]
-
-    def _render_elm(self, o):
-        """ Return a dictionary representation of an element.
+    def default(self, o):
+        """ Return a dictionary representing IdNameElm or TrackElm objects.
         """
         obj = {
             'id': o.id,

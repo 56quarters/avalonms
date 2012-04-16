@@ -180,7 +180,8 @@ class AvalonHandler(object):
 
 class RequestOutput(object):
 
-    """
+    """ Render query results or errors in a format that can
+        be serialized to JSON.
     """
 
     def __init__(self):
@@ -210,10 +211,13 @@ class RequestOutput(object):
             'result_count': 0,
             'results': []
             }
+        
+        # The standard JSON encoder doesn't know how
+        # to render set objects, which is what the service
+        # layer returns, so we convert them to lists.
         if res is not None:
             out['result_count'] = len(res)
-            out['results'] = res
-            print res
+            out['results'] = list(res)
         return out
 
     def render(self):
