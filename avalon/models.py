@@ -43,7 +43,7 @@ from sqlalchemy.exc import ArgumentError, OperationalError
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import backref, relationship, sessionmaker
 
-import avalon.errors
+import avalon.exc
 
 
 __all__ = [
@@ -145,13 +145,13 @@ class SessionHandler(object):
             self._engine = create_engine(self._url)
             self.validate()
         except ArgumentError, e:
-            raise avalon.errors.ConnectionError(
+            raise avalon.exc.ConnectionError(
                 'Invalid database path or URL %s' % self._url)
         except OperationalError, e:
-            raise avalon.errors.ConnectionError(
+            raise avalon.exc.ConnectionError(
                 'Could not connect to database URL %s' % self._url)
         except ImportError, e:
-            raise avalon.errors.ConnectionError(
+            raise avalon.exc.ConnectionError(
                 'Invalid database connector', e)
 
         self._session_factory.configure(bind=self._engine)

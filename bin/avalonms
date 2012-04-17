@@ -50,7 +50,7 @@ import cherrypy
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-import avalon.errors
+import avalon.exc
 import avalon.log
 import avalon.models
 import avalon.scan
@@ -280,7 +280,7 @@ def main():
         # Connect to the DB and drop all existing tables
         # unless the user asked us not to rescan the collection
         handler.connect(clean=not user_input.no_scan)
-    except avalon.errors.ConnectionError, e:
+    except avalon.exc.ConnectionError, e:
         print('%s: %s' % (prog, str(e)), file=sys.stderr)
         return 1
 
