@@ -37,7 +37,6 @@ service using JSON.
 from __future__ import print_function
 
 import argparse
-import gc
 import multiprocessing
 import os
 import os.path
@@ -48,7 +47,6 @@ import sys
 import tempfile
 
 import cherrypy
-import yappi
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
@@ -70,9 +68,7 @@ class ServerHandler(object):
 
     def handle(self, signum, frame):
         """ Stop the server on SIGTERM of SIGINT."""
-        if signal.SIGTERM == signum:
-            self._server.stop()
-        elif signal.SIGINT == signum:
+        if signum in (signal.SIGTERM, signal.SIGINT):
             self._server.stop()
 
 
@@ -88,7 +84,11 @@ class InputDefaults(object):
         self.no_scan = False
         self.server_address = socket.gethostbyname(socket.gethostname())
         self.server_port = 8080
-        self.server_threads = multiprocessing.cpu_count() + 1
+
+        try:
+            self.server_threads = multiprocessing.cpu_count() + 1
+        except NotImplementedError:
+            self.server_threads = 10
 
 
 class UserInput(object):
@@ -162,7 +162,8 @@ class UserInput(object):
         try:
             self.server_threads = int(self.server_threads)
         except ValueError:
-            raise ValueError("That doesn't appear to be a valid number of threads")
+            raise ValueError(
+                "That doesn't appear to be a valid number of threads")
 
         if 0 >= self.server_threads:
             raise ValueError("The number of threads to use must be positive")
@@ -181,9 +182,21 @@ def get_prog():
     return re.sub('[^\w]+', '', os.path.basename(sys.argv[0]))
 
 
-def install_signal_handlers(server):
-    """ Install signal handlers for the HTTP server to allow
-        it to shutdown gracefully.
+def install_default_handler():
+    """ Install signal handlers for use before the HTTP server is
+        started that simply exit the script on TERM or INT.
+    """
+    def handle(signum, frame):
+        if signum in (signal.SIGINT, signal.SIGTERM):
+            raise SystemExit()
+
+    signal.signal(signal.SIGTERM, handle)
+    signal.signal(signal.SIGINT, handle)
+    
+
+def install_server_handler(server):
+    """ Install signal handlers that give the HTTP server a chance
+        to shutdown gracefully.
     """
     handler = ServerHandler(server)
     signal.signal(signal.SIGTERM, handler.handle)
@@ -205,12 +218,6 @@ def get_server(options, session_handler, log):
     config.request_queue_size = options.server_threads * 2
 
     return avalon.web.AvalonServer(config)
-
-
-def run_server(options, server):
-    """
-    """
-    server.start()
 
 
 def parse_args():
@@ -254,6 +261,8 @@ def parse_args():
 
 
 def main():
+    install_default_handler()
+
     prog = get_prog()
     args = parse_args()
     user_input = UserInput(args, InputDefaults())
@@ -292,35 +301,15 @@ def main():
 
     log.info("Serving HTTP requests on %s...", user_input.server_port)
     server = get_server(user_input, handler, log)
-    install_signal_handlers(server)
-    gc.collect()
-
-    #cherrypy.config['tools.caching.on'] = True
-    #cherrypy.config['tools.caching.delay'] = 300
-
+    install_server_handler(server)
 
     try:
-        #yappi.start()
-        run_server(user_input, server)
+        server.start()
     except socket.error, e:
         print('%s: Error starting HTTP server: %s' % (prog, str(e)), file=sys.stderr)
         return 1
 
     log.info("Server stopping")
-
-    """
-    yappi.stop()
-    stats =  yappi.get_stats(yappi.SORTTYPE_TSUB, yappi.SORTORDER_DESC, 50)
-
-    print('FUNC STATS')
-    for line in stats.func_stats:
-        print(line)
-
-    print('THREAD STATS')
-    for line in stats.thread_stats:
-        print(line)
-    """
-
     return 0
     
 

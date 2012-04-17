@@ -3,10 +3,8 @@ For v1:
 * Daemon mode
 * Logging
 * Case sensitivity
-* README
 
 For v2:
-* Performance
 * Tests
 * Docs
 * Testing with MySQL backend
