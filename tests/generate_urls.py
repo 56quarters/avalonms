@@ -28,7 +28,11 @@ except IndexError:
     sys.exit(1)
 
 
-url_base = 'http://localhost:8080/avalon/songs?'
+song_base = 'http://localhost:8080/avalon/songs?'
+album_base = 'http://localhost:8080/avalon/albums'
+artist_base = 'http://localhost:8080/avalon/artists'
+genre_base = 'http://localhost:8080/avalon/genres'
+
 handle = avalon.models.SessionHandler('sqlite:///%s' % db_path)
 handle.connect()
 
@@ -36,16 +40,19 @@ session = handle.get_session()
 urls = []
 
 for album in session.query(avalon.models.Album).all():
-    urls.append(url_base + 'album=' + urllib.quote_plus(album.name.encode('utf-8')))
-    urls.append(url_base + 'album_id=' + urllib.quote(str(album.id)))
+    urls.append(song_base + 'album=' + urllib.quote_plus(album.name.encode('utf-8')))
+    urls.append(song_base + 'album_id=' + urllib.quote(str(album.id)))
+    urls.append(album_base)
 
 for artist in session.query(avalon.models.Artist).all():
-    urls.append(url_base + 'artist=' + urllib.quote(artist.name.encode('utf-8')))
-    urls.append(url_base + 'artist_id=' + urllib.quote(str(artist.id)))
+    urls.append(song_base + 'artist=' + urllib.quote(artist.name.encode('utf-8')))
+    urls.append(song_base + 'artist_id=' + urllib.quote(str(artist.id)))
+    urls.append(artist_base)
 
 for genre in session.query(avalon.models.Genre).all():
-    urls.append(url_base + 'genre=' + urllib.quote(genre.name.encode('utf-8')))
-    urls.append(url_base + 'genre_id=' + urllib.quote(str(genre.id)))
+    urls.append(song_base + 'genre=' + urllib.quote(genre.name.encode('utf-8')))
+    urls.append(song_base + 'genre_id=' + urllib.quote(str(genre.id)))
+    urls.append(genre_base)
 
 handle.close(session)
 
