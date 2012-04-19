@@ -145,8 +145,8 @@ class AvalonHandler(object):
         """
         filters = RequestParams.build(self._id_cache, kwargs)
 
-        # If there are no query string params to filter to input
-        # but short circuit and just return all tracks
+        # If there are no query string params to filter then short
+        # circuit and just return all tracks
         if filters.is_empty():
             return self._get_output(self._tracks.all())
 
