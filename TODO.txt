@@ -1,7 +1,8 @@
 
 For v1:
 * Daemon mode
-* Logging
+* Unfuck logger
+* Logging (server access)
 * Case sensitivity
 
 For v2:
@@ -10,6 +11,7 @@ For v2:
 * Testing with MySQL backend
 * In memory stores?
 * LOD output
+* order / limit?
 
 For v3:
 * Echonest integration
