@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 #
 
 
@@ -11,6 +12,7 @@ to the songs endpoint
 from __future__ import print_function
 
 import os
+import os.path
 import sys
 import urllib
 
