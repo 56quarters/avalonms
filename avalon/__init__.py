@@ -30,11 +30,13 @@
 
 
 __all__ = [
-    'errors',
+    'exc',
+    'log',
     'models',
     'scan',
-    'services'
-    'web'
+    'services',
+    'web',
+    'views'
     ]
 
 
