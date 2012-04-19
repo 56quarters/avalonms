@@ -37,7 +37,6 @@ service using JSON.
 from __future__ import print_function
 
 import argparse
-import multiprocessing
 import os
 import os.path
 import re
@@ -80,15 +79,11 @@ class InputDefaults(object):
         """ Set defaults for all arguments or options."""
         self.collection = None
         self.db_path = os.path.join(tempfile.gettempdir(), 'avalon.sqlite')
-        self.profile_path = os.path.join(tempfile.gettempdir(), 'avalon.out')
         self.no_scan = False
-        self.server_address = socket.gethostbyname(socket.gethostname())
+        self.server_address = socket.gethostbyname('localhost')
         self.server_port = 8080
-
-        try:
-            self.server_threads = multiprocessing.cpu_count() + 1
-        except NotImplementedError:
-            self.server_threads = 10
+        self.server_queue = 4
+        self.server_threads = 4
 
 
 class UserInput(object):
@@ -101,10 +96,10 @@ class UserInput(object):
         """
         self.collection = defaults.collection
         self.db_path = defaults.db_path
-        self.profile_path = defaults.profile_path
         self.no_scan = defaults.no_scan
         self.server_address = defaults.server_address
         self.server_port = defaults.server_port
+        self.server_queue = defaults.server_queue
         self.server_threads = defaults.server_threads
 
         self._set_user_opts(opts)
@@ -220,7 +215,7 @@ def get_server(options, session_handler, log):
     return avalon.web.AvalonServer(config)
 
 
-def parse_args():
+def parse_args(defaults):
     """ Parse required and optional program arguments.
     """
     parser = argparse.ArgumentParser(
@@ -233,39 +228,41 @@ def parse_args():
     parser.add_argument(
         '--db-path',
         metavar='PATH',
-        help='File to use for backing SQLite database')
-    parser.add_argument(
-        '--profile-path',
-        metavar='PATH',
-        help='Specify an output file and enable performance '
-        'profiling')
+        help='File to use for backing SQLite database '
+        '(default is %s)' % defaults.db_path)
     parser.add_argument(
         '--no-scan',
         action='store_true',
-        help='Do not rescan and rebuild the music collection database')
+        help='Do not rescan and rebuild the music collection database '
+        '(default is %s)' % defaults.no_scan)
     parser.add_argument(
         '--server-address',
         metavar='ADDR',
-        help='IP Address to bind to')
+        help='IP Address to bind to (default is %s)' % defaults.server_address)
     parser.add_argument(
         '--server-port',
         metavar='PORT',
-        help='Port to serve on')
+        help='Port for server to listen  on (default is %s)' % defaults.server_port)
+    parser.add_argument(
+        '--server-queue',
+        metavar='NUM',
+        help='Number of connections to allow to be queued '
+        '(default is %s)' % defaults.server_queue)
     parser.add_argument(
         '--server-threads',
         metavar='NUM',
         help='Number of threads to use for handling requests '
-        '(default is num_cpus + 1)')
+        '(default is %s)' % defaults.server_threads)
 
     return parser.parse_args()
 
 
 def main():
     install_default_handler()
-
+    defaults = InputDefaults()
+    args = parse_args(defaults)
+    user_input = UserInput(args, defaults)
     prog = get_prog()
-    args = parse_args()
-    user_input = UserInput(args, InputDefaults())
 
     try:
         user_input.validate()
