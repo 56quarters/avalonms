@@ -52,16 +52,18 @@ __all__ = [
 
 class JSONOutHandler(object):
 
-    """
+    """ Wrap our JSON encoder for objects in the views module
+        such that it can be called by the cherrypy JSON output
+        tool.
     """
 
     def __init__(self):
-        """
+        """ Create an instance of our custom encoder.
         """
         self._encoder = avalon.views.JSONEncoder()
 
     def __call__(self, *args, **kwargs):
-        """
+        """ Return the rendered content encoded as JSON.
         """
         value = cherrypy.serving.request._json_inner_handler(*args, **kwargs)
         return self._encoder.encode(value)
