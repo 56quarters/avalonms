@@ -1,6 +1,13 @@
 #!/usr/bin/env python
 #
 
+
+"""
+Output all possible valid requests with query string params
+to the songs endpoint
+"""
+
+
 from __future__ import print_function
 
 import os
