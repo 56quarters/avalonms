@@ -198,18 +198,31 @@ class TrackStore(object):
         """ Initialize lookup structures and populate them.
         """
         self._session_handler = session_handler
-        self._by_album = collections.defaultdict(set)
-        self._by_artist = collections.defaultdict(set)
-        self._by_genre = collections.defaultdict(set)
-        self._all = set()
+        self._by_album = None
+        self._by_artist = None
+        self._by_genre = None
+        self._all = None
 
         self.reload()
+
+    def _freeze(self, table):
+        """ Convert a dictionary of with mutable iterable values
+            into a dictionary with frozensetS as values.
+        """
+        for key in table:
+            table[key] = frozenset(table[key])
+        return table
 
     def reload(self):
         """ Populate the various structures for looking up track
             elements by their attributes.
         """
         session = self._session_handler.get_session()
+
+        by_album = collections.defaultdict(set)
+        by_artist = collections.defaultdict(set)
+        by_genre = collections.defaultdict(set)
+        all_tracks = set()
         
         try:
             res = session.query(Track).all()
@@ -218,10 +231,15 @@ class TrackStore(object):
 
         for track in res:
             elm = model_to_elm(track)
-            self._by_album[track.album_id].add(elm)
-            self._by_artist[track.artist_id].add(elm)
-            self._by_genre[track.genre_id].add(elm)
-            self._all.add(elm)
+            by_album[track.album_id].add(elm)
+            by_artist[track.artist_id].add(elm)
+            by_genre[track.genre_id].add(elm)
+            all_tracks.add(elm)
+
+        self._by_album = self._freeze(by_album)
+        self._by_artist = self._freeze(by_artist)
+        self._by_genre = self._freeze(by_genre)
+        self._all = frozenset(all_tracks)
 
     def by_album(self, album_id):
         """ Get tracks by an album ID.
@@ -267,7 +285,7 @@ class _IdNameStore(object):
             res = session.query(self._cls).all()
         finally:
             self._session_handler.close(session)
-        self._all = set([model_to_elm(thing) for thing in res])
+        self._all = frozenset([model_to_elm(thing) for thing in res])
 
     def all(self):
         """
