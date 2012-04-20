@@ -45,7 +45,7 @@ __all__ = [
     ]
 
 
-VALID_EXTS = set(['.mp3', '.mp2', '.ogg', '.flac'])
+VALID_EXTS = frozenset(['.mp3', '.mp2', '.ogg', '.flac'])
 
 
 def is_valid_file(path):
