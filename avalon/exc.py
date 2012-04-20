@@ -32,7 +32,8 @@
 
 __all__ = [
     'AvalonError',
-    'ConnectionError'
+    'ConnectionError',
+    'DatabaseError'
     ]
 
 
@@ -55,7 +56,12 @@ class AvalonError(Exception):
         pass
 
 
-class ConnectionError(AvalonError):
+class DatabaseError(AvalonError):
+
+    """There was an error performing an operation on the database."""
+
+
+class ConnectionError(DatabaseError):
 
     """There was an error connecting to the database."""
 
