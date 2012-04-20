@@ -146,10 +146,11 @@ class IdLookupCache(object):
         artists, and genres based on their name.
     """
 
-    def __init__(self, session_handler):
+    def __init__(self, session_handler, case_sensitive=False):
         """ Set the session handler and initialize ID caches.
         """
         self._session_handler = session_handler
+        self._case_sensitive = case_sensitive
         self._cache = {
             'album': {},
             'artist': {},
@@ -158,12 +159,21 @@ class IdLookupCache(object):
 
         self.reload()
 
+    def _get_key(self, val):
+        """ Return the given value or the value with the case
+            normalized based on if we are doing case insensitive
+            comparisons or not.
+        """
+        if  self._case_sensitive:
+            return val
+        return val.lower()
+
     def get_id(self, field, val):
         """ Get the ID associated with the give field and
             name, 0 if no ID is found.
         """
         try:
-            return self._cache[field][val]
+            return self._cache[field][self._get_key(val)]
         except KeyError:
             return 0
 
@@ -183,9 +193,8 @@ class IdLookupCache(object):
         """ Set each of the mappings for a particular type of
             entity.
         """
-        things = session.query(cls).all()
-        for thing in things:
-            self._cache[field][thing.name] = thing.id            
+        for thing in session.query(cls).all():
+            self._cache[field][self._get_key(thing.name)] = thing.id            
 
 
 class TrackStore(object):

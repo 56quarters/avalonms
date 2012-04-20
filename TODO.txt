@@ -3,7 +3,6 @@ For v1:
 * Daemon mode
 * Unfuck logger
 * Logging (server access)
-* Case sensitivity
 
 For v2:
 * Tests
