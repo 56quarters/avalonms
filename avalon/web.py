@@ -71,8 +71,7 @@ class JSONOutHandler(object):
 
 class AvalonServerConfig(object):
 
-    """ Configuration for our HTTP server.
-    """
+    """Configuration for our HTTP server."""
 
     def __init__(self):
         self.log = None
@@ -89,8 +88,7 @@ class AvalonServer(CherryPyWSGIServer):
     """
 
     def __init__(self, config):
-        """ Call the parent constructor and set our error logger.
-        """
+        """Call the parent constructor and set our error logger."""
         super(AvalonServer, self).__init__(
             config.bind_addr,
             config.gateway,
@@ -100,8 +98,7 @@ class AvalonServer(CherryPyWSGIServer):
         self._log = config.log
 
     def error_log(self, msg='', level=logging.INFO, trackback=False):
-        """ Write an error to the log, optionally with a traceback.
-        """
+        """Write an error to the log, optionally with a traceback."""
         if traceback:
             msg = '%s: %s' % (msg, traceback.format_exc())
         self._log.log(level, msg)
@@ -109,12 +106,10 @@ class AvalonServer(CherryPyWSGIServer):
 
 class AvalonHandler(object):
 
-    """ Handle HTTP requests and return result sets in JSON.
-    """
+    """Handle HTTP requests and return result sets in JSON."""
 
     def __init__(self, session_handler):
-        """ Set the session handler and optionally, cache to use.
-        """
+        """ Set the session handler and optionally, cache to use."""
         self._tracks = avalon.services.TrackStore(session_handler)
         self._albums = avalon.services.AlbumStore(session_handler)
         self._artists = avalon.services.ArtistStore(session_handler)
@@ -122,8 +117,7 @@ class AvalonHandler(object):
         self._id_cache = avalon.services.IdLookupCache(session_handler)
         
     def _get_output(self, res=None, err=None):
-        """ Render results or an error as an iterable.
-        """
+        """Render results or an error as an iterable."""
         out = RequestOutput()
         if res is not None:
             out.results = res
@@ -132,8 +126,7 @@ class AvalonHandler(object):
         return out.render()
 
     def _reduce(self, *args):
-        """ Find the intersection of all of the given non-None sets.
-        """
+        """Find the intersection of all of the given non-None sets."""
         set_intersect = lambda x, y: x.intersection(y)
         set_filter = lambda x: x is not None
 
@@ -169,22 +162,19 @@ class AvalonHandler(object):
     @cherrypy.expose
     @cherrypy.tools.json_out(handler=JSONOutHandler())
     def albums(self, *args, **kwargs):
-        """ Return a list of all albums.
-        """
+        """Return a list of all albums."""
         return self._get_output(res=self._albums.all())
 
     @cherrypy.expose
     @cherrypy.tools.json_out(handler=JSONOutHandler())
     def artists(self, *args, **kwargs):
-        """ Return a list of all artists.
-        """
+        """Return a list of all artists."""
         return self._get_output(res=self._artists.all())
         
     @cherrypy.expose
     @cherrypy.tools.json_out(handler=JSONOutHandler())
     def genres(self, *args, **kwargs):
-        """ Return a list of all genres.
-        """
+        """Return a list of all genres."""
         return self._get_output(res=self._genres.all())
 
 
@@ -195,14 +185,12 @@ class RequestOutput(object):
     """
 
     def __init__(self):
-        """ Initialize errors and results from this query.
-        """
+        """Initialize errors and results from this query."""
         self.error = None
         self.results = []
 
     def _format_error(self, err):
-        """ Format a query error (if there was one).
-        """
+        """Format a query error (if there was one)."""
         out = {
             'error': False,
             'error_code': 0,
@@ -215,8 +203,7 @@ class RequestOutput(object):
         return out
         
     def _format_results(self, res):
-        """ Format query results (if any).
-        """
+        """Format query results (if any)."""
         out = {
             'result_count': 0,
             'results': []
