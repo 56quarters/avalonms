@@ -293,8 +293,8 @@ def main():
             return 1
 
         log.info("Loading metadata into database...")
-        insert = avalon.services.InsertService(tags.values(), handler)
-        insert.insert_tracks()
+        loader = avalon.services.InsertService(tags.values(), handler)
+        loader.insert()
 
     log.info("Serving HTTP requests on %s...", user_input.server_port)
     server = get_server(user_input, handler, log)

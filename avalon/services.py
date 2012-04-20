@@ -113,7 +113,7 @@ class InsertService(object):
             obj.name = val
             queue.append(obj)
 
-    def insert_tracks(self):
+    def insert(self):
         """ Insert the tracks and all related data.
         """
         self._load_relations()
