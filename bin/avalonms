@@ -78,7 +78,10 @@ class InputDefaults(object):
     def __init__(self):
         """ Set defaults for all arguments or options."""
         self.collection = None
+        self.access_log = None
+        self.daemon = False
         self.db_path = os.path.join(tempfile.gettempdir(), 'avalon.sqlite')
+        self.error_log = None
         self.no_scan = False
         self.server_address = socket.gethostbyname('localhost')
         self.server_port = 8080
@@ -95,7 +98,10 @@ class UserInput(object):
             override it if there is a user supplied value.
         """
         self.collection = defaults.collection
+        self.access_log = defaults.access_log
+        self.daemon = defaults.daemon
         self.db_path = defaults.db_path
+        self.error_log = defaults.error_log
         self.no_scan = defaults.no_scan
         self.server_address = defaults.server_address
         self.server_port = defaults.server_port
@@ -226,15 +232,26 @@ def parse_args(defaults):
         'collection',
         help='Path to the root of your music collection')
     parser.add_argument(
+        '--access-log',
+        metavar='PATH',
+        help='Log all requests to the server to this file')
+    parser.add_argument(
+        '--daemon',
+        action='store_true',
+        help='Run the server in the background as a daemon')
+    parser.add_argument(
         '--db-path',
         metavar='PATH',
         help='File to use for backing SQLite database '
         '(default is %s)' % defaults.db_path)
     parser.add_argument(
+        '--error-log',
+        metavar='PATH',
+        help='Log any errors or informational messages to this file')
+    parser.add_argument(
         '--no-scan',
         action='store_true',
-        help='Do not rescan and rebuild the music collection database '
-        '(default is %s)' % defaults.no_scan)
+        help='Do not rescan and rebuild the music collection database')
     parser.add_argument(
         '--server-address',
         metavar='ADDR',
@@ -271,7 +288,7 @@ def main():
         return 1
 
     handler = avalon.models.SessionHandler(get_db_url(user_input.db_path))
-    log = avalon.log.AvalonLog()
+    #log = avalon.log.AvalonLog()
 
     try:
         # Connect to the DB and drop all existing tables
@@ -284,7 +301,7 @@ def main():
     if not user_input.no_scan:
         # Scan collection and reinsert metadata unless the user
         # asked us not to
-        log.info("Scanning music collection...")
+        #log.info("Scanning music collection...")
         files = avalon.scan.get_files(os.path.abspath(user_input.collection))
         tags = avalon.scan.get_tags(files)
 
@@ -292,12 +309,12 @@ def main():
             print('%s: No files found in music collection' % prog, file=sys.stderr)
             return 1
 
-        log.info("Loading metadata into database...")
+        #log.info("Loading metadata into database...")
         loader = avalon.services.InsertService(tags.values(), handler)
         loader.insert()
 
-    log.info("Serving HTTP requests on %s...", user_input.server_port)
-    server = get_server(user_input, handler, log)
+    #log.info("Serving HTTP requests on %s...", user_input.server_port)
+    server = get_server(user_input, handler, None)
     install_server_handler(server)
 
     try:
@@ -306,7 +323,7 @@ def main():
         print('%s: Error starting HTTP server: %s' % (prog, str(e)), file=sys.stderr)
         return 1
 
-    log.info("Server stopping")
+    #log.info("Server stopping")
     return 0
     
 

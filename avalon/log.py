@@ -37,8 +37,19 @@ import sys
 
 
 __all__ = [
+    'AvalonLogConfig',
     'AvalonLog'
     ]
+
+
+class AvalonLogConfig(object):
+
+    """Configuration for the logger."""
+
+    def __init__(self):
+        self.access_path = None
+        self.error_path = None
+        self.log_level = logging.INFO
 
 
 class AvalonLog(object):
@@ -47,16 +58,17 @@ class AvalonLog(object):
         on configuration settings.
     """
 
-    log_msg_fmt = '%(levelname)s %(asctime)s %(message)s'
+    _msg_fmt = '%(levelname)s %(asctime)s %(message)s'
 
-    log_date_fmt = '%Y-%m-%d %H:%M:%S'
+    _date_fmt = '%Y-%m-%d %H:%M:%S'
 
-    log_level = logging.INFO
-
-    def __init__(self, log_path=None):
+    def __init__(self, config):
         """ Set the path to the log file or None to use stderr."""
-        self._path = log_path
-        self._log = None
+        self._access_path = config.access_path
+        self._error_path = config.error_path
+        self._level = config.log_level
+
+        self._logger = None
         self._handle = None
         self._setup()
 
@@ -69,9 +81,10 @@ class AvalonLog(object):
     def _setup(self):
         """
         """
-        log = logging.getLogger('avalong')
-        formatter = logging.Formatter(self.log_msg_fmt, self.log_date_fmt)
+        log = logging.getLogger('avalon')
+        formatter = logging.Formatter(self._msg_fmt, self._date_fmt)
 
+        """
         if None is self._path:
             handler = logging.StreamHandler(sys.stderr)
             handler.setFormatter(formatter)
@@ -85,29 +98,30 @@ class AvalonLog(object):
 
         self._handle = handler.stream
         self._log = log
+        """
 
     def debug(self, msg, *args):
         """Log at DEBUG level."""
-        self._log.debug(msg, *args)
+        self._logger.debug(msg, *args)
 
     def info(self, msg, *args):
         """Log at INFO level."""
-        self._log.info(msg, *args)
+        self._logger.info(msg, *args)
 
     def warn(self, msg, *args):
         """Log at WARNING level."""
-        self._log.warn(msg, *args)
+        self._logger.warn(msg, *args)
 
     def error(self, msg, *args):
         """Log at ERROR level."""
-        self._log.error(msg, *args)
+        self._logger.error(msg, *args)
 
     def critical(self, msg, *args):
         """Log at CRITICAL level."""
-        self._log.critical(msg, *args)
+        self._logger.critical(msg, *args)
 
     def log(self, level, msg, *args):
         """ Log at the given level."""
-        self._log.log(level, msg, *args)
+        self._logger.log(level, msg, *args)
 
 

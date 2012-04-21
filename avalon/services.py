@@ -151,11 +151,7 @@ class IdLookupCache(object):
         """
         self._session_handler = session_handler
         self._case_sensitive = case_sensitive
-        self._cache = {
-            'album': {},
-            'artist': {},
-            'genre': {}
-            }
+        self._cache = {}
 
         self.reload()
 
@@ -193,8 +189,10 @@ class IdLookupCache(object):
         """ Set each of the mappings for a particular type of
             entity.
         """
+        field_cache = {}
         for thing in session.query(cls).all():
-            self._cache[field][self._get_key(thing.name)] = thing.id            
+            field_cache[self._get_key(thing.name)] = thing.id
+        self._cache[field] = field_cache
 
 
 class TrackStore(object):
