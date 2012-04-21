@@ -31,7 +31,7 @@
 
 
 import logging
-import multiprocessing
+import traceback
 
 import cherrypy
 from cherrypy.wsgiserver import CherryPyWSGIServer
@@ -125,12 +125,15 @@ class AvalonHandler(object):
             out.error = err
         return out.render()
 
+    def _intersection(self, x, y):
+        """Return the intersection between two sets."""
+        return x.intersection(y)
+
     def _reduce(self, *args):
         """Find the intersection of all of the given non-None sets."""
-        set_intersect = lambda x, y: x.intersection(y)
-        set_filter = lambda x: x is not None
-
-        return reduce(set_intersect, filter(set_filter, args))
+        return reduce(
+            self._intersection, 
+            [res_set for res_set in args if res_set is not None])
 
     @cherrypy.expose
     @cherrypy.tools.json_out(handler=JSONOutHandler())
@@ -238,6 +241,12 @@ class RequestParams(object):
     """ Parse and encapsulate object IDs and names from
         query string parameters.
     """
+
+    id_params = frozenset(['album_id', 'artist_id', 'genre_id'])
+    """URL params for fetching elements by IDs"""
+
+    name_params = frozenset(['album', 'artist', 'genre'])
+    """URL params for fetching elements by name"""
     
     def __init__(self):
         """ Initialize values for object IDs to None.
@@ -247,7 +256,8 @@ class RequestParams(object):
         self.genre_id = None
 
     def is_empty(self):
-        """
+        """ Return true if the request didn't have any keyword 
+            parameters, false otherwise.
         """
         return self.album_id is None and self.artist_id is None and self.genre_id is None
 
@@ -261,7 +271,7 @@ class RequestParams(object):
         """
         f = cls()
 
-        for field in ('album', 'artist', 'genre'):
+        for field in cls.name_params:
             if field not in kwargs:
                 continue
             # Look up a value from the cache and use it to filter
@@ -271,7 +281,7 @@ class RequestParams(object):
             val_id = cache.get_id(field, kwargs[field])
             setattr(f, field + '_id', val_id)
 
-        for field in ('album_id', 'artist_id', 'genre_id'):
+        for field in cls.id_params:
             if field not in kwargs:
                 continue
             try:
