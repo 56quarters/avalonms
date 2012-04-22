@@ -161,6 +161,15 @@ class UserInput(object):
             raise ValueError("The port for the server must be positive")
 
         try:
+            self.server_queue = int(self.server_queue)
+        except ValueError:
+            raise ValueError(
+                "That doesn't appear to be a valid queue size")
+
+        if 0 >= self.server_queue:
+            raise ValueError("The queue size must be positive")
+
+        try:
             self.server_threads = int(self.server_threads)
         except ValueError:
             raise ValueError(
@@ -204,6 +213,15 @@ def install_server_handler(server):
     signal.signal(signal.SIGINT, handler.handle)
 
 
+def get_logger(options):
+    """
+    """
+    config = avalon.log.AvalonLogConfig()
+    config.access_path = options.access_log
+    config.error_path = options.error_log
+
+    return avalon.log.AvalonLog(config)
+
 def get_server(options, session_handler, log):
     """ Configure and create a web app and HTTP server but
         do not start processing requests.
@@ -216,7 +234,7 @@ def get_server(options, session_handler, log):
     config.gateway = app
     config.log = log
     config.num_threads = options.server_threads
-    config.request_queue_size = options.server_threads * 2
+    config.queue_size = options.server_queue
 
     return avalon.web.AvalonServer(config)
 
@@ -234,7 +252,8 @@ def parse_args(defaults):
     parser.add_argument(
         '--access-log',
         metavar='PATH',
-        help='Log all requests to the server to this file')
+        help='Log all requests to the server to this file '
+        '(requests are logged to STDOUT by default)')
     parser.add_argument(
         '--daemon',
         action='store_true',
@@ -247,7 +266,8 @@ def parse_args(defaults):
     parser.add_argument(
         '--error-log',
         metavar='PATH',
-        help='Log any errors or informational messages to this file')
+        help='Log any errors or informational messages to this file '
+        '(errors are logged to STDERR by default)')
     parser.add_argument(
         '--no-scan',
         action='store_true',
@@ -288,7 +308,7 @@ def main():
         return 1
 
     handler = avalon.models.SessionHandler(get_db_url(user_input.db_path))
-    #log = avalon.log.AvalonLog()
+    log = get_logger(user_input)
 
     try:
         # Connect to the DB and drop all existing tables
@@ -301,7 +321,7 @@ def main():
     if not user_input.no_scan:
         # Scan collection and reinsert metadata unless the user
         # asked us not to
-        #log.info("Scanning music collection...")
+        log.info("Scanning music collection...")
         files = avalon.scan.get_files(os.path.abspath(user_input.collection))
         tags = avalon.scan.get_tags(files)
 
@@ -309,12 +329,12 @@ def main():
             print('%s: No files found in music collection' % prog, file=sys.stderr)
             return 1
 
-        #log.info("Loading metadata into database...")
+        log.info("Loading metadata into database...")
         loader = avalon.services.InsertService(tags.values(), handler)
         loader.insert()
 
-    #log.info("Serving HTTP requests on %s...", user_input.server_port)
-    server = get_server(user_input, handler, None)
+    log.info("Starting HTTP server...")
+    server = get_server(user_input, handler, log)
     install_server_handler(server)
 
     try:
@@ -323,7 +343,7 @@ def main():
         print('%s: Error starting HTTP server: %s' % (prog, str(e)), file=sys.stderr)
         return 1
 
-    #log.info("Server stopping")
+    log.info("Server stopped")
     return 0
     
 

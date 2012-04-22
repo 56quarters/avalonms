@@ -78,7 +78,7 @@ class AvalonServerConfig(object):
         self.bind_addr = None
         self.gateway = None
         self.num_threads = None
-        self.request_queue_size = None
+        self.queue_size = None
 
 
 class AvalonServer(CherryPyWSGIServer):
@@ -93,9 +93,12 @@ class AvalonServer(CherryPyWSGIServer):
             config.bind_addr,
             config.gateway,
             numthreads=config.num_threads,
-            request_queue_size=config.request_queue_size)
+            request_queue_size=config.queue_size)
 
         self._log = config.log
+        self._log.info('Server using address %s', config.bind_addr)
+        self._log.info('Server using %s threads', config.num_threads)
+        self._log.info('Server using up to %s queued connections', config.queue_size)
 
     def error_log(self, msg='', level=logging.INFO, trackback=False):
         """Write an error to the log, optionally with a traceback."""
@@ -103,7 +106,17 @@ class AvalonServer(CherryPyWSGIServer):
             msg = '%s: %s' % (msg, traceback.format_exc())
         self._log.log(level, msg)
 
+    def start(self):
+        """Run the server forever."""
+        self._log.info('HTTP server handling requests...')
+        super(AvalonServer, self).start()
 
+    def stop(self):
+        """Gracefully stop the server."""
+        self._log.info('Stopping HTTP server...')
+        super(AvalonServer, self).stop()
+
+        
 class AvalonHandler(object):
 
     """Handle HTTP requests and return result sets in JSON."""

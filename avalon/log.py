@@ -35,6 +35,8 @@ Simple logging wrapper.
 import logging
 import sys
 
+import cherrypy
+
 
 __all__ = [
     'AvalonLogConfig',
@@ -58,7 +60,9 @@ class AvalonLog(object):
         on configuration settings.
     """
 
-    _msg_fmt = '%(levelname)s %(asctime)s %(message)s'
+    _access_fmt = '%(message)s'
+    
+    _error_fmt = '%(levelname)s %(asctime)s %(message)s'
 
     _date_fmt = '%Y-%m-%d %H:%M:%S'
 
@@ -81,24 +85,36 @@ class AvalonLog(object):
     def _setup(self):
         """
         """
-        log = logging.getLogger('avalon')
-        formatter = logging.Formatter(self._msg_fmt, self._date_fmt)
+        log = cherrypy.log
+        log.screen = False
+        log.access_file = None
+        log.error_file = None
+        
+        self._setup_access_log(log)
+        self._setup_error_log(log)
 
+        # Application logging uses the error log
+        self._logger = log.error_log
+
+    def _setup_access_log(self, log):
         """
-        if None is self._path:
-            handler = logging.StreamHandler(sys.stderr)
-            handler.setFormatter(formatter)
-            log.addHandler(handler)
+        """
+        if self._access_path is None:
+            handler = logging.StreamHandler(sys.stdout)
         else:
-            handler = logging.FileHandler(self._path)
-            handler.setFormatter(formatter)
-            log.addHandler(handler)
+            handler = logging.FileHandler(self._access_path)
+        handler.setFormatter(logging.Formatter(self._access_fmt))
+        log.access_log.addHandler(handler)
 
-        log.setLevel(self.log_level)
-
-        self._handle = handler.stream
-        self._log = log
+    def _setup_error_log(self, log):
         """
+        """
+        if self._error_path is None:
+            handler = logging.StreamHandler(sys.stderr)
+        else:
+            handler = logging.FileHandler(self._error_path)
+        handler.setFormatter(logging.Formatter(self._error_fmt, self._date_fmt))
+        log.error_log.addHandler(handler)
 
     def debug(self, msg, *args):
         """Log at DEBUG level."""
