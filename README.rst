@@ -52,7 +52,7 @@ Songs endpoint
 
     + Type: ``string``
 
-    + Description: Select only songs belonging to this album (case sensitive)
+    + Description: Select only songs belonging to this album (not case sensitive)
 
   - ``album_id``
 
@@ -64,7 +64,7 @@ Songs endpoint
 
     + Type: ``string``
 
-    + Description: Select only songs by this artist (case sensitive)
+    + Description: Select only songs by this artist (not case sensitive)
 
   - ``artist_id``
 
@@ -76,7 +76,7 @@ Songs endpoint
 
     + Type: ``string``
 
-    + Description: Select only songs belonging to this genre (case sensitive)
+    + Description: Select only songs belonging to this genre (not case sensitive)
 
   - ``genre_id``
 
