@@ -73,23 +73,28 @@ class AvalonLog(object):
         self._level = config.log_level
 
         self._logger = None
-        self._handle = None
-        self._setup()
+        self._handlers = []
+        self.reload()
 
-    def get_open_fd(self):
-        """ Get the fileno of the open log file."""
-        if not self._handle:
-            return -1
-        return self._handle.fileno()
+    def get_open_fds(self):
+        """ Get the file number of any open log files."""
+        return [
+            handler.stream.fileno() for handler in self._handlers if handler.stream]
 
-    def _setup(self):
-        """
-        """
+    def reload(self):
+        """ Configure cherrypy logging and install our own handlers."""
         log = cherrypy.log
         log.screen = False
         log.access_file = None
         log.error_file = None
+
+        # Clear any existing handlers we've installed
+        for handler in self._handlers:
+            log.access_log.removeHandler(handler)
+        for handler in self._handlers:
+            log.error_log.removeHandler(handler)
         
+        self._handlers = []
         self._setup_access_log(log)
         self._setup_error_log(log)
 
@@ -104,7 +109,9 @@ class AvalonLog(object):
         else:
             handler = logging.FileHandler(self._access_path)
         handler.setFormatter(logging.Formatter(self._access_fmt))
+
         log.access_log.addHandler(handler)
+        self._handlers.append(handler)
 
     def _setup_error_log(self, log):
         """
@@ -114,7 +121,9 @@ class AvalonLog(object):
         else:
             handler = logging.FileHandler(self._error_path)
         handler.setFormatter(logging.Formatter(self._error_fmt, self._date_fmt))
+
         log.error_log.addHandler(handler)
+        self._handlers.append(handler)
 
     def debug(self, msg, *args):
         """Log at DEBUG level."""

@@ -106,6 +106,11 @@ class AvalonServer(CherryPyWSGIServer):
             msg = '%s: %s' % (msg, traceback.format_exc())
         self._log.log(level, msg)
 
+    def reload(self):
+        """Reopen the server logs."""
+        self._log.info("HTTP server reloading logs...")
+        self._log.reload()
+
     def start(self):
         """Run the server forever."""
         self._log.info('HTTP server handling requests...')

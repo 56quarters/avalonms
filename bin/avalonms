@@ -69,6 +69,8 @@ class ServerHandler(object):
         """ Stop the server on SIGTERM of SIGINT."""
         if signum in (signal.SIGTERM, signal.SIGINT):
             self._server.stop()
+        elif signum == signal.SIGUSR1:
+            self._server.reload()
 
 
 class InputDefaults(object):
@@ -211,6 +213,7 @@ def install_server_handler(server):
     handler = ServerHandler(server)
     signal.signal(signal.SIGTERM, handler.handle)
     signal.signal(signal.SIGINT, handler.handle)
+    signal.signal(signal.SIGUSR1, handler.handle)
 
 
 def get_logger(options):
