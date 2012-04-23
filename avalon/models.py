@@ -39,7 +39,7 @@ except ImportError:
     import json
 
 from sqlalchemy import create_engine, Column, ForeignKey, Integer, String
-from sqlalchemy.exc import ArgumentError, OperationalError
+from sqlalchemy.exc import ArgumentError, OperationalError, SQLAlchemyError
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import backref, relationship, sessionmaker
 
@@ -119,10 +119,11 @@ class SessionHandler(object):
         new sessions.
     """
 
-    def __init__(self, url):
+    def __init__(self, url, log):
         """ Initialize the session factory and database connection.
         """
         self._url = url
+        self._log = log
         self._session_factory = sessionmaker()
         self._engine = None
 
@@ -130,7 +131,10 @@ class SessionHandler(object):
         """Safely close a session."""
         if session is None:
             return
-        session.close()
+        try:
+            session.close()
+        except SQLAlchemyError, e:
+            self._log.warn('Error closing session: %s', e.message, exc_info=True)
 
     def connect(self, clean=False):
         """ Connect to the database and configure the session

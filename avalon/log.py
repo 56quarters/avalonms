@@ -125,28 +125,28 @@ class AvalonLog(object):
         log.error_log.addHandler(handler)
         self._handlers.append(handler)
 
-    def debug(self, msg, *args):
+    def debug(self, msg, *args, **kwargs):
         """Log at DEBUG level."""
-        self._logger.debug(msg, *args)
+        self._logger.debug(msg, *args, **kwargs)
 
-    def info(self, msg, *args):
+    def info(self, msg, *args, **kwargs):
         """Log at INFO level."""
-        self._logger.info(msg, *args)
+        self._logger.info(msg, *args, **kwargs)
 
-    def warn(self, msg, *args):
+    def warn(self, msg, *args, **kwargs):
         """Log at WARNING level."""
-        self._logger.warn(msg, *args)
+        self._logger.warn(msg, *args, **kwargs)
 
-    def error(self, msg, *args):
+    def error(self, msg, *args, **kwargs):
         """Log at ERROR level."""
-        self._logger.error(msg, *args)
+        self._logger.error(msg, *args, **kwargs)
 
-    def critical(self, msg, *args):
+    def critical(self, msg, *args, **kwargs):
         """Log at CRITICAL level."""
-        self._logger.critical(msg, *args)
+        self._logger.critical(msg, *args, **kwargs)
 
-    def log(self, level, msg, *args):
+    def log(self, level, msg, *args, **kwargs):
         """ Log at the given level."""
-        self._logger.log(level, msg, *args)
+        self._logger.log(level, msg, *args, **kwargs)
 
 

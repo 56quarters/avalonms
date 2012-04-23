@@ -310,8 +310,8 @@ def main():
         print('%s: %s' % (prog, str(e)), file=sys.stderr)
         return 1
 
-    handler = avalon.models.SessionHandler(get_db_url(user_input.db_path))
     log = get_logger(user_input)
+    handler = avalon.models.SessionHandler(get_db_url(user_input.db_path), log)
 
     try:
         # Connect to the DB and drop all existing tables

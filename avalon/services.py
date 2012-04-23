@@ -102,7 +102,7 @@ class InsertService(object):
             session.add_all(insert)
             session.commit()
         finally:
-            session.close()
+            self._session_handler.close(session)
 
     def _queue_inserts(self, queue, values, cls):
         """ Generate new objects for insertion for each of the
@@ -137,7 +137,7 @@ class InsertService(object):
             session.add_all(insert)
             session.commit()
         finally:
-            session.close()
+            self._session_handler.close(session)
 
 
 class IdLookupCache(object):
@@ -183,7 +183,7 @@ class IdLookupCache(object):
             self._load_mapping(session, 'artist', Artist)
             self._load_mapping(session, 'genre', Genre)
         finally:
-            session.close()
+            self._session_handler.close(session)
 
     def _load_mapping(self, session, field, cls):
         """ Set each of the mappings for a particular type of
