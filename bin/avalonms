@@ -49,6 +49,7 @@ import cherrypy
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
+import avalon.app
 import avalon.exc
 import avalon.log
 import avalon.models
@@ -181,65 +182,10 @@ class UserInput(object):
             raise ValueError("The number of threads to use must be positive")
 
 
-def get_db_url(path):
-    """ Convert a file system path to an connection string
-        for an SQLite database.
-    """
-    return 'sqlite:///%s' % path
-
-
 def get_prog():
     """ Get a sanitized version of arg[0].
     """
     return re.sub('[^\w]+', '', os.path.basename(sys.argv[0]))
-
-
-def install_default_handler():
-    """ Install signal handlers for use before the HTTP server is
-        started that simply exit the script on TERM or INT.
-    """
-    def handle(signum, frame):
-        if signum in (signal.SIGINT, signal.SIGTERM):
-            raise SystemExit()
-
-    signal.signal(signal.SIGTERM, handle)
-    signal.signal(signal.SIGINT, handle)
-    
-
-def install_server_handler(server):
-    """ Install signal handlers that give the HTTP server a chance
-        to shutdown gracefully.
-    """
-    handler = ServerHandler(server)
-    signal.signal(signal.SIGTERM, handler.handle)
-    signal.signal(signal.SIGINT, handler.handle)
-    signal.signal(signal.SIGUSR1, handler.handle)
-
-
-def get_logger(options):
-    """
-    """
-    config = avalon.log.AvalonLogConfig()
-    config.access_path = options.access_log
-    config.error_path = options.error_log
-
-    return avalon.log.AvalonLog(config)
-
-def get_server(options, session_handler, log):
-    """ Configure and create a web app and HTTP server but
-        do not start processing requests.
-    """
-    root = avalon.web.AvalonHandler(session_handler)
-    app = cherrypy.tree.mount(root, script_name='/avalon')
-
-    config = avalon.web.AvalonServerConfig()
-    config.bind_addr = (options.server_address, options.server_port)
-    config.gateway = app
-    config.log = log
-    config.num_threads = options.server_threads
-    config.queue_size = options.server_queue
-
-    return avalon.web.AvalonServer(config)
 
 
 def parse_args(defaults):
@@ -298,7 +244,6 @@ def parse_args(defaults):
 
 
 def main():
-    install_default_handler()
     defaults = InputDefaults()
     args = parse_args(defaults)
     user_input = UserInput(args, defaults)
@@ -310,43 +255,23 @@ def main():
         print('%s: %s' % (prog, str(e)), file=sys.stderr)
         return 1
 
-    log = get_logger(user_input)
-    handler = avalon.models.SessionHandler(get_db_url(user_input.db_path), log)
+    app = avalon.app.AvalonMS(user_input)
 
     try:
         # Connect to the DB and drop all existing tables
         # unless the user asked us not to rescan the collection
-        handler.connect(clean=not user_input.no_scan)
+        db.connect(clean=not user_input.no_scan)
     except avalon.exc.ConnectionError, e:
         print('%s: %s' % (prog, str(e)), file=sys.stderr)
         return 1
 
     if not user_input.no_scan:
-        # Scan collection and reinsert metadata unless the user
-        # asked us not to
-        log.info("Scanning music collection...")
-        files = avalon.scan.get_files(os.path.abspath(user_input.collection))
-        tags = avalon.scan.get_tags(files)
+        tracks = app.scan(user_input.collection)
+        app.insert(tracks)
 
-        if not files:
-            print('%s: No files found in music collection' % prog, file=sys.stderr)
-            return 1
+    server = app.get_server(user_input)
+    
 
-        log.info("Loading metadata into database...")
-        loader = avalon.services.InsertService(tags.values(), handler)
-        loader.insert()
-
-    log.info("Starting HTTP server...")
-    server = get_server(user_input, handler, log)
-    install_server_handler(server)
-
-    try:
-        server.start()
-    except socket.error, e:
-        print('%s: Error starting HTTP server: %s' % (prog, str(e)), file=sys.stderr)
-        return 1
-
-    log.info("Server stopped")
     return 0
     
 

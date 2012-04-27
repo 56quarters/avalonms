@@ -32,6 +32,7 @@
 
 __all__ = [
     'AvalonError',
+    'CollectionError',
     'ConnectionError',
     'DatabaseError'
     ]
@@ -56,6 +57,11 @@ class AvalonError(Exception):
         pass
 
 
+class CollectionError(AvalonError):
+
+    """There was an error scanning the music collection."""
+
+
 class DatabaseError(AvalonError):
 
     """There was an error performing an operation on the database."""
@@ -64,4 +70,9 @@ class DatabaseError(AvalonError):
 class ConnectionError(DatabaseError):
 
     """There was an error connecting to the database."""
+
+
+class NetworkError(AvalonError):
+
+    """There was a address or port related error."""
 
