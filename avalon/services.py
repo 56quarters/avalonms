@@ -151,7 +151,7 @@ class IdLookupCache(object):
         """
         self._session_handler = session_handler
         self._case_sensitive = case_sensitive
-        self._cache = {}
+        self._cache = None
 
         self.reload()
 
@@ -174,25 +174,27 @@ class IdLookupCache(object):
             return 0
 
     def reload(self):
-        """ Load all name to ID mappings from the database.
+        """ Atomically load all name to ID mappings from the database.
         """
         session = self._session_handler.get_session()
+        cache = {}
 
         try:
-            self._load_mapping(session, 'album', Album)
-            self._load_mapping(session, 'artist', Artist)
-            self._load_mapping(session, 'genre', Genre)
+            cache['album'] = self._get_mapping(session, 'album', Album)
+            cache['artist'] = self._get_mapping(session, 'artist', Artist)
+            cache['genre'] = self._get_mapping(session, 'genre', Genre)
         finally:
             self._session_handler.close(session)
+        self._cache = cache
 
-    def _load_mapping(self, session, field, cls):
+    def _get_mapping(self, session, field, cls):
         """ Set each of the mappings for a particular type of
             entity.
         """
         field_cache = {}
         for thing in session.query(cls).all():
             field_cache[self._get_key(thing.name)] = thing.id
-        self._cache[field] = field_cache
+        return field_cache
 
 
 class TrackStore(object):
@@ -221,8 +223,8 @@ class TrackStore(object):
         return table
 
     def reload(self):
-        """ Populate the various structures for looking up track
-            elements by their attributes.
+        """ Atomically populate the various structures for looking up
+            track elements by their attributes.
         """
         session = self._session_handler.get_session()
 
@@ -284,7 +286,7 @@ class _IdNameStore(object):
         self.reload()
 
     def reload(self):
-        """ Populate all elements of the given type.
+        """ Atomically populate all elements of the given type.
         """
         session = self._session_handler.get_session()
         
