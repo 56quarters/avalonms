@@ -41,11 +41,8 @@ import os
 import os.path
 import re
 import socket
-import signal
 import sys
 import tempfile
-
-import cherrypy
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
@@ -212,7 +209,8 @@ def parse_args(defaults):
     parser.add_argument(
         '--server-port',
         metavar='PORT',
-        help='Port for server to listen  on (default is %s)' % defaults.server_port)
+        help='Port for server to listen  on '
+        '(default is %s)' % defaults.server_port)
     parser.add_argument(
         '--server-queue',
         metavar='NUM',

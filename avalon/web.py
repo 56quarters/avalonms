@@ -102,7 +102,7 @@ class AvalonServer(CherryPyWSGIServer):
 
     def error_log(self, msg='', level=logging.INFO, trackback=False):
         """Write an error to the log, optionally with a traceback."""
-        if traceback:
+        if trackback:
             msg = '%s: %s' % (msg, traceback.format_exc())
         self._log.log(level, msg)
 

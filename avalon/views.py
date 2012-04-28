@@ -107,9 +107,9 @@ class IdNameElm(object):
         return o.id == self.id and o.name == self.name
 
     def __hash__(self):
-       """ Hash is computed from ID, name, and class.
-       """
-       return hash(self.id) ^ (hash(self.name) * 7) ^ (hash(self.__class__) * 31)
+        """ Hash is computed from ID, name, and class.
+        """
+        return hash(self.id) ^ (hash(self.name) * 7) ^ (hash(self.__class__) * 31)
 
 
 class TrackElm(IdNameElm):

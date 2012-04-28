@@ -55,7 +55,7 @@ __all__ = [
     ]
 
 
-APP_PATH='/avalon'
+APP_PATH = '/avalon'
 
 
 class Factories(object):
@@ -134,7 +134,8 @@ class AvalonMS(object):
         self._log.info("Scanning music collection...")
         files = avalon.scan.get_files(os.path.abspath(self._config.collection))
         if not files:
-            raise CollectionError("No files found in collection root %s" % root)
+            raise CollectionError(
+                "No files found in collection root %s" % self._config.collection)
 
         tags = avalon.scan.get_tags(files)
         loader = avalon.services.InsertService(tags.values(), self._db)
@@ -150,20 +151,20 @@ class AvalonMS(object):
         server = self._get_server()
         self._signals.server = server
 
-        try:
-            server.start()
-        except socket.error, e:
-            raise NetworkError(e.message, e)
+        if self._config.daemon:
+            self._start_daemon(server)
+        else:
+            self._start_foreground(server)
 
     def _start_foreground(self, server):
         """
         """
-        pass
+        server.start()
 
     def _start_daemon(self, server):
         """
         """
-        pass
+        server.start()
 
 
 class SignalHandler(object):

@@ -33,15 +33,10 @@ along with functionality to manage connections to the backing database.
 """
 
 
-try:
-    import simplejson as json
-except ImportError:
-    import json
-
 from sqlalchemy import create_engine, Column, ForeignKey, Integer, String
 from sqlalchemy.exc import ArgumentError, OperationalError, SQLAlchemyError
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import backref, relationship, sessionmaker
+from sqlalchemy.orm import relationship, sessionmaker
 
 import avalon.exc
 

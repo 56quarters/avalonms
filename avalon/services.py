@@ -295,7 +295,7 @@ class _IdNameStore(object):
         self._all = frozenset([model_to_elm(thing) for thing in res])
 
     def all(self):
-        """
+        """ Get all elements.
         """
         return self._all
 
