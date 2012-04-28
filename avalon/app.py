@@ -149,7 +149,11 @@ class AvalonMS(object):
 
         self._log.info("Starting server...")
         server = self._get_server()
-        self._signals.server = server
+        
+        # Give the signal handler a reference to the server
+        # so that we can stop the server properly when we get
+        # a SIGTERM or any other signal we care to handle.
+        self._signals.server = server            
 
         if self._config.daemon:
             self._start_daemon(server)
@@ -164,7 +168,15 @@ class AvalonMS(object):
     def _start_daemon(self, server):
         """
         """
-        server.start()
+        context = daemon.DaemonContext()
+        context.files_preserve = self._log.get_open_fds()
+
+        with context:
+            # Just reinstall our own signal handlers here instead of
+            # specifying them when creating the daemon context so that
+            # we can keep all the signal logic in the signal handler
+            self._signals.install()
+            server.start()
 
 
 class SignalHandler(object):

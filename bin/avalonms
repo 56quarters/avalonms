@@ -132,6 +132,14 @@ class UserInput(object):
             raise ValueError(
                 "That doesn't appear to be a valid music collection path")
 
+        if self.access_log is None and self.daemon:
+            raise ValueError(
+                "You must specify an access log in daemon mode")
+
+        if self.error_log is None and self.daemon:
+            raise ValueError(
+                "You must specify an error log in daemon mode")
+
         if not self._is_valid_addr(self.server_address):
             raise ValueError(
                 "That doesn't appear to be valid server address")
