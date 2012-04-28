@@ -36,13 +36,17 @@ import os.path
 import signal
 
 import cherrypy
+import daemon
 
 import avalon.log
 import avalon.models
 import avalon.scan
 import avalon.services
 import avalon.web
-from avalon.exc import CollectionError, NetworkError
+from avalon.exc import (
+    CollectionError,
+    DatabaseError,
+    NetworkError)
 
 
 __all__ = [
@@ -71,57 +75,64 @@ class AvalonMSConfig(object):
 
 class AvalonMS(object):
 
-    def __init__(self, opts):
-        """
-        """
-        self._opts = opts
-        self._log = self._get_logger()
-        self._app = None
-        self._db = None
-        self._signal = SignalHandler()
+    """
+    """
 
-    def _get_app(self):
+    def __init__(self, config):
         """
         """
-        root = avalon.web.AvalonHandler(self._db)
-        return cherrypy.tree.mount(root, script_name=APP_PATH)
+        self._config = config
+        self._log = self._get_logger()
+        self._signals = SignalHandler()
+        self._db = None
 
     def _get_logger(self):
-        """
+        """ Configure and return the application logger.
         """
         config = avalon.log.AvalonLogConfig()
-        config.access_path = self._opts.access_log
-        config.error_path = self._opts.error_log
+        config.access_path = self._config.access_log
+        config.error_path = self._config.error_log
         return avalon.log.AvalonLog(config)
 
     def _get_db_url(self):
+        """ Get a database connection URL from the path to the SQLite database.
         """
-        """
-        return 'sqlite:///%s' % self._opts.db_path
+        return 'sqlite:///%s' % self._config.db_path
 
     def _get_server(self):
-        """
+        """ Configure and return the application server.
         """
         config = avalon.web.AvalonServerConfig()
-        config.gateway = self._get_app()
+
         config.log = self._log
-        config.bind_addr = (self._opts.server_address, self._opts.server_port)
-        config.num_threads = self._opts.server_threads
-        config.queue_size = self._opts.server_queue
+        config.bind_addr = (self._config.server_address, self._config.server_port)
+        config.num_threads = self._config.server_threads
+        config.queue_size = self._config.server_queue
+        config.gateway = cherrypy.tree.mount(
+            avalon.web.AvalonHandler(self._db), 
+            script_name=APP_PATH)
+
         return avalon.web.AvalonServer(config)
 
     def connect(self):
+        """ Create a database session handler and perform the initial
+            database setup for the application.
         """
-        """
+        self._log.info("Connecting to database...")
         self._db = avalon.models.SessionHandler(self._get_db_url(), self._log)
         # Clean the database (drop and recreate tables) unless
         # the user has requested not to rescan the collection.
-        self._db.connect(clean=not self._opts.no_scan)
+        self._db.connect(clean=not self._config.no_scan)
 
     def scan(self):
+        """ Read audio metadata from files in the collection and insert it
+            into the database.
         """
-        """
-        files = avalon.scan.get_files(os.path.abspath(self._opts.collection))
+        if self._db is None:
+            raise DatabaseError("Can't scan collection: database is not connected")
+        
+        self._log.info("Scanning music collection...")
+        files = avalon.scan.get_files(os.path.abspath(self._config.collection))
         if not files:
             raise CollectionError("No files found in collection root %s" % root)
 
@@ -132,13 +143,27 @@ class AvalonMS(object):
     def serve(self):
         """
         """
+        if self._db is None:
+            raise DatabaseError("Can't start server: database is not connected")
+
+        self._log.info("Starting server...")
         server = self._get_server()
-        self._signal.server = server
+        self._signals.server = server
 
         try:
             server.start()
         except socket.error, e:
             raise NetworkError(e.message, e)
+
+    def _start_foreground(self, server):
+        """
+        """
+        pass
+
+    def _start_daemon(self, server):
+        """
+        """
+        pass
 
 
 class SignalHandler(object):
