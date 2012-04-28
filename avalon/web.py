@@ -46,6 +46,7 @@ __all__ = [
     'AvalonServerConfig',
     'AvalonServer',
     'AvalonHandler',
+    'RequestOutput',
     'RequestFilter'
     ]
 
