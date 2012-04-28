@@ -58,22 +58,6 @@ import avalon.services
 import avalon.web
 
 
-class ServerHandler(object):
-    
-    """ Allow the server to shutdown in response to signals."""
-
-    def __init__(self, server):
-        """ Store a reference to the HTTP server."""
-        self._server = server
-
-    def handle(self, signum, frame):
-        """ Stop the server on SIGTERM of SIGINT."""
-        if signum in (signal.SIGTERM, signal.SIGINT):
-            self._server.stop()
-        elif signum == signal.SIGUSR1:
-            self._server.reload()
-
-
 class InputDefaults(object):
 
     """Compute default values for configuration options."""
@@ -258,20 +242,14 @@ def main():
     app = avalon.app.AvalonMS(user_input)
 
     try:
-        # Connect to the DB and drop all existing tables
-        # unless the user asked us not to rescan the collection
-        db.connect(clean=not user_input.no_scan)
+        app.connect()
     except avalon.exc.ConnectionError, e:
         print('%s: %s' % (prog, str(e)), file=sys.stderr)
         return 1
 
     if not user_input.no_scan:
-        tracks = app.scan(user_input.collection)
-        app.insert(tracks)
-
-    server = app.get_server(user_input)
-    
-
+        app.scan()
+    app.serve()
     return 0
     
 

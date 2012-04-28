@@ -31,13 +31,42 @@
 """
 
 
+import os
+import os.path
 import signal
 
+import cherrypy
+
 import avalon.log
+import avalon.models
 import avalon.scan
 import avalon.services
 import avalon.web
 from avalon.exc import CollectionError, NetworkError
+
+
+__all__ = [
+    'APP_PATH',
+    'AvalonMS'
+    ]
+
+
+APP_PATH='/avalon'
+
+
+class Factories(object):
+    
+    def __init__(self):
+        self.logger = avalon.log.AvalonLog
+        self.app = avalon.web.AvalonHandler
+        self.server = avalon.web.AvalonServer
+        self.db = avalon.models.SessionHandler
+
+
+class AvalonMSConfig(object):
+
+    def __init__(self):
+        pass
 
 
 class AvalonMS(object):
@@ -49,12 +78,13 @@ class AvalonMS(object):
         self._log = self._get_logger()
         self._app = None
         self._db = None
+        self._signal = SignalHandler()
 
     def _get_app(self):
         """
         """
-        root = avalon.web.AvalonHander(self._session_handler)
-        return cherrypy.tree.mount(root, script_name='/avalon')
+        root = avalon.web.AvalonHandler(self._db)
+        return cherrypy.tree.mount(root, script_name=APP_PATH)
 
     def _get_logger(self):
         """
@@ -64,51 +94,51 @@ class AvalonMS(object):
         config.error_path = self._opts.error_log
         return avalon.log.AvalonLog(config)
 
-    def connect(self, rescan):
+    def _get_db_url(self):
         """
         """
-        
+        return 'sqlite:///%s' % self._opts.db_path
 
-    def scan(self, root):
-        """
-        """
-        files = avalon.scan.get_files(os.path.abspath(root))
-        if not files:
-            raise CollectionError("No files found in collection root %s" % root)
-        return avalon.scan.get_tags(files)
-
-    def insert(self, tracks):
-        """
-        """
-        loader = avalon.services.InsertService(
-            tracks.values(),
-            self._session_factory)
-        loader.insert()
-
-    def serve(self, server):
-        """
-        """
-        try:
-            server.start()
-        except socket.error, e:
-            raise NetworkError(e.message, e)
-
-    def get_db(self, opts, log):
-        """
-        """
-        url = 'sqlite:///%s' % opts.db_path
-        return avalon.models.SessionHander(url)
-
-    def get_server(self):
+    def _get_server(self):
         """
         """
         config = avalon.web.AvalonServerConfig()
         config.gateway = self._get_app()
         config.log = self._log
-        config.bind_addr = (opts.server_address, opts.server_port)
-        config.num_threads = opts.server_threads
-        config.queue_size = opts.server_queue
+        config.bind_addr = (self._opts.server_address, self._opts.server_port)
+        config.num_threads = self._opts.server_threads
+        config.queue_size = self._opts.server_queue
         return avalon.web.AvalonServer(config)
+
+    def connect(self):
+        """
+        """
+        self._db = avalon.models.SessionHandler(self._get_db_url(), self._log)
+        # Clean the database (drop and recreate tables) unless
+        # the user has requested not to rescan the collection.
+        self._db.connect(clean=not self._opts.no_scan)
+
+    def scan(self):
+        """
+        """
+        files = avalon.scan.get_files(os.path.abspath(self._opts.collection))
+        if not files:
+            raise CollectionError("No files found in collection root %s" % root)
+
+        tags = avalon.scan.get_tags(files)
+        loader = avalon.services.InsertService(tags.values(), self._db)
+        loader.insert()
+
+    def serve(self):
+        """
+        """
+        server = self._get_server()
+        self._signal.server = server
+
+        try:
+            server.start()
+        except socket.error, e:
+            raise NetworkError(e.message, e)
 
 
 class SignalHandler(object):
@@ -120,9 +150,9 @@ class SignalHandler(object):
         """
         """
         self.server = None
-        self._install()
+        self.install()
 
-    def handle(self, signum, frame):
+    def dispatch(self, signum, frame):
         """
         """
         if self.server is None:
@@ -130,12 +160,12 @@ class SignalHandler(object):
         else:
             self._server_handler(signum, frame)
 
-    def _install(self):
+    def install(self):
         """
         """
-        signal.signal(signal.SIGINT, self.handle)
-        signal.signal(signal.SIGTERM, self.handle)
-        signal.signal(signal.SIGUSR1, self.handle)
+        signal.signal(signal.SIGINT, self.dispatch)
+        signal.signal(signal.SIGTERM, self.dispatch)
+        signal.signal(signal.SIGUSR1, self.dispatch)
         
     def _exit_handler(self, signum, frame):
         """
