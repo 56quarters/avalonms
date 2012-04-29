@@ -54,6 +54,7 @@ import avalon.log
 import avalon.models
 import avalon.scan
 import avalon.services
+import avalon.util
 import avalon.web
 
 
@@ -77,20 +78,12 @@ def is_valid_addr(addr):
 
 def is_valid_user(user):
     """Return true if this a valid user name, false otherwise."""
-    try:
-        pwd.getpwnam(user).pw_uid
-    except KeyError:
-        return False
-    return True
+    return avalon.util.get_uid(user) is not None
 
 
 def is_valid_group(group):
     """Return true if this a valid group name, false otherwise."""
-    try:
-        grp.getgrnam(group).gr_gid
-    except KeyError:
-        return False
-    return True
+    return avalon.util.get_gid(group) is not None
 
 
 class DefaultConfiguration(object):
@@ -133,6 +126,7 @@ class ApplicationConfig(object):
         self.server_port = defaults.server_port
         self.server_queue = defaults.server_queue
         self.server_threads = defaults.server_threads
+
         self._set_overrides(opts)
 
     def _set_overrides(self, opts):
@@ -202,17 +196,11 @@ class ApplicationConfig(object):
             raise ValueError("The number of threads to use must be positive")
 
 
-def get_prog():
-    """ Get a sanitized version of arg[0].
-    """
-    return re.sub('[^\w]+', '', os.path.basename(sys.argv[0]))
-
-
-def parse_args(defaults):
+def parse_args(prog, defaults):
     """ Parse required and optional program arguments.
     """
     parser = argparse.ArgumentParser(
-        prog=get_prog(),
+        prog=prog,
         description=__doc__)
 
     parser.add_argument(
@@ -230,11 +218,13 @@ def parse_args(defaults):
     parser.add_argument(
         '--daemon-user',
         metavar='USER',
-        help='Switch to this user when running as a daemon')
+        help='Switch to this user when running as a daemon '
+        '(default is %s)' % defaults.daemon_user)
     parser.add_argument(
         '--daemon-group',
         metavar='GROUP',
-        help='Switch to this group when running as a daemon')
+        help='Switch to this group when running as a daemon '
+        'default is %s)' % defaults.daemon_group)
     parser.add_argument(
         '--db-path',
         metavar='PATH',
@@ -274,9 +264,10 @@ def parse_args(defaults):
 
 def main():
     """Parse and validate user input and start the application."""
+    prog = re.sub('[^\w]+', '', os.path.basename(sys.argv[0]))
     defaults = DefaultConfiguration()
-    config = ApplicationConfig(parse_args(defaults), defaults)
-    prog = get_prog()
+    config = ApplicationConfig(parse_args(prog, defaults), defaults)
+
 
     try:
         config.validate()
