@@ -1,6 +1,7 @@
 For v1:
 * Server address (IPv6?)
 * Error handling
+* setup.py
 
 For v2:
 * Tests
