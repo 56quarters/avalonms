@@ -142,7 +142,7 @@ class AvalonMS(object):
         loader.insert()
 
     def serve(self):
-        """
+        """ Install signal handlers for the server and begin handling requests.
         """
         if self._db is None:
             raise DatabaseError("Can't start server: database is not connected")
@@ -161,12 +161,12 @@ class AvalonMS(object):
             self._start_foreground(server)
 
     def _start_foreground(self, server):
-        """
-        """
+        """Start the server in the foreground (non-daemon)."""
         server.start()
 
     def _start_daemon(self, server):
-        """
+        """ Start the server as a daemon, switching to a different user
+            if required.
         """
         context = daemon.DaemonContext()
         context.files_preserve = self._log.get_open_fds()

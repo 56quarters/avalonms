@@ -37,8 +37,10 @@ service using JSON.
 from __future__ import print_function
 
 import argparse
+import grp
 import os
 import os.path
+import pwd
 import re
 import socket
 import sys
@@ -55,7 +57,43 @@ import avalon.services
 import avalon.web
 
 
-class InputDefaults(object):
+def is_valid_addr(addr):
+    """ Return true if this is a valid IPv4 or IPv6 address, false
+        otherwise.
+    """
+    protos = [socket.AF_INET]
+    if socket.has_ipv6:
+        protos.append(socket.AF_INET6)
+
+    for proto in protos:
+        try:
+            socket.inet_pton(proto, addr)
+        except socket.error:
+            pass
+        else:
+            return True
+    return False
+
+
+def is_valid_user(user):
+    """Return true if this a valid user name, false otherwise."""
+    try:
+        pwd.getpwnam(user).pw_uid
+    except KeyError:
+        return False
+    return True
+
+
+def is_valid_group(group):
+    """Return true if this a valid group name, false otherwise."""
+    try:
+        grp.getgrnam(group).gr_gid
+    except KeyError:
+        return False
+    return True
+
+
+class DefaultConfiguration(object):
 
     """Compute default values for configuration options."""
 
@@ -64,6 +102,8 @@ class InputDefaults(object):
         self.collection = None
         self.access_log = None
         self.daemon = False
+        self.daemon_user = 'avalonms'
+        self.daemon_group = 'avalonms'
         self.db_path = os.path.join(tempfile.gettempdir(), 'avalon.sqlite')
         self.error_log = None
         self.no_scan = False
@@ -73,9 +113,9 @@ class InputDefaults(object):
         self.server_threads = 4
 
 
-class UserInput(object):
+class ApplicationConfig(object):
 
-    """Validation for user options and arguments."""
+    """Validation for configuration options."""
 
     def __init__(self, opts, defaults):
         """ Initialize input to default values and then
@@ -84,6 +124,8 @@ class UserInput(object):
         self.collection = defaults.collection
         self.access_log = defaults.access_log
         self.daemon = defaults.daemon
+        self.daemon_user = defaults.daemon_user
+        self.daemon_group = defaults.daemon_group
         self.db_path = defaults.db_path
         self.error_log = defaults.error_log
         self.no_scan = defaults.no_scan
@@ -91,14 +133,12 @@ class UserInput(object):
         self.server_port = defaults.server_port
         self.server_queue = defaults.server_queue
         self.server_threads = defaults.server_threads
+        self._set_overrides(opts)
 
-        self._set_user_opts(opts)
-
-    def _set_user_opts(self, opts):
+    def _set_overrides(self, opts):
         """ Override default values with user supplied values
             if provided.
         """
-
         for attr in dir(opts):
             if attr.startswith('_'):
                 continue
@@ -106,23 +146,6 @@ class UserInput(object):
             if val is None:
                 continue
             setattr(self, attr, val)
-
-    def _is_valid_addr(self, addr):
-        """ Return true if this is a valid IPv4 or IPv6 address, false
-            otherwise.
-        """
-        protos = [socket.AF_INET]
-        if socket.has_ipv6:
-            protos.append(socket.AF_INET6)
-
-        for proto in protos:
-            try:
-                socket.inet_pton(proto, addr)
-            except socket.error:
-                pass
-            else:
-                return True
-        return False
 
     def validate(self):
         """ Validate user input values or default values. Raise
@@ -140,7 +163,15 @@ class UserInput(object):
             raise ValueError(
                 "You must specify an error log in daemon mode")
 
-        if not self._is_valid_addr(self.server_address):
+        if not is_valid_user(self.daemon_user) and self.daemon:
+            raise ValueError(
+                "You must specify a valid daemon user")
+
+        if not is_valid_group(self.daemon_group) and self.daemon:
+            raise ValueError(
+                "You must specify a valid daemon group")
+
+        if not is_valid_addr(self.server_address):
             raise ValueError(
                 "That doesn't appear to be valid server address")
             
@@ -197,6 +228,14 @@ def parse_args(defaults):
         action='store_true',
         help='Run the server in the background as a daemon')
     parser.add_argument(
+        '--daemon-user',
+        metavar='USER',
+        help='Switch to this user when running as a daemon')
+    parser.add_argument(
+        '--daemon-group',
+        metavar='GROUP',
+        help='Switch to this group when running as a daemon')
+    parser.add_argument(
         '--db-path',
         metavar='PATH',
         help='File to use for backing SQLite database '
@@ -234,27 +273,32 @@ def parse_args(defaults):
 
 
 def main():
-    defaults = InputDefaults()
-    args = parse_args(defaults)
-    user_input = UserInput(args, defaults)
+    """Parse and validate user input and start the application."""
+    defaults = DefaultConfiguration()
+    config = ApplicationConfig(parse_args(defaults), defaults)
     prog = get_prog()
 
     try:
-        user_input.validate()
+        config.validate()
     except ValueError, e:
         print('%s: %s' % (prog, str(e)), file=sys.stderr)
         return 1
 
-    app = avalon.app.AvalonMS(user_input)
+    app = avalon.app.AvalonMS(config)
 
     try:
         app.connect()
     except avalon.exc.ConnectionError, e:
-        print('%s: %s' % (prog, str(e)), file=sys.stderr)
+        print('%s: %s' % (prog, e.message), file=sys.stderr)
         return 1
 
-    if not user_input.no_scan:
-        app.scan()
+    if not config.no_scan:
+        try:
+            app.scan()
+        except avalon.exc.CollectionError, e:
+            print('%s: %s' % (prog, e.message), file=sys.stderr)
+            return 1
+
     app.serve()
     return 0
     
