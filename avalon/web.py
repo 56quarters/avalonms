@@ -134,6 +134,7 @@ class AvalonHandler(object):
         self._artists = avalon.services.ArtistStore(session_handler)
         self._genres = avalon.services.GenreStore(session_handler)
         self._id_cache = avalon.services.IdLookupCache(session_handler)
+        self._session_handler = session_handler
         
     def _get_output(self, res=None, err=None):
         """Render results or an error as an iterable."""
