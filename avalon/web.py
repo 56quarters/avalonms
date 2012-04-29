@@ -145,14 +145,10 @@ class AvalonHandler(object):
             out.error = err
         return out.render()
 
-    def _intersection(self, x, y):
-        """Return the intersection between two sets."""
-        return x.intersection(y)
-
     def _reduce(self, *args):
         """Find the intersection of all of the given non-None sets."""
         return reduce(
-            self._intersection, 
+            lambda x, y: x.intersection(y),
             [res_set for res_set in args if res_set is not None])
 
     @cherrypy.expose
