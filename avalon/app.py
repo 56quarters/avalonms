@@ -51,57 +51,43 @@ from avalon.exc import (
 
 __all__ = [
     'APP_PATH',
-    'AvalonMS'
+    'AvalonMS',
+    'SignalHandler'
     ]
 
 
 APP_PATH = '/avalon'
 
 
-class Factories(object):
-    
-    def __init__(self):
-        self.logger = avalon.log.AvalonLog
-        self.app = avalon.web.AvalonHandler
-        self.server = avalon.web.AvalonServer
-        self.db = avalon.models.SessionHandler
-
-
-class AvalonMSConfig(object):
-
-    def __init__(self):
-        pass
-
-
 class AvalonMS(object):
 
-    """
+    """ Wrapper around the main functionality of the Avalon MS, database
+        connections, collection scanning, request handling, and 
+        daemonization.
     """
 
     def __init__(self, config):
-        """
+        """Set the application configuration, create a logger, and
+           set up signal handlers.
         """
         self._config = config
         self._log = self._get_logger()
         self._signals = SignalHandler()
         self._db = None
 
+    def _get_db_url(self):
+        """Get a database connection URL from the path to the SQLite database."""
+        return 'sqlite:///%s' % self._config.db_path
+
     def _get_logger(self):
-        """ Configure and return the application logger.
-        """
+        """Configure and return the application logger."""
         config = avalon.log.AvalonLogConfig()
         config.access_path = self._config.access_log
         config.error_path = self._config.error_log
         return avalon.log.AvalonLog(config)
 
-    def _get_db_url(self):
-        """ Get a database connection URL from the path to the SQLite database.
-        """
-        return 'sqlite:///%s' % self._config.db_path
-
     def _get_server(self):
-        """ Configure and return the application server.
-        """
+        """ Configure and return the application server."""
         config = avalon.web.AvalonServerConfig()
 
         config.log = self._log
@@ -149,7 +135,6 @@ class AvalonMS(object):
 
         self._log.info("Starting server...")
         server = self._get_server()
-        
         # Give the signal handler a reference to the server
         # so that we can stop the server properly when we get
         # a SIGTERM or any other signal we care to handle.
@@ -181,38 +166,36 @@ class AvalonMS(object):
 
 class SignalHandler(object):
 
-    """
+    """ Respond to signals to allow the server to gracefully shutdown
+        or reload log files.
     """
     
     def __init__(self):
-        """
-        """
+        """Install default signals handlers (before server is started)."""
         self.server = None
         self.install()
 
     def dispatch(self, signum, frame):
-        """
-        """
+        """Route the signal to a handler based if the server has been started."""
         if self.server is None:
             self._exit_handler(signum, frame)
         else:
             self._server_handler(signum, frame)
 
     def install(self):
-        """
-        """
+        """Install our signal handler."""
         signal.signal(signal.SIGINT, self.dispatch)
         signal.signal(signal.SIGTERM, self.dispatch)
         signal.signal(signal.SIGUSR1, self.dispatch)
         
     def _exit_handler(self, signum, frame):
-        """
-        """
+        """Handle TERM and INT by exiting."""
         if signum in (signal.SIGTERM, signal.SIGINT):
             raise SystemExit()
 
     def _server_handler(self, signum, frame):
-        """
+        """ Handle TERM and INT by stopping the server, USR1 by reloading
+            log files.
         """
         if signum in (signal.SIGTERM, signal.SIGINT):
             self.server.stop()

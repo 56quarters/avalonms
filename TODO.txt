@@ -1,7 +1,3 @@
-
-For v1:
-* Daemon mode
-
 For v2:
 * Tests
 * Docs
