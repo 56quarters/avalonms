@@ -1,3 +1,7 @@
+For v1:
+* Server address (IPv6?)
+* Error handling
+
 For v2:
 * Tests
 * Docs
