@@ -34,6 +34,7 @@
 import os
 import os.path
 import signal
+import traceback
 
 import cherrypy
 import daemon
@@ -153,6 +154,7 @@ class AvalonMS(object):
             self._start_daemon(server)
         else:
             self._start_foreground(server)
+        self._log.info("Server stopped")
 
     def _start_foreground(self, server):
         """Start the server in the foreground (non-daemon)."""
@@ -170,7 +172,12 @@ class AvalonMS(object):
             # specifying them when creating the daemon context so that
             # we can keep all the signal logic in the signal handler
             self._signals.install()
-            server.start()
+
+            try:
+                server.start()
+            except Exception, e:
+                self._log.critical(
+                    '%s: %s', e.message, traceback.format_exc())
 
 
 class SignalHandler(object):
