@@ -1,7 +1,9 @@
 For v1:
 * Server address (IPv6?)
 * Error handling
-* setup.py
+* Infrastructure
+** readthedocs
+** pypi
 
 For v2:
 * Tests
