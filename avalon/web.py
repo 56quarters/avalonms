@@ -43,9 +43,11 @@ import avalon.views
 
 
 __all__ = [
-    'AvalonServerConfig',
-    'AvalonServer',
+    'AvalonErrorHandler',
     'AvalonHandler',
+    'AvalonServer',
+    'AvalonServerConfig',
+    'JSONOutHandler',
     'RequestOutput',
     'RequestFilter'
     ]
@@ -121,6 +123,11 @@ class AvalonServer(CherryPyWSGIServer):
         """Gracefully stop the server."""
         self._log.info('Stopping HTTP server...')
         super(AvalonServer, self).stop()
+
+
+class AvalonErrorHandler(object):
+
+    pass
 
         
 class AvalonHandler(object):
@@ -211,13 +218,13 @@ class RequestOutput(object):
     def _format_error(self, err):
         """Format a query error (if there was one)."""
         out = {
-            'error': False,
+            'is_error': False,
             'error_code': 0,
             'error_msg': ''
             }
         if err is not None:
-            out['error'] = True
-            out['error_code'] = err.code
+            out['is_error'] = True
+            out['error_code'] = 0
             out['error_msg'] = err.message
         return out
         

@@ -42,10 +42,9 @@ class AvalonError(Exception):
     
     """Base for all exceptions."""
 
-    def __init__(self, msg, err=None, code=0):
+    def __init__(self, msg, err=None):
         self.message = msg
         self.err = err
-        self.code = code
 
     def __str__(self):
         out = self.message
@@ -71,8 +70,4 @@ class ConnectionError(DatabaseError):
 
     """There was an error connecting to the database."""
 
-
-class NetworkError(AvalonError):
-
-    """There was a address or port related error."""
 
