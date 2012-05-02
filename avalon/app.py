@@ -46,8 +46,7 @@ import avalon.services
 import avalon.web
 from avalon.exc import (
     CollectionError,
-    DatabaseError,
-    NetworkError)
+    DatabaseError
 
 
 __all__ = [
