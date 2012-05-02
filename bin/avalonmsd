@@ -163,7 +163,7 @@ class ApplicationConfig(object):
 
         if not is_valid_addr(self.server_address):
             raise ValueError(
-                "That doesn't appear to be valid server address")
+                "That doesn't appear to be a valid interface address")
             
         try:
             self.server_port = int(self.server_port)
@@ -264,7 +264,6 @@ def main():
     defaults = DefaultConfiguration()
     config = ApplicationConfig(parse_args(prog, defaults), defaults)
 
-
     try:
         config.validate()
     except ValueError, e:
@@ -279,12 +278,11 @@ def main():
         print('%s: %s' % (prog, e.message), file=sys.stderr)
         return 1
 
-    if not config.no_scan:
-        try:
-            app.scan()
-        except avalon.exc.CollectionError, e:
-            print('%s: %s' % (prog, e.message), file=sys.stderr)
-            return 1
+    try:
+        app.scan()
+    except avalon.exc.CollectionError, e:
+        print('%s: %s' % (prog, e.message), file=sys.stderr)
+        return 1
 
     app.serve()
     return 0

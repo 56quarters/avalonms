@@ -43,6 +43,8 @@ EMAIL = 'projects@tshlabs.org'
 RELEASE = '0.1.0'
 URL = 'http://www.tshlabs.org/'
 LICENSE = 'BSD'
+
+# TODO: Parse this out of pip file?
 REQUIRES = []
 
 

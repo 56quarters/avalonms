@@ -108,14 +108,23 @@ class AvalonMS(object):
         self._db = avalon.models.SessionHandler(self._get_db_url(), self._log)
         # Clean the database (drop and recreate tables) unless
         # the user has requested not to rescan the collection.
-        self._db.connect(clean=not self._config.no_scan)
+        should_clean = not self._config.no_scan
+
+        if should_clean:
+            self._log.info("Removing existing collection information...")
+        self._db.connect(clean=should_clean)
 
     def scan(self):
         """ Read audio metadata from files in the collection and insert it
-            into the database.
+            into the database unless the 'no scan' configuration setting is
+            true.
         """
         if self._db is None:
             raise DatabaseError("Can't scan collection: database is not connected")
+
+        if self._config.no_scan:
+            self._log.info("Skipping music collection scan...")
+            return
         
         self._log.info("Scanning music collection...")
         files = avalon.scan.get_files(os.path.abspath(self._config.collection))
