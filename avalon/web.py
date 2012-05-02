@@ -251,7 +251,7 @@ class RequestOutput(object):
         res = self._format_results(self.results)
 
         return {
-            'error': err['error'],
+            'is_error': err['is_error'],
             'error_code': err['error_code'],
             'error_msg': err['error_msg'],
             'result_count': res['result_count'],
