@@ -79,7 +79,7 @@ class AvalonServerConfig(object):
     def __init__(self):
         self.log = None
         self.bind_addr = None
-        self.gateway = None
+        self.application = None
         self.num_threads = None
         self.queue_size = None
 
@@ -94,7 +94,7 @@ class AvalonServer(CherryPyWSGIServer):
         """Call the parent constructor and set our error logger."""
         super(AvalonServer, self).__init__(
             config.bind_addr,
-            config.gateway,
+            config.application,
             numthreads=config.num_threads,
             request_queue_size=config.queue_size)
 
@@ -113,6 +113,7 @@ class AvalonServer(CherryPyWSGIServer):
         """Reopen the server logs."""
         self._log.info("HTTP server reloading logs...")
         self._log.reload()
+        self._log.info("HTTP server logs reloaded")
 
     def start(self):
         """Run the server forever."""
@@ -125,12 +126,22 @@ class AvalonServer(CherryPyWSGIServer):
         super(AvalonServer, self).stop()
 
 
-class AvalonErrorHandler(object):
+class AvalonStatusHandler(object):
+    
+    """Provide information about the current status of the application."""
 
-    pass
+    @cherrypy.expose
+    def status(self, *args, **kwargs):
+        """Display a server status page."""
+        return ""
 
-        
-class AvalonHandler(object):
+    @cherrypy.expose
+    def heartbeat(self, *args, **kwargs):
+        """Display the string 'OKOKOK'."""
+        return "OKOKOK"
+
+
+class AvalonQueryHandler(object):
 
     """Handle HTTP requests and return result sets in JSON."""
 
@@ -161,9 +172,7 @@ class AvalonHandler(object):
     @cherrypy.expose
     @cherrypy.tools.json_out(handler=JSONOutHandler())
     def songs(self, *args, **kwargs):
-        """ Return song results based on the given query string
-            parameters.
-        """
+        """Return song results based on the given query string parameters."""
         filters = RequestParams.build(self._id_cache, kwargs)
 
         # If there are no query string params to filter then short
@@ -204,11 +213,14 @@ class AvalonHandler(object):
         return self._get_output(res=self._genres.all())
 
 
+class AvalonHandler(AvalonQueryHandler, AvalonStatusHandler):
+    """Wrap the music API and server status request handlers."""
+    pass
+
+
 class RequestOutput(object):
 
-    """ Render query results or errors in a format that can
-        be serialized to JSON.
-    """
+    """Render query results or errors in a format that can be serialized to JSON."""
 
     def __init__(self):
         """Initialize errors and results from this query."""
@@ -244,9 +256,7 @@ class RequestOutput(object):
         return out
 
     def render(self):
-        """ Format any results or errors as a dictionary to be
-            turned into a JSON payload.
-        """
+        """Format any results or errors as a dictionary to be turned into a JSON payload."""
         err = self._format_error(self.error)
         res = self._format_results(self.results)
 
@@ -272,25 +282,21 @@ class RequestParams(object):
     """URL params for fetching elements by name"""
     
     def __init__(self):
-        """ Initialize values for object IDs to None.
-        """
+        """ Initialize values for object IDs to None."""
         self.album_id = None
         self.artist_id = None
         self.genre_id = None
 
     def is_empty(self):
-        """ Return true if the request didn't have any keyword 
-            parameters, false otherwise.
-        """
+        """Return true if the request has no keyword parameters, false otherwise."""
         return self.album_id is None and self.artist_id is None and self.genre_id is None
 
     @classmethod
     def build(cls, cache, kwargs):
-        """ Construct a new filter based on the given query
-            string parameters and name to ID cache.
+        """Construct a new filter based on query string parameters.
 
-            Recognized params: album, album_id, artist, artist_id,
-            genre, genre_id
+        Recognized params: album, album_id, artist, artist_id,
+        genre, genre_id
         """
         f = cls()
 

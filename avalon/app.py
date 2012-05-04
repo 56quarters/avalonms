@@ -70,10 +70,21 @@ class AvalonMS(object):
         """Set the application configuration, create a logger, and
            set up signal handlers.
         """
+        # Configure the global CherryPy environment before we setup
+        # our logger so that we make sure to clear any existing logging
+        # and use the 'production' environment.
+        self._configure_env()
+
         self._config = config
         self._log = self._get_logger()
         self._signals = SignalHandler()
         self._db = None
+
+    def _configure_env(self):
+        """Configure the global cherrypy environment."""
+        cherrypy.config.update({'environment': 'production'})
+        cherrypy.log.access_file = None
+        cherrypy.log.error_file = None
 
     def _get_db_url(self):
         """Get a database connection URL from the path to the SQLite database."""
@@ -82,6 +93,7 @@ class AvalonMS(object):
     def _get_logger(self):
         """Configure and return the application logger."""
         config = avalon.log.AvalonLogConfig()
+        config.log_root = cherrypy.log
         config.access_path = self._config.access_log
         config.error_path = self._config.error_log
         return avalon.log.AvalonLog(config)
@@ -94,7 +106,7 @@ class AvalonMS(object):
         config.bind_addr = (self._config.server_address, self._config.server_port)
         config.num_threads = self._config.server_threads
         config.queue_size = self._config.server_queue
-        config.gateway = cherrypy.tree.mount(
+        config.application = cherrypy.tree.mount(
             avalon.web.AvalonHandler(self._db), 
             script_name=APP_PATH)
 

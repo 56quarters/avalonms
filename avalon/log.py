@@ -49,6 +49,7 @@ class AvalonLogConfig(object):
     """Configuration for the logger."""
 
     def __init__(self):
+        self.log_root = None
         self.access_path = None
         self.error_path = None
         self.log_level = logging.INFO
@@ -68,6 +69,7 @@ class AvalonLog(object):
 
     def __init__(self, config):
         """ Set the path to the log file or None to use stderr."""
+        self._log_root = config.log_root
         self._access_path = config.access_path
         self._error_path = config.error_path
         self._level = config.log_level
@@ -82,47 +84,40 @@ class AvalonLog(object):
             handler.stream.fileno() for handler in self._handlers if handler.stream]
 
     def reload(self):
-        """ Configure cherrypy logging and install our own handlers."""
-        log = cherrypy.log
-        log.screen = False
-        log.access_file = None
-        log.error_file = None
-
+        """ Configure logging and install our own handlers."""
         # Clear any existing handlers we've installed
         for handler in self._handlers:
-            log.access_log.removeHandler(handler)
+            self._log_root.access_log.removeHandler(handler)
         for handler in self._handlers:
-            log.error_log.removeHandler(handler)
+            self._log_root.error_log.removeHandler(handler)
         
         self._handlers = []
-        self._setup_access_log(log)
-        self._setup_error_log(log)
+        self._setup_access_log()
+        self._setup_error_log()
 
         # Application logging uses the error log
-        self._logger = log.error_log
+        self._logger = self._log_root.error_log
 
-    def _setup_access_log(self, log):
-        """
-        """
+    def _setup_access_log(self):
+        """Add a configured handler to the access log of the logging root."""
         if self._access_path is None:
             handler = logging.StreamHandler(sys.stdout)
         else:
             handler = logging.FileHandler(self._access_path)
         handler.setFormatter(logging.Formatter(self._access_fmt))
 
-        log.access_log.addHandler(handler)
+        self._log_root.access_log.addHandler(handler)
         self._handlers.append(handler)
 
-    def _setup_error_log(self, log):
-        """
-        """
+    def _setup_error_log(self):
+        """Add a configured handler to the error log of the logging root."""
         if self._error_path is None:
             handler = logging.StreamHandler(sys.stderr)
         else:
             handler = logging.FileHandler(self._error_path)
         handler.setFormatter(logging.Formatter(self._error_fmt, self._date_fmt))
 
-        log.error_log.addHandler(handler)
+        self._log_root.error_log.addHandler(handler)
         self._handlers.append(handler)
 
     def debug(self, msg, *args, **kwargs):
