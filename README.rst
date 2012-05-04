@@ -17,7 +17,12 @@ Requirements
 Installation
 ------------
 
-  python setup.py install
+  wget http://cdn.tshlabs.org/dist/avalonms/avalonms-0.1.0.tar.bz2
+  tar -xvjf avalonms-0.1.0.tar.bz2
+  cd avalonms-0.1.0
+  sudo python setup.py install
+
+Or
 
   pip install avalonms
 
@@ -25,7 +30,15 @@ Installation
 Usage
 -----
 
-- Stuff
+Required Arguments
+~~~~~~~~~~~~~~~~~~
+
+Stuff
+
+Optional Arguments
+~~~~~~~~~~~~~~~~~~
+
+Other stuff
 
 
 API

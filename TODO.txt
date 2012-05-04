@@ -1,5 +1,4 @@
 For v1:
-* Server address (IPv6?)
 * Status page
 
 For v2:
