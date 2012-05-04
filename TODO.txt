@@ -1,19 +1,19 @@
 For v1:
 * Server address (IPv6?)
-* Error handling
-* Infrastructure
-** readthedocs
-** pypi
+* Status page
 
 For v2:
 * Tests
 * Docs
-* Testing with MySQL backend
-* In memory stores?
+* Infrastructure
+** readthedocs
+** pypi
 * LOD output
 * order / limit?
 
 For v3:
 * Echonest integration
 * Foreign ID mapping system
+* Testing with MySQL backend
+
 * Plugins?
