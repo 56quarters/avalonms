@@ -104,7 +104,7 @@ Songs endpoint
 * Success output format ::
 
     {
-      "error": false,
+      "is_error": false,
       "error_code": 0,
       "error_msg": "",
       "result_count": 2,
@@ -156,7 +156,7 @@ Albums endpoint
 * Success output format ::
 
     {
-      "error": false,
+      "is_error": false,
       "error_code": 0,
       "error_msg": "",
       "result_count": 2,
@@ -188,7 +188,7 @@ Artists endpoint
 * Success output format ::
 
     {
-      "error": false,
+      "is_error": false,
       "error_code": 0,
       "error_msg": "",
       "result_count": 2,
@@ -220,7 +220,7 @@ Genre endpoint
 * Success output format ::
 
     {
-      "error": false,
+      "is_error": false,
       "error_code": 0,
       "error_msg": "",
       "result_count": 2,
