@@ -28,7 +28,8 @@
 
 
 """
-Classes that encompass business logic spanning multiple functional areas.
+Classes that encompass business logic spanning multiple functional
+areas.
 """
 
 
@@ -57,8 +58,8 @@ __all__ = [
 
 
 def model_to_elm(model):
-    """ Convert and ORM model object to an immutable, hashable
-        object suitable for serialization.
+    """Convert and ORM model object to an immutable, hashable
+    object suitable for serialization.
     """
     if isinstance(model, Track):
         return TrackElm(
@@ -70,19 +71,16 @@ def model_to_elm(model):
 
 class InsertService(object):
 
-    """ Methods for inserting multiple tracks and all associated
-        relations.
-    """
+    """Methods for inserting multiple tracks and all associated
+    relations."""
 
     def __init__(self, scanned, session_handler):
-        """ Set the list of scan result tags and session handler.
-        """
+        """Set the list of scan result tags and session handler."""
         self._scanned = scanned
         self._session_handler = session_handler
 
     def _load_relations(self):
-        """ Insert relations for each track into the database.
-        """
+        """Insert relations for each track into the database."""
         insert = []
         values = {'album': set(), 'artist': set(), 'genre': set()}
         session = self._session_handler.get_session()
@@ -105,17 +103,14 @@ class InsertService(object):
             self._session_handler.close(session)
 
     def _queue_inserts(self, queue, values, cls):
-        """ Generate new objects for insertion for each of the
-            given values.
-        """
+        """Generate new objects for insertion for each of the given values."""
         for val in values:
             obj = cls()
             obj.name = val
             queue.append(obj)
 
     def insert(self):
-        """ Insert the tracks and all related data.
-        """
+        """Insert the tracks and all related data."""
         self._load_relations()
         cache = IdLookupCache(self._session_handler)
 
@@ -142,13 +137,12 @@ class InsertService(object):
 
 class IdLookupCache(object):
 
-    """ Cache for looking up the primary key of albums,
-        artists, and genres based on their name.
+    """Cache for looking up the primary key of albums, artists,
+    and genres based on their name.
     """
 
     def __init__(self, session_handler, case_sensitive=False):
-        """ Set the session handler and initialize ID caches.
-        """
+        """Set the session handler and initialize ID caches."""
         self._session_handler = session_handler
         self._case_sensitive = case_sensitive
         self._cache = None
@@ -156,17 +150,16 @@ class IdLookupCache(object):
         self.reload()
 
     def _get_key(self, val):
-        """ Return the given value or the value with the case
-            normalized based on if we are doing case insensitive
-            comparisons or not.
+        """Return the given value or the value with the case normalized
+        based on if we are doing case insensitive comparisons or not.
         """
         if  self._case_sensitive:
             return val
         return val.lower()
 
     def get_id(self, field, val):
-        """ Get the ID associated with the give field and
-            name, 0 if no ID is found.
+        """Get the ID associated with the give field and name, 0 if
+        no ID is found.
         """
         try:
             return self._cache[field][self._get_key(val)]
@@ -180,14 +173,14 @@ class IdLookupCache(object):
         cache = {}
 
         try:
-            cache['album'] = self._get_mapping(session, 'album', Album)
-            cache['artist'] = self._get_mapping(session, 'artist', Artist)
-            cache['genre'] = self._get_mapping(session, 'genre', Genre)
+            cache['album'] = self._get_mapping(session, Album)
+            cache['artist'] = self._get_mapping(session, Artist)
+            cache['genre'] = self._get_mapping(session, Genre)
         finally:
             self._session_handler.close(session)
         self._cache = cache
 
-    def _get_mapping(self, session, field, cls):
+    def _get_mapping(self, session, cls):
         """ Set each of the mappings for a particular type of
             entity.
         """
@@ -199,13 +192,12 @@ class IdLookupCache(object):
 
 class TrackStore(object):
 
-    """ In memory store for TrackElm objects and methods to
-        fetch them by their attributes.
+    """ In memory store for TrackElm objects and methods to fetch
+    them by their attributes.
     """
 
     def __init__(self, session_handler):
-        """ Initialize lookup structures and populate them.
-        """
+        """Initialize lookup structures and populate them."""
         self._session_handler = session_handler
         self._by_album = None
         self._by_artist = None
@@ -215,16 +207,16 @@ class TrackStore(object):
         self.reload()
 
     def _freeze(self, table):
-        """ Convert a dictionary of with mutable iterable values
-            into a dictionary with frozensetS as values.
+        """Convert a dictionary with mutable iterable values into
+        a dictionary with frozensetS as values.
         """
         for key in table:
             table[key] = frozenset(table[key])
         return table
 
     def reload(self):
-        """ Atomically populate the various structures for looking up
-            track elements by their attributes.
+        """Atomically populate the various structures for looking
+        up track elements by their attributes.
         """
         session = self._session_handler.get_session()
 
@@ -251,34 +243,28 @@ class TrackStore(object):
         self._all = frozenset(all_tracks)
 
     def by_album(self, album_id):
-        """ Get tracks by an album ID.
-        """
+        """Get tracks by an album ID."""
         return self._by_album[album_id]
 
     def by_artist(self, artist_id):
-        """ Get tracks by an artist ID.
-        """
+        """Get tracks by an artist ID."""
         return self._by_artist[artist_id]
 
     def by_genre(self, genre_id):
-        """ Get tracks by a genre ID.
-        """
+        """Get tracks by a genre ID."""
         return self._by_genre[genre_id]
 
     def all(self):
-        """ Get all tracks.
-        """
+        """Get all tracks."""
         return self._all
 
 
 class _IdNameStore(object):
 
-    """ Base store for any ID and name element.
-    """
+    """Base store for any ID and name element."""
 
     def __init__(self, session_handler, cls):
-        """ Load all elements of the given type.
-        """
+        """Load all elements of the given type."""
         self._session_handler = session_handler
         self._cls = cls
         self._all = None
@@ -286,8 +272,7 @@ class _IdNameStore(object):
         self.reload()
 
     def reload(self):
-        """ Atomically populate all elements of the given type.
-        """
+        """Atomically populate all elements of the given type."""
         session = self._session_handler.get_session()
         
         try:
@@ -297,15 +282,13 @@ class _IdNameStore(object):
         self._all = frozenset([model_to_elm(thing) for thing in res])
 
     def all(self):
-        """ Get all elements.
-        """
+        """Get all elements."""
         return self._all
 
 
 class AlbumStore(_IdNameStore):
 
-    """ In memory store for Album models using IdNameElm.
-    """
+    """In memory store for Album models using IdNameElm."""
 
     def __init__(self, session_handler):
         super(AlbumStore, self).__init__(session_handler, Album)
@@ -313,8 +296,7 @@ class AlbumStore(_IdNameStore):
 
 class ArtistStore(_IdNameStore):
 
-    """ In memory store for Artist models using IdNameElm.
-    """
+    """In memory store for Artist models using IdNameElm."""
 
     def __init__(self, session_handler):
         super(ArtistStore, self).__init__(session_handler, Artist)
@@ -322,8 +304,7 @@ class ArtistStore(_IdNameStore):
 
 class GenreStore(_IdNameStore):
 
-    """ In memory store for Genre models using IdNameElm.
-    """
+    """In memory store for Genre models using IdNameElm."""
 
     def __init__(self, session_handler):
         super(GenreStore, self).__init__(session_handler, Genre)

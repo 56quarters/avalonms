@@ -31,10 +31,13 @@
 
 
 __all__ = [
+    'ApiError',
     'AvalonError',
     'CollectionError',
     'ConnectionError',
-    'DatabaseError'
+    'DatabaseError',
+    'InvalidParameterError',
+    'ServerNotReadyError'
     ]
 
 
@@ -43,31 +46,57 @@ class AvalonError(Exception):
     """Base for all exceptions."""
 
     def __init__(self, msg, err=None):
+        """Set the error message and optional original error."""
         self.message = msg
         self.err = err
 
     def __str__(self):
+        """Return a string representation of this error."""
         out = self.message
         if self.err is not None:
             out += ': ' + str(self.err)
         return out
+
+    @property
+    def name(self):
+        """The name of this error class."""
+        return self.__class__.__name__
 
     def trace(self):
         pass
 
 
 class CollectionError(AvalonError):
-
     """There was an error scanning the music collection."""
+    pass
 
 
 class DatabaseError(AvalonError):
-
     """There was an error performing an operation on the database."""
+    pass
 
 
 class ConnectionError(DatabaseError):
-
     """There was an error connecting to the database."""
+    pass
+
+
+class ApiError(AvalonError):
+    """Base for all errors relating to invalid API requests."""
+    http_code = 0
+    """Default is not to set an HTTP response code."""
+    
+
+class InvalidParameterError(ApiError):
+    """An invalid parameter or parameter value was given."""
+    http_code = 400
+    """Set HTTP status 400."""
+
+
+class ServerNotReadyError(ApiError):
+    """The API server is not ready to handle requests."""
+    http_code = 503
+    """Set HTTP status 503."""
+
 
 

@@ -30,21 +30,23 @@
 """ HTTP frontend for handling requests."""
 
 
+import functools
 import logging
 import traceback
 
 import cherrypy
 from cherrypy.wsgiserver import CherryPyWSGIServer
 
-
+import avalon.exc
 import avalon.models
 import avalon.services
 import avalon.views
 
 
 __all__ = [
-    'AvalonErrorHandler',
     'AvalonHandler',
+    'AvalonQueryHandler',
+    'AvalonStatusHandler',
     'AvalonServer',
     'AvalonServerConfig',
     'JSONOutHandler',
@@ -55,19 +57,16 @@ __all__ = [
 
 class JSONOutHandler(object):
 
-    """ Wrap our JSON encoder for objects in the views module
-        such that it can be called by the cherrypy JSON output
-        tool.
+    """Wrap our JSON encoder for objects in the views module
+    such that it can be called by the cherrypy JSON output tool.
     """
 
     def __init__(self):
-        """ Create an instance of our custom encoder.
-        """
+        """Create an instance of our custom encoder."""
         self._encoder = avalon.views.JSONEncoder()
 
     def __call__(self, *args, **kwargs):
-        """ Return the rendered content encoded as JSON.
-        """
+        """Return the rendered content encoded as JSON."""
         value = cherrypy.serving.request._json_inner_handler(*args, **kwargs)
         return self._encoder.encode(value)
 
@@ -86,8 +85,8 @@ class AvalonServerConfig(object):
 
 class AvalonServer(CherryPyWSGIServer):
 
-    """ Wrap the standard CherryPy server to use our own
-        error logging mechanism.
+    """Wrap the standard CherryPy server to use our own error
+    logging mechanism.
     """
 
     def __init__(self, config):
@@ -165,7 +164,7 @@ class AvalonQueryHandler(object):
 
     def _reduce(self, *args):
         """Find the intersection of all of the given non-None sets."""
-        return reduce(
+        return functools.reduce(
             lambda x, y: x.intersection(y),
             [res_set for res_set in args if res_set is not None])
 
@@ -173,12 +172,15 @@ class AvalonQueryHandler(object):
     @cherrypy.tools.json_out(handler=JSONOutHandler())
     def songs(self, *args, **kwargs):
         """Return song results based on the given query string parameters."""
-        filters = RequestParams.build(self._id_cache, kwargs)
+        try:
+            filters = RequestParams.get_from_qs(self._id_cache, kwargs)
+        except avalon.exc.InvalidParameterError, e:
+            return self._get_output(err=e)
 
         # If there are no query string params to filter then short
         # circuit and just return all tracks
         if filters.is_empty():
-            return self._get_output(self._tracks.all())
+            return self._get_output(res=self._tracks.all())
 
         set1 = None
         set2 = None
@@ -220,7 +222,9 @@ class AvalonHandler(AvalonQueryHandler, AvalonStatusHandler):
 
 class RequestOutput(object):
 
-    """Render query results or errors in a format that can be serialized to JSON."""
+    """Render query results or errors in a format that can be serialized
+    to JSON.
+    """
 
     def __init__(self):
         """Initialize errors and results from this query."""
@@ -231,13 +235,14 @@ class RequestOutput(object):
         """Format a query error (if there was one)."""
         out = {
             'is_error': False,
-            'error_code': 0,
+            'error_name': '',
             'error_msg': ''
             }
         if err is not None:
             out['is_error'] = True
-            out['error_code'] = 0
+            out['error_name'] = err.name
             out['error_msg'] = err.message
+            self._set_http_status(err)
         return out
         
     def _format_results(self, res):
@@ -255,14 +260,27 @@ class RequestOutput(object):
             out['results'] = list(res)
         return out
 
+    def _set_http_status(self, err):
+        """Set and HTTP status for the current request if this error
+        has one that makes sense.
+        """
+        code = err.http_code
+        if code != 0:
+            # Set the status of the currently processing request
+            # while still allowing us to render our JSON payload
+            # with further information about the error
+            cherrypy.serving.response.status = code
+
     def render(self):
-        """Format any results or errors as a dictionary to be turned into a JSON payload."""
+        """Format any results or errors as a dictionary to be turned into a
+        JSON payload.
+        """
         err = self._format_error(self.error)
         res = self._format_results(self.results)
 
         return {
             'is_error': err['is_error'],
-            'error_code': err['error_code'],
+            'error_name': err['error_name'],
             'error_msg': err['error_msg'],
             'result_count': res['result_count'],
             'results': res['results']
@@ -271,8 +289,8 @@ class RequestOutput(object):
 
 class RequestParams(object):
     
-    """ Parse and encapsulate object IDs and names from
-        query string parameters.
+    """Parse and encapsulate object IDs and names from query string 
+    parameters.
     """
 
     id_params = frozenset(['album_id', 'artist_id', 'genre_id'])
@@ -289,14 +307,16 @@ class RequestParams(object):
 
     def is_empty(self):
         """Return true if the request has no keyword parameters, false otherwise."""
-        return self.album_id is None and self.artist_id is None and self.genre_id is None
+        return (self.album_id is None 
+                and self.artist_id is None 
+                and self.genre_id is None)
 
     @classmethod
-    def build(cls, cache, kwargs):
+    def get_from_qs(cls, cache, kwargs):
         """Construct a new filter based on query string parameters.
 
-        Recognized params: album, album_id, artist, artist_id,
-        genre, genre_id
+        Recognized params: album, album_id, artist, artist_id, genre,
+        genre_id
         """
         f = cls()
 
@@ -316,9 +336,8 @@ class RequestParams(object):
             try:
                 val_id = int(kwargs[field])
             except ValueError:
-                # Use an invalid ID anyway since we want the
-                # request to return 0 results for bad QS params.
-                val_id = 0
+                raise avalon.exc.InvalidParameterError(
+                    'Invalid value for field [%s]' % field)
             setattr(f, field, val_id)
         return f
 
