@@ -44,6 +44,7 @@ import avalon.views
 
 
 __all__ = [
+    'set_http_status',
     'AvalonHandler',
     'AvalonQueryHandler',
     'AvalonStatusHandler',
@@ -53,6 +54,11 @@ __all__ = [
     'RequestOutput',
     'RequestFilter'
     ]
+
+
+def set_http_status(code):
+    """Set the HTTP status of the current response."""
+    cherrypy.serving.response.status = code
 
 
 class JSONOutHandler(object):
@@ -242,7 +248,7 @@ class RequestOutput(object):
             out['is_error'] = True
             out['error_name'] = err.name
             out['error_msg'] = err.message
-            self._set_http_status(err)
+            self._set_error_status(err)
         return out
         
     def _format_results(self, res):
@@ -260,7 +266,7 @@ class RequestOutput(object):
             out['results'] = list(res)
         return out
 
-    def _set_http_status(self, err):
+    def _set_error_status(self, err):
         """Set and HTTP status for the current request if this error
         has one that makes sense.
         """
@@ -269,7 +275,7 @@ class RequestOutput(object):
             # Set the status of the currently processing request
             # while still allowing us to render our JSON payload
             # with further information about the error
-            cherrypy.serving.response.status = code
+            set_http_status(code)
 
     def render(self):
         """Format any results or errors as a dictionary to be turned into a
