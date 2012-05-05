@@ -33,7 +33,6 @@
 __all__ = [
     'ApiError',
     'AvalonError',
-    'CollectionError',
     'ConnectionError',
     'DatabaseError',
     'InvalidParameterError',
@@ -64,11 +63,6 @@ class AvalonError(Exception):
 
     def trace(self):
         pass
-
-
-class CollectionError(AvalonError):
-    """There was an error scanning the music collection."""
-    pass
 
 
 class DatabaseError(AvalonError):

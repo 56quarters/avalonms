@@ -74,19 +74,18 @@ class InsertService(object):
     """Methods for inserting multiple tracks and all associated
     relations."""
 
-    def __init__(self, scanned, session_handler):
+    def __init__(self, session_handler):
         """Set the list of scan result tags and session handler."""
-        self._scanned = scanned
         self._session_handler = session_handler
 
-    def _load_relations(self):
+    def _load_relations(self, scanned):
         """Insert relations for each track into the database."""
         insert = []
         values = {'album': set(), 'artist': set(), 'genre': set()}
         session = self._session_handler.get_session()
 
         try:
-            for tag in self._scanned:
+            for tag in scanned:
                 # Insert all the values into sets to eliminate
                 # duplicates before saving them to the DB.
                 for field in ('album', 'artist', 'genre'):
@@ -109,16 +108,16 @@ class InsertService(object):
             obj.name = val
             queue.append(obj)
 
-    def insert(self):
+    def insert(self, scanned):
         """Insert the tracks and all related data."""
-        self._load_relations()
+        self._load_relations(scanned)
         cache = IdLookupCache(self._session_handler)
 
         insert = []
         session = self._session_handler.get_session()
 
         try:
-            for tag in self._scanned:
+            for tag in scanned:
                 track = Track()
                 track.name = tag.title
                 track.track = tag.track

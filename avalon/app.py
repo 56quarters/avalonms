@@ -44,9 +44,7 @@ import avalon.models
 import avalon.scan
 import avalon.services
 import avalon.web
-from avalon.exc import (
-    CollectionError,
-    DatabaseError)
+from avalon.exc import DatabaseError
 
 
 __all__ = [
@@ -140,13 +138,9 @@ class AvalonMS(object):
         
         self._log.info("Scanning music collection...")
         files = avalon.scan.get_files(os.path.abspath(self._config.collection))
-        if not files:
-            raise CollectionError(
-                "No files found in collection root %s" % self._config.collection)
-
         tags = avalon.scan.get_tags(files)
-        loader = avalon.services.InsertService(tags.values(), self._db)
-        loader.insert()
+        loader = avalon.services.InsertService(self._db)
+        loader.insert(tags.values())
 
     def serve(self):
         """ Install signal handlers for the server and begin handling requests.
