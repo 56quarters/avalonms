@@ -105,7 +105,7 @@ Songs endpoint
 
     {
       "is_error": false,
-      "error_code": 0,
+      "error_name": "",
       "error_msg": "",
       "result_count": 2,
       "results": [
@@ -157,7 +157,7 @@ Albums endpoint
 
     {
       "is_error": false,
-      "error_code": 0,
+      "error_name": "",
       "error_msg": "",
       "result_count": 2,
       "results": [
@@ -189,7 +189,7 @@ Artists endpoint
 
     {
       "is_error": false,
-      "error_code": 0,
+      "error_name": "",
       "error_msg": "",
       "result_count": 2,
       "results": [
@@ -221,7 +221,7 @@ Genre endpoint
 
     {
       "is_error": false,
-      "error_code": 0,
+      "error_name": "",
       "error_msg": "",
       "result_count": 2,
       "results": [
