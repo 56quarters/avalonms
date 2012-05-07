@@ -1,6 +1,3 @@
-For v1:
-* Status page
-
 For v2:
 * Tests
 * Docs
@@ -8,11 +5,12 @@ For v2:
 ** readthedocs
 ** pypi
 * LOD output
-* order / limit?
+* order / limit
 
 For v3:
 * Echonest integration
 * Foreign ID mapping system
 * Testing with MySQL backend
 
+For ?:
 * Plugins?
