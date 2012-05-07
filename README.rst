@@ -41,7 +41,7 @@ Arguments
 Optionals
 ~~~~~~~~~
 
-* ``--access-log=PATH`` - Path to a file to use for logging requests to the server. The file must be able to be written by the user the server is running as.
+* ``--access-log=PATH`` - Path to a file to use for logging requests to the server.
 
 * ``--daemon`` - Fork into the background and run as a daemon.
 
@@ -49,8 +49,11 @@ Optionals
 
 * ``--daemon-group=GROUP`` - Run the server as this group. The server will switch to this non-privileged group when started as root and run in daemon mode.
 
-* ``--db-path=PATH`` - Path to a file to use for the the backing SQLite database for storing collection metadata. This file must be able to be written by the user the server is running as.
+* ``--db-path=PATH`` - Path to a file to use for the the backing SQLite database for storing collection metadata.
 
+* ``--error-log=PATH`` - Path to a file to use for server errors and application informational logging.
+
+* ``--no-scan`` - If present, don't remove existing information about the music collection and rescan it.
 
 
 
