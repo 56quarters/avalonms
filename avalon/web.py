@@ -108,6 +108,12 @@ class AvalonServer(CherryPyWSGIServer):
         self._log.info('Server using %s threads', config.num_threads)
         self._log.info('Server using up to %s queued connections', config.queue_size)
 
+    def get_open_fds(self):
+        """Get the fileno of the socket we are serving on."""
+        if self.socket is None:
+            return []
+        return [self.socket.fileno()]
+
     def error_log(self, msg='', level=logging.INFO, trackback=False):
         """Write an error to the log, optionally with a traceback."""
         if trackback:

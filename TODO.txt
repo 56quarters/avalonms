@@ -1,3 +1,7 @@
+For v1:
+* Daemon mode socket permissions
+* Daemon mode log permissions
+
 For v2:
 * Tests
 * Docs
