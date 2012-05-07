@@ -148,7 +148,7 @@ _STATUS_PAGE_TPT = """<!DOCTYPE html>
       color: #00ADEE;
       margin-top: 10px;
       padding-bottom: 15px;
-      text-shadow: 0 0 1px #FFF;
+      text-shadow: 0 0 1px #444;
     }
     dt {
       color: #00ADEE;
@@ -159,7 +159,7 @@ _STATUS_PAGE_TPT = """<!DOCTYPE html>
       background-color: #171717;
       border: 1px solid #FFF;
       border-radius: 15px;
-      box-shadow: 0 3px 3px 3px #666;
+      box-shadow: 0 3px 3px 3px #444;
       margin: 50px auto;
       padding: 15px;
       width: 500px;
