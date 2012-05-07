@@ -33,15 +33,25 @@ Or
 Usage
 -----
 
-Required Arguments
-~~~~~~~~~~~~~~~~~~
+Arguments
+~~~~~~~~~
 
-Stuff
+* ``collection`` - Path to the root of your music collection to scan
 
-Optional Arguments
-~~~~~~~~~~~~~~~~~~
+Optionals
+~~~~~~~~~
 
-Other stuff
+* ``--access-log=PATH`` - Path to a file to use for logging requests to the server. The file must be able to be written by the user the server is running as.
+
+* ``--daemon`` - Fork into the background and run as a daemon.
+
+* ``--daemon-user=USER`` - Run the server as this user. The server will switch to this non-privileged user when started as root and run in daemon mode.
+
+* ``--daemon-group=GROUP`` - Run the server as this group. The server will switch to this non-privileged group when started as root and run in daemon mode.
+
+* ``--db-path=PATH`` - Path to a file to use for the the backing SQLite database for storing collection metadata. This file must be able to be written by the user the server is running as.
+
+
 
 
 API
