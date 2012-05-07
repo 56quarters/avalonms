@@ -55,6 +55,9 @@ Optionals
 
 * ``--no-scan`` - If present, don't remove existing information about the music collection and rescan it.
 
+* ``--server-address=ADDR`` - Interface address to bind the server to. IPv4 and IPv6 addresses are supported. Default is localhost IPv4.
+
+* ``--server-port=PORT`` - Port to listen for requests on.
 
 
 API
