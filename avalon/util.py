@@ -34,6 +34,7 @@ import grp
 import os
 import pwd
 import resource
+import threading
 
 
 __all__ = [
@@ -43,13 +44,13 @@ __all__ = [
     'get_gname',
     'get_current_uname',
     'get_current_gname',
-    'get_mem_usage'
+    'get_mem_usage',
+    'get_thread_names'
     ]
 
 
 def get_uid(user_name):
-    """ Get the user ID of the given user name.
-    """
+    """Get the user ID of the given user name."""
     try:
         return pwd.getpwnam(user_name).pw_uid
     except KeyError:
@@ -57,8 +58,7 @@ def get_uid(user_name):
 
 
 def get_gid(group_name):
-    """ Get the group ID of the given group name.
-    """
+    """Get the group ID of the given group name."""
     try:
         return grp.getgrnam(group_name).gr_gid
     except KeyError:
@@ -66,8 +66,7 @@ def get_gid(group_name):
 
 
 def get_uname(uid):
-    """ Get the user name from the user ID.
-    """
+    """Get the user name from the user ID."""
     try:
         return pwd.getpwuid(uid).pw_name
     except KeyError:
@@ -75,8 +74,7 @@ def get_uname(uid):
 
 
 def get_gname(gid):
-    """ Get the group name from the group ID.
-    """
+    """Get the group name from the group ID."""
     try:
         return grp.getgrgid(gid).gr_name
     except KeyError:
@@ -84,21 +82,20 @@ def get_gname(gid):
 
 
 def get_current_uname():
-    """ Get the name of the current processes effective user.
-    """
+    """Get the name of the current processes effective user."""
     return get_uname(os.geteuid())
 
 
 def get_current_gname():
-    """ Get the name of the current processes effective group.
-    """
+    """Get the name of the current processes effective group."""
     return get_gname(os.getegid())
 
 
 def get_mem_usage():
-    """ Return the current memory usage in MB.
-    """
+    """Return the current memory usage in MB."""
     return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024.0
 
 
-
+def get_thread_names():
+    """Get the names of all running threads."""
+    return [t.name for t in threading.enumerate()]

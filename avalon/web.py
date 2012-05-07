@@ -131,22 +131,69 @@ class AvalonServer(CherryPyWSGIServer):
         super(AvalonServer, self).stop()
 
 
-class AvalonStatusHandler(object):
-    
-    """Provide information about the current status of the application."""
+_STATUS_PAGE_TPT = """<!DOCTYPE html>
+<html>
+<head>
+  <title>Avalon Music Server</title>
+  <style type="text/css">
+    body {
+      background-color: #363636;
+      color: #E7E7E7;
+      font-family: helvetica, arial, sans-serif;
+      font-size: 14px;
+      line-height: 20px;
+    }
+    h1 {
+      border-bottom: 1px solid #FFF;
+      color: #00ADEE;
+      margin-top: 10px;
+      padding-bottom: 15px;
+      text-shadow: 0 0 1px #FFF;
+    }
+    dt {
+      color: #00ADEE;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+    .stats {
+      background-color: #171717;
+      border: 1px solid #FFF;
+      border-radius: 15px;
+      box-shadow: 0 3px 3px 3px #666;
+      margin: 50px auto;
+      padding: 15px;
+      width: 500px;
+    }
+  </style>
+</head>
+<body>
+  <div class="stats">
+  <h1>Avalon Music Server</h1>
+  <dl>
+    <dt>Server is:</dt>
+    <dd>%(status)s</dd>
 
-    @cherrypy.expose
-    def status(self, *args, **kwargs):
-        """Display a server status page."""
-        return ""
+    <dt>Memory:</dt>
+    <dd>%(memory)s MB</dd>
 
-    @cherrypy.expose
-    def heartbeat(self, *args, **kwargs):
-        """Display the string 'OKOKOK'."""
-        return "OKOKOK"
+    <dt>Threads:</dt>
+    <dd>%(threads)s</dd>
+
+    <dt>Loaded:</dt>
+    <dd>
+      Albums: %(albums)s<br /> 
+      Artists: %(artists)s<br /> 
+      Genres: %(genres)s<br /> 
+      Tracks: %(tracks)s<br />
+    </dd>
+  </dl>
+  </div>
+</body>
+</html>
+"""
 
 
-class AvalonQueryHandler(object):
+class AvalonHandler(object):
 
     """Handle HTTP requests and return result sets in JSON."""
 
@@ -175,6 +222,42 @@ class AvalonQueryHandler(object):
             [res_set for res_set in args if res_set is not None])
 
     @cherrypy.expose
+    def index(self, *args, **kwargs):
+        """Display a server status page."""
+        return _STATUS_PAGE_TPT % {
+            'status': 'READY',
+            'memory': avalon.util.get_mem_usage(),
+            'threads': '<br />'.join(avalon.util.get_thread_names()),
+            'albums': len(self._albums.all()),
+            'artists': len(self._artists.all()),
+            'genres': len(self._genres.all()),
+            'tracks': len(self._tracks.all())
+            }
+
+    @cherrypy.expose
+    def heartbeat(self, *args, **kwargs):
+        """Display the string 'OKOKOK'."""
+        return "OKOKOK"
+
+    @cherrypy.expose
+    @cherrypy.tools.json_out(handler=JSONOutHandler())
+    def albums(self, *args, **kwargs):
+        """Return a list of all albums."""
+        return self._get_output(res=self._albums.all())
+
+    @cherrypy.expose
+    @cherrypy.tools.json_out(handler=JSONOutHandler())
+    def artists(self, *args, **kwargs):
+        """Return a list of all artists."""
+        return self._get_output(res=self._artists.all())
+        
+    @cherrypy.expose
+    @cherrypy.tools.json_out(handler=JSONOutHandler())
+    def genres(self, *args, **kwargs):
+        """Return a list of all genres."""
+        return self._get_output(res=self._genres.all())
+
+    @cherrypy.expose
     @cherrypy.tools.json_out(handler=JSONOutHandler())
     def songs(self, *args, **kwargs):
         """Return song results based on the given query string parameters."""
@@ -201,29 +284,6 @@ class AvalonQueryHandler(object):
             
         # Return the intersection of any none-None sets
         return self._get_output(res=self._reduce(set1, set2, set3))
-
-    @cherrypy.expose
-    @cherrypy.tools.json_out(handler=JSONOutHandler())
-    def albums(self, *args, **kwargs):
-        """Return a list of all albums."""
-        return self._get_output(res=self._albums.all())
-
-    @cherrypy.expose
-    @cherrypy.tools.json_out(handler=JSONOutHandler())
-    def artists(self, *args, **kwargs):
-        """Return a list of all artists."""
-        return self._get_output(res=self._artists.all())
-        
-    @cherrypy.expose
-    @cherrypy.tools.json_out(handler=JSONOutHandler())
-    def genres(self, *args, **kwargs):
-        """Return a list of all genres."""
-        return self._get_output(res=self._genres.all())
-
-
-class AvalonHandler(AvalonQueryHandler, AvalonStatusHandler):
-    """Wrap the music API and server status request handlers."""
-    pass
 
 
 class RequestOutput(object):
