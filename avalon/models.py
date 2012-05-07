@@ -156,8 +156,14 @@ class SessionHandler(object):
         self._session_factory.configure(bind=self._engine)
 
         if clean:
-            Base.metadata.drop_all(self._engine)
+            try:
+                Base.metadata.drop_all(self._engine)
+            except OperationalError, e:
+                raise avalon.exc.InitializationError(
+                    'Could remove existing tables or data. Please check '
+                    'the permissions associated with the database', e)        
         Base.metadata.create_all(self._engine)
+
 
     def validate(self):
         """Ensure our database engine is valid by attempting a connection."""
