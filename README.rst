@@ -57,7 +57,11 @@ Optionals
 
 * ``--server-address=ADDR`` - Interface address to bind the server to. IPv4 and IPv6 addresses are supported. Default is localhost IPv4.
 
-* ``--server-port=PORT`` - Port to listen for requests on.
+* ``--server-port=PORT`` - Port to listen for requests on. Default is port 8080.
+
+* ``--server-queue=NUM`` - The number of incoming connections to the server to allow to be queued.
+
+* ``--server-threads=NUM`` - The number of threads to use to process incoming requests for the server.
 
 
 API
