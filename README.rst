@@ -38,8 +38,8 @@ Arguments
 
 * ``collection`` - Path to the root of your music collection to scan
 
-Optionals
-~~~~~~~~~
+Options
+~~~~~~~
 
 * ``--access-log=PATH`` - Path to a file to use for logging requests to the server.
 
