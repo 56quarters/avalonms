@@ -91,8 +91,10 @@ class DefaultConfiguration(object):
         self.collection = None
         self.access_log = None
         self.daemon = False
-        self.daemon_user = 'avalonms'
-        self.daemon_group = 'avalonms'
+        self.daemon_user = avalon.util.get_current_uname()
+        self.daemon_group = avalon.util.get_current_gname()
+        #self.daemon_user = 'avalonms'
+        #self.daemon_group = 'avalonms'
         self.db_path = os.path.join(tempfile.gettempdir(), 'avalon.sqlite')
         self.error_log = None
         self.no_scan = False
@@ -211,16 +213,16 @@ def parse_args(prog, defaults):
         '--daemon',
         action='store_true',
         help='Run the server in the background as a daemon')
-    parser.add_argument(
-        '--daemon-user',
-        metavar='USER',
-        help='Switch to this user when running as a daemon '
-        '(default is %s)' % defaults.daemon_user)
-    parser.add_argument(
-        '--daemon-group',
-        metavar='GROUP',
-        help='Switch to this group when running as a daemon '
-        'default is %s)' % defaults.daemon_group)
+    #parser.add_argument(
+    #    '--daemon-user',
+    #    metavar='USER',
+    #    help='Switch to this user when running as a daemon '
+    #    '(default is %s)' % defaults.daemon_user)
+    #parser.add_argument(
+    #    '--daemon-group',
+    #    metavar='GROUP',
+    #    help='Switch to this group when running as a daemon '
+    #    'default is %s)' % defaults.daemon_group)
     parser.add_argument(
         '--db-path',
         metavar='PATH',
