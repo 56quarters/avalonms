@@ -63,9 +63,16 @@ def model_to_elm(model):
     """
     if isinstance(model, Track):
         return TrackElm(
-            model.id, model.name, model.track, model.year,
-            model.album.name, model.album_id, model.artist.name,
-            model.artist_id, model.genre.name, model.genre_id)
+            model.id,
+            model.name,
+            model.track,
+            model.year,
+            model.album.name,
+            model.album_id,
+            model.artist.name,
+            model.artist_id,
+            model.genre.name,
+            model.genre_id)
     return IdNameElm(model.id, model.name)
 
 
