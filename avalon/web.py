@@ -33,6 +33,7 @@
 import functools
 import logging
 import traceback
+from datetime import datetime
 
 import cherrypy
 from cherrypy.wsgiserver import CherryPyWSGIServer
@@ -46,8 +47,6 @@ import avalon.views
 __all__ = [
     'set_http_status',
     'AvalonHandler',
-    'AvalonQueryHandler',
-    'AvalonStatusHandler',
     'AvalonServer',
     'AvalonServerConfig',
     'JSONOutHandler',
@@ -179,6 +178,12 @@ _STATUS_PAGE_TPT = """<!DOCTYPE html>
     <dt>Server is:</dt>
     <dd>%(status)s</dd>
 
+    <dt>Running as:</dt>
+    <dd>%(user)s:%(group)s</dd>
+
+    <dt>Uptime:</dt>
+    <dd>%(uptime)s</dd>
+
     <dt>Memory:</dt>
     <dd>%(memory)s MB</dd>
 
@@ -211,6 +216,7 @@ class AvalonHandler(object):
         self._genres = avalon.services.GenreStore(session_handler)
         self._id_cache = avalon.services.IdLookupCache(session_handler)
         self._session_handler = session_handler
+        self._startup = datetime.utcnow()
         
     def _get_output(self, res=None, err=None):
         """Render results or an error as an iterable."""
@@ -232,6 +238,9 @@ class AvalonHandler(object):
         """Display a server status page."""
         return _STATUS_PAGE_TPT % {
             'status': 'READY',
+            'user': avalon.util.get_current_uname(),
+            'group': avalon.util.get_current_gname(),
+            'uptime': datetime.utcnow() - self._startup,
             'memory': avalon.util.get_mem_usage(),
             'threads': '<br />'.join(avalon.util.get_thread_names()),
             'albums': len(self._albums.all()),
