@@ -31,9 +31,11 @@
 """
 
 import grp
+import itertools
 import os
 import pwd
 import resource
+import sys
 import threading
 
 
@@ -44,6 +46,8 @@ __all__ = [
     'get_gname',
     'get_current_uname',
     'get_current_gname',
+    'get_dict_size',
+    'get_set_size',
     'get_mem_usage',
     'get_thread_names'
     ]
@@ -91,8 +95,40 @@ def get_current_gname():
     return get_gname(os.getegid())
 
 
+def get_dict_size(o):
+    """Get the memory used by a dictionary in bytes.
+
+    Examine the dictionary recursively suming the size of any
+    other dictionaries and sets contained in the given dictionary.
+    """
+    size = sys.getsizeof(o)
+    seen = set()
+
+    for thing in itertools.chain.from_iterable(o.items()):
+        thing_id = id(thing)
+        if thing_id in seen:
+            continue
+
+        if isinstance(thing, dict):
+            size += get_dict_size(thing)
+        elif isinstance(thing, set):
+            size += get_set_size(thing)
+        else:
+            size += sys.getsizeof(thing)
+        seen.add(thing_id)
+    return size
+
+
+def get_set_size(o):
+    """Get the memory used by a set in bytes."""
+    size = sys.getsizeof(o)
+    for thing in o:
+        size += sys.getsizeof(thing)
+    return size
+
+
 def get_mem_usage():
-    """Return the current memory usage in MB."""
+    """Return the current memory usage of the process in MB."""
     return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024.0
 
 

@@ -32,18 +32,12 @@ Classes that encompass business logic spanning multiple functional
 areas.
 """
 
-
 import collections
+import sys
 
-from avalon.models import (
-    Album,
-    Artist,
-    Genre,
-    Track)
-
-from avalon.views import (
-    IdNameElm,
-    TrackElm)
+import avalon.util
+from avalon.models import Album, Artist, Genre, Track
+from avalon.views import IdNameElm, TrackElm
 
 
 __all__ = [
@@ -155,6 +149,14 @@ class IdLookupCache(object):
 
         self.reload()
 
+    def __sizeof__(self):
+        """Get the size of the object in bytes."""
+        size = super(IdLookupCache, self).__sizeof__()
+        size += sys.getsizeof(self._session_handler)
+        size += sys.getsizeof(self._case_sensitive)
+        size += avalon.util.get_dict_size(self._cache)
+        return size
+
     def _get_key(self, val):
         """Return the given value or the value with the case normalized
         based on if we are doing case insensitive comparisons or not.
@@ -211,6 +213,16 @@ class TrackStore(object):
         self._all = None
 
         self.reload()
+
+    def __sizeof__(self):
+        """Get the size of the object in bytes."""
+        size = super(TrackStore, self).__sizeof__()
+        size += sys.getsizeof(self._session_handler)
+        size += avalon.util.get_dict_size(self._by_album)
+        size += avalon.util.get_dict_size(self._by_artist)
+        size += avalon.util.get_dict_size(self._by_genre)
+        size += avalon.util.get_set_size(self._all)
+        return size
 
     def _freeze(self, table):
         """Convert a dictionary with mutable iterable values into
@@ -276,6 +288,14 @@ class _IdNameStore(object):
         self._all = None
 
         self.reload()
+
+    def __sizeof__(self):
+        """Get the size of the object in bytes."""
+        size = super(_IdNameStore, self).__sizeof__()
+        size += sys.getsizeof(self._session_handler)
+        size += sys.getsizeof(self._cls)
+        size += avalon.util.get_set_size(self._all)
+        return size
 
     def reload(self):
         """Atomically populate all elements of the given type."""

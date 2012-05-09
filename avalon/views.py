@@ -33,6 +33,8 @@ as JSON and an encoder for doing so.
 """
 
 
+import sys
+
 try:
     import simplejson as json
 except ImportError:
@@ -77,39 +79,41 @@ class JSONEncoder(json.JSONEncoder):
 
 class IdNameElm(object):
 
-    """ Immutable, hashable representation of a model with ID
-        and name attributes (everything besides Tracks).
+    """Immutable, hashable representation of a model with ID
+    and name attributes (everything besides Tracks).
     """
 
     def __init__(self, elm_id, elm_name):
-        """ Set the element attributes.
-        """
+        """Set the element attributes."""
         self._id = elm_id
         self._name = elm_name
 
     @property
     def id(self):
-        """ Element ID.
-        """
+        """Element ID."""
         return self._id
 
     @property
     def name(self):
-        """ Element name.
-        """
+        """Element name."""
         return self._name
 
     def __eq__(self, o):
-        """ Two instances are equal based on ID and name.
-        """
+        """Two instances are equal based on ID and name."""
         if not isinstance(o, self.__class__):
             return False
         return o.id == self.id and o.name == self.name
 
     def __hash__(self):
-        """ Hash is computed from ID, name, and class.
-        """
+        """Hash is computed from ID, name, and class."""
         return hash(self.id) ^ (hash(self.name) * 7) ^ (hash(self.__class__) * 31)
+
+    def __sizeof__(self):
+        """Get the size of the object in bytes."""
+        size = super(IdNameElm, self).__sizeof__()
+        size += sys.getsizeof(self._id)
+        size += sys.getsizeof(self._name)
+        return size
 
 
 class TrackElm(IdNameElm):
@@ -120,8 +124,7 @@ class TrackElm(IdNameElm):
     def __init__(self, t_id, t_name, t_track, t_year,
                  t_album, t_album_id, t_artist, t_artist_id,
                  t_genre, t_genre_id):
-        """ Set the track attributes.
-        """
+        """Set the track attributes."""
         super(TrackElm, self).__init__(t_id, t_name)
 
         self._track = t_track
@@ -133,50 +136,55 @@ class TrackElm(IdNameElm):
         self._genre = t_genre
         self._genre_id = t_genre_id
 
+    def __sizeof__(self):
+        """Get the size of the object in bytes."""
+        size = super(TrackElm, self).__sizeof__()
+        size += sys.getsizeof(self._track)
+        size += sys.getsizeof(self._year)
+        size += sys.getsizeof(self._album)
+        size += sys.getsizeof(self._album_id)
+        size += sys.getsizeof(self._artist)
+        size += sys.getsizeof(self._artist_id)
+        size += sys.getsizeof(self._genre)
+        size += sys.getsizeof(self._genre_id)
+        return size
+
     @property
     def track(self):
-        """ Track track number.
-        """
+        """Track track number (seriously)."""
         return self._track
 
     @property
     def year(self):
-        """ Track year.
-        """
+        """Track year."""
         return self._year
 
     @property
     def album(self):
-        """ Track album name.
-        """
+        """Track album name."""
         return self._album
 
     @property
     def album_id(self):
-        """ Track album ID.
-        """
+        """Track album ID."""
         return self._album_id
 
     @property
     def artist(self):
-        """ Track artist name.
-        """
+        """Track artist name."""
         return self._artist
 
     @property
     def artist_id(self):
-        """ Track artist ID.
-        """
+        """Track artist ID."""
         return self._artist_id
     
     @property
     def genre(self):
-        """ Track genre name.
-        """
+        """Track genre name."""
         return self._genre
     
     @property
     def genre_id(self):
-        """ Track genre ID.
-        """
+        """Track genre ID."""
         return self._genre_id

@@ -32,6 +32,7 @@
 
 import functools
 import logging
+import sys
 import traceback
 from datetime import datetime
 
@@ -217,6 +218,13 @@ class AvalonHandler(object):
         self._id_cache = avalon.services.IdLookupCache(session_handler)
         self._session_handler = session_handler
         self._startup = datetime.utcnow()
+
+        print 'Tracks: %s' % sys.getsizeof(self._tracks)
+        print 'Albums: %s' % sys.getsizeof(self._albums)
+        print 'Artist: %s' % sys.getsizeof(self._artists)
+        print 'Genres: %s' % sys.getsizeof(self._genres)
+        print 'IdCache: %s' % sys.getsizeof(self._id_cache)
+
         
     def _get_output(self, res=None, err=None):
         """Render results or an error as an iterable."""
