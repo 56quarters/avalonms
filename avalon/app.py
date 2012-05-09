@@ -170,9 +170,11 @@ class AvalonMS(object):
             if required.
         """
         context = daemon.DaemonContext()
-        context.uid = avalon.util.get_uid(self._config.daemon_user)
-        context.gid = avalon.util.get_gid(self._config.daemon_group)
         context.files_preserve = self._log.get_open_fds()
+
+        if 0 == os.geteuid():
+            context.uid = avalon.util.get_uid(self._config.daemon_user)
+            context.gid = avalon.util.get_gid(self._config.daemon_group)
 
         with context:
             # Just reinstall our own signal handlers here instead of
