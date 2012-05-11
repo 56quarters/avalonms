@@ -233,11 +233,11 @@ class AvalonHandler(object):
             out.error = err
         return out.render()
 
-    def _reduce(self, *args):
+    def _reduce(self, sets):
         """Find the intersection of all of the given non-None sets."""
         return functools.reduce(
             lambda x, y: x.intersection(y),
-            [res_set for res_set in args if res_set is not None])
+            [res_set for res_set in sets if res_set is not None])
 
     @cherrypy.expose
     def index(self, *args, **kwargs):
@@ -292,19 +292,17 @@ class AvalonHandler(object):
         if filters.is_empty():
             return self._get_output(res=self._tracks.all())
 
-        set1 = None
-        set2 = None
-        set3 = None
+        sets = []
 
         if None is not filters.album_id:
-            set1 = self._tracks.by_album(filters.album_id)
+            sets.append(self._tracks.by_album(filters.album_id))
         if None is not filters.artist_id:
-            set2 = self._tracks.by_artist(filters.artist_id)
+            sets.append(self._tracks.by_artist(filters.artist_id))
         if None is not filters.genre_id:
-            set3 = self._tracks.by_genre(filters.genre_id)
+            sets.append(self._tracks.by_genre(filters.genre_id))
             
         # Return the intersection of any none-None sets
-        return self._get_output(res=self._reduce(set1, set2, set3))
+        return self._get_output(res=self._reduce(sets))
 
 
 class RequestOutput(object):
