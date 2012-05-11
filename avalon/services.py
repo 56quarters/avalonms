@@ -166,6 +166,18 @@ class IdLookupCache(object):
         except KeyError:
             return 0
 
+    def get_album_id(self, val):
+        """Get the ID associated with an album name, 0 if no ID is found."""
+        return self.get_id('album', val)
+
+    def get_artist_id(self, val):
+        """Get the ID associated with an artist name, 0 if no ID is found."""
+        return self.get_id('artist', val)
+
+    def get_genre_id(self, val):
+        """Get the ID associated with an genre name, 0 if no ID is found."""
+        return self.get_id('genre', val)
+
     def reload(self):
         """ Atomically load all name to ID mappings from the database.
         """

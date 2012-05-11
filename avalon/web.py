@@ -294,13 +294,23 @@ class AvalonHandler(object):
 
         sets = []
 
+        if None is not filters.album:
+            sets.append(
+                self._tracks.by_album(self._id_cache.get_album_id(filters.album)))
+        if None is not filters.artist:
+            sets.append(
+                self._tracks.by_artist(self._id_cache.get_artist_id(filters.artist)))
+        if None is not filters.genre:
+            sets.append(
+                self._tracks.by_genre(self._id_cache.get_genre_id(filters.genre)))
+
         if None is not filters.album_id:
             sets.append(self._tracks.by_album(filters.album_id))
         if None is not filters.artist_id:
             sets.append(self._tracks.by_artist(filters.artist_id))
         if None is not filters.genre_id:
             sets.append(self._tracks.by_genre(filters.genre_id))
-            
+
         # Return the intersection of any none-None sets
         return self._get_output(res=self._reduce(sets))
 
@@ -386,15 +396,39 @@ class RequestParams(object):
     
     def __init__(self):
         """ Initialize values for object IDs to None."""
+        self.album = None
         self.album_id = None
+        self.artist = None
         self.artist_id = None
+        self.genre = None
         self.genre_id = None
+
+    def __str__(self):
+        """String representation of these request params."""
+        return (
+            'RequestParams ['
+            'album: %s, '
+            'album_id: %s, '
+            'artist: %s, '
+            'artist_id: %s, '
+            'genre: %s, '
+            'genre_id: %s]') % (
+            self.album,
+            self.album_id,
+            self.artist,
+            self.artist_id,
+            self.genre,
+            self.genre_id)
 
     def is_empty(self):
         """Return true if the request has no keyword parameters, false otherwise."""
-        return (self.album_id is None 
-                and self.artist_id is None 
-                and self.genre_id is None)
+        return (
+            self.album is None
+            and self.album_id is None 
+            and self.artist is None
+            and self.artist_id is None 
+            and self.genre is None
+            and self.genre_id is None)
 
     @classmethod
     def get_from_qs(cls, cache, kwargs):
@@ -408,13 +442,7 @@ class RequestParams(object):
         for field in cls.name_params:
             if field not in kwargs:
                 continue
-            # Look up a value from the cache and use it to filter
-            # the results. We don't care if the cache returned a
-            # valid ID since we want the request to return 0
-            # results for bad QS params.
-            val_id = cache.get_id(field, kwargs[field])
-            setattr(f, field + '_id', val_id)
-
+            setattr(f, field, kwargs[field])
         for field in cls.id_params:
             if field not in kwargs:
                 continue
