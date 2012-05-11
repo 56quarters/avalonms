@@ -32,8 +32,7 @@ Or
 Eratta
 ------
 
-* The server cannot be run as root, it must be run as an unprivileged user.
-* Consequently, the server cannot run on a privileged port (< 1024).
+* The server cannot be run as root, it must be run as an unprivileged user. Consequently, the server cannot run on a privileged port (< 1024). This may be fixed in a later version.
 
 Usage
 -----
