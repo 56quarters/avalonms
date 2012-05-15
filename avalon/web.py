@@ -141,24 +141,19 @@ class AvalonServer(CherryPyWSGIServer):
         super(AvalonServer, self).stop()
 
 
-# TODO: This should probably extend ServerAdapter
-# and subscribe to the 'graceful' event as well as
-# start/stop. Also, start in a separate thread.
+class AvalonServerPlugin(cherrypy.process.servers.ServerAdapter):
 
-class AvalonServerPlugin(cherrypy.process.plugins.SimplePlugin):
+    """Adapter between our HTTP server and the CherryPy bus system."""
 
-    def __init__(self, bus, server):
-        super(AvalonServerPlugin, self).__init__(bus)
-        self._server = server
+    def subscribe(self):
+        """Register start, stop, and graceful handlers."""
+        super(AvalonServerPlugin, self).subscribe()
+        self.bus.subscribe('graceful', self.httpserver.reload)
 
-    def start(self):
-        self._server.start()
-
-    def stop(self):
-        self._server.stop()
-
-    def graceful(self):
-        self._server.reload()
+    def unsubscribe(self):
+        """Unregister start, stop, and graceful handlers."""
+        super(AvalonServerPlugin, self).unsubscribe()
+        self.bus.unsubscribe('graceful', self.httpserver.reload)
 
         
 _STATUS_PAGE_TPT = """<!DOCTYPE html>

@@ -167,7 +167,7 @@ class RequestEngineConfig(object):
         self.server = None
 
 
-# TODO: Look into setting up a timedout response  monitor
+# TODO: Look into setting up a timedout response monitor
 
 class RequestEngine(object):
 
@@ -185,7 +185,10 @@ class RequestEngine(object):
         h.handlers = self._get_handlers()
         h.subscribe()
 
-        h = avalon.web.AvalonServerPlugin(self._bus, self._server)
+        h = avalon.web.AvalonServerPlugin(
+            self._bus, 
+            httpserver=self._server,
+            bind_addr=self._server.bind_addr)
         h.subscribe()
 
         h = avalon.log.AvalonLogPlugin(self._bus, self._log)
