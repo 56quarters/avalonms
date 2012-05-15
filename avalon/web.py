@@ -123,11 +123,8 @@ class AvalonServer(CherryPyWSGIServer):
             msg = '%s: %s' % (msg, traceback.format_exc())
         self._log.log(level, msg)
 
-    def graceful(self):
+    def reload(self):
         """Reopen the server logs and refresh application caches."""
-        self._log.info("HTTP server reloading logs...")
-        self._log.reload()
-        self._log.info("HTTP server logs reloaded")
         self._app.reload()
         self._log.info("Handler caches reloaded")
 
@@ -144,6 +141,26 @@ class AvalonServer(CherryPyWSGIServer):
         super(AvalonServer, self).stop()
 
 
+# TODO: This should probably extend ServerAdapter
+# and subscribe to the 'graceful' event as well as
+# start/stop. Also, start in a separate thread.
+
+class AvalonServerPlugin(cherrypy.process.plugins.SimplePlugin):
+
+    def __init__(self, bus, server):
+        super(AvalonServerPlugin, self).__init__(bus)
+        self._server = server
+
+    def start(self):
+        self._server.start()
+
+    def stop(self):
+        self._server.stop()
+
+    def graceful(self):
+        self._server.reload()
+
+        
 _STATUS_PAGE_TPT = """<!DOCTYPE html>
 <html>
 <head>
@@ -225,11 +242,6 @@ class AvalonHandler(object):
         self._id_cache = avalon.services.IdLookupCache(session_handler)
         self._session_handler = session_handler
         self._startup = datetime.utcnow()
-        #print 'Tracks: %s' % sys.getsizeof(self._tracks)
-        #print 'Albums: %s' % sys.getsizeof(self._albums)
-        #print 'Artist: %s' % sys.getsizeof(self._artists)
-        #print 'Genres: %s' % sys.getsizeof(self._genres)
-        #print 'IdCache: %s' % sys.getsizeof(self._id_cache)
 
     def _get_output(self, res=None, err=None):
         """Render results or an error as an iterable."""

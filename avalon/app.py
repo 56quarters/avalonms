@@ -167,6 +167,8 @@ class RequestEngineConfig(object):
         self.server = None
 
 
+# TODO: Look into setting up a timedout response  monitor
+
 class RequestEngine(object):
 
     """ """
@@ -179,11 +181,11 @@ class RequestEngine(object):
 
     def start(self):
         """ """
-        h = cherrypy.process.servers.ServerAdapter(self._bus, self._server)
-        h.subscribe()
-
         h = cherrypy.process.plugins.SignalHandler(self._bus)
         h.handlers = self._get_handlers()
+        h.subscribe()
+
+        h = avalon.web.AvalonServerPlugin(self._bus, self._server)
         h.subscribe()
 
         h = avalon.log.AvalonLogPlugin(self._bus, self._log)

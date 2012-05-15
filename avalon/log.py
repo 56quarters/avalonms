@@ -155,14 +155,21 @@ class AvalonLogPlugin(cherrypy.process.plugins.SimplePlugin):
     """
 
     def __init__(self, bus, log):
-        self.bus = bus
+        super(AvalonLogPlugin, self).__init__(bus)
         self._log = log
 
     def graceful(self):
         """Configure and reinstall our log handlers (including
         reopening log files.
         """
+        self._log.info("Gracefully reloading log...")
         self._log.reload()
+        self._log.info("Log reloaded")
+
+    # Set the priority for graceful lower than the default (50)
+    # so that we can ensure we have a valid log handle when any
+    # other graceful subscribers run.
+    graceful.priority = 45
 
     def log(self, msg, level):
         """Log the message at the desired level."""

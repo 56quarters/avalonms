@@ -1,6 +1,7 @@
 For v1:
 * Daemon mode socket permissions
 * Daemon mode log permissions
+* CherryPy plugin system
 
 For v2:
 * Tests
