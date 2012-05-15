@@ -141,7 +141,31 @@ class AvalonLog(object):
         self._logger.critical(msg, *args, **kwargs)
 
     def log(self, level, msg, *args, **kwargs):
-        """ Log at the given level."""
+        """ Log at the given level.
+        """
         self._logger.log(level, msg, *args, **kwargs)
 
 
+class AvalonLogPlugin(cherrypy.process.plugins.SimplePlugin):
+
+    """Adapter to allow our logger to be used as a CherryPy
+    plugin for the bus system.
+
+    Supports the 'graceful' and 'log' channels.
+    """
+
+    def __init__(self, bus, log):
+        self.bus = bus
+        self._log = log
+
+    def graceful(self):
+        """Configure and reinstall our log handlers (including
+        reopening log files.
+        """
+        self._log.reload()
+
+    def log(self, msg, level):
+        """Log the message at the desired level."""
+        self._log.log(level, msg)
+    
+        

@@ -47,13 +47,6 @@ import avalon.web
 from avalon.exc import DatabaseError
 
 
-__all__ = [
-    'APP_PATH',
-    'AvalonMS',
-    'SignalHandler'
-    ]
-
-
 APP_PATH = '/avalon'
 
 
@@ -75,8 +68,9 @@ class AvalonMS(object):
 
         self._config = config
         self._log = self._get_logger()
-        self._signals = SignalHandler()
         self._db = None
+
+        install_signal_handler()
 
     def _configure_env(self):
         """Configure the global cherrypy environment."""
@@ -150,82 +144,78 @@ class AvalonMS(object):
 
         self._log.info("Starting server...")
         server = self._get_server()
-        # Give the signal handler a reference to the server
-        # so that we can stop the server properly when we get
-        # a SIGTERM or any other signal we care to handle.
-        self._signals.server = server            
+        bus = cherrypy.process.wspbus.Bus()
 
-        if self._config.daemon:
-            self._start_daemon(server)
-        else:
-            self._start_foreground(server)
+        conf = RequestEngineConfig()
+        conf.bus = bus
+        conf.server = server
+        conf.log = self._log
+
+        engine = RequestEngine(conf)
+        engine.start()
+
         self._log.info("Server stopped")
 
-    def _start_foreground(self, server):
-        """Start the server in the foreground (non-daemon)."""
-        server.start()
 
-    def _start_daemon(self, server):
-        """ Start the server as a daemon, switching to a different user
-            if required.
-        """
-        context = daemon.DaemonContext()
-        context.files_preserve = self._log.get_open_fds()
+class RequestEngineConfig(object):
 
-        if 0 == os.geteuid():
-            context.uid = avalon.util.get_uid(self._config.daemon_user)
-            context.gid = avalon.util.get_gid(self._config.daemon_group)
+    """ """
 
-        with context:
-            # Just reinstall our own signal handlers here instead of
-            # specifying them when creating the daemon context so that
-            # we can keep all the signal logic in the signal handler
-            self._signals.install()
-
-            try:
-                server.start()
-            except Exception, e:
-                self._log.critical(
-                    '%s: %s', e.message, traceback.format_exc())
-
-
-class SignalHandler(object):
-
-    """ Respond to signals to allow the server to gracefully shutdown
-        or reload log files.
-    """
-    
     def __init__(self):
-        """Install default signals handlers (before server is started)."""
+        self.bus = None
+        self.log = None
         self.server = None
-        self.install()
 
-    def dispatch(self, signum, frame):
-        """Route the signal to a handler based if the server has been started."""
-        if self.server is None:
-            self._exit_handler(signum, frame)
-        else:
-            self._server_handler(signum, frame)
 
-    def install(self):
-        """Install our signal handler."""
-        signal.signal(signal.SIGINT, self.dispatch)
-        signal.signal(signal.SIGTERM, self.dispatch)
-        signal.signal(signal.SIGUSR1, self.dispatch)
+class RequestEngine(object):
+
+    """ """
+
+    def __init__(self, config):
+        """ """
+        self._bus = config.bus
+        self._log = config.log
+        self._server = config.server
+
+    def start(self):
+        """ """
+        h = cherrypy.process.servers.ServerAdapter(self._bus, self._server)
+        h.subscribe()
+
+        h = cherrypy.process.plugins.SignalHandler(self._bus)
+        h.handlers = self._get_handlers()
+        h.subscribe()
+
+        h = avalon.log.AvalonLogPlugin(self._bus, self._log)
+        h.subscribe()
+
+        self._bus.start()
+        self._bus.block()
+
+    def stop(self):
+        """ """
+        self._bus.stop()
+
+    def _get_handlers(self):
+        """ """
+        return {
+            'SIGTERM': self._bus.exit,
+            'SIGINT': self._bus.exit,
+            'SIGUSR1': self._bus.graceful
+            }
         
-    def _exit_handler(self, signum, frame):
+
+def install_signal_handler():
+    """Simple signal handler to quietly handle ^C."""
+
+    def _exit_handler(signum, frame):
         """Handle TERM and INT by exiting."""
         if signum in (signal.SIGTERM, signal.SIGINT):
             raise SystemExit()
-
-    def _server_handler(self, signum, frame):
-        """ Handle TERM and INT by stopping the server, USR1 by reloading
-            log files.
-        """
-        if signum in (signal.SIGTERM, signal.SIGINT):
-            self.server.stop()
-        elif signum == signal.SIGUSR1:
-            self.server.reload()
+    
+    signal.signal(signal.SIGINT, _exit_handler)
+    signal.signal(signal.SIGTERM, _exit_handler)
+        
 
     
 

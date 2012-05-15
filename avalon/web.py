@@ -102,8 +102,11 @@ class AvalonServer(CherryPyWSGIServer):
             config.application,
             numthreads=config.num_threads,
             request_queue_size=config.queue_size)
-
+        
+        self._app = config.application.root
         self._log = config.log
+        self.ready = False
+
         self._log.info('Server using address %s', config.bind_addr)
         self._log.info('Server using %s threads', config.num_threads)
         self._log.info('Server using up to %s queued connections', config.queue_size)
@@ -120,20 +123,24 @@ class AvalonServer(CherryPyWSGIServer):
             msg = '%s: %s' % (msg, traceback.format_exc())
         self._log.log(level, msg)
 
-    def reload(self):
-        """Reopen the server logs."""
+    def graceful(self):
+        """Reopen the server logs and refresh application caches."""
         self._log.info("HTTP server reloading logs...")
         self._log.reload()
         self._log.info("HTTP server logs reloaded")
+        self._app.reload()
+        self._log.info("Handler caches reloaded")
 
     def start(self):
         """Run the server forever."""
         self._log.info('HTTP server handling requests...')
+        self.ready = True
         super(AvalonServer, self).start()
-
+        
     def stop(self):
         """Gracefully stop the server."""
         self._log.info('Stopping HTTP server...')
+        self.ready = False
         super(AvalonServer, self).stop()
 
 
@@ -238,6 +245,14 @@ class AvalonHandler(object):
         return functools.reduce(
             lambda x, y: x.intersection(y),
             [res_set for res_set in sets if res_set is not None])
+
+    def reload(self):
+        """Reload in memory stores from the database."""
+        self._tracks.reload()
+        self._albums.reload()
+        self._artists.reload()
+        self._genres.reload()
+        self._id_cache.reload()
 
     @cherrypy.expose
     def index(self, *args, **kwargs):
