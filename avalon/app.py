@@ -53,6 +53,13 @@ from avalon.exc import DatabaseError
 APP_PATH = '/avalon'
 
 
+## TODO: Change plugins and whatnot so that the order
+## of events is:
+## * daemonize
+## * http server start
+## * drop privileges
+## Since forking kills all threads except MainThread
+
 class AvalonMS(object):
 
     """ Wrapper around the main functionality of the Avalon MS, database
