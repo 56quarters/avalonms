@@ -68,7 +68,7 @@ class AvalonLog(object):
     _date_fmt = '%Y-%m-%d %H:%M:%S'
 
     def __init__(self, config):
-        """ Set the path to the log file or None to use stderr."""
+        """Set the path to the log file or None to use stderr."""
         self._log_root = config.log_root
         self._access_path = config.access_path
         self._error_path = config.error_path
@@ -79,9 +79,14 @@ class AvalonLog(object):
         self.reload()
 
     def get_open_fds(self):
-        """ Get the file number of any open log files."""
+        """Get the file number of any open log files."""
         return [
             handler.stream.fileno() for handler in self._handlers if handler.stream]
+
+    def get_open_paths(self):
+        """Get the file path of any open log files."""
+        return [
+            handler.stream.name for handler in self._handlers if handler.stream]
 
     def reload(self):
         """ Configure logging and install our own handlers."""

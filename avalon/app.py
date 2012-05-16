@@ -53,12 +53,8 @@ from avalon.exc import DatabaseError
 APP_PATH = '/avalon'
 
 
-## TODO: Change plugins and whatnot so that the order
-## of events is:
-## * daemonize
-## * http server start
-## * drop privileges
-## Since forking kills all threads except MainThread
+# TODO: Look into setting up a timedout response monitor
+
 
 class AvalonMS(object):
 
@@ -164,6 +160,7 @@ class AvalonMS(object):
         conf.bus = cherrypy.process.wspbus.Bus()
         conf.server = self._get_server()
         conf.log = self._log
+        conf.db = self._db
 
         engine = AvalonEngine(conf)
         if self._config.daemon:
@@ -182,21 +179,19 @@ class AvalonEngineConfig(object):
     def __init__(self):
         self.bus = None
         self.log = None
+        self.db = None
         self.server = None
 
-
-# TODO: Look into setting up a timedout response monitor
 
 class AvalonEngine(object):
 
     """ """
 
-    default_umask = 0
-
     def __init__(self, config):
         """ """
         self._bus = config.bus
         self._log = config.log
+        self._db = config.db
         self._server = config.server
 
     def enable_signal_handler(self):
@@ -219,9 +214,33 @@ class AvalonEngine(object):
         h.subscribe()
 
     def enable_daemon(self, uid, gid):
-        h = DaemonPlugin(self._bus, self._log, self._server)
-        h.uid = uid
-        h.gid = gid
+        """ """
+        # Daemon mode entails the actual daemonization process
+        # which includes preserving any open file descriptors.
+        h = DaemonPlugin(self._bus, self._log)
+        h.subscribe()
+
+        if not avalon.util.are_root():
+            return
+
+        # Switch to a non-super user. This is separate from forking
+        # since forking needs to happen before the HTTP server is started 
+        # (threads and forking don't mix) and dropping privileges needs
+        # to happen after we've bound to a port.
+        h = cherrypy.process.plugins.DropPrivileges(
+            self._bus, 
+            uid=uid, 
+            gid=gid,
+            umask=0)
+        h.subscribe()
+
+        # Set the logs to be owned by the user we will be switching
+        # to since we need write access as the non-super user.
+        h = FilePermissionPlugin(
+            self._bus,
+            self._log,
+            uid=uid,
+            gid=gid)
         h.subscribe()
 
     def start(self):
@@ -231,10 +250,6 @@ class AvalonEngine(object):
         self.enable_server()
 
         self._bus.start()
-
-        time.sleep(3)
-        self._log.info(str([thread.name for thread in threading.enumerate()]))
-
         self._bus.block()
 
     def stop(self):
@@ -264,56 +279,34 @@ def default_signal_handler():
 
 class DaemonPlugin(cherrypy.process.plugins.SimplePlugin):
 
-    def __init__(self, bus, log, server):
+    def __init__(self, bus, log):
         super(DaemonPlugin, self).__init__(bus)
         self._context = daemon.DaemonContext()
-        
-        # Store references to the log and server since we
-        # need a list of filenos to leave open for daemon
-        # mode but this isn't available until the engine
-        # is in the process of starting up.
-        self._log = log
-        self._server = server
-
-    def _get_uid(self):
-        return self._context.uid
-
-    def _set_uid(self, val):
-        self._context.uid = val
-
-    uid = property(_get_uid,_set_uid)
-
-    def _get_gid(self):
-        return self._context.gid
-
-    def _set_gid(self, val):
-        self._context.gid = val
-
-    gid = property(_get_gid, _set_gid)
+        self._file_nos = log.get_open_fds()
 
     def start(self):
         """ """
-        self._context.files_preserve = self._log.get_open_fds() + self._server.get_open_fds()
-        print self._context.files_preserve
+        self._context.files_preserve = self._file_nos
         self._context.open()
 
-    # Set the priority lower that server.start so that we still
-    # have root permissions when starting the server incase we
-    # are using a privileged port number.
-    start.priority = 80
+    # Set the priority higher than server.start so that we have
+    # already forked when threads are created by the HTTP server
+    # start up process.
+    start.priority = 45
 
     def stop(self):
         """ """
         self._context.close()
 
 
-class LogPermissionPlugin(cherrypy.process.plugins.SimplePlugin):
+class FilePermissionPlugin(cherrypy.process.plugins.SimplePlugin):
 
     """ """
 
-    def __init__(self, bus, files, uid, gid):
+    def __init__(self, bus, log, uid=None, gid=None):
         """ """
-        self._files = files
+        super(FilePermissionPlugin, self).__init__(bus)
+        self._files = log.get_open_paths()
         self._uid = uid
         self._gid = gid
 
@@ -337,11 +330,11 @@ class LogPermissionPlugin(cherrypy.process.plugins.SimplePlugin):
         """ """
         for log_file in self._files:
             self._fix(log_file)
-
-    # Set the priority for fixing log ownership higher than the
-    # default so that we ensure it happens before we change users
-    # and lose the ability to do so.
-    start.priority = 45
+    
+    # Use a higher priority than the DropPrivileges plugin
+    # so that the logs are owned correctly before we lose
+    # the ability to change it.
+    start.priority = 50
 
 
 
