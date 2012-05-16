@@ -106,6 +106,7 @@ class AvalonServer(CherryPyWSGIServer):
         self._app = config.application.root
         self._log = config.log
         self.ready = False
+        self.socket = None
 
         self._log.info('Server using address %s', config.bind_addr)
         self._log.info('Server using %s threads', config.num_threads)

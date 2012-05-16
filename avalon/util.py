@@ -47,7 +47,8 @@ __all__ = [
     'get_current_uname',
     'get_current_gname',
     'get_mem_usage',
-    'get_thread_names'
+    'get_thread_names',
+    'are_root'
     ]
 
 
@@ -101,3 +102,8 @@ def get_mem_usage():
 def get_thread_names():
     """Get the names of all running threads."""
     return [t.name for t in threading.enumerate()]
+
+
+def are_root():
+    """ """
+    return 0 == os.geteuid() or 0 == os.getegid()

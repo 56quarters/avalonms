@@ -31,6 +31,7 @@
 """
 
 
+import errno
 import os
 import os.path
 import signal
@@ -61,6 +62,8 @@ class AvalonMS(object):
         """Set the application configuration, create a logger, and
            set up signal handlers.
         """
+        default_signal_handler()
+
         # Configure the global CherryPy environment before we setup
         # our logger so that we make sure to clear any existing logging
         # and use the 'production' environment.
@@ -70,13 +73,18 @@ class AvalonMS(object):
         self._log = self._get_logger()
         self._db = None
 
-        install_signal_handler()
-
     def _configure_env(self):
         """Configure the global cherrypy environment."""
         cherrypy.config.update({'environment': 'production'})
         cherrypy.log.access_file = None
         cherrypy.log.error_file = None
+
+    def _fix_log_perms(self):
+        """ """
+        perms = LogPermissions(self._config.uid, self._config.gid)
+
+        for log_file in (self._config.error_log, self._config.access_log):
+            perms.fix()
 
     def _get_db_url(self):
         """Get a database connection URL from the path to the SQLite database."""
@@ -143,21 +151,19 @@ class AvalonMS(object):
             raise DatabaseError("Can't start server: database is not connected")
 
         self._log.info("Starting server...")
-        server = self._get_server()
-        bus = cherrypy.process.wspbus.Bus()
-
-        conf = RequestEngineConfig()
-        conf.bus = bus
-        conf.server = server
+        conf = AvalonEngineConfig()
+        conf.bus = cherrypy.process.wspbus.Bus()
+        conf.server = self._get_server()
         conf.log = self._log
 
-        engine = RequestEngine(conf)
+        engine = AvalonEngine(conf)
+        engine.enable_daemon(1000, 1000)
         engine.start()
 
         self._log.info("Server stopped")
 
 
-class RequestEngineConfig(object):
+class AvalonEngineConfig(object):
 
     """ """
 
@@ -169,9 +175,11 @@ class RequestEngineConfig(object):
 
 # TODO: Look into setting up a timedout response monitor
 
-class RequestEngine(object):
+class AvalonEngine(object):
 
     """ """
+
+    default_umask = 0
 
     def __init__(self, config):
         """ """
@@ -179,20 +187,36 @@ class RequestEngine(object):
         self._log = config.log
         self._server = config.server
 
-    def start(self):
+    def enable_signal_handler(self):
         """ """
         h = cherrypy.process.plugins.SignalHandler(self._bus)
         h.handlers = self._get_handlers()
         h.subscribe()
 
+    def enable_server(self):
+        """ """
         h = avalon.web.AvalonServerPlugin(
             self._bus, 
             httpserver=self._server,
             bind_addr=self._server.bind_addr)
         h.subscribe()
 
+    def enable_logger(self):
+        """ """
         h = avalon.log.AvalonLogPlugin(self._bus, self._log)
         h.subscribe()
+
+    def enable_daemon(self, uid, gid):
+        h = DaemonPlugin(self._bus, self._log, self._server)
+        h.uid = uid
+        h.gid = gid
+        h.subscribe()
+
+    def start(self):
+        """ """
+        self.enable_logger()
+        self.enable_signal_handler()
+        self.enable_server()
 
         self._bus.start()
         self._bus.block()
@@ -208,9 +232,9 @@ class RequestEngine(object):
             'SIGINT': self._bus.exit,
             'SIGUSR1': self._bus.graceful
             }
-        
 
-def install_signal_handler():
+
+def default_signal_handler():
     """Simple signal handler to quietly handle ^C."""
 
     def _exit_handler(signum, frame):
@@ -222,6 +246,86 @@ def install_signal_handler():
     signal.signal(signal.SIGTERM, _exit_handler)
         
 
-    
+class DaemonPlugin(cherrypy.process.plugins.SimplePlugin):
+
+    def __init__(self, bus, log, server):
+        super(DaemonPlugin, self).__init__(bus)
+        self._context = daemon.DaemonContext()
+        
+        # Store references to the log and server since we
+        # need a list of filenos to leave open for daemon
+        # mode but this isn't available until the engine
+        # is in the process of starting up.
+        self._log = log
+        self._server = server
+
+    def _get_uid(self):
+        return self._context.uid
+
+    def _set_uid(self, val):
+        self._context.uid = val
+
+    uid = property(_get_uid,_set_uid)
+
+    def _get_gid(self):
+        return self._context.gid
+
+    def _set_gid(self, val):
+        self._context.gid = val
+
+    gid = property(_get_gid, _set_gid)
+
+    def start(self):
+        """ """
+        self._context.files_preserve = self._log.get_open_fds() + self._server.get_open_fds()
+        print self._context.files_preserve
+        self._context.open()
+
+    # Set the priority lower that server.start so that we still
+    # have root permissions when starting the server incase we
+    # are using a privileged port number.
+    start.priority = 80
+
+    def stop(self):
+        """ """
+        self._context.close()
+
+
+class LogPermissionPlugin(cherrypy.process.plugins.SimplePlugin):
+
+    """ """
+
+    def __init__(self, bus, files, uid, gid):
+        """ """
+        self._files = files
+        self._uid = uid
+        self._gid = gid
+
+    def _fix(self, log_file):
+        """ """
+        if not os.path.isfile(log_file):
+            return
+
+        try:
+            os.chown(log_file, self._uid, self._gid)
+        except OSError, e:
+            if e.errno in (errno.EACCES, errno.EPERM):
+                raise avalon.exc.PermissionError(
+                    'Could set correct permissions on file '
+                    '[%s]: %s' % (log_file, e))
+            # Not an expected permission or access related
+            # error rethrow since we can't handle this.
+            raise
+
+    def start(self):
+        """ """
+        for log_file in self._files:
+            self._fix(log_file)
+
+    # Set the priority for fixing log ownership higher than the
+    # default so that we ensure it happens before we change users
+    # and lose the ability to do so.
+    start.priority = 45
+
 
 

@@ -166,8 +166,8 @@ class AvalonLogPlugin(cherrypy.process.plugins.SimplePlugin):
         self._log.reload()
         self._log.info("Log reloaded")
 
-    # Set the priority for graceful lower than the default (50)
-    # so that we can ensure we have a valid log handle when any
+    # Set the priority for graceful higher than the default so
+    # that we can ensure we have a valid log handle when any
     # other graceful subscribers run.
     graceful.priority = 45
 

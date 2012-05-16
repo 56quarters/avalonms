@@ -87,6 +87,11 @@ class ServerError(AvalonError):
     pass
 
 
+class PermissionError(AvalonError):
+    """We don't have the required permission."""
+    pass
+
+
 class ApiError(AvalonError):
     """Base for all errors relating to invalid API requests."""
     http_code = 0
