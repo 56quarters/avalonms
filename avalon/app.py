@@ -35,6 +35,8 @@ import errno
 import os
 import os.path
 import signal
+import time
+import threading
 import traceback
 
 import cherrypy
@@ -157,9 +159,12 @@ class AvalonMS(object):
         conf.log = self._log
 
         engine = AvalonEngine(conf)
-        engine.enable_daemon(1000, 1000)
-        engine.start()
+        if self._config.daemon:
+            engine.enable_daemon(
+                avalon.util.get_uid(self._config.daemon_user),
+                avalon.util.get_gid(self._config.daemon_group))
 
+        engine.start()
         self._log.info("Server stopped")
 
 
@@ -219,6 +224,10 @@ class AvalonEngine(object):
         self.enable_server()
 
         self._bus.start()
+
+        time.sleep(3)
+        self._log.info(str([thread.name for thread in threading.enumerate()]))
+
         self._bus.block()
 
     def stop(self):

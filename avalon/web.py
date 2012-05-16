@@ -105,7 +105,6 @@ class AvalonServer(CherryPyWSGIServer):
         
         self._app = config.application.root
         self._log = config.log
-        self.ready = False
         self.socket = None
 
         self._log.info('Server using address %s', config.bind_addr)
@@ -132,13 +131,11 @@ class AvalonServer(CherryPyWSGIServer):
     def start(self):
         """Run the server forever."""
         self._log.info('HTTP server handling requests...')
-        self.ready = True
         super(AvalonServer, self).start()
         
     def stop(self):
         """Gracefully stop the server."""
         self._log.info('Stopping HTTP server...')
-        self.ready = False
         super(AvalonServer, self).stop()
 
 
