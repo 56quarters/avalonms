@@ -42,12 +42,12 @@ import traceback
 import cherrypy
 import daemon
 
+import avalon.exc
 import avalon.log
 import avalon.models
 import avalon.scan
 import avalon.services
 import avalon.web
-from avalon.exc import DatabaseError
 
 
 APP_PATH = '/avalon'
@@ -58,14 +58,14 @@ APP_PATH = '/avalon'
 
 class AvalonMS(object):
 
-    """ Wrapper around the main functionality of the Avalon MS, database
-        connections, collection scanning, request handling, and 
-        daemonization.
+    """Wrapper around the main functionality of the Avalon MS, database
+    connections, collection scanning, request handling, and 
+    daemonization.
     """
 
     def __init__(self, config):
         """Set the application configuration, create a logger, and
-           set up signal handlers.
+        set up signal handlers.
         """
         default_signal_handler()
 
@@ -84,13 +84,6 @@ class AvalonMS(object):
         cherrypy.log.access_file = None
         cherrypy.log.error_file = None
 
-    def _fix_log_perms(self):
-        """ """
-        perms = LogPermissions(self._config.uid, self._config.gid)
-
-        for log_file in (self._config.error_log, self._config.access_log):
-            perms.fix()
-
     def _get_db_url(self):
         """Get a database connection URL from the path to the SQLite database."""
         return 'sqlite:///%s' % self._config.db_path
@@ -104,7 +97,7 @@ class AvalonMS(object):
         return avalon.log.AvalonLog(config)
 
     def _get_server(self):
-        """ Configure and return the application server."""
+        """Configure and return the application server."""
         config = avalon.web.AvalonServerConfig()
 
         config.log = self._log
@@ -118,8 +111,8 @@ class AvalonMS(object):
         return avalon.web.AvalonServer(config)
 
     def connect(self):
-        """ Create a database session handler and perform the initial
-            database setup for the application.
+        """Create a database session handler and perform the initial
+        database setup for the application.
         """
         self._log.info("Connecting to database...")
         self._db = avalon.models.SessionHandler(self._get_db_url(), self._log)
@@ -132,12 +125,13 @@ class AvalonMS(object):
         self._db.connect(clean=should_clean)
 
     def scan(self):
-        """ Read audio metadata from files in the collection and insert it
-            into the database unless the 'no scan' configuration setting is
-            true.
+        """Read audio metadata from files in the collection and insert it
+        into the database unless the 'no scan' configuration setting is
+        true.
         """
         if self._db is None:
-            raise DatabaseError("Can't scan collection: database is not connected")
+            raise avalon.exc.DatabaseError(
+                "Can't scan collection: database is not connected")
 
         if self._config.no_scan:
             self._log.info("Skipping music collection scan...")
@@ -150,10 +144,10 @@ class AvalonMS(object):
         loader.insert(tags.values())
 
     def serve(self):
-        """ Install signal handlers for the server and begin handling requests.
-        """
+        """Install signal handlers for the server and begin handling requests."""
         if self._db is None:
-            raise DatabaseError("Can't start server: database is not connected")
+            raise avalon.exc.DatabaseError(
+                "Can't start server: database is not connected")
 
         self._log.info("Starting server...")
         conf = AvalonEngineConfig()
@@ -174,7 +168,7 @@ class AvalonMS(object):
 
 class AvalonEngineConfig(object):
 
-    """ """
+    """Configuration for the message bus wrapper."""
 
     def __init__(self):
         self.bus = None
@@ -185,23 +179,27 @@ class AvalonEngineConfig(object):
 
 class AvalonEngine(object):
 
-    """ """
+    """Manage option and required subscribers to a message bus.
+
+    Allow optional plugins to be registered with the bus and
+    register required ones before the bus sends a START message.
+    """
 
     def __init__(self, config):
-        """ """
+        """Set the bus, log, db handler, and server."""
         self._bus = config.bus
         self._log = config.log
         self._db = config.db
         self._server = config.server
 
     def enable_signal_handler(self):
-        """ """
+        """Enable and configure the signal handler plugin."""
         h = cherrypy.process.plugins.SignalHandler(self._bus)
         h.handlers = self._get_handlers()
         h.subscribe()
 
     def enable_server(self):
-        """ """
+        """Enable and configure the web server plugin."""
         h = avalon.web.AvalonServerPlugin(
             self._bus, 
             httpserver=self._server,
@@ -209,15 +207,15 @@ class AvalonEngine(object):
         h.subscribe()
 
     def enable_logger(self):
-        """ """
+        """Enable the logging plugin."""
         h = avalon.log.AvalonLogPlugin(self._bus, self._log)
         h.subscribe()
 
     def enable_daemon(self, uid, gid):
-        """ """
+        """Enable and configure any plugins needed to run in daemon mode."""
         # Daemon mode entails the actual daemonization process
         # which includes preserving any open file descriptors.
-        h = DaemonPlugin(self._bus, self._log)
+        h = DaemonPlugin(self._bus, self._log.get_open_fds())
         h.subscribe()
 
         if not avalon.util.are_root():
@@ -238,13 +236,13 @@ class AvalonEngine(object):
         # to since we need write access as the non-super user.
         h = FilePermissionPlugin(
             self._bus,
-            self._log,
+            self._log.get_open_paths(),
             uid=uid,
             gid=gid)
         h.subscribe()
 
     def start(self):
-        """ """
+        """Register default subscribers and send a START message."""
         self.enable_logger()
         self.enable_signal_handler()
         self.enable_server()
@@ -253,11 +251,11 @@ class AvalonEngine(object):
         self._bus.block()
 
     def stop(self):
-        """ """
+        """Send STOP message to all subscribers."""
         self._bus.stop()
 
     def _get_handlers(self):
-        """ """
+        """Get a mapping of signal names to handlers."""
         return {
             'SIGTERM': self._bus.exit,
             'SIGINT': self._bus.exit,
@@ -279,14 +277,17 @@ def default_signal_handler():
 
 class DaemonPlugin(cherrypy.process.plugins.SimplePlugin):
 
-    def __init__(self, bus, log):
+    """Adapt the python-daemon lib to work as a CherryPy plugin."""
+
+    def __init__(self, bus, file_fds):
+        """Store the bus and files that are open."""
         super(DaemonPlugin, self).__init__(bus)
         self._context = daemon.DaemonContext()
-        self._file_nos = log.get_open_fds()
+        self._file_fds = file_fds
 
     def start(self):
-        """ """
-        self._context.files_preserve = self._file_nos
+        """Double fork and become a daemon."""
+        self._context.files_preserve = self._file_fds
         self._context.open()
 
     # Set the priority higher than server.start so that we have
@@ -295,39 +296,41 @@ class DaemonPlugin(cherrypy.process.plugins.SimplePlugin):
     start.priority = 45
 
     def stop(self):
-        """ """
+        """Prepare the daemon to end."""
         self._context.close()
 
 
 class FilePermissionPlugin(cherrypy.process.plugins.SimplePlugin):
 
-    """ """
+    """Change the ownership of files so that we retain access
+    even after dropping root privileges.
+    """
 
-    def __init__(self, bus, log, uid=None, gid=None):
-        """ """
+    def __init__(self, bus, files, uid=None, gid=None):
+        """Set the bus, files to fix, and uid/gid to fix with."""
         super(FilePermissionPlugin, self).__init__(bus)
-        self._files = log.get_open_paths()
+        self._files = files
         self._uid = uid
         self._gid = gid
 
     def _fix(self, log_file):
-        """ """
+        """Change the file to be owned by our user/group."""
         if not os.path.isfile(log_file):
             return
 
         try:
             os.chown(log_file, self._uid, self._gid)
         except OSError, e:
-            if e.errno in (errno.EACCES, errno.EPERM):
+            if avalon.util.is_perm_error(e):
                 raise avalon.exc.PermissionError(
-                    'Could set correct permissions on file '
+                    'Could not change ownership of file '
                     '[%s]: %s' % (log_file, e))
             # Not an expected permission or access related
             # error rethrow since we can't handle this.
             raise
 
     def start(self):
-        """ """
+        """Fix ownership of each file."""
         for log_file in self._files:
             self._fix(log_file)
     

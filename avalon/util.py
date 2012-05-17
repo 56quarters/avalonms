@@ -30,6 +30,7 @@
 """ Miscellaneous utility functions and classes.
 """
 
+import errno
 import grp
 import itertools
 import os
@@ -40,6 +41,7 @@ import threading
 
 
 __all__ = [
+    'are_root',
     'get_uid',
     'get_gid',
     'get_uname',
@@ -48,8 +50,13 @@ __all__ = [
     'get_current_gname',
     'get_mem_usage',
     'get_thread_names',
-    'are_root'
+    'is_perm_error'
     ]
+
+
+def are_root():
+    """Return true if we are super user (or in wheel)."""
+    return 0 == os.geteuid() or 0 == os.getegid()
 
 
 def get_uid(user_name):
@@ -104,6 +111,6 @@ def get_thread_names():
     return [t.name for t in threading.enumerate()]
 
 
-def are_root():
-    """ """
-    return 0 == os.geteuid() or 0 == os.getegid()
+def is_perm_error(e):
+    """Return true if this exception is file permission related."""
+    return e.errno in (errno.EACCES, errno.EPERM)

@@ -37,6 +37,8 @@ import sys
 
 import cherrypy
 
+import avalon.exc
+
 
 __all__ = [
     'AvalonLogConfig',
@@ -76,8 +78,9 @@ class AvalonLog(object):
 
         self._logger = None
         self._handlers = []
-        self.reload()
 
+        self.reload()
+        
     def get_open_fds(self):
         """Get the file number of any open log files."""
         return [
