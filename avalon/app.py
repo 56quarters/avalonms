@@ -114,7 +114,6 @@ class AvalonMS(object):
     def _get_server(self):
         """Configure and return the application server."""
         config = avalon.web.AvalonServerConfig()
-
         config.log = self._log
         config.bind_addr = (
             self._config.server_address, 
@@ -124,7 +123,6 @@ class AvalonMS(object):
         config.application = cherrypy.tree.mount(
             avalon.web.AvalonHandler(self._db), 
             script_name=APP_PATH)
-
         return avalon.web.AvalonServer(config)
 
     def connect(self):
@@ -164,19 +162,19 @@ class AvalonMS(object):
         """Install signal handlers for the server and begin handling
         requests.
         """
-        # TODO: Look into setting up a timedout response monitor
+        # TODO: Look into setting up a timeout checker (like cherrypy.engine)
         if self._db is None:
             raise avalon.exc.DatabaseError(
                 "Can't start server: database is not connected")
 
         self._log.info("Starting server...")
-        conf = AvalonEngineConfig()
-        conf.bus = cherrypy.process.wspbus.Bus()
-        conf.server = self._get_server()
-        conf.log = self._log
-        conf.db = self._db
+        config = AvalonEngineConfig()
+        config.bus = cherrypy.process.wspbus.Bus()
+        config.server = self._get_server()
+        config.log = self._log
+        config.db = self._db
 
-        engine = AvalonEngine(conf)
+        engine = AvalonEngine(config)
         if self._config.daemon:
             engine.enable_daemon(
                 avalon.util.get_uid(self._config.daemon_user),
@@ -199,7 +197,7 @@ class AvalonEngineConfig(object):
 
 class AvalonEngine(object):
 
-    """Manage option and required subscribers to a message bus.
+    """Manage optional and required subscribers to a message bus.
 
     Allow optional plugins to be registered with the bus and
     register required ones before the bus sends a START message.
