@@ -42,8 +42,10 @@ import avalon.exc
 
 __all__ = [
     'wrap_permission_errors',
+    'AvalonLog',
     'AvalonLogConfig',
-    'AvalonLog'
+    'AvalonLogPlugin'
+
     ]
 
 
@@ -193,9 +195,9 @@ class AvalonLogPlugin(cherrypy.process.plugins.SimplePlugin):
         """Configure and reinstall our log handlers (including
         reopening log files.
         """
-        self._log.info("Gracefully reloading log...")
+        self._log.info("Reopening logs...")
         self._log.reload()
-        self._log.info("Log reloaded")
+        self._log.info("Logs reopened")
 
     # Set the priority for graceful higher than the default so
     # that we can ensure we have a valid log handle when any

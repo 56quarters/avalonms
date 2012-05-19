@@ -27,12 +27,11 @@
 #
 
 
-""" HTTP frontend for handling requests."""
+"""HTTP frontend for handling requests."""
 
 
 import functools
 import logging
-import sys
 import traceback
 from datetime import datetime
 
@@ -50,6 +49,7 @@ __all__ = [
     'AvalonHandler',
     'AvalonServer',
     'AvalonServerConfig',
+    'AvalonServerPlugin',
     'JSONOutHandler',
     'RequestOutput',
     'RequestFilter'
@@ -109,13 +109,7 @@ class AvalonServer(CherryPyWSGIServer):
 
         self._log.info('Server using address %s', config.bind_addr)
         self._log.info('Server using %s threads', config.num_threads)
-        self._log.info('Server using up to %s queued connections', config.queue_size)
-
-    def get_open_fds(self):
-        """Get the fileno of the socket we are serving on."""
-        if self.socket is None:
-            return []
-        return [self.socket.fileno()]
+        self._log.info('Server using %s queued connections', config.queue_size)
 
     def error_log(self, msg='', level=logging.INFO, trackback=False):
         """Write an error to the log, optionally with a traceback."""
@@ -124,7 +118,7 @@ class AvalonServer(CherryPyWSGIServer):
         self._log.log(level, msg)
 
     def reload(self):
-        """Reopen the server logs and refresh application caches."""
+        """Refresh application in-memory caches."""
         self._app.reload()
         self._log.info("Handler caches reloaded")
 
@@ -303,7 +297,7 @@ class AvalonHandler(object):
     def songs(self, *args, **kwargs):
         """Return song results based on the given query string parameters."""
         try:
-            filters = RequestParams.get_from_qs(self._id_cache, kwargs)
+            filters = RequestParams.get_from_qs(kwargs)
         except avalon.exc.InvalidParameterError, e:
             return self._get_output(err=e)
 
@@ -316,13 +310,16 @@ class AvalonHandler(object):
 
         if None is not filters.album:
             sets.append(
-                self._tracks.by_album(self._id_cache.get_album_id(filters.album)))
+                self._tracks.by_album(
+                    self._id_cache.get_album_id(filters.album)))
         if None is not filters.artist:
             sets.append(
-                self._tracks.by_artist(self._id_cache.get_artist_id(filters.artist)))
+                self._tracks.by_artist(
+                    self._id_cache.get_artist_id(filters.artist)))
         if None is not filters.genre:
             sets.append(
-                self._tracks.by_genre(self._id_cache.get_genre_id(filters.genre)))
+                self._tracks.by_genre(
+                    self._id_cache.get_genre_id(filters.genre)))
 
         if None is not filters.album_id:
             sets.append(self._tracks.by_album(filters.album_id))
@@ -441,7 +438,9 @@ class RequestParams(object):
             self.genre_id)
 
     def is_empty(self):
-        """Return true if the request has no keyword parameters, false otherwise."""
+        """Return true if the request has no keyword parameters,
+        false otherwise.
+        """
         return (
             self.album is None
             and self.album_id is None 
@@ -451,18 +450,18 @@ class RequestParams(object):
             and self.genre_id is None)
 
     @classmethod
-    def get_from_qs(cls, cache, kwargs):
+    def get_from_qs(cls, kwargs):
         """Construct a new filter based on query string parameters.
 
         Recognized params: album, album_id, artist, artist_id, genre,
         genre_id
         """
-        f = cls()
+        params = cls()
 
         for field in cls.name_params:
             if field not in kwargs:
                 continue
-            setattr(f, field, kwargs[field])
+            setattr(params, field, kwargs[field])
         for field in cls.id_params:
             if field not in kwargs:
                 continue
@@ -471,6 +470,6 @@ class RequestParams(object):
             except ValueError:
                 raise avalon.exc.InvalidParameterError(
                     'Invalid value for field [%s]' % field)
-            setattr(f, field, val_id)
-        return f
+            setattr(params, field, val_id)
+        return params
 

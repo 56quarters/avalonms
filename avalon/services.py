@@ -231,16 +231,16 @@ class TrackStore(object):
         up track elements by their attributes.
         """
         session = self._session_handler.get_session()
-
-        by_album = collections.defaultdict(set)
-        by_artist = collections.defaultdict(set)
-        by_genre = collections.defaultdict(set)
-        all_tracks = set()
         
         try:
             res = session.query(Track).all()
         finally:
             self._session_handler.close(session)
+
+        by_album = collections.defaultdict(set)
+        by_artist = collections.defaultdict(set)
+        by_genre = collections.defaultdict(set)
+        all_tracks = set()
 
         for track in res:
             elm = model_to_elm(track)

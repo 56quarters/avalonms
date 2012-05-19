@@ -27,17 +27,12 @@
 #
 
 
-"""
-"""
+"""Main entry point for collection scaning and HTTP server."""
 
 
-import errno
 import os
 import os.path
 import signal
-import time
-import threading
-import traceback
 
 import cherrypy
 import daemon
@@ -50,10 +45,38 @@ import avalon.services
 import avalon.web
 
 
+__all__ = [
+    'APP_PATH',
+    'default_signal_handler',
+    'setup_cherrypy_env',
+    'AvalonEngine',
+    'AvalonEngineConfig',
+    'AvalonMS',
+    'DaemonPlugin',
+    'FilePermissionPlugin'
+    ]
+
+
 APP_PATH = '/avalon'
 
 
-# TODO: Look into setting up a timedout response monitor
+def default_signal_handler():
+    """Simple signal handler to quietly handle ^C."""
+
+    def _exit_handler(signum, frame):
+        """Handle TERM and INT by exiting."""
+        if signum in (signal.SIGTERM, signal.SIGINT):
+            raise SystemExit()
+    
+    signal.signal(signal.SIGINT, _exit_handler)
+    signal.signal(signal.SIGTERM, _exit_handler)
+
+
+def setup_cherrypy_env():
+    """Configure the global cherrypy environment."""
+    cherrypy.config.update({'environment': 'production'})
+    cherrypy.log.access_file = None
+    cherrypy.log.error_file = None
 
 
 class AvalonMS(object):
@@ -68,24 +91,16 @@ class AvalonMS(object):
         set up signal handlers.
         """
         default_signal_handler()
-
-        # Configure the global CherryPy environment before we setup
-        # our logger so that we make sure to clear any existing logging
-        # and use the 'production' environment.
-        self._configure_env()
+        setup_cherrypy_env()
 
         self._config = config
         self._log = self._get_logger()
         self._db = None
 
-    def _configure_env(self):
-        """Configure the global cherrypy environment."""
-        cherrypy.config.update({'environment': 'production'})
-        cherrypy.log.access_file = None
-        cherrypy.log.error_file = None
-
     def _get_db_url(self):
-        """Get a database connection URL from the path to the SQLite database."""
+        """Get a database connection URL from the path to the
+        SQLite database.
+        """
         return 'sqlite:///%s' % self._config.db_path
 
     def _get_logger(self):
@@ -101,7 +116,9 @@ class AvalonMS(object):
         config = avalon.web.AvalonServerConfig()
 
         config.log = self._log
-        config.bind_addr = (self._config.server_address, self._config.server_port)
+        config.bind_addr = (
+            self._config.server_address, 
+            self._config.server_port)
         config.num_threads = self._config.server_threads
         config.queue_size = self._config.server_queue
         config.application = cherrypy.tree.mount(
@@ -144,7 +161,10 @@ class AvalonMS(object):
         loader.insert(tags.values())
 
     def serve(self):
-        """Install signal handlers for the server and begin handling requests."""
+        """Install signal handlers for the server and begin handling
+        requests.
+        """
+        # TODO: Look into setting up a timedout response monitor
         if self._db is None:
             raise avalon.exc.DatabaseError(
                 "Can't start server: database is not connected")
@@ -263,31 +283,19 @@ class AvalonEngine(object):
             }
 
 
-def default_signal_handler():
-    """Simple signal handler to quietly handle ^C."""
-
-    def _exit_handler(signum, frame):
-        """Handle TERM and INT by exiting."""
-        if signum in (signal.SIGTERM, signal.SIGINT):
-            raise SystemExit()
-    
-    signal.signal(signal.SIGINT, _exit_handler)
-    signal.signal(signal.SIGTERM, _exit_handler)
-        
-
 class DaemonPlugin(cherrypy.process.plugins.SimplePlugin):
 
     """Adapt the python-daemon lib to work as a CherryPy plugin."""
 
-    def __init__(self, bus, file_fds):
+    def __init__(self, bus, fds):
         """Store the bus and files that are open."""
         super(DaemonPlugin, self).__init__(bus)
         self._context = daemon.DaemonContext()
-        self._file_fds = file_fds
+        self._fds = fds
 
     def start(self):
         """Double fork and become a daemon."""
-        self._context.files_preserve = self._file_fds
+        self._context.files_preserve = self._fds
         self._context.open()
 
     # Set the priority higher than server.start so that we have
