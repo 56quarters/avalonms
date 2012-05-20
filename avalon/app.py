@@ -47,7 +47,7 @@ import avalon.web
 
 __all__ = [
     'APP_PATH',
-    'default_signal_handler',
+    'install_default_signal_handler',
     'setup_cherrypy_env',
     'AvalonEngine',
     'AvalonEngineConfig',
@@ -60,7 +60,7 @@ __all__ = [
 APP_PATH = '/avalon'
 
 
-def default_signal_handler():
+def install_default_signal_handler():
     """Simple signal handler to quietly handle ^C."""
 
     def _exit_handler(signum, frame):
@@ -90,7 +90,7 @@ class AvalonMS(object):
         """Set the application configuration, create a logger, and
         set up signal handlers.
         """
-        default_signal_handler()
+        install_default_signal_handler()
         setup_cherrypy_env()
 
         self._config = config
@@ -267,10 +267,6 @@ class AvalonEngine(object):
 
         self._bus.start()
         self._bus.block()
-
-    def stop(self):
-        """Send STOP message to all subscribers."""
-        self._bus.stop()
 
     def _get_handlers(self):
         """Get a mapping of signal names to handlers."""
