@@ -35,8 +35,8 @@ __all__ = [
     'AvalonError',
     'ConnectionError',
     'DatabaseError',
-    'InitializationError',
     'InvalidParameterError',
+    'PermissionError',
     'ServerError',
     'ServerNotReadyError'
     ]
@@ -53,10 +53,7 @@ class AvalonError(Exception):
 
     def __str__(self):
         """Return a string representation of this error."""
-        out = self.message
-        if self.err is not None:
-            out += ': ' + str(self.err)
-        return out
+        return self.message
 
     @property
     def name(self):
@@ -74,11 +71,6 @@ class DatabaseError(AvalonError):
 
 class ConnectionError(DatabaseError):
     """There was an error connecting to the database."""
-    pass
-
-
-class InitializationError(DatabaseError):
-    """There was an error performing database initialization operations."""
     pass
 
 

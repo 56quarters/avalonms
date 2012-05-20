@@ -29,10 +29,6 @@ Or
 
   pip install avalonms
 
-Eratta
-------
-
-* The server cannot be run as root, it must be run as an unprivileged user. Consequently, the server cannot run on a privileged port (< 1024). This may be fixed in a later version.
 
 Usage
 -----
@@ -49,9 +45,9 @@ Options
 
 * ``--daemon`` - Fork into the background and run as a daemon.
 
-.. * ``--daemon-user=USER`` - Run the server as this user. The server will switch to this non-privileged user when started as root and run in daemon mode.
+* ``--daemon-user=USER`` - Run the server as this user. The server will switch to this non-privileged user when started as root and run in daemon mode.
 
-.. * ``--daemon-group=GROUP`` - Run the server as this group. The server will switch to this non-privileged group when started as root and run in daemon mode.
+* ``--daemon-group=GROUP`` - Run the server as this group. The server will switch to this non-privileged group when started as root and run in daemon mode.
 
 * ``--db-path=PATH`` - Path to a file to use for the the backing SQLite database for storing collection metadata.
 

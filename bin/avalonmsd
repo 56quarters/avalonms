@@ -93,8 +93,6 @@ class DefaultConfiguration(object):
         self.daemon = False
         self.daemon_user = avalon.util.get_current_uname()
         self.daemon_group = avalon.util.get_current_gname()
-        #self.daemon_user = 'avalonms'
-        #self.daemon_group = 'avalonms'
         self.db_path = os.path.join(tempfile.gettempdir(), 'avalon.sqlite')
         self.error_log = None
         self.no_scan = False
@@ -272,11 +270,11 @@ def main():
         print('%s: %s' % (prog, str(e)), file=sys.stderr)
         return 1
 
-    app = avalon.app.AvalonMS(config)
 
     try:
+        app = avalon.app.AvalonMS(config)
         app.connect()
-    except avalon.exc.DatabaseError, e:
+    except (avalon.exc.DatabaseError, avalon.exc.PermissionError), e:
         print('%s: %s' % (prog, str(e)), file=sys.stderr)
         return 1
 

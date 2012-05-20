@@ -64,7 +64,8 @@ def wrap_permission_errors(log_type):
                     # simply reraise the exception untouched.
                     raise
                 raise avalon.exc.PermissionError(
-                    'Permission error creating %s log: %s' % (log_type, e))
+                    'Insufficient permission to create or open %s '
+                    'log [%s]' % (log_type, e.filename), e)
         return error_wrapper
     return error_decorator
 

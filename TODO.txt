@@ -1,6 +1,5 @@
 For v1:
 * Error handling in main app
-* Permission issues during log.reload()
 
 For v2:
 * Tests

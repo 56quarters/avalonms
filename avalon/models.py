@@ -159,9 +159,9 @@ class SessionHandler(object):
             try:
                 Base.metadata.drop_all(self._engine)
             except OperationalError, e:
-                raise avalon.exc.InitializationError(
-                    'Could remove existing tables or data. Please check '
-                    'the permissions associated with the database', e)        
+                raise avalon.exc.PermissionError(
+                    'Insufficient permission to remove existing tables or '
+                    'data in the database [%s]' % self._url, e)        
         Base.metadata.create_all(self._engine)
 
 

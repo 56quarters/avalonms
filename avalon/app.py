@@ -289,11 +289,10 @@ class DaemonPlugin(cherrypy.process.plugins.SimplePlugin):
         """Store the bus and files that are open."""
         super(DaemonPlugin, self).__init__(bus)
         self._context = daemon.DaemonContext()
-        self._fds = fds
+        self._context.files_preserve = fds
 
     def start(self):
         """Double fork and become a daemon."""
-        self._context.files_preserve = self._fds
         self._context.open()
 
     # Set the priority higher than server.start so that we have
@@ -327,13 +326,13 @@ class FilePermissionPlugin(cherrypy.process.plugins.SimplePlugin):
         try:
             os.chown(log_file, self._uid, self._gid)
         except OSError, e:
-            if avalon.util.is_perm_error(e):
-                raise avalon.exc.PermissionError(
-                    'Could not change ownership of file '
-                    '[%s]: %s' % (log_file, e))
-            # Not an expected permission or access related
-            # error rethrow since we can't handle this.
-            raise
+            if not avalon.util.is_perm_error(e):
+                # Not an expected permission or access related
+                # error rethrow since we can't handle this.
+                raise
+            raise avalon.exc.PermissionError(
+                'Insufficient permission to change ownership '
+                'of file [%s]' % e.filename, e)
 
     def start(self):
         """Fix ownership of each file."""
