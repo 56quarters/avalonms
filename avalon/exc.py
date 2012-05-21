@@ -60,9 +60,6 @@ class AvalonError(Exception):
         """The name of this error class."""
         return self.__class__.__name__
 
-    def trace(self):
-        pass
-
 
 class DatabaseError(AvalonError):
     """There was an error performing an operation on the database."""
