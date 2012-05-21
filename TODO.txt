@@ -1,6 +1,3 @@
-For v1:
-* Error handling in main app
-
 For v2:
 * Tests
 * Docs
