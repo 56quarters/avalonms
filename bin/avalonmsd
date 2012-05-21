@@ -270,7 +270,6 @@ def main():
         print('%s: %s' % (prog, str(e)), file=sys.stderr)
         return 1
 
-
     try:
         app = avalon.app.AvalonMS(config)
         app.connect()
