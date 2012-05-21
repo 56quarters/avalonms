@@ -5,6 +5,7 @@ For v2:
 ** Update pypi
 ** Makefile
 * Tests
+* PID file
 * Docs
 * Infrastructure
 ** readthedocs
