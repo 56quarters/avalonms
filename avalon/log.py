@@ -50,7 +50,7 @@ __all__ = [
 
 
 def wrap_permission_errors(log_type):
-    """Create a decorator that turns IOError permissions
+    """Create a decorator that turns IOError permission
     issues into our PermissionError, reraise all other types.
     """
     def error_decorator(func):
@@ -175,8 +175,7 @@ class AvalonLog(object):
         self._logger.critical(msg, *args, **kwargs)
 
     def log(self, level, msg, *args, **kwargs):
-        """ Log at the given level.
-        """
+        """ Log at the given level."""
         self._logger.log(level, msg, *args, **kwargs)
 
 
@@ -207,6 +206,8 @@ class AvalonLogPlugin(cherrypy.process.plugins.SimplePlugin):
 
     def log(self, msg, level):
         """Log the message at the desired level."""
+        # NOTE: CherryPy argument order is reversed compared
+        # to the logging module.
         self._log.log(level, msg)
     
         

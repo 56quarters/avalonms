@@ -16,8 +16,6 @@ import os.path
 import sys
 import urllib
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-
 import avalon.exc
 import avalon.models
 
@@ -29,7 +27,7 @@ except IndexError:
     sys.exit(1)
 
 try:
-    handle = avalon.models.SessionHandler(db_url)
+    handle = avalon.models.SessionHandler(db_url, None)
     handle.connect()
 except avalon.exc.ConnectionError, e:
     print(str(e), file=sys.stderr)
@@ -48,21 +46,21 @@ for album in session.query(avalon.models.Album).all():
     urls.append(song_base + 'album=' + urllib.quote_plus(album.name.encode('utf-8')))
     urls.append(song_base + 'album=' + urllib.quote_plus(album.name.lower().encode('utf-8')))
     urls.append(song_base + 'album=' + urllib.quote_plus(album.name.upper().encode('utf-8')))
-    urls.append(song_base + 'album_id=' + urllib.quote(str(album.id)))
+    urls.append(song_base + 'album_id=' + urllib.quote_plus(str(album.id)))
     urls.append(album_base)
 
 for artist in session.query(avalon.models.Artist).all():
-    urls.append(song_base + 'artist=' + urllib.quote(artist.name.encode('utf-8')))
-    urls.append(song_base + 'artist=' + urllib.quote(artist.name.lower().encode('utf-8')))
-    urls.append(song_base + 'artist=' + urllib.quote(artist.name.upper().encode('utf-8')))
-    urls.append(song_base + 'artist_id=' + urllib.quote(str(artist.id)))
+    urls.append(song_base + 'artist=' + urllib.quote_plus(artist.name.encode('utf-8')))
+    urls.append(song_base + 'artist=' + urllib.quote_plus(artist.name.lower().encode('utf-8')))
+    urls.append(song_base + 'artist=' + urllib.quote_plus(artist.name.upper().encode('utf-8')))
+    urls.append(song_base + 'artist_id=' + urllib.quote_plus(str(artist.id)))
     urls.append(artist_base)
 
 for genre in session.query(avalon.models.Genre).all():
-    urls.append(song_base + 'genre=' + urllib.quote(genre.name.encode('utf-8')))
-    urls.append(song_base + 'genre=' + urllib.quote(genre.name.lower().encode('utf-8')))
-    urls.append(song_base + 'genre=' + urllib.quote(genre.name.upper().encode('utf-8')))
-    urls.append(song_base + 'genre_id=' + urllib.quote(str(genre.id)))
+    urls.append(song_base + 'genre=' + urllib.quote_plus(genre.name.encode('utf-8')))
+    urls.append(song_base + 'genre=' + urllib.quote_plus(genre.name.lower().encode('utf-8')))
+    urls.append(song_base + 'genre=' + urllib.quote_plus(genre.name.upper().encode('utf-8')))
+    urls.append(song_base + 'genre_id=' + urllib.quote_plus(str(genre.id)))
     urls.append(genre_base)
 
 handle.close(session)
