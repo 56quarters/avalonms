@@ -113,4 +113,6 @@ def get_thread_names():
 
 def is_perm_error(e):
     """Return true if this exception is file permission related."""
+    if not hasattr(e, 'errno'):
+        return False
     return e.errno in (errno.EACCES, errno.EPERM)
