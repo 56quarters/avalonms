@@ -26,7 +26,7 @@ Installation
 
   sudo python setup.py install
 
-Installation via ``pip`` comming soon.
+Installation via ``pip`` coming soon.
 
 
 Usage

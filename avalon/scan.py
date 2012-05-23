@@ -30,7 +30,6 @@
 """ Functions for scanning a music collection for metadata."""
 
 
-import os
 import os.path
 
 import tagpy

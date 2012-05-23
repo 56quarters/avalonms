@@ -30,7 +30,6 @@
 """Main entry point for collection scaning and HTTP server."""
 
 
-import os
 import os.path
 import signal
 

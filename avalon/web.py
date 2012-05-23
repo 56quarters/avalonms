@@ -39,7 +39,6 @@ import cherrypy
 from cherrypy.wsgiserver import CherryPyWSGIServer
 
 import avalon.exc
-import avalon.models
 import avalon.services
 import avalon.views
 

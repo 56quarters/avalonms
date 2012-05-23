@@ -32,11 +32,9 @@
 
 import errno
 import grp
-import itertools
 import os
 import pwd
 import resource
-import sys
 import threading
 
 

@@ -33,9 +33,7 @@ areas.
 """
 
 import collections
-import sys
 
-import avalon.util
 from avalon.models import Album, Artist, Genre, Track
 from avalon.views import IdNameElm, TrackElm
 
