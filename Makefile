@@ -9,10 +9,14 @@ help:
 	@echo "    test: Run the unit test suite"
 
 clean:
-	ls
+	rm -rf avalonms.egg-info
 
 docs:
 	ls
+
+init:
+	python setup.py develop
+	pip install -r requires.txt
 
 push:
 	git push origin
