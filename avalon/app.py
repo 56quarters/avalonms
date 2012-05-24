@@ -297,6 +297,11 @@ class CollectionScanPlugin(cherrypy.process.plugins.SimplePlugin):
         
         self._log.info('Forcing cache reload...')
         self.bus.graceful()
+
+    # Set the priority low so that the server is effectively done
+    # starting when we begin and we aren't preventing any other
+    # handlers from running while scanning takes place (which may
+    # take several minutes).
     start.priority = 100
 
 

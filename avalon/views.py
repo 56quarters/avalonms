@@ -50,14 +50,13 @@ __all__ = [
 
 class JSONEncoder(json.JSONEncoder):
     
-    """ Special JSON encoder to convert the output format from
-        services used by the web layer to datatypes that can be
-        easily rendered.
+    """Special JSON encoder to convert the output format from
+    services used by the web layer to datatypes that can be
+    easily rendered.
     """
 
     def default(self, o):
-        """ Return a dictionary representing IdNameElm or TrackElm objects.
-        """
+        """Return a dictionary representing IdNameElm or TrackElm objects."""
         if not isinstance(o, IdNameElm):
             return super(JSONEncoder, self).default(o)
 
@@ -118,8 +117,7 @@ class IdNameElm(object):
 
 class TrackElm(IdNameElm):
 
-    """ Immutable, hashable representation of a Track model.
-    """
+    """Immutable, hashable representation of a Track model."""
 
     def __init__(self, t_id, t_name, t_track, t_year,
                  t_album, t_album_id, t_artist, t_artist_id,
