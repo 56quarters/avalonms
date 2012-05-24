@@ -138,31 +138,7 @@ class AvalonMS(object):
             self._log.info("Removing existing collection information...")
         self._db.connect(clean=should_clean)
 
-    def scan(self):
-        """Read audio metadata from files in the collection and insert it
-        into the database unless the 'no scan' configuration setting is
-        true.
-        """
-        # TODO: Move this to a bus plugin that runs during start and
-        # then issues a graceful event or something. A listener on
-        # the server responds to that event by settings a flag that
-        # the server is ready.
-
-        if self._db is None:
-            raise avalon.exc.DatabaseError(
-                "Can't scan collection: database is not connected")
-
-        if self._config.no_scan:
-            self._log.info("Skipping music collection scan...")
-            return
-        
-        self._log.info("Scanning music collection...")
-        files = avalon.scan.get_files(os.path.abspath(self._config.collection))
-        tags = avalon.scan.get_tags(files)
-        loader = avalon.services.InsertService(self._db)
-        loader.insert(tags.values())
-
-    def serve(self):
+    def start(self):
         """Install signal handlers for the server and begin handling
         requests.
         """
@@ -183,6 +159,9 @@ class AvalonMS(object):
             engine.enable_daemon(
                 avalon.util.get_uid(self._config.daemon_user),
                 avalon.util.get_gid(self._config.daemon_group))
+
+        if not self._config.no_scan:
+            engine.enable_scan(self._config.collection)
 
         engine.start()
         self._log.info("Server stopped")
@@ -263,6 +242,15 @@ class AvalonEngine(object):
             gid=gid)
         h.subscribe()
 
+    def enable_scan(self, collection):
+        """Scan (or rescan) the music collection."""
+        h = CollectionScanPlugin(
+            self._bus, 
+            self._log, 
+            collection, 
+            self._db)
+        h.subscribe()
+
     def start(self):
         """Register default subscribers and send a START message."""
         self.enable_logger()
@@ -279,6 +267,37 @@ class AvalonEngine(object):
             'SIGINT': self._bus.exit,
             'SIGUSR1': self._bus.graceful
             }
+
+
+class CollectionScanPlugin(cherrypy.process.plugins.SimplePlugin):
+
+    """Read audio metadata from files in the collection and insert it
+    into the database.
+    """
+
+    def __init__(self, bus, log, collection, db):
+        """Set the root of the music collection and database 
+        session handler.
+        """
+        super(CollectionScanPlugin, self).__init__(bus)
+        self._log = log
+        self._collection = collection
+        self._db = db
+
+    def start(self):
+        """Scan the music collection and load the metadata into the
+        database. Trigger a 'graceful' event after to force a reload
+        of the in memory data stores.
+        """
+        self._log.info('Scanning music collection...')
+        files = avalon.scan.get_files(os.path.abspath(self._collection))
+        tags = avalon.scan.get_tags(files)
+        loader = avalon.services.InsertService(self._db)
+        loader.insert(tags.values())
+        
+        self._log.info('Forcing cache reload...')
+        self.bus.graceful()
+    start.priority = 100
 
 
 class DaemonPlugin(cherrypy.process.plugins.SimplePlugin):

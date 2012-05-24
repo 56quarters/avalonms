@@ -27,9 +27,7 @@
 #
 
 
-"""
-Simple logging wrapper.
-"""
+"""Simple logging wrapper."""
 
 
 import logging
@@ -83,8 +81,8 @@ class AvalonLogConfig(object):
 
 class AvalonLog(object):
 
-    """ Handle setting up log formatters and handlers based
-        on configuration settings.
+    """Handle setting up log formatters and handlers based
+    on configuration settings.
     """
 
     _access_fmt = '%(message)s'

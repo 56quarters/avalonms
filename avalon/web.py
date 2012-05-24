@@ -32,6 +32,7 @@
 
 import functools
 import logging
+import threading
 import traceback
 from datetime import datetime
 
@@ -119,6 +120,7 @@ class AvalonServer(CherryPyWSGIServer):
     def reload(self):
         """Refresh application in-memory caches."""
         self._app.reload()
+        self._app.ready = True
         self._log.info("Handler caches reloaded")
 
     def start(self):
@@ -145,6 +147,8 @@ class AvalonServerPlugin(cherrypy.process.servers.ServerAdapter):
         """Unregister start, stop, and graceful handlers."""
         super(AvalonServerPlugin, self).unsubscribe()
         self.bus.unsubscribe('graceful', self.httpserver.reload)
+
+    
 
         
 _STATUS_PAGE_TPT = """<!DOCTYPE html>
@@ -180,6 +184,10 @@ _STATUS_PAGE_TPT = """<!DOCTYPE html>
       padding: 15px;
       width: 500px;
     }
+    .not_ready {
+      color: #C00;
+      font-weight: bold;
+     }
   </style>
 </head>
 <body>
@@ -187,7 +195,7 @@ _STATUS_PAGE_TPT = """<!DOCTYPE html>
   <h1>Avalon Music Server</h1>
   <dl>
     <dt>Server is:</dt>
-    <dd>%(status)s</dd>
+    <dd class="%(class)s">%(status)s</dd>
 
     <dt>Running as:</dt>
     <dd>%(user)s:%(group)s</dd>
@@ -215,6 +223,20 @@ _STATUS_PAGE_TPT = """<!DOCTYPE html>
 """
 
 
+def server_ready(func):
+    """Decorator for checking if the application has started."""
+    def check_ready(self, *args, **kwargs):
+        """Return an error response if the application is not yet
+        ready, return the output from the wrapped method if it is.
+        """
+        if not self.ready:
+            err = avalon.exc.ServerNotReadyError(
+                'Server has not finished start up')
+            return self._get_output(err=err)
+        return func(self, *args, **kwargs)
+    return check_ready
+
+
 class AvalonHandler(object):
 
     """Handle HTTP requests and return result sets in JSON."""
@@ -228,6 +250,22 @@ class AvalonHandler(object):
         self._id_cache = avalon.services.IdLookupCache(session_handler)
         self._session_handler = session_handler
         self._startup = datetime.utcnow()
+        self._ready = threading.Event()
+
+    def _get_ready(self):
+        """Get the status of the server."""
+        return self._ready.is_set()
+
+    def _set_ready(self, val):
+        """Set the status of the server."""
+        if val:
+            self._ready.set()
+        else:
+            self._ready.clear()
+
+    ready = property(
+        _get_ready, _set_ready, None, 
+        "Is the application ready to handle requests")
 
     def _get_output(self, res=None, err=None):
         """Render results or an error as an iterable."""
@@ -255,8 +293,15 @@ class AvalonHandler(object):
     @cherrypy.expose
     def index(self, *args, **kwargs):
         """Display a server status page."""
+        status = 'READY'
+        css = ''
+        if not self.ready:
+            status = 'NOT READY'
+            css = 'not_ready'
+
         return _STATUS_PAGE_TPT % {
-            'status': 'READY',
+            'status': status,
+            'class': css,
             'user': avalon.util.get_current_uname(),
             'group': avalon.util.get_current_gname(),
             'uptime': datetime.utcnow() - self._startup,
@@ -271,28 +316,34 @@ class AvalonHandler(object):
     @cherrypy.expose
     def heartbeat(self, *args, **kwargs):
         """Display the string 'OKOKOK'."""
-        return "OKOKOK"
+        if self.ready:
+            return "OKOKOK"
+        return "NONONO"
 
     @cherrypy.expose
     @cherrypy.tools.json_out(handler=JSONOutHandler())
+    @server_ready
     def albums(self, *args, **kwargs):
         """Return a list of all albums."""
         return self._get_output(res=self._albums.all())
 
     @cherrypy.expose
     @cherrypy.tools.json_out(handler=JSONOutHandler())
+    @server_ready
     def artists(self, *args, **kwargs):
         """Return a list of all artists."""
         return self._get_output(res=self._artists.all())
-        
+
     @cherrypy.expose
     @cherrypy.tools.json_out(handler=JSONOutHandler())
+    @server_ready
     def genres(self, *args, **kwargs):
         """Return a list of all genres."""
         return self._get_output(res=self._genres.all())
 
     @cherrypy.expose
     @cherrypy.tools.json_out(handler=JSONOutHandler())
+    @server_ready
     def songs(self, *args, **kwargs):
         """Return song results based on the given query string parameters."""
         try:

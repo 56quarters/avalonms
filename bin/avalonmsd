@@ -273,12 +273,11 @@ def main():
     try:
         app = avalon.app.AvalonMS(config)
         app.connect()
-        app.scan()
     except (avalon.exc.DatabaseError, avalon.exc.PermissionError), e:
         print('%s: %s' % (prog, str(e)), file=sys.stderr)
         return 1
 
-    app.serve()
+    app.start()
     return 0
     
 
