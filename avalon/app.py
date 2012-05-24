@@ -143,6 +143,11 @@ class AvalonMS(object):
         into the database unless the 'no scan' configuration setting is
         true.
         """
+        # TODO: Move this to a bus plugin that runs during start and
+        # then issues a graceful event or something. A listener on
+        # the server responds to that event by settings a flag that
+        # the server is ready.
+
         if self._db is None:
             raise avalon.exc.DatabaseError(
                 "Can't scan collection: database is not connected")
