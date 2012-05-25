@@ -5,21 +5,26 @@ The ``genres`` endpoint returns data for all the different genres that songs in
 the music collection belong to.
 
 
-* Parameters
+Parameters
+^^^^^^^^^^
 
-  - The ``genres`` endpoint doesn't support any parameters and returns all genres.
+* The ``genres`` endpoint doesn't support any parameters and returns all genres.
 
 
-* Possible error responses
+Possible error responses
+^^^^^^^^^^^^^^^^^^^^^^^^
 
-  - ``ServerNotReadyError``
+* ``ServerNotReadyError``
   
-    + Reason: A request was made before the server finished starting.
+  + Reason: A request was made before the server finished starting.
 
-    + HTTP Code: ``503``
+  + HTTP Code: ``503``
 
 
-* Success output format ::
+Success output format
+^^^^^^^^^^^^^^^^^^^^^
+
+  ::
 
     {
       "is_error": false,
@@ -39,7 +44,10 @@ the music collection belong to.
     }
 
 
-* Error output format ::
+Error output format
+^^^^^^^^^^^^^^^^^^^
+
+  ::
 
     {
       "is_error": true,
@@ -50,8 +58,11 @@ the music collection belong to.
     }
 
 
-* Example Request
+Example request
+^^^^^^^^^^^^^^^
 
-  - ``http://localhost:8080/avalon/genres``
+  ::
+
+* ``http://localhost:8080/avalon/genres``
 
 

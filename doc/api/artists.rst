@@ -5,21 +5,26 @@ The ``artists`` endpoint returns data for all the different artists that songs
 in the music collection are performed by.
 
 
-* Parameters
+Parameters
+^^^^^^^^^^
 
-  - The ``artists`` endpoint doesn't support any parameters and returns all artists.
+* The ``artists`` endpoint doesn't support any parameters and returns all artists.
 
 
-* Possible error responses
+Possible error responses
+^^^^^^^^^^^^^^^^^^^^^^^^
 
-  - ``ServerNotReadyError``
+* ``ServerNotReadyError``
   
-    + Reason: A request was made before the server finished starting.
+  + Reason: A request was made before the server finished starting.
 
-    + HTTP Code: ``503``
+  + HTTP Code: ``503``
 
 
-* Success output format ::
+Success output format
+^^^^^^^^^^^^^^^^^^^^^
+
+  ::
 
     {
       "is_error": false,
@@ -39,7 +44,10 @@ in the music collection are performed by.
     }
 
 
-* Error output format ::
+Error output format
+^^^^^^^^^^^^^^^^^^^
+
+  ::
 
     {
       "is_error": true,
@@ -50,6 +58,7 @@ in the music collection are performed by.
     }
 
 
-* Example Request
+Example request
+^^^^^^^^^^^^^^^
 
-  - ``http://localhost:8080/avalon/artists``
+* ``http://localhost:8080/avalon/artists``

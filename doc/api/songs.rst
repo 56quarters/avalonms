@@ -5,64 +5,69 @@ The ``songs`` endpoint returns data for individual songs. The results returned
 can be limited and filtered based on query string parameters.
 
 
-* Parameters
+Parameters
+^^^^^^^^^^
 
-  - ``album`` 
+* ``album`` 
 
-    + Type: ``string``
+  + Type: ``string``
 
-    + Description: Select only songs belonging to this album (not case sensitive)
+  + Description: Select only songs belonging to this album (not case sensitive)
 
-  - ``album_id``
+* ``album_id``
 
-    + Type: ``integer``
+  + Type: ``integer``
 
-    + Description: Select only songs belonging to this album ID. A non-integer value
-      will result in an error response.
+  + Description: Select only songs belonging to this album ID. A non-integer value
+    will result in an error response.
 
-  - ``artist``
+* ``artist``
 
-    + Type: ``string``
+  + Type: ``string``
 
-    + Description: Select only songs by this artist (not case sensitive)
+  + Description: Select only songs by this artist (not case sensitive)
 
-  - ``artist_id``
+* ``artist_id``
 
-    + Type: ``integer``
+  + Type: ``integer``
 
-    + Description: Select only songs by this artist ID. A non-integer value will
-      result in an error response.
+  + Description: Select only songs by this artist ID. A non-integer value will
+    result in an error response.
 
-  - ``genre``
+* ``genre``
 
-    + Type: ``string``
+  + Type: ``string``
 
-    + Description: Select only songs belonging to this genre (not case sensitive)
+  + Description: Select only songs belonging to this genre (not case sensitive)
 
-  - ``genre_id``
+* ``genre_id``
 
-    + Type: ``integer``
+  + Type: ``integer``
 
-    + Description: Select only songs belonging to this genre ID. A non-integer value
-      will result in an error response.
+  + Description: Select only songs belonging to this genre ID. A non-integer value
+    will result in an error response.
 
 
-* Possible error responses
+Possible error responses
+^^^^^^^^^^^^^^^^^^^^^^^^
 
-  - ``InvalidParameterError``
+* ``InvalidParameterError``
     
-    + Reason: An invalid value for query string parameter was passed.
+  + Reason: An invalid value for query string parameter was passed.
 
-    + HTTP Code: ``400``
+  + HTTP Code: ``400``
 
-  - ``ServerNotReadyError``
+* ``ServerNotReadyError``
 
-    + Reason: A request was made before the server finished starting.
+  + Reason: A request was made before the server finished starting.
 
-    + HTTP Code: ``503``
+  + HTTP Code: ``503``
 
 
-* Success output format ::
+Success output format
+^^^^^^^^^^^^^^^^^^^^^
+
+  ::
 
     {
       "is_error": false,
@@ -92,7 +97,10 @@ can be limited and filtered based on query string parameters.
     }
 
 
-* Error output format ::
+Error output format
+^^^^^^^^^^^^^^^^^^^
+
+  ::  
 
     {
       "is_error": true,
@@ -103,7 +111,8 @@ can be limited and filtered based on query string parameters.
     }
 
 
-* Example Requests
+Example requests
+^^^^^^^^^^^^^^^^
 
   - ``http://localhost:8080/avalon/songs?artist=NOFX``
 
