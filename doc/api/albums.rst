@@ -10,7 +10,7 @@ in the music collection belong to.
   - The ``albums`` endpoint doesn't support any parameters and returns all albums.
 
 
-* Possible error responses:
+* Possible error responses
 
   - ``ServerNotReadyError``
   

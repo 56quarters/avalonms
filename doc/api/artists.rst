@@ -10,7 +10,7 @@ in the music collection are performed by.
   - The ``artists`` endpoint doesn't support any parameters and returns all artists.
 
 
-* Possible error responses:
+* Possible error responses
 
   - ``ServerNotReadyError``
   

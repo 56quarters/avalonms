@@ -10,7 +10,7 @@ the music collection belong to.
   - The ``genres`` endpoint doesn't support any parameters and returns all genres.
 
 
-* Possible error responses:
+* Possible error responses
 
   - ``ServerNotReadyError``
   

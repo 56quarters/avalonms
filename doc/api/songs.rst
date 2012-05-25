@@ -5,7 +5,7 @@ The ``songs`` endpoint returns data for individual songs. The results returned
 can be limited and filtered based on query string parameters.
 
 
-* Parameters: 
+* Parameters
 
   - ``album`` 
 
@@ -47,7 +47,7 @@ can be limited and filtered based on query string parameters.
       will result in an error response.
 
 
-* Possible error responses:
+* Possible error responses
 
   - ``InvalidParameterError``
     
