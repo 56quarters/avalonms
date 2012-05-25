@@ -31,3 +31,4 @@ the server in text/html format.
 
 .. include:: api/genres.rst
 
+.. include:: api/heartbeat.rst
