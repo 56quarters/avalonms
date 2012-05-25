@@ -234,6 +234,10 @@ def server_ready(func):
                 'Server has not finished start up')
             return self._get_output(err=err)
         return func(self, *args, **kwargs)
+    # Having the doc from the check_ready method show
+    # up when looking at help for the handler class is
+    # less than useful.
+    check_ready.__doc__= func.__doc__
     return check_ready
 
 
@@ -315,7 +319,9 @@ class AvalonHandler(object):
 
     @cherrypy.expose
     def heartbeat(self, *args, **kwargs):
-        """Display the string 'OKOKOK'."""
+        """Display the string 'OKOKOK' if the server is
+        ready to handle requests, 'NONONO' otherwise.
+        """
         if self.ready:
             return "OKOKOK"
         return "NONONO"
