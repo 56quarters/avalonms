@@ -2,7 +2,10 @@ API
 ---
 
 The Avalon Music Server handles requests on the specified interface and
-port at the path ``/avalon``. Available endpoints are:
+port at the path ``/avalon``.
+
+Meta data endpoints return information about a music collection in JSON
+format based on path and/or query string parameters.
 
 * ``/avalon/songs``
 
@@ -12,186 +15,19 @@ port at the path ``/avalon``. Available endpoints are:
 
 * ``/avalon/genres``
 
-      
-Songs endpoint
-~~~~~~~~~~~~~~
+Informational endpoints return information about the current status of
+the server in text/html format.
 
-* Parameters: 
+* ``/avalon/``
 
-  - ``album`` 
-
-    + Type: ``string``
-
-    + Description: Select only songs belonging to this album (not case sensitive)
-
-  - ``album_id``
-
-    + Type: ``integer``
-
-    + Description: Select only songs belonging to this album ID
-
-  - ``artist``
-
-    + Type: ``string``
-
-    + Description: Select only songs by this artist (not case sensitive)
-
-  - ``artist_id``
-
-    + Type: ``integer``
-
-    + Description: Select only songs by this artist ID
-
-  - ``genre``
-
-    + Type: ``string``
-
-    + Description: Select only songs belonging to this genre (not case sensitive)
-
-  - ``genre_id``
-
-    + Type: ``integer``
-
-    + Description: Select only songs belonging to this genre ID
+* ``/avalon/heartbeat``
 
 
-* Success output format ::
+.. include:: api/songs.rst
 
-    {
-      "is_error": false,
-      "error_name": "",
-      "error_msg": "",
-      "result_count": 2,
-      "results": [
-        {
-          "id": 123,
-          "name": "Basket Case",
-          "year": 1994,
-          "track": 7,
-          "album": "Dookie",
-          "artist": "Green Day",
-          "genre": "Punk"
-        },
-        {
-          "id": 456,
-          "name": "She",
-          "year": 1994,
-          "track": 8,
-          "album": "Dookie",
-          "artist": "Green Day",
-          "genre": "Punk"
-        }
-      ]
-    }
+.. include:: api/albums.rst
 
-* Example Requests
+.. include:: api/artists.rst
 
-  - ``http://localhost:8080/avalon/songs?artist=NOFX``
-
-  - ``http://localhost:8080/avalon/songs?artist_id=123``
-
-  - ``http://localhost:8080/avalon/songs?album=Live&artist=Bouncing+Souls``
-
-  - ``http://localhost:8080/avalon/songs?album_id=456``
-
-  - ``http://localhost:8080/avalon/songs?genre=Ska``
-
-  - ``http://localhost:8080/avalon/songs?genre_id=1``
-   
-
-Albums endpoint
-~~~~~~~~~~~~~~~
-
-* Parameters
-
-  - The ``albums`` endpoint doesn't support any parameters and returns all albums.
-
-
-* Success output format ::
-
-    {
-      "is_error": false,
-      "error_name": "",
-      "error_msg": "",
-      "result_count": 2,
-      "results": [
-        {
-          "id": 123,
-          "name": "Dookie"      
-        },
-        {
-          "id": 456,
-          "name": "Insomniac"
-        }
-      ]
-    }
-
-* Example Request
-
-  - ``http://localhost:8080/avalon/albums``
-
-
-Artists endpoint
-~~~~~~~~~~~~~~~~
-
-* Parameters
-
-  - The ``artists`` endpoint doesn't support any parameters and returns all artists.
-
-
-* Success output format ::
-
-    {
-      "is_error": false,
-      "error_name": "",
-      "error_msg": "",
-      "result_count": 2,
-      "results": [
-        {
-          "id": 123,
-          "name": "Green Day"      
-        },
-        {
-          "id": 456,
-          "name": "Bad Religion"
-        }
-      ]
-    }
-
-* Example Request
-
-  - ``http://localhost:8080/avalon/artists``
-
-
-Genre endpoint
-~~~~~~~~~~~~~~
-
-* Parameters
-
-  - The ``genre`` endpoint doesn't support any parameters and returns all genres.
-
-
-* Success output format ::
-
-    {
-      "is_error": false,
-      "error_name": "",
-      "error_msg": "",
-      "result_count": 2,
-      "results": [
-        {
-          "id": 123,
-          "name": "Punk"      
-        },
-        {
-          "id": 456,
-          "name": "Ska"
-        }
-      ]
-    }
-
-* Example Request
-
-  - ``http://localhost:8080/avalon/genres``
-
+.. include:: api/genres.rst
 
