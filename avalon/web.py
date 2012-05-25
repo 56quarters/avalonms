@@ -324,6 +324,7 @@ class AvalonHandler(object):
         """
         if self.ready:
             return "OKOKOK"
+        set_http_status(503)
         return "NONONO"
 
     @cherrypy.expose
