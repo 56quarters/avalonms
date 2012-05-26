@@ -3,11 +3,9 @@ For v2:
 ** Build
 ** Update tsh?
 ** Update pypi
-** Makefile
 * Tests
 * PID file
 * Docs
-** Update README to be stand alone
 * Infrastructure
 ** readthedocs
 ** pypi
@@ -19,5 +17,3 @@ For v3:
 * Testing with MySQL backend
 * LOD output
 
-For ?:
-* Plugins?
