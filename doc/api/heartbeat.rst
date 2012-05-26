@@ -30,7 +30,6 @@ Success output format
 Error output format
 ^^^^^^^^^^^^^^^^^^^
 
-
   ::
 
     NONONO

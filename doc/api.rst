@@ -23,6 +23,10 @@ the server in text/html format.
 * ``/avalon/heartbeat``
 
 
+.. include:: api/status.rst
+
+.. include:: api/heartbeat.rst
+
 .. include:: api/songs.rst
 
 .. include:: api/albums.rst
@@ -31,4 +35,3 @@ the server in text/html format.
 
 .. include:: api/genres.rst
 
-.. include:: api/heartbeat.rst
