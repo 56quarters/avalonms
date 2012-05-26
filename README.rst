@@ -8,8 +8,6 @@ The server is able to read meta data from ogg, flac, and mp3 files. Clients
 can then query the server to pull information about songs, albums, artists, 
 and genres in the collection.
 
-The Avalon Music Server builds off of the excellent CherryPy and TagPy libraries.
-
 
 Using it is as simple as
 
