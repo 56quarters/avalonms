@@ -21,7 +21,6 @@ The server can also be run as a well-behaved Unix daemon
 Features include:
 
 * Support for mp3, ogg, or flac audio files (via TagPy)
-* Looking up songs by album, artist, or genre
 * Simple, clean JSON interface
 * Tunable concurrency support
 * Unicode output support
