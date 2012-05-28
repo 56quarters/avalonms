@@ -169,8 +169,7 @@ class SessionHandler(object):
             self.close(conn)
 
     def get_session(self):
-        """ Get a new session.
-        """
+        """Get a new session."""
         return self._session_factory()
 
     
