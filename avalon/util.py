@@ -112,9 +112,10 @@ def get_thread_names():
 
 def is_perm_error(e):
     """Return true if this exception is file permission related."""
-    if not hasattr(e, 'errno'):
+    try:
+        return e.errno in (errno.EACCES, errno.EPERM)
+    except AttributeError:
         return False
-    return e.errno in (errno.EACCES, errno.EPERM)
 
 
 def is_pid_alive(pid):
@@ -127,3 +128,4 @@ def is_pid_alive(pid):
         if errno.ESRCH == e.errno:
             return False
     return True
+
