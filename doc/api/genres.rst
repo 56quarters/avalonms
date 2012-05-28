@@ -61,8 +61,6 @@ Error output format
 Example request
 ^^^^^^^^^^^^^^^
 
-  ::
-
 * ``http://localhost:8080/avalon/genres``
 
 
