@@ -53,9 +53,7 @@ __all__ = [
 
 class Base(object):
 
-    """ A Base for all models that defines name
-        and id fields.
-    """
+    """A Base for all models that defines name and id fields."""
 
     id = Column(Integer, primary_key=True)
     name = Column(String)
@@ -66,8 +64,8 @@ Base = declarative_base(cls=Base)
 
 class Track(Base):
     
-    """ Model representing metadata of a media file with
-        relations to other entities (album, artist, genre).
+    """Model representing metadata of a media file with
+    relations to other entities (album, artist, genre).
     """
     
     __tablename__ = 'tracks'
@@ -86,37 +84,33 @@ class Track(Base):
 
 class Album(Base):
     
-    """ Model that represents the album of a song.
-    """
+    """Model that represents the album of a song."""
     
     __tablename__ = 'albums'
 
 
 class Artist(Base):
 
-    """ Model that represents the artist of a song.
-    """
+    """Model that represents the artist of a song."""
 
     __tablename__ = 'artists'
 
 
 class Genre(Base):
 
-    """ Model that represents the genre of a song.
-    """
+    """Model that represents the genre of a song."""
 
     __tablename__ = 'genres'
 
 
 class SessionHandler(object):
 
-    """ Wrapper for connecting to a database and generating
-        new sessions.
+    """Wrapper for connecting to a database and generating
+    new sessions.
     """
 
     def __init__(self, url, log):
-        """ Initialize the session factory and database connection.
-        """
+        """Initialize the session factory and database connection."""
         self._url = url
         self._log = log
         self._session_factory = sessionmaker()
@@ -132,9 +126,9 @@ class SessionHandler(object):
             self._log.warn('Error closing session: %s', e.message, exc_info=True)
 
     def connect(self, clean=False):
-        """ Connect to the database and configure the session
-            factory to use the connection, and create any needed
-            tables (optionally dropping them first).
+        """Connect to the database and configure the session factory
+        to use the connection, and create any needed tables (optionally
+        dropping them first).
         """
         try:
             # Attempt to connect to the engine immediately after it
@@ -145,10 +139,10 @@ class SessionHandler(object):
             self.validate()
         except ArgumentError, e:
             raise avalon.exc.ConnectionError(
-                'Invalid database path or URL %s' % self._url)
+                'Invalid database path or URL %s' % self._url, e)
         except OperationalError, e:
             raise avalon.exc.ConnectionError(
-                'Could not connect to database URL %s' % self._url)
+                'Could not connect to database URL %s' % self._url, e)
         except ImportError, e:
             raise avalon.exc.ConnectionError(
                 'Invalid database connector', e)
