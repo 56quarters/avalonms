@@ -11,7 +11,6 @@ help:
 	@echo "    test: Run the unit test suite"
 
 clean:
-	rm -rf avalonms.egg-info
 	cd doc; make clean
 
 doc: site
