@@ -318,7 +318,6 @@ class DaemonPlugin(cherrypy.process.plugins.SimplePlugin):
         super(DaemonPlugin, self).__init__(bus)
         self._context = daemon.DaemonContext()
         self._context.files_preserve = fds
-        self._context.pidfile = AvalonLockFile(pid_file)
 
     def start(self):
         """Double fork and become a daemon."""
@@ -332,21 +331,6 @@ class DaemonPlugin(cherrypy.process.plugins.SimplePlugin):
     def stop(self):
         """Prepare the daemon to end."""
         self._context.close()
-
-
-class AvalonLockFile(lockfile.LockFile):
-
-    def __init__(self, lock_file, threaded=True, timeout=-1):
-        """ """
-        lockfile.LockFile.__init__(self, lock_file, threaded=threaded)
-        self._timeout = timeout
-
-    ## TODO: Handle stale PID files
-
-    def __enter__(self):
-        """ """
-        self.acquire(timeout=self._timeout)
-        return self
 
 
 class FilePermissionPlugin(cherrypy.process.plugins.SimplePlugin):
