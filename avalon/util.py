@@ -48,7 +48,8 @@ __all__ = [
     'get_current_gname',
     'get_mem_usage',
     'get_thread_names',
-    'is_perm_error'
+    'is_perm_error',
+    'is_pid_alive'
     ]
 
 
@@ -114,3 +115,15 @@ def is_perm_error(e):
     if not hasattr(e, 'errno'):
         return False
     return e.errno in (errno.EACCES, errno.EPERM)
+
+
+def is_pid_alive(pid):
+    """Return true if the given pid is running, false otherwise."""
+    try:
+        os.kill(pid, 0)
+    except OSError, e:
+        if errno.EINVAL == e.errno:
+            raise
+        if errno.ESRCH == e.errno:
+            return False
+    return True
