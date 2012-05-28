@@ -119,9 +119,16 @@ class AvalonServer(CherryPyWSGIServer):
 
     def reload(self):
         """Refresh application in-memory caches."""
-        self._app.reload()
-        self._app.ready = True
-        self._log.info("Handler caches reloaded")
+        try:
+            self._app.reload()
+        except Exception, e:
+            # Something bad happened. Don't kill the app but mark
+            # it as down and log the error along with a traceback.
+            self._app.ready = False
+            self._log.critical(e.message, exc_info=True)
+        else:
+            self._app.ready = True
+            self._log.info("Handler caches reloaded")
 
     def start(self):
         """Run the server forever."""
@@ -129,7 +136,7 @@ class AvalonServer(CherryPyWSGIServer):
         super(AvalonServer, self).start()
         
     def stop(self):
-        """Gracefully stop the server."""
+        """Stop the server."""
         self._log.info('Stopping HTTP server...')
         super(AvalonServer, self).stop()
 
@@ -148,9 +155,7 @@ class AvalonServerPlugin(cherrypy.process.servers.ServerAdapter):
         super(AvalonServerPlugin, self).unsubscribe()
         self.bus.unsubscribe('graceful', self.httpserver.reload)
 
-    
 
-        
 _STATUS_PAGE_TPT = """<!DOCTYPE html>
 <html>
 <head>
@@ -231,7 +236,7 @@ def server_ready(func):
         """
         if not self.ready:
             err = avalon.exc.ServerNotReadyError(
-                'Server has not finished start up')
+                'Server is not ready or unable to serve requests')
             return self._get_output(err=err)
         return func(self, *args, **kwargs)
     # Having the doc from the check_ready method show
