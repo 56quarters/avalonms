@@ -96,6 +96,7 @@ class DefaultConfiguration(object):
         self.db_path = os.path.join(tempfile.gettempdir(), 'avalon.sqlite')
         self.error_log = None
         self.no_scan = False
+        self.pid_file = os.path.join(tempfile.gettempdir(), 'avalon.pid')
         self.server_address = socket.gethostbyname('localhost')
         self.server_port = 8080
         self.server_queue = 4
@@ -118,6 +119,7 @@ class ApplicationConfig(object):
         self.db_path = defaults.db_path
         self.error_log = defaults.error_log
         self.no_scan = defaults.no_scan
+        self.pid_file = defaults.pid_file
         self.server_address = defaults.server_address
         self.server_port = defaults.server_port
         self.server_queue = defaults.server_queue
@@ -235,6 +237,12 @@ def parse_args(prog, defaults):
         '--no-scan',
         action='store_true',
         help='Do not rescan and rebuild the music collection database')
+    parser.add_argument(
+        '--pid-file',
+        metavar='PATH',
+        help='Write the PID of the currently running server to this '
+        'file to prevent multiple instances from running at the same '
+        'time (default is %s)' % defaults.pid_file)
     parser.add_argument(
         '--server-address',
         metavar='ADDR',

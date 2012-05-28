@@ -27,7 +27,7 @@
 #
 
 
-"""Main entry point for collection scaning and HTTP server."""
+"""Main entry point for collection scanning and HTTP server."""
 
 
 import os.path
@@ -35,6 +35,7 @@ import signal
 
 import cherrypy
 import daemon
+import lockfile
 
 import avalon.exc
 import avalon.log
@@ -159,7 +160,8 @@ class AvalonMS(object):
         if self._config.daemon:
             engine.enable_daemon(
                 avalon.util.get_uid(self._config.daemon_user),
-                avalon.util.get_gid(self._config.daemon_group))
+                avalon.util.get_gid(self._config.daemon_group),
+                self._config.pid_file)
 
         if not self._config.no_scan:
             engine.enable_scan(self._config.collection)
@@ -176,6 +178,7 @@ class AvalonEngineConfig(object):
         self.bus = None
         self.log = None
         self.db = None
+        self.pid = None
         self.server = None
 
 
@@ -213,11 +216,11 @@ class AvalonEngine(object):
         h = avalon.log.AvalonLogPlugin(self._bus, self._log)
         h.subscribe()
 
-    def enable_daemon(self, uid, gid):
+    def enable_daemon(self, uid, gid, pid_file):
         """Enable and configure any plugins needed to run in daemon mode."""
         # Daemon mode entails the actual daemonization process
         # which includes preserving any open file descriptors.
-        h = DaemonPlugin(self._bus, self._log.get_open_fds())
+        h = DaemonPlugin(self._bus, self._log.get_open_fds(), pid_file)
         h.subscribe()
 
         if not avalon.util.are_root():
@@ -310,11 +313,12 @@ class DaemonPlugin(cherrypy.process.plugins.SimplePlugin):
 
     """Adapt the python-daemon lib to work as a CherryPy plugin."""
 
-    def __init__(self, bus, fds):
+    def __init__(self, bus, fds, pid_file):
         """Store the bus and files that are open."""
         super(DaemonPlugin, self).__init__(bus)
         self._context = daemon.DaemonContext()
         self._context.files_preserve = fds
+        self._context.pidfile = lockfile.LockFile(pid_file)
 
     def start(self):
         """Double fork and become a daemon."""
