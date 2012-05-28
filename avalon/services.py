@@ -191,7 +191,7 @@ class IdLookupCache(object):
         self._cache = cache
 
     def _get_mapping(self, session, cls):
-        """ Set each of the mappings for a particular type of
+        """ Get the name to ID mappings for a particular type of
             entity.
         """
         field_cache = {}
@@ -217,12 +217,14 @@ class TrackStore(object):
         self.reload()
 
     def _freeze(self, table):
-        """Convert a dictionary with mutable iterable values into
-        a dictionary with frozensetS as values.
+        """Return a copy of a dictionary with mutable setS for values
+        replaced with frozensetS for values.
         """
+        out = collections.defaultdict(frozenset)
+
         for key in table:
-            table[key] = frozenset(table[key])
-        return table
+            out[key] = frozenset(table[key])
+        return out
 
     def reload(self):
         """Atomically populate the various structures for looking
