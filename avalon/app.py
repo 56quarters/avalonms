@@ -52,6 +52,7 @@ __all__ = [
     'AvalonEngineConfig',
     'AvalonMS',
     'DaemonPlugin',
+    'CollectionScanPlugin',
     'FilePermissionPlugin'
     ]
 
