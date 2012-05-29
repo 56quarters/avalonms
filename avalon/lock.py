@@ -37,7 +37,10 @@ import avalon.exc
 import avalon.util
 
 
-__all__ = []
+__all__ = [
+    'get_lock_pid',
+    'AvalonLockFile'
+    ]
 
 
 class AvalonLockFile(object):
@@ -45,12 +48,15 @@ class AvalonLockFile(object):
     """ """
 
     def __init__(self, lock_path):
-        """ """
+        """Set the lock file to use"""
         self._path = lock_path
         self._locked = False
 
     def acquire(self):
-        """ """
+        """Acquire a proccess-wide lock using a lock file (hard link)."""
+        if self._locked:
+            return
+
         base = os.path.dirname(self._path)
         handle = tempfile.NamedTemporaryFile(dir=base)
         handle.write(str(os.getpid()))
@@ -67,20 +73,12 @@ class AvalonLockFile(object):
         finally:
             handle.close()
 
-    def _get_pid(self):
-        """ """
-        pid = -1
-
-        try:
-            with open(self._path) as handle:
-                pid = int(handle.read().strip())
-        except (ValueError, IOError):
-            pass
-        return pid
-        
     def clear_stale(self):
-        """ """
-        pid = self._get_pid()
+        """Attempt to remove an existing lock file if it is stale."""
+        pid = get_lock_pid(self._path)
+        # If the lock file existed and there was a valid PID
+        # in it check if the process is still running and abort
+        # if so.
         if pid > 0 and avalon.util.is_pid_alive(pid):
             return
 
@@ -90,11 +88,11 @@ class AvalonLockFile(object):
             pass
 
     def is_locked(self):
-        """ """
+        """Return true if the lock has been acquired, false otherwise."""
         return self._locked
 
     def release(self):
-        """ """
+        """Release the lock if it has been acquired."""
         if not self._locked:
             return
         os.unlink(self._path)
@@ -102,9 +100,22 @@ class AvalonLockFile(object):
 
     def __enter__(self):
         """ """
-        pass
+        self.acquire()
+        return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         """ """
-        pass
+        self.release()
+        return False
 
+
+def get_lock_pid(path):
+    """Get the pid in an existing lock file, -1 if there is no
+    such file or it does not contain a valid PID."""
+    pid = -1
+    try:
+        with open(path, 'rb') as handle:
+            pid = int(handle.read().strip())
+    except (ValueError, IOError):
+        pass
+    return pid

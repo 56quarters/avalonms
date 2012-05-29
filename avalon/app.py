@@ -38,6 +38,7 @@ import daemon
 import lockfile
 
 import avalon.exc
+import avalon.lock
 import avalon.log
 import avalon.models
 import avalon.scan
@@ -237,11 +238,11 @@ class AvalonEngine(object):
             umask=0)
         h.subscribe()
 
-        # Set the logs to be owned by the user we will be switching
-        # to since we need write access as the non-super user.
+        # Set the logs and pid file to be owned by the user we will be
+        # switching to since we need write access as the non-super user.
         h = FilePermissionPlugin(
             self._bus,
-            self._log.get_open_paths(),
+            self._log.get_open_paths() + [pid_file],
             uid=uid,
             gid=gid)
         h.subscribe()
@@ -318,9 +319,11 @@ class DaemonPlugin(cherrypy.process.plugins.SimplePlugin):
         super(DaemonPlugin, self).__init__(bus)
         self._context = daemon.DaemonContext()
         self._context.files_preserve = fds
+        self._context.pidfile = avalon.lock.AvalonLockFile(pid_file)
 
     def start(self):
         """Double fork and become a daemon."""
+        self._context.pidfile.clear_stale()
         self._context.open()
 
     # Set the priority higher than server.start so that we have
