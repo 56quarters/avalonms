@@ -123,7 +123,7 @@ class SessionHandler(object):
         try:
             session.close()
         except SQLAlchemyError, e:
-            self._log.warn('Error closing session: %s', e.message, exc_info=True)
+            self._log.warn('Problem closing session: %s', e.message, exc_info=True)
 
     def connect(self, clean=False):
         """Connect to the database and configure the session factory
@@ -157,7 +157,6 @@ class SessionHandler(object):
                     'Insufficient permission to remove existing tables or '
                     'data in the database [%s]' % self._url, e)        
         Base.metadata.create_all(self._engine)
-
 
     def validate(self):
         """Ensure our database engine is valid by attempting a connection."""
