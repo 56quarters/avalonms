@@ -221,11 +221,24 @@ class AvalonEngine(object):
         """Enable and configure any plugins needed to run in daemon mode."""
         # Daemon mode entails the actual daemonization process
         # which includes preserving any open file descriptors.
-        h = DaemonPlugin(self._bus, self._log.get_open_fds(), pid_file)
+        h = DaemonPlugin(
+            self._bus, 
+            files=self._log.get_open_fds(),
+            lock=avalon.lock.AvalonLockFile(pid_file),
+            log=self._log)
         h.subscribe()
 
         if not avalon.util.are_root():
             return
+
+        # Set the logs and pid file to be owned by the user we will be
+        # switching to since we need write access as the non-super user.
+        h = FilePermissionPlugin(
+            self._bus,
+            files=self._log.get_open_paths() + [pid_file],
+            uid=uid,
+            gid=gid)
+        h.subscribe()
 
         # Switch to a non-super user. This is separate from forking
         # since forking needs to happen before the HTTP server is started 
@@ -238,22 +251,13 @@ class AvalonEngine(object):
             umask=0)
         h.subscribe()
 
-        # Set the logs and pid file to be owned by the user we will be
-        # switching to since we need write access as the non-super user.
-        h = FilePermissionPlugin(
-            self._bus,
-            self._log.get_open_paths() + [pid_file],
-            uid=uid,
-            gid=gid)
-        h.subscribe()
-
-    def enable_scan(self, collection):
+    def enable_scan(self, root):
         """Scan (or rescan) the music collection."""
         h = CollectionScanPlugin(
             self._bus, 
-            self._log, 
-            collection, 
-            self._db)
+            collection=root, 
+            db=self._db,
+            log=self._log)
         h.subscribe()
 
     def start(self):
@@ -280,14 +284,14 @@ class CollectionScanPlugin(cherrypy.process.plugins.SimplePlugin):
     into the database.
     """
 
-    def __init__(self, bus, log, collection, db):
+    def __init__(self, bus, collection=None, db=None, log=None):
         """Set the root of the music collection and database 
         session handler.
         """
         super(CollectionScanPlugin, self).__init__(bus)
-        self._log = log
         self._collection = collection
         self._db = db
+        self._log = log
 
     def start(self):
         """Scan the music collection and load the metadata into the
@@ -314,17 +318,27 @@ class DaemonPlugin(cherrypy.process.plugins.SimplePlugin):
 
     """Adapt the python-daemon lib to work as a CherryPy plugin."""
 
-    def __init__(self, bus, fds, pid_file):
+    def __init__(self, bus, files=None, lock=None, log=None):
         """Store the bus and files that are open."""
         super(DaemonPlugin, self).__init__(bus)
         self._context = daemon.DaemonContext()
-        self._context.files_preserve = fds
-        self._context.pidfile = avalon.lock.AvalonLockFile(pid_file)
+        self._context.files_preserve = files
+        self._context.pidfile = lock
+        self._log = log
 
     def start(self):
         """Double fork and become a daemon."""
+        # Make a reasonable attempt to remove a stale pid
+        # file before trying to acquire a lock.
         self._context.pidfile.clear_stale()
-        self._context.open()
+
+        try:
+            self._context.open()
+        except avalon.exc.AlreadyLockedError:
+            self._log.error(
+                "AvalonMS is already running (pid file %s)" 
+                % self._context.pidfile.path)
+            self.bus.exit()
 
     # Set the priority higher than server.start so that we have
     # already forked when threads are created by the HTTP server
@@ -342,7 +356,7 @@ class FilePermissionPlugin(cherrypy.process.plugins.SimplePlugin):
     even after dropping root privileges.
     """
 
-    def __init__(self, bus, files, uid=None, gid=None):
+    def __init__(self, bus, files=None, uid=None, gid=None):
         """Set the bus, files to fix, and uid/gid to fix with."""
         super(FilePermissionPlugin, self).__init__(bus)
         self._files = files

@@ -49,7 +49,7 @@ class AvalonLockFile(object):
 
     def __init__(self, lock_path):
         """Set the lock file to use"""
-        self._path = lock_path
+        self.path = lock_path
         self._locked = False
 
     def acquire(self):
@@ -57,16 +57,16 @@ class AvalonLockFile(object):
         if self._locked:
             return
 
-        base = os.path.dirname(self._path)
+        base = os.path.dirname(self.path)
         handle = tempfile.NamedTemporaryFile(dir=base)
         handle.write(str(os.getpid()))
 
         try:
-            os.link(handle.name, self._path)
+            os.link(handle.name, self.path)
         except OSError, e:
             if errno.EEXIST == e.errno:
                 raise avalon.exc.AlreadyLockedError(
-                    'File [%s] appears to be locked already' % self._path)
+                    'File [%s] appears to be locked already' % self.path)
             raise
         else:
             self._locked = True
@@ -75,7 +75,7 @@ class AvalonLockFile(object):
 
     def clear_stale(self):
         """Attempt to remove an existing lock file if it is stale."""
-        pid = get_lock_pid(self._path)
+        pid = get_lock_pid(self.path)
         # If the lock file existed and there was a valid PID
         # in it check if the process is still running and abort
         # if so.
@@ -83,7 +83,7 @@ class AvalonLockFile(object):
             return
 
         try:
-            os.unlink(self._path)
+            os.unlink(self.path)
         except OSError:
             pass
 
@@ -95,7 +95,7 @@ class AvalonLockFile(object):
         """Release the lock if it has been acquired."""
         if not self._locked:
             return
-        os.unlink(self._path)
+        os.unlink(self.path)
         self._locked = False
 
     def __enter__(self):
