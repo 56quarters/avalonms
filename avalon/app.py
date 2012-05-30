@@ -159,8 +159,7 @@ class AvalonMS(object):
         if self._config.daemon:
             engine.enable_daemon(
                 avalon.util.get_uid(self._config.daemon_user),
-                avalon.util.get_gid(self._config.daemon_group),
-                self._config.pid_file)
+                avalon.util.get_gid(self._config.daemon_group))
 
         if not self._config.no_scan:
             engine.enable_scan(self._config.collection)
@@ -177,7 +176,6 @@ class AvalonEngineConfig(object):
         self.bus = None
         self.log = None
         self.db = None
-        self.pid = None
         self.server = None
 
 
@@ -215,7 +213,7 @@ class AvalonEngine(object):
         h = avalon.log.AvalonLogPlugin(self._bus, self._log)
         h.subscribe()
 
-    def enable_daemon(self, uid, gid, pid_file):
+    def enable_daemon(self, uid, gid):
         """Enable and configure any plugins needed to run in daemon mode."""
         # Daemon mode entails the actual daemonization process
         # which includes preserving any open file descriptors.
@@ -227,11 +225,11 @@ class AvalonEngine(object):
         if not avalon.util.are_root():
             return
 
-        # Set the logs and pid file to be owned by the user we will be
-        # switching to since we need write access as the non-super user.
+        # Set the logs to be owned by the user we will be  switching 
+        # to since we need write access as the non-super user.
         h = FilePermissionPlugin(
             self._bus,
-            files=self._log.get_open_paths() + [pid_file],
+            files=self._log.get_open_paths(),
             uid=uid,
             gid=gid)
         h.subscribe()
