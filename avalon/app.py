@@ -225,11 +225,12 @@ class AvalonEngine(object):
         if not avalon.util.are_root():
             return
 
-        # Set the logs to be owned by the user we will be  switching 
-        # to since we need write access as the non-super user.
+        # Set the logs and database to be owned by the user we will
+        # be switching  to since we need write access as the non-super
+        # user.
         h = FilePermissionPlugin(
             self._bus,
-            files=self._log.get_open_paths(),
+            files=self._log.get_open_paths() + self._db.get_open_paths(),
             uid=uid,
             gid=gid)
         h.subscribe()

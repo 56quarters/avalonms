@@ -1,5 +1,4 @@
 For v2:
-* FIX DB PERMISSIONS (not chown-ing sqlite file)
 * Release process (base off requests?)
 ** Build
 ** Update tsh?
