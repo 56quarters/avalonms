@@ -4,7 +4,6 @@ For v2:
 ** Update tsh?
 ** Update pypi
 * Tests
-* PID file
 * Docs
 * Infrastructure
 ** readthedocs

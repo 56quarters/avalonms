@@ -35,10 +35,8 @@ import signal
 
 import cherrypy
 import daemon
-import lockfile
 
 import avalon.exc
-import avalon.lock
 import avalon.log
 import avalon.models
 import avalon.scan
@@ -223,9 +221,7 @@ class AvalonEngine(object):
         # which includes preserving any open file descriptors.
         h = DaemonPlugin(
             self._bus, 
-            files=self._log.get_open_fds(),
-            lock=avalon.lock.AvalonLockFile(pid_file),
-            log=self._log)
+            files=self._log.get_open_fds())
         h.subscribe()
 
         if not avalon.util.are_root():
@@ -318,27 +314,15 @@ class DaemonPlugin(cherrypy.process.plugins.SimplePlugin):
 
     """Adapt the python-daemon lib to work as a CherryPy plugin."""
 
-    def __init__(self, bus, files=None, lock=None, log=None):
+    def __init__(self, bus, files=None):
         """Store the bus and files that are open."""
         super(DaemonPlugin, self).__init__(bus)
         self._context = daemon.DaemonContext()
         self._context.files_preserve = files
-        self._context.pidfile = lock
-        self._log = log
 
     def start(self):
         """Double fork and become a daemon."""
-        # Make a reasonable attempt to remove a stale pid
-        # file before trying to acquire a lock.
-        self._context.pidfile.clear_stale()
-
-        try:
-            self._context.open()
-        except avalon.exc.AlreadyLockedError:
-            self._log.error(
-                "AvalonMS is already running (pid file %s)" 
-                % self._context.pidfile.path)
-            self.bus.exit()
+        self._context.open()
 
     # Set the priority higher than server.start so that we have
     # already forked when threads are created by the HTTP server
