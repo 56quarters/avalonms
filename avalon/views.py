@@ -99,13 +99,15 @@ class IdNameElm(object):
 
     def __eq__(self, o):
         """Two instances are equal based on ID and name."""
-        if not isinstance(o, self.__class__):
+        if o is self:
+            return True
+        if not isinstance(o, IdNameElm):
             return False
         return o.id == self.id and o.name == self.name
 
     def __hash__(self):
-        """Hash is computed from ID, name, and class."""
-        return hash(self.id) ^ (hash(self.name) * 7) ^ (hash(self.__class__) * 31)
+        """Hash is computed from ID and name."""
+        return hash((self.id, self.name))
 
     def __sizeof__(self):
         """Get the size of the object in bytes."""
