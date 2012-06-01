@@ -34,6 +34,12 @@ import os.path
 import signal
 
 import cherrypy
+# Import the cherrypy Application class directly and use it
+# instead of using the global cherrypy.tree Tree instance. We
+# then pass this wsgi app directly to the server when it starts.
+# All this really buys us is making the code path a little
+# simpler and easier to understand.
+from cherrypy._cptree import Application as CherryPyApplication
 import daemon
 
 import avalon.exc
@@ -77,6 +83,7 @@ def setup_cherrypy_env():
     cherrypy.config.update({'environment': 'production'})
     cherrypy.log.access_file = None
     cherrypy.log.error_file = None
+    cherrypy.log.screen = False
 
 
 class AvalonMS(object):
@@ -120,7 +127,7 @@ class AvalonMS(object):
             self._config.server_port)
         config.num_threads = self._config.server_threads
         config.queue_size = self._config.server_queue
-        config.application = cherrypy.tree.mount(
+        config.application = CherryPyApplication(
             avalon.web.AvalonHandler(self._db), 
             script_name=APP_PATH)
         return avalon.web.AvalonServer(config)
@@ -226,7 +233,7 @@ class AvalonEngine(object):
             return
 
         # Set the logs and database to be owned by the user we will
-        # be switching  to since we need write access as the non-super
+        # be switching to since we need write access as the non-super
         # user.
         h = FilePermissionPlugin(
             self._bus,
