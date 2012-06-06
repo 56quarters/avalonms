@@ -38,7 +38,8 @@ import cherrypy
 # instead of using the global cherrypy.tree Tree instance. We
 # then pass this wsgi app directly to the server when it starts.
 # All this really buys us is making the code path a little
-# simpler and easier to understand.
+# simpler and easier to understand (plus avoiding some global
+# state).
 from cherrypy._cptree import Application as CherryPyApplication
 import daemon
 

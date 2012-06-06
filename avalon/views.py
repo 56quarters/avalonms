@@ -57,9 +57,6 @@ class JSONEncoder(json.JSONEncoder):
 
     def default(self, o):
         """Return a dictionary representing IdNameElm or TrackElm objects."""
-        if not isinstance(o, IdNameElm):
-            return super(JSONEncoder, self).default(o)
-
         if isinstance(o, TrackElm):
             return {
                 'id': o.id,
@@ -73,7 +70,9 @@ class JSONEncoder(json.JSONEncoder):
                 'genre': o.genre,
                 'genre_id': o.genre_id
                 }
-        return {'id': o.id, 'name': o.name}
+        elif isinstance(o, IdNameElm):
+            return {'id': o.id, 'name': o.name}
+        return super(JSONEncoder, self).default(o)
 
 
 class IdNameElm(object):
