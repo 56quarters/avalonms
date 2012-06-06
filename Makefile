@@ -6,7 +6,7 @@ help:
 	@echo "    clean: Remove build artifacts"
 	@echo "    doc: Build documentation"
 	@echo "    docpreview: Build documentation and start an HTTP server to preview it"
-	@echo "    init: Set up the development environment"
+	@echo "    init: Set up the development environment using 'develop' mode (requires root)"
 	@echo "    push: Push origin and github remotes"
 	@echo "    test: Run the unit test suite"
 
@@ -31,3 +31,4 @@ site:
 
 test:
 	ls
+
