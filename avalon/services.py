@@ -35,7 +35,7 @@ areas.
 import collections
 
 from avalon.models import Album, Artist, Genre, Track
-from avalon.views import IdNameElm, TrackElm
+from avalon.elms import IdNameElm, TrackElm
 
 
 __all__ = [
@@ -50,7 +50,7 @@ __all__ = [
 
 
 def model_to_elm(model):
-    """Convert and ORM model object to an immutable, hashable
+    """Convert an ORM model object to an immutable, hashable
     object suitable for serialization.
     """
     if isinstance(model, Track):

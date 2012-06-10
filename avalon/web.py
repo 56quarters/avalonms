@@ -41,7 +41,7 @@ from cherrypy.wsgiserver import CherryPyWSGIServer
 
 import avalon.exc
 import avalon.services
-import avalon.views
+import avalon.elms
 
 
 __all__ = [
@@ -69,7 +69,7 @@ class JSONOutHandler(object):
 
     def __init__(self):
         """Create an instance of our custom encoder."""
-        self._encoder = avalon.views.JSONEncoder()
+        self._encoder = avalon.elms.JSONEncoder()
 
     def __call__(self, *args, **kwargs):
         """Return the rendered content encoded as JSON."""
