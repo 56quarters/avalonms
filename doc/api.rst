@@ -26,15 +26,16 @@ the server in text/html format.
 * ``/avalon/heartbeat``
 
 
-.. include:: api/status.rst
+Endpoints
+=========
 
-.. include:: api/heartbeat.rst
-
-.. include:: api/songs.rst
-
-.. include:: api/albums.rst
-
-.. include:: api/artists.rst
-
-.. include:: api/genres.rst
+.. toctree::
+   :maxdepth: 1
+   
+   api/status
+   api/heartbeat
+   api/songs
+   api/albums       
+   api/artists
+   api/genres
 
