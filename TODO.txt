@@ -1,3 +1,7 @@
+Bugs:
+* SQLAlchemy missing from require.txt
+* Server never marked as "up" with --no-scan
+
 For v2:
 * Release process (base off requests?)
 ** Build
