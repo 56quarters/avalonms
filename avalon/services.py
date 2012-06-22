@@ -76,8 +76,13 @@ class _SortHelper(object):
         the two given objects, reversing it if we are
         sorting in descending order.
         """
-        v1 = getattr(o1, self.field)
-        v2 = getattr(o2, self.field)
+        try:
+            v1 = getattr(o1, self.field)
+            v2 = getattr(o2, self.field)
+        except AttributeError:
+            # Reraise the AttributeError with a better message
+            raise AttributeError(
+                '[%s] is not a sortable field' % self.field)
 
         res = cmp(v1, v2)
         if 'desc' == self.direction.lower():
@@ -103,14 +108,24 @@ def get_limited(elms, limit, offset=0):
     
     Limit and offset must be non-negative integers.
     """
+    try:
+        limit = int(limit)
+    except ValueError:
+        raise ValueError('Limit must be an integer')
+
+    try:
+        offset = int(offset)
+    except ValueError:
+        raise ValueError('Offset must be an integer')
+
     if limit < 0:
         raise ValueError('Limit must be non-negative')
     if offset < 0:
         raise ValueError('Offset must be non-negative')
 
     out = list(elms)
-    start = int(offset)
-    end = start + int(limit)
+    start = offset
+    end = offset + limit
     return out[start:end]
 
 
