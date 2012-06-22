@@ -39,6 +39,8 @@ from avalon.elms import IdNameElm, TrackElm
 
 
 __all__ = [
+    'get_limited',
+    'get_sorted',
     'model_to_elm',
     'AlbumStore',
     'ArtistStore',
@@ -47,6 +49,69 @@ __all__ = [
     'InsertService',
     'TrackStore'
     ]
+
+
+class _SortHelper(object):
+        
+    """Object meant to be used as a comparison function
+    for objects based on their attributes.
+
+    Doing sorting this way allows more flexibility than
+    implementing the __cmp__ method for each object since
+    that limits sorting to a single field.
+    """
+        
+    def __init__(self, field, direction):
+        """Set the field to be used for sorting and the
+        direction to sort.
+
+        The sort direction is expected to be either ASC
+        or DESC (case doesn't matter).
+        """
+        self.field = field
+        self.direction = direction
+        
+    def __call__(self, o1, o2):
+        """Return the results of cmp() on the field of
+        the two given objects, reversing it if we are
+        sorting in descending order.
+        """
+        v1 = getattr(o1, self.field)
+        v2 = getattr(o2, self.field)
+
+        res = cmp(v1, v2)
+        if 'desc' == self.direction.lower():
+            return -res
+        return res
+
+
+def get_sorted(elms, field, direction='asc'):
+    """Sort the given elements based on the given field, optionally
+    sorting them in descending order (instead of ascending).
+
+    If the given field doesn't exist on any of the elements, no
+    attempt is made to catch the resulting AttributeError.
+    """
+    helper = _SortHelper(field, direction)
+    out = list(elms)
+    out.sort(cmp=helper)
+    return out
+
+    
+def get_limited(elms, limit, offset=0):
+    """Apply the given limit and offset to the results.
+    
+    Limit and offset must be non-negative integers.
+    """
+    if limit < 0:
+        raise ValueError('Limit must be non-negative')
+    if offset < 0:
+        raise ValueError('Offset must be non-negative')
+
+    out = list(elms)
+    start = int(offset)
+    end = start + int(limit)
+    return out[start:end]
 
 
 def model_to_elm(model):
@@ -177,8 +242,7 @@ class IdLookupCache(object):
         return self.get_id('genre', val)
 
     def reload(self):
-        """ Atomically load all name to ID mappings from the database.
-        """
+        """Atomically load all name to ID mappings from the database."""
         session = self._session_handler.get_session()
         cache = {}
 
@@ -191,14 +255,12 @@ class IdLookupCache(object):
         self._cache = cache
 
     def _get_mapping(self, session, cls):
-        """ Get the name to ID mappings for a particular type of
-            entity.
-        """
+        """Get the name to ID mappings for a particular type of entity."""
         field_cache = {}
         for thing in session.query(cls).all():
             field_cache[self._get_key(thing.name)] = thing.id
         return field_cache
-
+        
 
 class TrackStore(object):
 
