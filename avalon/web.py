@@ -284,6 +284,14 @@ class AvalonHandler(object):
             out.error = err
         return out.render()
 
+    def _get_sorted(self, params, elms):
+        """ """
+        pass
+
+    def _get_limited(self, params, elms):
+        """ """
+        pass
+
     def _reduce(self, sets):
         """Find the intersection of all of the given non-None sets."""
         return functools.reduce(
@@ -472,6 +480,9 @@ class RequestParams(object):
     name_params = frozenset(['album', 'artist', 'genre'])
     """URL params for fetching elements by name"""
     
+    other_params = frozenset(['order', 'direction', 'limit', 'offset'])
+    """URL params for further manipulating the result set"""
+
     def __init__(self):
         """ Initialize values for object IDs to None."""
         self.album = None
@@ -480,6 +491,11 @@ class RequestParams(object):
         self.artist_id = None
         self.genre = None
         self.genre_id = None
+
+        self.direction = None
+        self.limit = None
+        self.order = None
+        self.offset = None
 
     def __str__(self):
         """String representation of these request params."""
