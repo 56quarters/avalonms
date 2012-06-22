@@ -251,13 +251,12 @@ class AvalonHandler(object):
     """Handle HTTP requests and return result sets in JSON."""
 
     def __init__(self, session_handler):
-        """ Set the session handler and optionally, cache to use."""
+        """Initialize each of the stores by loading from the database."""
         self._tracks = avalon.services.TrackStore(session_handler)
         self._albums = avalon.services.AlbumStore(session_handler)
         self._artists = avalon.services.ArtistStore(session_handler)
         self._genres = avalon.services.GenreStore(session_handler)
         self._id_cache = avalon.services.IdLookupCache(session_handler)
-        self._session_handler = session_handler
         self._startup = datetime.utcnow()
         self._ready = threading.Event()
 
