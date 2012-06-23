@@ -230,7 +230,8 @@ _STATUS_PAGE_TPT = """<!DOCTYPE html>
 
 def server_ready(func):
     """Decorator for checking if the application has started."""
-    def check_ready(self, *args, **kwargs):
+    @functools.wraps(func)
+    def wrapper(self, *args, **kwargs):
         """Return an error response if the application is not yet
         ready, return the output from the wrapped method if it is.
         """
@@ -239,11 +240,7 @@ def server_ready(func):
                 'Server is not ready or unable to serve requests')
             return self._get_output(err=err)
         return func(self, *args, **kwargs)
-    # Having the doc from the check_ready method show
-    # up when looking at help for the handler class is
-    # less than useful.
-    check_ready.__doc__= func.__doc__
-    return check_ready
+    return wrapper
 
 
 class AvalonHandler(object):

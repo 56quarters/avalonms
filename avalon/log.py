@@ -30,6 +30,7 @@
 """Simple logging wrapper."""
 
 
+import functools
 import logging
 import sys
 
@@ -47,25 +48,25 @@ __all__ = [
     ]
 
 
-def wrap_permission_errors(log_type):
+
+
+def error_decorator(func):
     """Create a decorator that turns IOError permission
     issues into our PermissionError, reraise all other types.
     """
-    def error_decorator(func):
-        """Decorator to wrap permission errors."""
-        def error_wrapper(self, *args, **kwargs):
-            try:
-                return func(self, *args, **kwargs)
-            except IOError, e:
-                if not avalon.util.is_perm_error(e):
-                    # If this isn't a permission related error 
-                    # simply reraise the exception untouched.
-                    raise
-                raise avalon.exc.PermissionError(
-                    'Insufficient permission to create or open %s '
-                    'log [%s]' % (log_type, e.filename), e)
-        return error_wrapper
-    return error_decorator
+    @functools.wraps(func)
+    def wrapper(self, *args, **kwargs):
+        try:
+            return func(self, *args, **kwargs)
+        except IOError, e:
+            if not avalon.util.is_perm_error(e):
+                # If this isn't a permission related error 
+                # simply reraise the exception untouched.
+                raise
+            raise avalon.exc.PermissionError(
+                'Insufficient permission to create or open '
+                'log [%s]' %  e.filename, e)
+    return wrapper
 
 
 class AvalonLogConfig(object):
@@ -128,7 +129,7 @@ class AvalonLog(object):
         # Application logging uses the error log
         self._logger = self._log_root.error_log
 
-    @wrap_permission_errors('access')
+    @error_decorator
     def _setup_access_log(self):
         """Add a configured handler to the access log of the logging root."""
         if self._access_path is None:
@@ -140,7 +141,7 @@ class AvalonLog(object):
         self._log_root.access_log.addHandler(handler)
         self._handlers.append(handler)
 
-    @wrap_permission_errors('error')
+    @error_decorator
     def _setup_error_log(self):
         """Add a configured handler to the error log of the logging root."""
         if self._error_path is None:
