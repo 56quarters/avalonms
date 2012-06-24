@@ -27,21 +27,29 @@
 #
 
 
-"""Supporting library for the Avalon Music Server."""
+"""Errors messages used by the Avalon Music Server."""
 
 
 __all__ = [
-    'app',
-    'elms',
-    'err',
-    'exc',
-    'log',
-    'models',
-    'scan',
-    'server'
-    'services',
-    'util',
-    'web'
+    'ERROR_INVALID_FIELD_VALUE',
+    'ERROR_NEGATIVE_FIELD_VALUE',
+    'ERROR_SERVER_NOT_READY'
     ]
 
 
+class _ErrorMessage(object):
+
+    """Callable to interpolate string placeholders with values."""
+
+    def __init__(self, tpt):
+        """Set the template for this error message."""
+        self.tpt = tpt
+
+    def __call__(self, *args, **kwargs):
+        """Apply the positional args to the template string."""
+        return self.tpt % args
+
+
+ERROR_INVALID_FIELD_VALUE = _ErrorMessage("Invalid value for field [%s]")
+ERROR_NEGATIVE_FIELD_VALUE = _ErrorMessage("Value for field [%s] must be non-negative")
+ERROR_SERVER_NOT_READY = _ErrorMessage("Server is not ready or unable to serve requests")

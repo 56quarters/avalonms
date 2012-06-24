@@ -47,6 +47,7 @@ import avalon.exc
 import avalon.log
 import avalon.models
 import avalon.scan
+import avalon.server
 import avalon.services
 import avalon.web
 
@@ -121,7 +122,7 @@ class AvalonMS(object):
 
     def _get_server(self):
         """Configure and return the application server."""
-        config = avalon.web.AvalonServerConfig()
+        config = avalon.server.AvalonServerConfig()
         config.log = self._log
         config.bind_addr = (
             self._config.server_address, 
@@ -131,7 +132,7 @@ class AvalonMS(object):
         config.application = CherryPyApplication(
             avalon.web.AvalonHandler(self._db), 
             script_name=APP_PATH)
-        return avalon.web.AvalonServer(config)
+        return avalon.server.AvalonServer(config)
 
     def connect(self):
         """Create a database session handler and perform the initial
@@ -210,7 +211,7 @@ class AvalonEngine(object):
 
     def enable_server(self):
         """Enable and configure the web server plugin."""
-        h = avalon.web.AvalonServerPlugin(
+        h = avalon.server.AvalonServerPlugin(
             self._bus, 
             httpserver=self._server,
             bind_addr=self._server.bind_addr)

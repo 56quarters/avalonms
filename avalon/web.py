@@ -27,7 +27,7 @@
 #
 
 
-"""HTTP frontend for handling requests."""
+"""Application frontend for handling requests."""
 
 
 import functools
@@ -37,8 +37,8 @@ import traceback
 from datetime import datetime
 
 import cherrypy
-from cherrypy.wsgiserver import CherryPyWSGIServer
 
+import avalon.err
 import avalon.exc
 import avalon.services
 import avalon.elms
@@ -47,9 +47,6 @@ import avalon.elms
 __all__ = [
     'set_http_status',
     'AvalonHandler',
-    'AvalonServer',
-    'AvalonServerConfig',
-    'AvalonServerPlugin',
     'JSONOutHandler',
     'RequestOutput',
     'RequestParams'
@@ -76,84 +73,6 @@ class JSONOutHandler(object):
         value = cherrypy.serving.request._json_inner_handler(*args, **kwargs)
         return self._encoder.encode(value)
 
-
-class AvalonServerConfig(object):
-
-    """Configuration for our HTTP server."""
-
-    def __init__(self):
-        self.log = None
-        self.bind_addr = None
-        self.application = None
-        self.num_threads = None
-        self.queue_size = None
-
-
-class AvalonServer(CherryPyWSGIServer):
-
-    """Wrap the standard CherryPy server to use our own error
-    logging mechanism.
-    """
-
-    def __init__(self, config):
-        """Call the parent constructor and set our error logger."""
-        super(AvalonServer, self).__init__(
-            config.bind_addr,
-            config.application,
-            numthreads=config.num_threads,
-            request_queue_size=config.queue_size)
-        
-        self._app = config.application.root
-        self._log = config.log
-        self.socket = None
-
-        self._log.info('Server using address %s', config.bind_addr)
-        self._log.info('Server using %s threads', config.num_threads)
-        self._log.info('Server using %s queued connections', config.queue_size)
-
-    def error_log(self, msg='', level=logging.INFO, trackback=False):
-        """Write an error to the log, optionally with a traceback."""
-        if trackback:
-            msg = '%s: %s' % (msg, traceback.format_exc())
-        self._log.log(level, msg)
-
-    def reload(self):
-        """Refresh application in-memory caches."""
-        try:
-            self._app.reload()
-        except Exception, e:
-            # Something bad happened. Don't kill the app but mark
-            # it as down and log the error along with a traceback.
-            self._app.ready = False
-            self._log.critical(e.message, exc_info=True)
-        else:
-            self._app.ready = True
-            self._log.info("Handler caches reloaded")
-
-    def start(self):
-        """Run the server forever."""
-        self._log.info('HTTP server handling requests...')
-        super(AvalonServer, self).start()
-        
-    def stop(self):
-        """Stop the server."""
-        self._log.info('Stopping HTTP server...')
-        super(AvalonServer, self).stop()
-
-
-class AvalonServerPlugin(cherrypy.process.servers.ServerAdapter):
-
-    """Adapter between our HTTP server and the CherryPy bus system."""
-
-    def subscribe(self):
-        """Register start, stop, and graceful handlers."""
-        super(AvalonServerPlugin, self).subscribe()
-        self.bus.subscribe('graceful', self.httpserver.reload)
-
-    def unsubscribe(self):
-        """Unregister start, stop, and graceful handlers."""
-        super(AvalonServerPlugin, self).unsubscribe()
-        self.bus.unsubscribe('graceful', self.httpserver.reload)
 
 
 _STATUS_PAGE_TPT = """<!DOCTYPE html>
@@ -228,7 +147,7 @@ _STATUS_PAGE_TPT = """<!DOCTYPE html>
 """
 
 
-def server_ready(func):
+def application_ready(func):
     """Decorator for checking if the application has started."""
     @functools.wraps(func)
     def wrapper(self, *args, **kwargs):
@@ -237,7 +156,7 @@ def server_ready(func):
         """
         if not self.ready:
             err = avalon.exc.ServerNotReadyError(
-                'Server is not ready or unable to serve requests')
+                avalon.err.ERROR_SERVER_NOT_READY())
             return self._get_output(err=err)
         return func(self, *args, **kwargs)
     return wrapper
@@ -280,14 +199,6 @@ class AvalonHandler(object):
         if err is not None:
             out.error = err
         return out.render()
-
-    def _get_sorted(self, params, elms):
-        """ """
-        pass
-
-    def _get_limited(self, params, elms):
-        """ """
-        pass
 
     def _reduce(self, sets):
         """Find the intersection of all of the given non-None sets."""
@@ -338,28 +249,28 @@ class AvalonHandler(object):
 
     @cherrypy.expose
     @cherrypy.tools.json_out(handler=JSONOutHandler())
-    @server_ready
+    @application_ready
     def albums(self, *args, **kwargs):
         """Return a list of all albums."""
         return self._get_output(res=self._albums.all())
 
     @cherrypy.expose
     @cherrypy.tools.json_out(handler=JSONOutHandler())
-    @server_ready
+    @application_ready
     def artists(self, *args, **kwargs):
         """Return a list of all artists."""
         return self._get_output(res=self._artists.all())
 
     @cherrypy.expose
     @cherrypy.tools.json_out(handler=JSONOutHandler())
-    @server_ready
+    @application_ready
     def genres(self, *args, **kwargs):
         """Return a list of all genres."""
         return self._get_output(res=self._genres.all())
 
     @cherrypy.expose
     @cherrypy.tools.json_out(handler=JSONOutHandler())
-    @server_ready
+    @application_ready
     def songs(self, *args, **kwargs):
         """Return song results based on the given query string parameters."""
         try:
@@ -543,7 +454,7 @@ class RequestParams(object):
                 val_id = int(kwargs[field])
             except ValueError:
                 raise avalon.exc.InvalidParameterError(
-                    'Invalid value for field [%s]' % field)
+                    avalon.err.ERROR_INVALID_FIELD_VALUE(field))
             setattr(params, field, val_id)
         return params
 
