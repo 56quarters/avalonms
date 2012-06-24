@@ -52,7 +52,7 @@ __all__ = [
     'AvalonServerPlugin',
     'JSONOutHandler',
     'RequestOutput',
-    'RequestFilter'
+    'RequestParams'
     ]
 
 
