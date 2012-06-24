@@ -458,3 +458,85 @@ class RequestParams(object):
             setattr(params, field, val_id)
         return params
 
+
+class _SortHelper(object):
+        
+    """Object meant to be used as a comparison function
+    for objects based on their attributes.
+
+    Doing sorting this way allows more flexibility than
+    implementing the __cmp__ method for each object since
+    that limits sorting to a single field.
+    """
+        
+    def __init__(self, field, direction, field_whitelist=None):
+        """Set the field to be used for sorting and the
+        direction to sort.
+
+        The sort direction is expected to be either ASC
+        or DESC (case doesn't matter).
+        """
+        if field_whitelist is None:
+            field_whitelist = []
+
+        self.field = field
+        self.direction = direction
+        self.valid = frozenset(field_whitelist)
+        
+    def __call__(self, o1, o2):
+        """Return the results of cmp() on the field of
+        the two given objects, reversing it if we are
+        sorting in descending order.
+        """        
+        try:
+            v1 = getattr(o1, self.field)
+            v2 = getattr(o2, self.field)
+        except AttributeError:
+            # Reraise the AttributeError with a better message
+            raise AttributeError(
+                '[%s] is not a sortable field' % self.field)
+
+        res = cmp(v1, v2)
+        if 'desc' == self.direction.lower():
+            return -res
+        return res
+
+
+def get_sorted(elms, field, direction='asc'):
+    """Sort the given elements based on the given field, optionally
+    sorting them in descending order (instead of ascending).
+
+    If the given field doesn't exist on any of the elements, no
+    attempt is made to catch the resulting AttributeError.
+    """
+    helper = _SortHelper(field, direction)
+    out = list(elms)
+    out.sort(cmp=helper)
+    return out
+
+    
+def get_limited(elms, limit, offset=0):
+    """Apply the given limit and offset to the results.
+    
+    Limit and offset must be non-negative integers.
+    """
+    try:
+        limit = int(limit)
+    except ValueError:
+        raise ValueError('Limit must be an integer')
+
+    try:
+        offset = int(offset)
+    except ValueError:
+        raise ValueError('Offset must be an integer')
+
+    if limit < 0:
+        raise ValueError('Limit must be non-negative')
+    if offset < 0:
+        raise ValueError('Offset must be non-negative')
+
+    out = list(elms)
+    start = offset
+    end = offset + limit
+    return out[start:end]
+
