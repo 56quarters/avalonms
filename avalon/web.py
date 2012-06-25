@@ -151,14 +151,25 @@ def application_ready(func):
     """Decorator for checking if the application has started."""
     @functools.wraps(func)
     def wrapper(self, *args, **kwargs):
-        """Return an error response if the application is not yet
-        ready, return the output from the wrapped method if it is.
-        """
         if not self.ready:
-            err = avalon.exc.ServerNotReadyError(
+           raise avalon.exc.ServerNotReadyError(
                 avalon.err.ERROR_SERVER_NOT_READY())
-            return self._get_output(err=err)
         return func(self, *args, **kwargs)
+    return wrapper
+
+
+def render_error(func):
+    """Render any ApiErrors raised by the method as output.
+
+    This avoid the need for redundent try/catch blocks for
+    each endpoint.
+    """
+    @functools.wraps(func)
+    def wrapper(self, *args, **kwargs):
+        try:
+            return func(self, *args, **kwargs)
+        except avalon.exc.ApiError, e:
+            return self._get_output(err=e)
     return wrapper
 
 
@@ -249,6 +260,7 @@ class AvalonHandler(object):
 
     @cherrypy.expose
     @cherrypy.tools.json_out(handler=JSONOutHandler())
+    @render_error
     @application_ready
     def albums(self, *args, **kwargs):
         """Return a list of all albums."""
@@ -256,6 +268,7 @@ class AvalonHandler(object):
 
     @cherrypy.expose
     @cherrypy.tools.json_out(handler=JSONOutHandler())
+    @render_error
     @application_ready
     def artists(self, *args, **kwargs):
         """Return a list of all artists."""
@@ -263,6 +276,7 @@ class AvalonHandler(object):
 
     @cherrypy.expose
     @cherrypy.tools.json_out(handler=JSONOutHandler())
+    @render_error
     @application_ready
     def genres(self, *args, **kwargs):
         """Return a list of all genres."""
@@ -270,14 +284,12 @@ class AvalonHandler(object):
 
     @cherrypy.expose
     @cherrypy.tools.json_out(handler=JSONOutHandler())
+    @render_error
     @application_ready
     def songs(self, *args, **kwargs):
         """Return song results based on the given query string parameters."""
-        try:
-            filters = RequestParams.get_from_qs(kwargs)
-        except avalon.exc.InvalidParameterError, e:
-            return self._get_output(err=e)
-
+        filters = RequestParams.get_from_qs(kwargs)
+        
         # If there are no query string params to filter then short
         # circuit and just return all tracks
         if filters.is_empty():
@@ -376,6 +388,38 @@ class RequestOutput(object):
             }
 
 
+class ParamValidation(object):
+
+    """ """
+
+    def __init__(self, params):
+        """ """
+        self._params = params
+
+    def get_as_int(self, field):
+        """ """
+        val = self._get(self._params, field)
+        # None value indicates that this was a valid field
+        # but it wasn't set (no included in the request query
+        # string).
+        if val is None:
+            return 0
+
+        try:
+            return int(val)
+        except ValueError:
+            raise avalon.exc.InvalidParameterError(
+                avalon.err.ERROR_INVALID_FIELD_VALUE(field))
+
+    def get(self, field):
+        """ """
+        try:
+            return getattr(self._params, field)
+        except AttributeError:
+            raise avalon.exc.InvalidParameterError(
+                avalon.err.ERROR_INVALID_FIELD(field))
+
+
 class RequestParams(object):
     
     """Parse and encapsulate object IDs and names from query string 
@@ -387,9 +431,6 @@ class RequestParams(object):
 
     name_params = frozenset(['album', 'artist', 'genre'])
     """URL params for fetching elements by name"""
-    
-    other_params = frozenset(['order', 'direction', 'limit', 'offset'])
-    """URL params for further manipulating the result set"""
 
     def __init__(self):
         """ Initialize values for object IDs to None."""
@@ -467,34 +508,24 @@ class _SortHelper(object):
     Doing sorting this way allows more flexibility than
     implementing the __cmp__ method for each object since
     that limits sorting to a single field.
-    """
-        
-    def __init__(self, field, direction, field_whitelist=None):
+    """        
+    def __init__(self, field, direction):
         """Set the field to be used for sorting and the
         direction to sort.
 
         The sort direction is expected to be either ASC
         or DESC (case doesn't matter).
         """
-        if field_whitelist is None:
-            field_whitelist = []
-
         self.field = field
-        self.direction = direction
-        self.valid = frozenset(field_whitelist)
+        self.direction = direction        
         
     def __call__(self, o1, o2):
         """Return the results of cmp() on the field of
         the two given objects, reversing it if we are
         sorting in descending order.
         """        
-        try:
-            v1 = getattr(o1, self.field)
-            v2 = getattr(o2, self.field)
-        except AttributeError:
-            # Reraise the AttributeError with a better message
-            raise AttributeError(
-                '[%s] is not a sortable field' % self.field)
+        v1 = getattr(o1, self.field)
+        v2 = getattr(o2, self.field)
 
         res = cmp(v1, v2)
         if 'desc' == self.direction.lower():
