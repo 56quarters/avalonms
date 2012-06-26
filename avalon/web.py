@@ -31,9 +31,7 @@
 
 
 import functools
-import logging
 import threading
-import traceback
 from datetime import datetime
 
 import cherrypy
@@ -45,34 +43,8 @@ import avalon.elms
 
 
 __all__ = [
-    'set_http_status',
-    'AvalonHandler',
-    'JSONOutHandler',
-    'RequestOutput',
-    'RequestParams'
+    'AvalonHandler'
     ]
-
-
-def set_http_status(code):
-    """Set the HTTP status of the current response."""
-    cherrypy.serving.response.status = code
-
-
-class JSONOutHandler(object):
-
-    """Wrap our JSON encoder for objects in the views module
-    such that it can be called by the cherrypy JSON output tool.
-    """
-
-    def __init__(self):
-        """Create an instance of our custom encoder."""
-        self._encoder = avalon.elms.JSONEncoder()
-
-    def __call__(self, *args, **kwargs):
-        """Return the rendered content encoded as JSON."""
-        value = cherrypy.serving.request._json_inner_handler(*args, **kwargs)
-        return self._encoder.encode(value)
-
 
 
 _STATUS_PAGE_TPT = """<!DOCTYPE html>
@@ -147,18 +119,34 @@ _STATUS_PAGE_TPT = """<!DOCTYPE html>
 """
 
 
-def application_ready(func):
+class _JSONOutHandler(object):
+
+    """Wrap our JSON encoder for objects in the views module
+    such that it can be called by the cherrypy JSON output tool.
+    """
+
+    def __init__(self):
+        """Create an instance of our custom encoder."""
+        self._encoder = avalon.elms.JSONEncoder()
+
+    def __call__(self, *args, **kwargs):
+        """Return the rendered content encoded as JSON."""
+        value = cherrypy.serving.request._json_inner_handler(*args, **kwargs)
+        return self._encoder.encode(value)
+
+
+def _application_ready(func):
     """Decorator for checking if the application has started."""
     @functools.wraps(func)
     def wrapper(self, *args, **kwargs):
         if not self.ready:
-           raise avalon.exc.ServerNotReadyError(
+            raise avalon.exc.ServerNotReadyError(
                 avalon.err.ERROR_SERVER_NOT_READY())
         return func(self, *args, **kwargs)
     return wrapper
 
 
-def render_error(func):
+def _render_error(func):
     """Render any ApiErrors raised by the method as output.
 
     This avoid the need for redundent try/catch blocks for
@@ -169,7 +157,7 @@ def render_error(func):
         try:
             return func(self, *args, **kwargs)
         except avalon.exc.ApiError, e:
-            return self._get_output(err=e)
+            return _get_output(err=e)
     return wrapper
 
 
@@ -201,15 +189,6 @@ class AvalonHandler(object):
     ready = property(
         _get_ready, _set_ready, None, 
         "Is the application ready to handle requests")
-
-    def _get_output(self, res=None, err=None):
-        """Render results or an error as an iterable."""
-        out = RequestOutput()
-        if res is not None:
-            out.results = res
-        if err is not None:
-            out.error = err
-        return out.render()
 
     def _reduce(self, sets):
         """Find the intersection of all of the given non-None sets."""
@@ -255,73 +234,78 @@ class AvalonHandler(object):
         """
         if self.ready:
             return "OKOKOK"
-        set_http_status(503)
+        _set_http_status(503)
         return "NONONO"
 
     @cherrypy.expose
-    @cherrypy.tools.json_out(handler=JSONOutHandler())
-    @render_error
-    @application_ready
+    @cherrypy.tools.json_out(handler=_JSONOutHandler())
+    @_render_error
+    @_application_ready
     def albums(self, *args, **kwargs):
         """Return a list of all albums."""
-        return self._get_output(res=self._albums.all())
+        return _get_output(res=self._albums.all())
 
     @cherrypy.expose
-    @cherrypy.tools.json_out(handler=JSONOutHandler())
-    @render_error
-    @application_ready
+    @cherrypy.tools.json_out(handler=_JSONOutHandler())
+    @_render_error
+    @_application_ready
     def artists(self, *args, **kwargs):
         """Return a list of all artists."""
-        return self._get_output(res=self._artists.all())
+        return _get_output(res=self._artists.all())
 
     @cherrypy.expose
-    @cherrypy.tools.json_out(handler=JSONOutHandler())
-    @render_error
-    @application_ready
+    @cherrypy.tools.json_out(handler=_JSONOutHandler())
+    @_render_error
+    @_application_ready
     def genres(self, *args, **kwargs):
         """Return a list of all genres."""
-        return self._get_output(res=self._genres.all())
+        return _get_output(res=self._genres.all())
 
     @cherrypy.expose
-    @cherrypy.tools.json_out(handler=JSONOutHandler())
-    @render_error
-    @application_ready
+    @cherrypy.tools.json_out(handler=_JSONOutHandler())
+    @_render_error
+    @_application_ready
     def songs(self, *args, **kwargs):
         """Return song results based on the given query string parameters."""
-        filters = RequestParams.get_from_qs(kwargs)
+        params = _RequestParams(kwargs)
         
         # If there are no query string params to filter then short
         # circuit and just return all tracks
-        if filters.is_empty():
-            return self._get_output(res=self._tracks.all())
+        if params.is_empty():
+            return get_output(res=self._tracks.all())
 
         sets = []
 
-        if None is not filters.album:
+        if None is not params.get('album'):
             sets.append(
                 self._tracks.by_album(
-                    self._id_cache.get_album_id(filters.album)))
-        if None is not filters.artist:
+                    self._id_cache.get_album_id(params.get('album'))))
+        if None is not params.get('artist'):
             sets.append(
                 self._tracks.by_artist(
-                    self._id_cache.get_artist_id(filters.artist)))
-        if None is not filters.genre:
+                    self._id_cache.get_artist_id(params.get('artist'))))
+        if None is not params.get('genre'):
             sets.append(
                 self._tracks.by_genre(
-                    self._id_cache.get_genre_id(filters.genre)))
+                    self._id_cache.get_genre_id(params.get('genre'))))
 
-        if None is not filters.album_id:
-            sets.append(self._tracks.by_album(filters.album_id))
-        if None is not filters.artist_id:
-            sets.append(self._tracks.by_artist(filters.artist_id))
-        if None is not filters.genre_id:
-            sets.append(self._tracks.by_genre(filters.genre_id))
+        if None is not params.get_int('album_id'):
+            sets.append(self._tracks.by_album(params.get_int('album_id')))
+        if None is not params.get_int('artist_id'):
+            sets.append(self._tracks.by_artist(params.get_int('artist_id')))
+        if None is not params.get_int('genre_id'):
+            sets.append(self._tracks.by_genre(params.get_int('genre_id')))
 
         # Return the intersection of any none-None sets
-        return self._get_output(res=self._reduce(sets))
+        return _get_output(res=self._reduce(sets))
 
 
-class RequestOutput(object):
+def _set_http_status(code):
+    """Set the HTTP status of the current response."""
+    cherrypy.serving.response.status = code
+
+
+class _RequestOutput(object):
 
     """Render query results or errors in a format that can be serialized
     to JSON.
@@ -332,21 +316,20 @@ class RequestOutput(object):
         self.error = None
         self.results = []
 
-    def _format_error(self, err):
+    def _format_error(self):
         """Format a query error (if there was one)."""
         out = {
             'is_error': False,
             'error_name': '',
             'error_msg': ''
             }
-        if err is not None:
+        if self.error is not None:
             out['is_error'] = True
-            out['error_name'] = err.name
-            out['error_msg'] = err.message
-            self._set_error_status(err)
+            out['error_name'] = self.error.name
+            out['error_msg'] = self.error.message
         return out
         
-    def _format_results(self, res):
+    def _format_results(self):
         """Format query results (if any)."""
         out = {
             'result_count': 0,
@@ -356,28 +339,32 @@ class RequestOutput(object):
         # The standard JSON encoder doesn't know how
         # to render set objects, which is what the service
         # layer returns, so we convert them to lists.
-        if res is not None:
-            out['result_count'] = len(res)
-            out['results'] = list(res)
+        if self.results is not None:
+            out['result_count'] = len(self.results)
+            out['results'] = list(self.results)
         return out
 
-    def _set_error_status(self, err):
+    def _set_error_status(self):
         """Set and HTTP status for the current request if this error
         has one that makes sense.
         """
-        code = err.http_code
+        if self.error is None:
+            return
+
+        code = self.error.http_code
         if code != 0:
             # Set the status of the currently processing request
             # while still allowing us to render our JSON payload
             # with further information about the error
-            set_http_status(code)
+            _set_http_status(code)
 
     def render(self):
         """Format any results or errors as a dictionary to be turned into a
         JSON payload.
         """
-        err = self._format_error(self.error)
-        res = self._format_results(self.results)
+        err = self._format_error()
+        res = self._format_results()
+        self._set_error_status()
 
         return {
             'is_error': err['is_error'],
@@ -388,22 +375,39 @@ class RequestOutput(object):
             }
 
 
-class ParamValidation(object):
+def _get_output(res=None, err=None):
+    """Render results or an error as an iterable."""
+    out = _RequestOutput()
+    if res is not None:
+        out.results = res
+    if err is not None:
+        out.error = err
+    return out.render()
 
-    """ """
 
-    def __init__(self, params):
-        """ """
-        self._params = params
+class _RequestParams(object):
 
-    def get_as_int(self, field):
-        """ """
-        val = self._get(self._params, field)
-        # None value indicates that this was a valid field
-        # but it wasn't set (no included in the request query
-        # string).
+    """Logic for accessing query string parameters of interest."""
+
+    params = frozenset(['album', 'album_id', 'artist', 'artist_id',
+                        'genre', 'genre_id'])
+
+    def __init__(self, qs):
+        """Set the query string params to use."""
+        self._qs = qs
+
+    def is_empty(self):
+        """Return true if there are no query string params, false otherwise."""
+        return 0 == len(self._qs)
+
+    def get_int(self, field):
+        """Return the value of the field as an int, raising an error if
+        it isn't a valid field or cannot be converted to an int, and
+        returning None if the field isn't in the query string.
+        """
+        val = self.get(field)
         if val is None:
-            return 0
+            return None
 
         try:
             return int(val)
@@ -412,92 +416,17 @@ class ParamValidation(object):
                 avalon.err.ERROR_INVALID_FIELD_VALUE(field))
 
     def get(self, field):
-        """ """
-        try:
-            return getattr(self._params, field)
-        except AttributeError:
+        """Return the value of the field, raising an error if it isn't
+        a valid field, and returning Mone if the field isn't in the query
+        string.
+        """
+        if field not in self.params:
             raise avalon.exc.InvalidParameterError(
                 avalon.err.ERROR_INVALID_FIELD(field))
-
-
-class RequestParams(object):
-    
-    """Parse and encapsulate object IDs and names from query string 
-    parameters.
-    """
-
-    id_params = frozenset(['album_id', 'artist_id', 'genre_id'])
-    """URL params for fetching elements by IDs"""
-
-    name_params = frozenset(['album', 'artist', 'genre'])
-    """URL params for fetching elements by name"""
-
-    def __init__(self):
-        """ Initialize values for object IDs to None."""
-        self.album = None
-        self.album_id = None
-        self.artist = None
-        self.artist_id = None
-        self.genre = None
-        self.genre_id = None
-
-        self.direction = None
-        self.limit = None
-        self.order = None
-        self.offset = None
-
-    def __str__(self):
-        """String representation of these request params."""
-        return (
-            'RequestParams ['
-            'album: %s, '
-            'album_id: %s, '
-            'artist: %s, '
-            'artist_id: %s, '
-            'genre: %s, '
-            'genre_id: %s]') % (
-            self.album,
-            self.album_id,
-            self.artist,
-            self.artist_id,
-            self.genre,
-            self.genre_id)
-
-    def is_empty(self):
-        """Return true if the request has no keyword parameters,
-        false otherwise.
-        """
-        return (
-            self.album is None
-            and self.album_id is None 
-            and self.artist is None
-            and self.artist_id is None 
-            and self.genre is None
-            and self.genre_id is None)
-
-    @classmethod
-    def get_from_qs(cls, kwargs):
-        """Construct a new filter based on query string parameters.
-
-        Recognized params: album, album_id, artist, artist_id, genre,
-        genre_id
-        """
-        params = cls()
-
-        for field in cls.name_params:
-            if field not in kwargs:
-                continue
-            setattr(params, field, kwargs[field])
-        for field in cls.id_params:
-            if field not in kwargs:
-                continue
-            try:
-                val_id = int(kwargs[field])
-            except ValueError:
-                raise avalon.exc.InvalidParameterError(
-                    avalon.err.ERROR_INVALID_FIELD_VALUE(field))
-            setattr(params, field, val_id)
-        return params
+        
+        if field not in self._qs:
+            return None
+        return self._qs[field]
 
 
 class _SortHelper(object):
