@@ -190,6 +190,13 @@ class AvalonHandler(object):
         _get_ready, _set_ready, None, 
         "Is the application ready to handle requests")
 
+    def _filter(self, results, params):
+        """ """
+        out = []
+        for callback in (_apply_sort, _apply_limit):
+            out = callback(results, params)
+        return _get_output(res=out)
+
     def _reduce(self, sets):
         """Find the intersection of all of the given non-None sets."""
         return functools.reduce(
@@ -243,6 +250,7 @@ class AvalonHandler(object):
     @_application_ready
     def albums(self, *args, **kwargs):
         """Return a list of all albums."""
+        #return self._filter(self._albums.all(), _RequestParams(kwargs))
         return _get_output(res=self._albums.all())
 
     @cherrypy.expose
@@ -251,6 +259,7 @@ class AvalonHandler(object):
     @_application_ready
     def artists(self, *args, **kwargs):
         """Return a list of all artists."""
+        #return self._filter(self._artists.all(), _RequestParams(kwargs))
         return _get_output(res=self._artists.all())
 
     @cherrypy.expose
@@ -259,6 +268,7 @@ class AvalonHandler(object):
     @_application_ready
     def genres(self, *args, **kwargs):
         """Return a list of all genres."""
+        #return self._filter(self._genres.all(), _RequestParams(kwargs))
         return _get_output(res=self._genres.all())
 
     @cherrypy.expose
@@ -272,7 +282,8 @@ class AvalonHandler(object):
         # If there are no query string params to filter then short
         # circuit and just return all tracks
         if params.is_empty():
-            return get_output(res=self._tracks.all())
+            #return self._filter(self._tracks.all(), params)
+            return _get_output(res=self._tracks.all())
 
         sets = []
 
@@ -296,7 +307,8 @@ class AvalonHandler(object):
         if None is not params.get_int('genre_id'):
             sets.append(self._tracks.by_genre(params.get_int('genre_id')))
 
-        # Return the intersection of any none-None sets
+        # Return the intersection of any non-None sets
+        #return self._filter(self._reduce(sets), params)
         return _get_output(res=self._reduce(sets))
 
 
@@ -389,8 +401,9 @@ class _RequestParams(object):
 
     """Logic for accessing query string parameters of interest."""
 
-    params = frozenset(['album', 'album_id', 'artist', 'artist_id',
-                        'genre', 'genre_id'])
+    valid = frozenset(['album', 'album_id', 'artist', 'artist_id', 
+                        'direction', 'order', 'genre', 'genre_id',
+                        'limit', 'offset'])
 
     def __init__(self, qs):
         """Set the query string params to use."""
@@ -417,16 +430,21 @@ class _RequestParams(object):
 
     def get(self, field):
         """Return the value of the field, raising an error if it isn't
-        a valid field, and returning Mone if the field isn't in the query
+        a valid field, and returning None if the field isn't in the query
         string.
         """
-        if field not in self.params:
+        if field not in self.valid:
             raise avalon.exc.InvalidParameterError(
                 avalon.err.ERROR_INVALID_FIELD(field))
         
         if field not in self._qs:
             return None
         return self._qs[field]
+
+
+## TODO: Less copying
+## TODO: Validate sort field
+## TODO: Cleaner way to apply callbacks
 
 
 class _SortHelper(object):
@@ -452,7 +470,7 @@ class _SortHelper(object):
         """Return the results of cmp() on the field of
         the two given objects, reversing it if we are
         sorting in descending order.
-        """        
+        """
         v1 = getattr(o1, self.field)
         v2 = getattr(o2, self.field)
 
@@ -462,40 +480,44 @@ class _SortHelper(object):
         return res
 
 
-def get_sorted(elms, field, direction='asc'):
-    """Sort the given elements based on the given field, optionally
-    sorting them in descending order (instead of ascending).
-
-    If the given field doesn't exist on any of the elements, no
-    attempt is made to catch the resulting AttributeError.
+def _apply_sort(elms, params):
+    """Return a sorted list from the given elements and query
+    string parameters
     """
-    helper = _SortHelper(field, direction)
     out = list(elms)
+    field = params.get('order')
+    direction = params.get('direction')
+    
+    if field is None:
+        return out
+    if direction not in ('asc', 'desc'):
+        direction = 'asc'
+
+    helper = _SortHelper(field, direction)
     out.sort(cmp=helper)
     return out
 
     
-def get_limited(elms, limit, offset=0):
-    """Apply the given limit and offset to the results.
-    
-    Limit and offset must be non-negative integers.
+def _apply_limit(elms, params):
+    """Return a limited list from the given elements and query
+    string parameters
     """
-    try:
-        limit = int(limit)
-    except ValueError:
-        raise ValueError('Limit must be an integer')
-
-    try:
-        offset = int(offset)
-    except ValueError:
-        raise ValueError('Offset must be an integer')
-
-    if limit < 0:
-        raise ValueError('Limit must be non-negative')
-    if offset < 0:
-        raise ValueError('Offset must be non-negative')
-
     out = list(elms)
+    limit = params.get_int('limit')
+    offset = params.get_int('offset')
+
+    if limit is None:
+        return out
+    if offset is None:
+        offset = 0
+    
+    if limit < 0:
+        raise avalon.exc.InvalidParameterError(
+            avalon.err.ERROR_NEGATIVE_FIELD_VALUE('limit'))
+    if offset < 0:
+        raise avalon.exc.InvalidParameterError(
+            avalon.err.ERROR_NEGATIVE_FIELD_VALUE('offset'))
+
     start = offset
     end = offset + limit
     return out[start:end]
