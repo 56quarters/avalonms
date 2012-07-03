@@ -27,7 +27,7 @@
 #
 
 
-"""Errors messages used by the Avalon Music Server."""
+"""Errors messages (as callables) used by the Avalon Music Server."""
 
 
 __all__ = [
