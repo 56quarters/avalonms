@@ -448,9 +448,6 @@ class _SortHelper(object):
     def __init__(self, field, direction):
         """Set the field to be used for sorting and the
         direction to sort.
-
-        The sort direction is expected to be either ASC
-        or DESC (case doesn't matter).
         """
         self.field = field
         self.direction = direction        
@@ -464,7 +461,7 @@ class _SortHelper(object):
         v2 = getattr(o2, self.field)
 
         res = cmp(v1, v2)
-        if 'desc' == self.direction.lower():
+        if 'desc' == self.direction:
             return -res
         return res
 
@@ -490,7 +487,6 @@ def _apply_sort(elms, params):
     except AttributeError:
         raise avalon.exc.InvalidParameterError(
             avalon.err.ERROR_INVALID_FIELD_VALUE('order'))
-
     return elms
 
     
