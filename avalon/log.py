@@ -40,7 +40,6 @@ import avalon.exc
 
 
 __all__ = [
-    'wrap_permission_errors',
     'AvalonLog',
     'AvalonLogConfig',
     'AvalonLogPlugin'
@@ -50,7 +49,7 @@ __all__ = [
 
 
 
-def error_decorator(func):
+def _error_decorator(func):
     """Create a decorator that turns IOError permission
     issues into our PermissionError, reraise all other types.
     """
@@ -129,7 +128,7 @@ class AvalonLog(object):
         # Application logging uses the error log
         self._logger = self._log_root.error_log
 
-    @error_decorator
+    @_error_decorator
     def _setup_access_log(self):
         """Add a configured handler to the access log of the logging root."""
         if self._access_path is None:
@@ -141,7 +140,7 @@ class AvalonLog(object):
         self._log_root.access_log.addHandler(handler)
         self._handlers.append(handler)
 
-    @error_decorator
+    @_error_decorator
     def _setup_error_log(self):
         """Add a configured handler to the error log of the logging root."""
         if self._error_path is None:
