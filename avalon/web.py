@@ -269,12 +269,6 @@ class AvalonHandler(object):
     def songs(self, *args, **kwargs):
         """Return song results based on the given query string parameters."""
         params = _RequestParams(kwargs)
-        
-        # If there are no query string params to filter then short
-        # circuit and just return all tracks
-        if params.is_empty():
-            return self._filter(self._tracks.all(), params)
-
         sets = []
 
         if None is not params.get('album'):
@@ -296,9 +290,12 @@ class AvalonHandler(object):
             sets.append(self._tracks.by_artist(params.get_int('artist_id')))
         if None is not params.get_int('genre_id'):
             sets.append(self._tracks.by_genre(params.get_int('genre_id')))
-
-        # Return the intersection of any non-None sets
-        return self._filter(_reduce(sets), params)
+            
+        if sets:
+            # Return the intersection of any non-None sets
+            return self._filter(_reduce(sets), params)
+        # There were no parameters to filter songs by any criteria
+        return self._filter(self._tracks.all(), params)
 
 
 def _set_http_status(code):
@@ -401,10 +398,6 @@ class _RequestParams(object):
     def __init__(self, qs):
         """Set the query string params to use."""
         self._qs = qs
-
-    def is_empty(self):
-        """Return true if there are no query string params, false otherwise."""
-        return 0 == len(self._qs)
 
     def get_int(self, field, default=None):
         """Return the value of the field as an int, raising an error if
