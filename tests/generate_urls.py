@@ -33,9 +33,9 @@ except avalon.exc.ConnectionError, e:
 
 
 song_base = 'http://localhost:8080/avalon/songs?'
-album_base = 'http://localhost:8080/avalon/albums'
-artist_base = 'http://localhost:8080/avalon/artists'
-genre_base = 'http://localhost:8080/avalon/genres'
+album_base = 'http://localhost:8080/avalon/albums?'
+artist_base = 'http://localhost:8080/avalon/artists?'
+genre_base = 'http://localhost:8080/avalon/genres?'
 
 session = handle.get_session()
 urls = []
@@ -45,21 +45,21 @@ for album in session.query(avalon.models.Album).all():
     urls.append(song_base + 'album=' + urllib.quote_plus(album.name.lower().encode('utf-8')))
     urls.append(song_base + 'album=' + urllib.quote_plus(album.name.upper().encode('utf-8')))
     urls.append(song_base + 'album_id=' + urllib.quote_plus(str(album.id)))
-    urls.append(album_base)
+    urls.append(album_base + 'order=name' )
 
 for artist in session.query(avalon.models.Artist).all():
     urls.append(song_base + 'artist=' + urllib.quote_plus(artist.name.encode('utf-8')))
     urls.append(song_base + 'artist=' + urllib.quote_plus(artist.name.lower().encode('utf-8')))
     urls.append(song_base + 'artist=' + urllib.quote_plus(artist.name.upper().encode('utf-8')))
     urls.append(song_base + 'artist_id=' + urllib.quote_plus(str(artist.id)))
-    urls.append(artist_base)
+    urls.append(artist_base + 'order=name')
 
 for genre in session.query(avalon.models.Genre).all():
     urls.append(song_base + 'genre=' + urllib.quote_plus(genre.name.encode('utf-8')))
     urls.append(song_base + 'genre=' + urllib.quote_plus(genre.name.lower().encode('utf-8')))
     urls.append(song_base + 'genre=' + urllib.quote_plus(genre.name.upper().encode('utf-8')))
     urls.append(song_base + 'genre_id=' + urllib.quote_plus(str(genre.id)))
-    urls.append(genre_base)
+    urls.append(genre_base + 'order=name')
 
 handle.close(session)
 
