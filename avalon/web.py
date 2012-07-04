@@ -192,16 +192,10 @@ class AvalonHandler(object):
 
     def _filter(self, results, params):
         """ """
-        out = []
+        out = list(results)
         for callback in (_apply_sort, _apply_limit):
-            out = callback(results, params)
+            out = callback(out, params)
         return _get_output(res=out)
-
-    def _reduce(self, sets):
-        """Find the intersection of all of the given non-None sets."""
-        return functools.reduce(
-            lambda x, y: x.intersection(y),
-            [res_set for res_set in sets if res_set is not None])
 
     def reload(self):
         """Reload in memory stores from the database."""
@@ -250,8 +244,7 @@ class AvalonHandler(object):
     @_application_ready
     def albums(self, *args, **kwargs):
         """Return a list of all albums."""
-        #return self._filter(self._albums.all(), _RequestParams(kwargs))
-        return _get_output(res=self._albums.all())
+        return self._filter(self._albums.all(), _RequestParams(kwargs))
 
     @cherrypy.expose
     @cherrypy.tools.json_out(handler=_JSONOutHandler())
@@ -259,8 +252,7 @@ class AvalonHandler(object):
     @_application_ready
     def artists(self, *args, **kwargs):
         """Return a list of all artists."""
-        #return self._filter(self._artists.all(), _RequestParams(kwargs))
-        return _get_output(res=self._artists.all())
+        return self._filter(self._artists.all(), _RequestParams(kwargs))
 
     @cherrypy.expose
     @cherrypy.tools.json_out(handler=_JSONOutHandler())
@@ -268,8 +260,7 @@ class AvalonHandler(object):
     @_application_ready
     def genres(self, *args, **kwargs):
         """Return a list of all genres."""
-        #return self._filter(self._genres.all(), _RequestParams(kwargs))
-        return _get_output(res=self._genres.all())
+        return self._filter(self._genres.all(), _RequestParams(kwargs))
 
     @cherrypy.expose
     @cherrypy.tools.json_out(handler=_JSONOutHandler())
@@ -282,8 +273,7 @@ class AvalonHandler(object):
         # If there are no query string params to filter then short
         # circuit and just return all tracks
         if params.is_empty():
-            #return self._filter(self._tracks.all(), params)
-            return _get_output(res=self._tracks.all())
+            return self._filter(self._tracks.all(), params)
 
         sets = []
 
@@ -308,13 +298,19 @@ class AvalonHandler(object):
             sets.append(self._tracks.by_genre(params.get_int('genre_id')))
 
         # Return the intersection of any non-None sets
-        #return self._filter(self._reduce(sets), params)
-        return _get_output(res=self._reduce(sets))
+        return self._filter(_reduce(sets), params)
 
 
 def _set_http_status(code):
     """Set the HTTP status of the current response."""
     cherrypy.serving.response.status = code
+
+
+def _reduce(sets):
+    """Find the intersection of all of the given non-None sets."""
+    return functools.reduce(
+        lambda x, y: x.intersection(y),
+        [res_set for res_set in sets if res_set is not None])
 
 
 class _RequestOutput(object):
@@ -348,12 +344,9 @@ class _RequestOutput(object):
             'results': []
             }
         
-        # The standard JSON encoder doesn't know how
-        # to render set objects, which is what the service
-        # layer returns, so we convert them to lists.
         if self.results is not None:
             out['result_count'] = len(self.results)
-            out['results'] = list(self.results)
+            out['results'] = self.results
         return out
 
     def _set_error_status(self):
@@ -413,14 +406,14 @@ class _RequestParams(object):
         """Return true if there are no query string params, false otherwise."""
         return 0 == len(self._qs)
 
-    def get_int(self, field):
+    def get_int(self, field, default=None):
         """Return the value of the field as an int, raising an error if
         it isn't a valid field or cannot be converted to an int, and
         returning None if the field isn't in the query string.
         """
         val = self.get(field)
         if val is None:
-            return None
+            return default
 
         try:
             return int(val)
@@ -428,7 +421,7 @@ class _RequestParams(object):
             raise avalon.exc.InvalidParameterError(
                 avalon.err.ERROR_INVALID_FIELD_VALUE(field))
 
-    def get(self, field):
+    def get(self, field, default=None):
         """Return the value of the field, raising an error if it isn't
         a valid field, and returning None if the field isn't in the query
         string.
@@ -438,13 +431,8 @@ class _RequestParams(object):
                 avalon.err.ERROR_INVALID_FIELD(field))
         
         if field not in self._qs:
-            return None
+            return default
         return self._qs[field]
-
-
-## TODO: Less copying
-## TODO: Validate sort field
-## TODO: Cleaner way to apply callbacks
 
 
 class _SortHelper(object):
@@ -455,7 +443,8 @@ class _SortHelper(object):
     Doing sorting this way allows more flexibility than
     implementing the __cmp__ method for each object since
     that limits sorting to a single field.
-    """        
+    """
+
     def __init__(self, field, direction):
         """Set the field to be used for sorting and the
         direction to sort.
@@ -484,33 +473,36 @@ def _apply_sort(elms, params):
     """Return a sorted list from the given elements and query
     string parameters
     """
-    out = list(elms)
     field = params.get('order')
-    direction = params.get('direction')
+    direction = params.get('direction', 'asc')
     
     if field is None:
-        return out
+        return elms    
     if direction not in ('asc', 'desc'):
-        direction = 'asc'
+        raise avalon.exc.InvalidParameterError(
+            avalon.err.ERROR_INVALID_FIELD_VALUE('direction'))
+
 
     helper = _SortHelper(field, direction)
-    out.sort(cmp=helper)
-    return out
+
+    try:
+        elms.sort(cmp=helper)
+    except AttributeError:
+        raise avalon.exc.InvalidParameterError(
+            avalon.err.ERROR_INVALID_FIELD_VALUE('order'))
+
+    return elms
 
     
 def _apply_limit(elms, params):
     """Return a limited list from the given elements and query
     string parameters
     """
-    out = list(elms)
     limit = params.get_int('limit')
-    offset = params.get_int('offset')
+    offset = params.get_int('offset', 0)
 
     if limit is None:
-        return out
-    if offset is None:
-        offset = 0
-    
+        return elms   
     if limit < 0:
         raise avalon.exc.InvalidParameterError(
             avalon.err.ERROR_NEGATIVE_FIELD_VALUE('limit'))
@@ -520,5 +512,5 @@ def _apply_limit(elms, params):
 
     start = offset
     end = offset + limit
-    return out[start:end]
+    return elms[start:end]
 
