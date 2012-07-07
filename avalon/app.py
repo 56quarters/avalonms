@@ -202,6 +202,7 @@ class AvalonEngine(object):
         self._log = config.log
         self._db = config.db
         self._server = config.server
+        self._scanning = False
 
     def enable_signal_handler(self):
         """Enable and configure the signal handler plugin."""
@@ -263,12 +264,25 @@ class AvalonEngine(object):
             db=self._db,
             log=self._log)
         h.subscribe()
+        self._scanning = True
+
+    def _enable_dummy_scan(self):
+        """Dummy scanner to force a cache reload if the music collection
+        isn't already being scanned for real.
+        """
+        h = DummyCollectionScanPlugin(
+            self._bus,
+            log=self._log)
+        h.subscribe()
 
     def start(self):
         """Register default subscribers and send a START message."""
         self.enable_logger()
         self.enable_signal_handler()
         self.enable_server()
+
+        if not self._scanning:
+            self._enable_dummy_scan()
 
         self._bus.start()
         self._bus.block()
@@ -315,6 +329,27 @@ class CollectionScanPlugin(cherrypy.process.plugins.SimplePlugin):
     # starting when we begin and we aren't preventing any other
     # handlers from running while scanning takes place (which may
     # take several minutes).
+    start.priority = 100
+
+
+class DummyCollectionScanPlugin(cherrypy.process.plugins.SimplePlugin):
+
+    """Fake collection scanning plugin that just forces a graceful
+    of the server to reload in memory data stores.
+    """
+
+    def __init__(self, bus, log=None):
+        """Set our logger and bus."""
+        super(DummyCollectionScanPlugin, self).__init__(bus)
+        self._log = log
+
+    def start(self):
+        """Trigger a 'graceful' event to force a reload of the in
+        memory data stores.
+        ."""
+        self._log.info('Forcing cache reload...')
+        self.bus.graceful()
+
     start.priority = 100
 
 
