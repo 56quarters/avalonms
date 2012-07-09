@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 #
+# Avalon Music Server
+#
 # Copyright (c) 2012 TSH Labs <projects@tshlabs.org>
 # All rights reserved.
 # 
@@ -147,11 +149,7 @@ def _application_ready(func):
 
 
 def _render_error(func):
-    """Render any ApiErrors raised by the method as output.
-
-    This avoid the need for redundent try/catch blocks for
-    each endpoint.
-    """
+    """Render any ApiErrors raised by the method as output."""
     @functools.wraps(func)
     def wrapper(self, *args, **kwargs):
         try:
@@ -472,9 +470,7 @@ def _apply_sort(elms, params):
         raise avalon.exc.InvalidParameterError(
             avalon.err.ERROR_INVALID_FIELD_VALUE('direction'))
 
-
     helper = _SortHelper(field, direction)
-
     try:
         elms.sort(cmp=helper)
     except AttributeError:
