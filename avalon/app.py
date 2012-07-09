@@ -56,21 +56,16 @@ import avalon.web
 
 __all__ = [
     'APP_PATH',
-    'install_default_signal_handler',
-    'setup_cherrypy_env',
     'AvalonEngine',
     'AvalonEngineConfig',
-    'AvalonMS',
-    'DaemonPlugin',
-    'CollectionScanPlugin',
-    'FilePermissionPlugin'
+    'AvalonMS'
     ]
 
 
 APP_PATH = '/avalon'
 
 
-def install_default_signal_handler():
+def _install_default_signal_handler():
     """Simple signal handler to quietly handle ^C."""
 
     def _exit_handler(signum, frame):
@@ -82,7 +77,7 @@ def install_default_signal_handler():
     signal.signal(signal.SIGTERM, _exit_handler)
 
 
-def setup_cherrypy_env():
+def _setup_cherrypy_env():
     """Configure the global cherrypy environment."""
     cherrypy.config.update({'environment': 'production'})
     cherrypy.log.access_file = None
@@ -101,8 +96,8 @@ class AvalonMS(object):
         """Set the application configuration, create a logger, and
         set up signal handlers.
         """
-        install_default_signal_handler()
-        setup_cherrypy_env()
+        _install_default_signal_handler()
+        _setup_cherrypy_env()
 
         self._config = config
         self._log = self._get_logger()
@@ -229,7 +224,7 @@ class AvalonEngine(object):
         """Enable and configure any plugins needed to run in daemon mode."""
         # Daemon mode entails the actual daemonization process
         # which includes preserving any open file descriptors.
-        h = DaemonPlugin(
+        h = _DaemonPlugin(
             self._bus, 
             files=self._log.get_open_fds())
         h.subscribe()
@@ -240,7 +235,7 @@ class AvalonEngine(object):
         # Set the logs and database to be owned by the user we will
         # be switching to since we need write access as the non-super
         # user.
-        h = FilePermissionPlugin(
+        h = _FilePermissionPlugin(
             self._bus,
             files=self._log.get_open_paths() + self._db.get_open_paths(),
             uid=uid,
@@ -260,7 +255,7 @@ class AvalonEngine(object):
 
     def enable_scan(self, root):
         """Scan (or rescan) the music collection."""
-        h = CollectionScanPlugin(
+        h = _CollectionScanPlugin(
             self._bus, 
             collection=root, 
             db=self._db,
@@ -272,7 +267,7 @@ class AvalonEngine(object):
         """Dummy scanner to force a cache reload if the music collection
         isn't already being scanned for real.
         """
-        h = DummyCollectionScanPlugin(
+        h = _DummyCollectionScanPlugin(
             self._bus,
             log=self._log)
         h.subscribe()
@@ -298,7 +293,7 @@ class AvalonEngine(object):
             }
 
 
-class CollectionScanPlugin(cherrypy.process.plugins.SimplePlugin):
+class _CollectionScanPlugin(cherrypy.process.plugins.SimplePlugin):
 
     """Read audio metadata from files in the collection and insert it
     into the database.
@@ -308,7 +303,7 @@ class CollectionScanPlugin(cherrypy.process.plugins.SimplePlugin):
         """Set the root of the music collection and database 
         session handler.
         """
-        super(CollectionScanPlugin, self).__init__(bus)
+        super(_CollectionScanPlugin, self).__init__(bus)
         self._collection = collection
         self._db = db
         self._log = log
@@ -334,7 +329,7 @@ class CollectionScanPlugin(cherrypy.process.plugins.SimplePlugin):
     start.priority = 100
 
 
-class DummyCollectionScanPlugin(cherrypy.process.plugins.SimplePlugin):
+class _DummyCollectionScanPlugin(cherrypy.process.plugins.SimplePlugin):
 
     """Fake collection scanning plugin that just forces a graceful
     of the server to reload in memory data stores.
@@ -342,7 +337,7 @@ class DummyCollectionScanPlugin(cherrypy.process.plugins.SimplePlugin):
 
     def __init__(self, bus, log=None):
         """Set our logger and bus."""
-        super(DummyCollectionScanPlugin, self).__init__(bus)
+        super(_DummyCollectionScanPlugin, self).__init__(bus)
         self._log = log
 
     def start(self):
@@ -355,13 +350,13 @@ class DummyCollectionScanPlugin(cherrypy.process.plugins.SimplePlugin):
     start.priority = 100
 
 
-class DaemonPlugin(cherrypy.process.plugins.SimplePlugin):
+class _DaemonPlugin(cherrypy.process.plugins.SimplePlugin):
 
     """Adapt the python-daemon lib to work as a CherryPy plugin."""
 
     def __init__(self, bus, files=None):
         """Store the bus and files that are open."""
-        super(DaemonPlugin, self).__init__(bus)
+        super(_DaemonPlugin, self).__init__(bus)
         self._context = daemon.DaemonContext()
         self._context.files_preserve = files
 
@@ -379,7 +374,7 @@ class DaemonPlugin(cherrypy.process.plugins.SimplePlugin):
         self._context.close()
 
 
-class FilePermissionPlugin(cherrypy.process.plugins.SimplePlugin):
+class _FilePermissionPlugin(cherrypy.process.plugins.SimplePlugin):
 
     """Change the ownership of files so that we retain access
     even after dropping root privileges.
@@ -387,7 +382,7 @@ class FilePermissionPlugin(cherrypy.process.plugins.SimplePlugin):
 
     def __init__(self, bus, files=None, uid=None, gid=None):
         """Set the bus, files to fix, and uid/gid to fix with."""
-        super(FilePermissionPlugin, self).__init__(bus)
+        super(_FilePermissionPlugin, self).__init__(bus)
         self._files = files
         self._uid = uid
         self._gid = gid
