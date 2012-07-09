@@ -11,7 +11,6 @@ For v2:
 * Infrastructure
 ** readthedocs
 ** pypi
-* order / limit
 
 For v3:
 * Echonest integration
