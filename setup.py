@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
+# Avalon Music Server
+#
 # Copyright (c) 2012 TSH Labs <projects@tshlabs.org>
 # All rights reserved.
 # 

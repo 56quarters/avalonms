@@ -4,8 +4,8 @@
 
 
 """
-Output all possible valid requests with query string params
-to the songs endpoint
+Output valid requests with query string params to each of the
+meta data endpoints.
 """
 
 
