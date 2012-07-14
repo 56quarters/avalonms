@@ -120,7 +120,16 @@ class IdNameElm(object):
 
 class TrackElm(IdNameElm):
 
-    """Immutable, hashable representation of a Track model."""
+    """Immutable, hashable representation of a Track model.
+
+    NOTE: This class inherits from IdNameElm and adds new
+    members but does not include them in its hash or equality
+    methods. This makes the comparisons transitive in relation
+    to the parent class but means that this class may compare
+    equal when it really isn't at all.
+
+    TL;DR: Don't mix instances of TrackElm with instances of IdNameElm.
+    """
 
     def __init__(self, t_id, t_name, t_track, t_year,
                  t_album, t_album_id, t_artist, t_artist_id,
