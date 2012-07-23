@@ -32,6 +32,7 @@
 """Functions for scanning a music collection for meta data."""
 
 
+import collections
 import os.path
 
 import tagpy
@@ -42,6 +43,7 @@ __all__ = [
     'get_tags',
     'is_valid_file'
     'ScannedTrack',
+    'track_from_tag',
     'VALID_EXTS'
     ]
 
@@ -80,46 +82,26 @@ def get_tags(files):
     return out
 
 
-class ScannedTrack(object):
+class ScannedTrack(collections.namedtuple('_ScannedTrack', [
+        'album',
+        'artist',
+        'genre',
+        'title',
+        'track',
+        'year'])):
 
-    """Container for metadata of an audio file."""
-
-    def __init__(self):
-        """Initialize each metadata field to None."""
-        self.album = None
-        self.artist = None
-        self.genre = None
-        self.title = None
-        self.track = None
-        self.year = None
-
-    def __repr__(self):
-        return (
-            '<%s: '
-            'album=%s, '
-            'artist=%s, '
-            'genre=%s '
-            'title=%s, '
-            'track=%s, '
-            'year=%s>') % (
-            self.__class__.__name__,
-            self.album,
-            self.artist,
-            self.genre,
-            self.title,
-            self.track,
-            self.year)
+    """Container for metadata of an audio file"""
 
     @classmethod
     def from_tag(cls, tag):
-        """Create a new instance from a TagPy tag object."""
-        out = cls()
-        out.album = tag.album
-        out.artist = tag.artist
-        out.genre = tag.genre
-        out.title = tag.title
-        out.track = tag.track
-        out.year = tag.year
+        """Create a new ScannedTrack instance from a TagPy tag object."""
+        out = cls(
+            album=tag.album,
+            artist=tag.artist,
+            genre=tag.genre,
+            title=tag.title,
+            track=tag.track,
+            year=tag.year)
         return out
 
 
