@@ -197,7 +197,7 @@ class IdLookupCache(object):
         for thing in session.query(cls).all():
             field_cache[self._get_key(thing.name)] = thing.id
         return field_cache
-        
+
 
 class TrackStore(object):
 

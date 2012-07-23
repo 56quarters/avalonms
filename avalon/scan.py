@@ -90,6 +90,8 @@ class ScannedTrack(collections.namedtuple('_ScannedTrack', [
         'track',
         'year'])):
 
+    __slots__ = ()
+
     """Container for metadata of an audio file"""
 
     @classmethod
