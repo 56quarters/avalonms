@@ -45,8 +45,6 @@ __all__ = [
 
 class IdNameElm(collections.namedtuple('_IdNameElm', ['id', 'name'])):
 
-    __slots__ = ()
-
     """Immutable, hashable representation of a model with ID
     and name attributes (everything besides Tracks)"""
 
@@ -63,7 +61,5 @@ class TrackElm(collections.namedtuple('_TrackElm', [
         'genre',
         'genre_id'])):
     
-    __slots__ = ()
-
     """Immutable, hashable representation of a Track model"""
      
