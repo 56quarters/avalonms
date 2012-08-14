@@ -1,6 +1,9 @@
 Installation
 ------------
 
+.. TODO: Simplify this, either via PyPI or make installing far fewer commands
+
+
 Installing globally
 ~~~~~~~~~~~~~~~~~~~
 
@@ -38,8 +41,12 @@ Installing in a ``virtualenv``
 
 
 
-Installation via ``pip``
-~~~~~~~~~~~~~~~~~~~~~~~~
+Installation via PyPI
+~~~~~~~~~~~~~~~~~~~~~
 
 Comming soon.
+
+
+Troubleshooting
+~~~~~~~~~~~~~~~
 
