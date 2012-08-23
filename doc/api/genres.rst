@@ -69,4 +69,8 @@ Example request
 
 * ``http://localhost:8080/avalon/genres``
 
+* ``http://localhost:8080/avalon/genres?order=name``
+
+* ``http://localhost:8080/avalon/genres?order=name&limit=10``
+
 

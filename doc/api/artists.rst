@@ -68,3 +68,7 @@ Example request
 ^^^^^^^^^^^^^^^
 
 * ``http://localhost:8080/avalon/artists``
+
+* ``http://localhost:8080/avalon/artists?order=id``
+
+* ``http://localhost:8080/avalon/artists?order=name&limit=10&offset=20``
