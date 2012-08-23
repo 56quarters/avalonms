@@ -8,11 +8,17 @@ in the music collection belong to.
 Parameters
 ^^^^^^^^^^
 
-* The ``albums`` endpoint doesn't support any parameters and returns all albums.
+.. include:: order_limit.rst
 
 
 Possible error responses
 ^^^^^^^^^^^^^^^^^^^^^^^^
+
+* ``InvalidParameterError``
+    
+  + Reason: An invalid value for query string parameter was passed.
+
+  + HTTP Code: ``400``
 
 * ``ServerNotReadyError``
   

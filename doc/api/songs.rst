@@ -5,8 +5,8 @@ The ``songs`` endpoint returns data for individual songs. The results returned
 can be limited and filtered based on query string parameters.
 
 
-Parameters
-^^^^^^^^^^
+Filtering Parameters
+^^^^^^^^^^^^^^^^^^^^
 
 * ``album`` 
 
@@ -46,6 +46,13 @@ Parameters
 
   + Description: Select only songs belonging to this genre ID. A non-integer value
     will result in an error response.
+
+
+Other Parameters
+^^^^^^^^^^^^^^^^
+
+.. include:: order_limit.rst
+
 
 
 Possible error responses

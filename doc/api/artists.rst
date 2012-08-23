@@ -8,11 +8,17 @@ in the music collection are performed by.
 Parameters
 ^^^^^^^^^^
 
-* The ``artists`` endpoint doesn't support any parameters and returns all artists.
+.. include:: order_limit.rst
 
 
 Possible error responses
 ^^^^^^^^^^^^^^^^^^^^^^^^
+
+* ``InvalidParameterError``
+    
+  + Reason: An invalid value for query string parameter was passed.
+
+  + HTTP Code: ``400``
 
 * ``ServerNotReadyError``
   

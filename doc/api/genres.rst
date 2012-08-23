@@ -8,11 +8,17 @@ the music collection belong to.
 Parameters
 ^^^^^^^^^^
 
-* The ``genres`` endpoint doesn't support any parameters and returns all genres.
+.. include:: order_limit.rst
 
 
 Possible error responses
 ^^^^^^^^^^^^^^^^^^^^^^^^
+
+* ``InvalidParameterError``
+    
+  + Reason: An invalid value for query string parameter was passed.
+
+  + HTTP Code: ``400``
 
 * ``ServerNotReadyError``
   
