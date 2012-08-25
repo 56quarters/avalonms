@@ -429,16 +429,11 @@ class _SortHelper(object):
         
     def __call__(self, o1, o2):
         """Return the results of cmp() on the field of
-        the two given objects, reversing it if we are
-        sorting in descending order.
+        the two given objects.
         """
         v1 = getattr(o1, self.field)
         v2 = getattr(o2, self.field)
-
-        res = cmp(v1, v2)
-        if 'desc' == self.direction:
-            return -res
-        return res
+        return cmp(v1, v2)
 
 
 def _apply_sort(elms, params):
@@ -453,10 +448,12 @@ def _apply_sort(elms, params):
     if direction not in ('asc', 'desc'):
         raise avalon.exc.InvalidParameterError(
             avalon.err.ERROR_INVALID_FIELD_VALUE('direction'))
-
+        
+    reverse = 'desc' == direction
     helper = _SortHelper(field, direction)
+    
     try:
-        elms.sort(cmp=helper)
+        elms.sort(cmp=helper, reverse=reverse)
     except AttributeError:
         raise avalon.exc.InvalidParameterError(
             avalon.err.ERROR_INVALID_FIELD_VALUE('order'))
