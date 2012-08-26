@@ -175,7 +175,8 @@ class AvalonHandler(object):
         "Is the application ready to handle requests")
 
     def _filter(self, results, params):
-        """ """
+        """Apply any limits, offsets, or ordering to the results."""
+        # TODO: Make this a function, not a method
         out = list(results)
         for callback in (_apply_sort, _apply_limit):
             out = callback(out, params)
