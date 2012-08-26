@@ -137,6 +137,8 @@ def _render_error(func):
     @functools.wraps(func)
     def wrapper(self, *args, **kwargs):
         try:
+            # TODO: Move call to _get_output here and change
+            # the name of this to function to something else
             return func(self, *args, **kwargs)
         except avalon.exc.ApiError, e:
             return _get_output(err=e)
