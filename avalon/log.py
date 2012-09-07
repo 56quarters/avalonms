@@ -49,8 +49,6 @@ __all__ = [
     ]
 
 
-
-
 def _error_decorator(func):
     """Create a decorator that turns IOError permission
     issues into our PermissionError, reraise all other types.
