@@ -290,7 +290,7 @@ class _IdNameStore(object):
             res = session.query(self._cls).all()
         finally:
             self._session_handler.close(session)
-        self._all = frozenset([model_to_elm(thing) for thing in res])
+        self._all = frozenset(model_to_elm(thing) for thing in res)
 
     def all(self):
         """Get all elements."""
