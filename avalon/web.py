@@ -132,14 +132,13 @@ def _application_ready(func):
     return wrapper
 
 
-def _render_error(func):
-    """Render any ApiErrors raised by the method as output."""
+def _render_results(func):
+    """Render the results of method calls and any ApiErrors raised 
+    by the method as output."""
     @functools.wraps(func)
     def wrapper(self, *args, **kwargs):
         try:
-            # TODO: Move call to _get_output here and change
-            # the name of this to function to something else
-            return func(self, *args, **kwargs)
+            return _get_output(res=func(self, *args, **kwargs))
         except avalon.exc.ApiError, e:
             return _get_output(err=e)
     return wrapper
@@ -173,14 +172,6 @@ class AvalonHandler(object):
     ready = property(
         _get_ready, _set_ready, None, 
         "Is the application ready to handle requests")
-
-    def _filter(self, results, params):
-        """Apply any limits, offsets, or ordering to the results."""
-        # TODO: Make this a function, not a method
-        out = list(results)
-        for callback in (_apply_sort, _apply_limit):
-            out = callback(out, params)
-        return _get_output(res=out)
 
     def reload(self):
         """Reload in memory stores from the database."""
@@ -225,31 +216,31 @@ class AvalonHandler(object):
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
-    @_render_error
+    @_render_results
     @_application_ready
     def albums(self, *args, **kwargs):
         """Return a list of all albums."""
-        return self._filter(self._albums.all(), _RequestParams(kwargs))
+        return _filter(self._albums.all(), _RequestParams(kwargs))
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
-    @_render_error
+    @_render_results
     @_application_ready
     def artists(self, *args, **kwargs):
         """Return a list of all artists."""
-        return self._filter(self._artists.all(), _RequestParams(kwargs))
+        return _filter(self._artists.all(), _RequestParams(kwargs))
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
-    @_render_error
+    @_render_results
     @_application_ready
     def genres(self, *args, **kwargs):
         """Return a list of all genres."""
-        return self._filter(self._genres.all(), _RequestParams(kwargs))
+        return _filter(self._genres.all(), _RequestParams(kwargs))
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
-    @_render_error
+    @_render_results
     @_application_ready
     def songs(self, *args, **kwargs):
         """Return song results based on the given query string parameters."""
@@ -278,9 +269,9 @@ class AvalonHandler(object):
             
         if sets:
             # Return the intersection of any non-None sets
-            return self._filter(_reduce(sets), params)
+            return _filter(_reduce(sets), params)
         # There were no parameters to filter songs by any criteria
-        return self._filter(self._tracks.all(), params)
+        return _filter(self._tracks.all(), params)
 
 
 def _set_http_status(code):
@@ -288,8 +279,19 @@ def _set_http_status(code):
     cherrypy.serving.response.status = code
 
 
+def _filter(results, params):
+    """Apply any limits, offsets, or ordering to the results."""
+    out = list(results)
+    for callback in (_apply_sort, _apply_limit):
+        out = callback(out, params)
+    return out
+
+
 def _reduce(sets):
     """Find the intersection of all of the given non-None sets."""
+    # NOTE: we use 'not None' here instead of a simple boolean test
+    # because we want the intersection with an empty set to actually
+    # mean 'there were 0 results'.
     return functools.reduce(
         lambda x, y: x.intersection(y),
         [res_set for res_set in sets if res_set is not None])
@@ -423,12 +425,9 @@ class _SortHelper(object):
     that limits sorting to a single field.
     """
 
-    def __init__(self, field, direction):
-        """Set the field to be used for sorting and the
-        direction to sort.
-        """
+    def __init__(self, field):
+        """Set the field to be used for sorting."""
         self.field = field
-        self.direction = direction        
         
     def __call__(self, o1, o2):
         """Return the results of cmp() on the field of
@@ -453,7 +452,7 @@ def _apply_sort(elms, params):
             avalon.err.ERROR_INVALID_FIELD_VALUE('direction'))
         
     reverse = 'desc' == direction
-    helper = _SortHelper(field, direction)
+    helper = _SortHelper(field)
     
     try:
         elms.sort(cmp=helper, reverse=reverse)
