@@ -1,13 +1,12 @@
-Bugs:
-* Server never marked as "up" with --no-scan
+Cleanup:
+* avalon.cli
+* avalon.services.InsertService
 
 For v2:
 * Release process (base off requests?)
 ** Build
-** Update tsh?
 ** Update pypi
 * Tests
-* Docs
 * Infrastructure
 ** readthedocs
 ** pypi
