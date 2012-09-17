@@ -31,7 +31,7 @@
 
 """Command line configuration parsing classes."""
 
-
+import argparse
 import os
 import os.path
 import socket
@@ -42,11 +42,104 @@ import avalon.util
 
 __all__ = [
     'DefaultConfig',
-    'ApplicationConfig'
+    'ApplicationConfig',
+
+    'CollectionAction',
+    'IpAddressAction',
+    'DaemonUserAction',
+    'DaemonGroupAction',
+    'ServerPortAction',
+    'ServerQueueAction',
+    'ServerThreadsAction'
     ]
 
 
-## TODO: Look into argparse.Action API
+class CollectionAction(argparse.Action):
+
+    """Validation for the path to the music collection."""
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        if not values or not os.path.exists(values):
+            raise ValueError(
+                "That doesn't appear to be a valid music "
+                "collection path")
+        setattr(namespace, self.dest, values)
+
+
+class IpAddressAction(argparse.Action):
+
+    """Validation for the address to bind the server to."""
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        if not _is_valid_addr(values):
+            raise ValueError(
+                "That doesn't appear to be a valid "
+                "interface address")
+        setattr(namespace, self.dest, values)
+
+
+class DaemonUserAction(argparse.Action):
+    
+    """Validation for a user for the daemon to switch to."""
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        if not _is_valid_user(values):
+            raise ValueError(
+                "You must specify a valid daemon user")
+        setattr(namespace, self.dest, values)
+
+
+class DaemonGroupAction(argparse.Action):
+
+    """Validation for a group for the daemon to switch to."""
+    
+    def __call__(self, parser, namespace, values, option_string=None):
+        if not _is_valid_group(values):
+            raise ValueError(
+                "You must specify a valid daemon group")
+        setattr(namespace, self.dest, values)
+
+
+class _PositiveIntAction(argparse.Action):
+    
+    """Generic validation for fields that are positive integers."""
+
+    def _validate(self, field, val):
+        """Ensure that the given value is a positive integer."""
+        try:
+            val = int(val)
+        except ValueError:
+            raise ValueError('The %s must be a positive integer' % field)
+        if val <= 0:
+            raise ValueError('The %s must be a positive integer' % field)
+        return val
+
+
+class ServerPortAction(_PositiveIntAction):
+    
+    """Validation for the port for the server to run on."""
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        val = self._validate('port number', values)
+        setattr(namespace, self.dest, val)
+
+
+class ServerQueueAction(_PositiveIntAction):
+
+    """Validation for the connection queue size for the server."""
+    
+    def __call__(self, parser, namespace, values, option_string=None):
+        val = self._validate('queue size', values)
+        setattr(namespace, self.dest, val)
+
+
+class ServerThreadsAction(_PositiveIntAction):
+
+    """Validation for the number threads to use for the server."""
+    
+    def __call__(self, parser, namespace, values, option_string=None):
+        val = self._validate('number of threads', values)
+        setattr(namespace, self.dest, val)
 
 
 def _is_valid_addr(addr):

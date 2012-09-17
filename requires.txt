@@ -1,4 +1,3 @@
-argparse
 cherrypy
 distribute
 python-daemon
