@@ -41,9 +41,8 @@ import avalon.util
 
 
 __all__ = [
-    'DefaultConfig',
-    'ApplicationConfig',
-
+    'ServerAppDefaults',
+    'ServerAppConfig',
     'CollectionAction',
     'IpAddressAction',
     'DaemonUserAction',
@@ -170,7 +169,7 @@ def _is_valid_group(group):
     return avalon.util.get_gid(group) is not None
 
 
-class DefaultConfig(object):
+class ServerAppDefaults(object):
 
     """Compute default values for configuration options."""
 
@@ -190,14 +189,14 @@ class DefaultConfig(object):
         self.server_threads = 4
 
 
-class ApplicationConfig(object):
+class ServerAppConfig(object):
 
     """Validation for configuration options."""
 
-    def __init__(self, opts, defaults):
-        """Initialize input to default values and then
-        override it if there is a user supplied value.
-        """
+    def __init__(self, parser, defaults):
+        """Set the argument parser to use and default config values."""
+        self._parser = parser
+
         self.collection = defaults.collection
         self.access_log = defaults.access_log
         self.daemon = defaults.daemon
@@ -210,8 +209,6 @@ class ApplicationConfig(object):
         self.server_port = defaults.server_port
         self.server_queue = defaults.server_queue
         self.server_threads = defaults.server_threads
-
-        self._set_overrides(opts)
 
     def _set_overrides(self, opts):
         """Override default values with user supplied values
@@ -226,12 +223,10 @@ class ApplicationConfig(object):
             setattr(self, attr, val)
 
     def validate(self):
-        """Validate user input values or default values. Raise
-        a ValueError for any invalid input.
+        """Validation for options that can't be validated individually
+        using custom Action classes via argparse.
         """
-        if not self.collection or not os.path.exists(self.collection):
-            raise ValueError(
-                "That doesn't appear to be a valid music collection path")
+        self._set_overrides(self._parser.parse_args())
 
         if self.access_log is None and self.daemon:
             raise ValueError(
@@ -240,42 +235,6 @@ class ApplicationConfig(object):
         if self.error_log is None and self.daemon:
             raise ValueError(
                 "You must specify an error log in daemon mode")
-
-        if not _is_valid_user(self.daemon_user) and self.daemon:
-            raise ValueError(
-                "You must specify a valid daemon user")
-
-        if not _is_valid_group(self.daemon_group) and self.daemon:
-            raise ValueError(
-                "You must specify a valid daemon group")
-
-        if not _is_valid_addr(self.server_address):
-            raise ValueError(
-                "That doesn't appear to be a valid interface address")
-            
-        try:
-            self.server_port = int(self.server_port)
-        except ValueError:
-            raise ValueError("That doesn't appear to be a valid port")
-
-        if 0 >= self.server_port:
-            raise ValueError("The port for the server must be positive")
-
-        try:
-            self.server_queue = int(self.server_queue)
-        except ValueError:
-            raise ValueError(
-                "That doesn't appear to be a valid queue size")
-
-        if 0 >= self.server_queue:
-            raise ValueError("The queue size must be positive")
-
-        try:
-            self.server_threads = int(self.server_threads)
-        except ValueError:
-            raise ValueError(
-                "That doesn't appear to be a valid number of threads")
-
-        if 0 >= self.server_threads:
-            raise ValueError("The number of threads to use must be positive")
+        
+        
 

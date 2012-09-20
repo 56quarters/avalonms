@@ -49,7 +49,7 @@ import avalon.cli
 import avalon.exc
 
 
-def parse_args(prog, defaults):
+def get_parser(prog, defaults):
     """Parse required and optional program arguments."""
     parser = argparse.ArgumentParser(
         prog=prog,
@@ -57,6 +57,7 @@ def parse_args(prog, defaults):
 
     parser.add_argument(
         'collection',
+        action=avalon.cli.CollectionAction,
         help='Path to the root of your music collection')
     parser.add_argument(
         '--access-log',
@@ -69,11 +70,13 @@ def parse_args(prog, defaults):
         help='Run the server in the background as a daemon')
     parser.add_argument(
         '--daemon-user',
+        action=avalon.cli.DaemonUserAction,
         metavar='USER',
         help='Switch to this user when running as a daemon '
         '(default is %s)' % defaults.daemon_user)
     parser.add_argument(
         '--daemon-group',
+        action=avalon.cli.DaemonGroupAction,
         metavar='GROUP',
         help='Switch to this group when running as a daemon '
         'default is %s)' % defaults.daemon_group)
@@ -93,32 +96,36 @@ def parse_args(prog, defaults):
         help='Do not rescan and rebuild the music collection database')
     parser.add_argument(
         '--server-address',
+        action=avalon.cli.IpAddressAction,
         metavar='ADDR',
         help='IP Address to bind to (default is %s)' % defaults.server_address)
     parser.add_argument(
         '--server-port',
+        action=avalon.cli.ServerPortAction,
         metavar='PORT',
         help='Port for server to listen  on '
         '(default is %s)' % defaults.server_port)
     parser.add_argument(
         '--server-queue',
+        action=avalon.cli.ServerQueueAction,
         metavar='NUM',
         help='Number of connections to allow to be queued '
         '(default is %s)' % defaults.server_queue)
     parser.add_argument(
         '--server-threads',
+        action=avalon.cli.ServerThreadsAction,
         metavar='NUM',
         help='Number of threads to use for handling requests '
         '(default is %s)' % defaults.server_threads)
 
-    return parser.parse_args()
+    return parser
 
 
 def main():
     """Parse and validate user input and start the application."""
     prog = re.sub('[^\w]+', '', os.path.basename(sys.argv[0]))
-    defaults = avalon.cli.DefaultConfig()
-    config = avalon.cli.ApplicationConfig(parse_args(prog, defaults), defaults)
+    defaults = avalon.cli.ServerAppDefaults()
+    config = avalon.cli.ServerAppConfig(get_parser(prog, defaults), defaults)
 
     try:
         config.validate()
@@ -130,6 +137,9 @@ def main():
         app = avalon.app.AvalonMS(config)
         app.connect()
     except (avalon.exc.DatabaseError, avalon.exc.PermissionError), e:
+        # NOTE: permission errors are caught here instead of attempting
+        # to check for them during configuration validation since that
+        # is susceptible to race conditions.
         print('%s: %s' % (prog, str(e)), file=sys.stderr)
         return 1
 
