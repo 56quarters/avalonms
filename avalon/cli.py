@@ -41,6 +41,8 @@ import avalon.util
 
 
 __all__ = [
+    'ScanAppDefaults',
+    'ScanAppConfig',
     'ServerAppDefaults',
     'ServerAppConfig',
     'CollectionAction',
@@ -99,46 +101,42 @@ class DaemonGroupAction(argparse.Action):
         setattr(namespace, self.dest, values)
 
 
-class _PositiveIntAction(argparse.Action):
-    
-    """Generic validation for fields that are positive integers."""
-
-    def _validate(self, field, val):
-        """Ensure that the given value is a positive integer."""
-        try:
-            val = int(val)
-        except ValueError:
-            raise ValueError('The %s must be a positive integer' % field)
-        if val <= 0:
-            raise ValueError('The %s must be a positive integer' % field)
-        return val
-
-
-class ServerPortAction(_PositiveIntAction):
+class ServerPortAction(argparse.Action):
     
     """Validation for the port for the server to run on."""
 
     def __call__(self, parser, namespace, values, option_string=None):
-        val = self._validate('port number', values)
+        val = _validate_int('port number', values)
         setattr(namespace, self.dest, val)
 
 
-class ServerQueueAction(_PositiveIntAction):
+class ServerQueueAction(argparse.Action):
 
     """Validation for the connection queue size for the server."""
     
     def __call__(self, parser, namespace, values, option_string=None):
-        val = self._validate('queue size', values)
+        val = _validate_int('queue size', values)
         setattr(namespace, self.dest, val)
 
 
-class ServerThreadsAction(_PositiveIntAction):
+class ServerThreadsAction(argparse.Action):
 
     """Validation for the number threads to use for the server."""
     
     def __call__(self, parser, namespace, values, option_string=None):
-        val = self._validate('number of threads', values)
+        val = _validate_int('number of threads', values)
         setattr(namespace, self.dest, val)
+
+
+def _validate_int(field_name, val):
+    """Ensure that the given value is a positive integer."""
+    try:
+        val = int(val)
+    except ValueError:
+        raise ValueError('The %s must be a positive integer' % field_name)
+    if val <= 0:
+        raise ValueError('The %s must be a positive integer' % field_name)
+    return val
 
 
 def _is_valid_addr(addr):
@@ -171,10 +169,10 @@ def _is_valid_group(group):
 
 class ServerAppDefaults(object):
 
-    """Compute default values for configuration options."""
+    """Compute default values for server configuration options."""
 
     def __init__(self):
-        """ Set defaults for all arguments or options."""
+        """Set defaults for all arguments or options."""
         self.collection = None
         self.access_log = None
         self.daemon = False
@@ -189,44 +187,65 @@ class ServerAppDefaults(object):
         self.server_threads = 4
 
 
-class ServerAppConfig(object):
+class ScanAppDefaults(object):
 
-    """Validation for configuration options."""
+    """Compute default values for scanner configuration options."""
+
+    def __init__(self):
+        """Set defaults for all arguments or options."""
+        self.collection = None
+        self.db_path = os.path.join(tempfile.gettempdir(), 'avalon.sqlite')
+
+
+class _AppConfig(object):
+
+    """Base class for accessing user input and default values."""
 
     def __init__(self, parser, defaults):
-        """Set the argument parser to use and default config values."""
+        """Set the argument parser and default values."""
         self._parser = parser
+        self._defaults = defaults
+        self._options = None
 
-        self.collection = defaults.collection
-        self.access_log = defaults.access_log
-        self.daemon = defaults.daemon
-        self.daemon_user = defaults.daemon_user
-        self.daemon_group = defaults.daemon_group
-        self.db_path = defaults.db_path
-        self.error_log = defaults.error_log
-        self.no_scan = defaults.no_scan
-        self.server_address = defaults.server_address
-        self.server_port = defaults.server_port
-        self.server_queue = defaults.server_queue
-        self.server_threads = defaults.server_threads
+    def validate(self):
+        """Perform addition validation for the input."""
+        raise NotImplementedError()
 
-    def _set_overrides(self, opts):
-        """Override default values with user supplied values
-        if provided.
+    def _parse(self):
+        """Parse user input and store the results."""
+        self._options = self._parser.parse_args()
+
+    def __getattr__(self, name):
+        """Get a configuration value or object attribute.
+        Prefer:
+        * Object attributes
+        * User input
+        * Default values
         """
-        for attr in dir(opts):
-            if attr.startswith('_'):
-                continue
-            val = getattr(opts, attr)
-            if val is None:
-                continue
-            setattr(self, attr, val)
+        try:
+            return self.__getattribute__(name)
+        except AttributeError:
+            pass
+
+        opt = getattr(self._options, name, None)
+        if opt is not None:
+            return opt
+
+        if hasattr(self._defaults, name):
+            return getattr(self._defaults, name)
+
+        raise AttributeError('No such attribute or config setting "%s"' % name)
+
+
+class ServerAppConfig(_AppConfig):
+
+    """Validation for configuration options."""
 
     def validate(self):
         """Validation for options that can't be validated individually
         using custom Action classes via argparse.
         """
-        self._set_overrides(self._parser.parse_args())
+        self._parse()
 
         if self.access_log is None and self.daemon:
             raise ValueError(
@@ -237,4 +256,10 @@ class ServerAppConfig(object):
                 "You must specify an error log in daemon mode")
         
         
+class ScanAppConfig(_AppConfig):
+    """ """
+
+    def validate(self):
+        """ """
+        self._parse()
 

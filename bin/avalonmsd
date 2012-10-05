@@ -51,9 +51,7 @@ import avalon.exc
 
 def get_parser(prog, defaults):
     """Parse required and optional program arguments."""
-    parser = argparse.ArgumentParser(
-        prog=prog,
-        description=__doc__)
+    parser = argparse.ArgumentParser(prog=prog, description=__doc__)
 
     parser.add_argument(
         'collection',

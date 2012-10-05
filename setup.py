@@ -60,5 +60,5 @@ setup(
     url=URL,
     install_requires=REQUIRES,
     packages=find_packages(),
-    scripts=[os.path.join('bin', 'avalonmsd')])
+    scripts=[os.path.join('bin', 'avalonmsd'), os.path.join('bin', 'avalonms-scan')])
 

@@ -33,6 +33,51 @@
 """
 """
 
-
 from __future__ import print_function
+
+import argparse
+import os
+import os.path
+import re
+import sys
+
+import avalon.cli
+
+
+def get_parser(prog, defaults):
+    """ """
+    parser = argparse.ArgumentParser(prog=prog, description=__doc__)
+
+    parser.add_argument(
+        'collection',
+        action=avalon.cli.CollectionAction,
+        help='Path to the root of your music collection')
+
+    parser.add_argument(
+        '--db-path',
+        metavar='PATH',
+        help='File to use for backing SQLite database '
+        '(default is %s)' % defaults.db_path)
+
+    return parser
+
+
+def main():
+    """ """
+    prog = re.sub('[^\w]+', '', os.path.basename(sys.argv[0]))
+    defaults = avalon.cli.ScanAppDefaults()
+    config = avalon.cli.ScanAppConfig(get_parser(prog, defaults), defaults)
+
+    try:
+        config.validate()
+    except ValueError, e:
+        print("%s: %s" % (prog, str(e)), file=sys.stderr)
+        return 1
+
+    return 0
+
+
+if __name__ == '__main__':
+    sys.exit(main())
+
 
