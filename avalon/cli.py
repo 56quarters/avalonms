@@ -209,7 +209,7 @@ class _AppConfig(object):
 
     def validate(self):
         """Perform addition validation for the input."""
-        raise NotImplementedError()
+        self._parse()
 
     def _parse(self):
         """Parse user input and store the results."""
@@ -239,13 +239,13 @@ class _AppConfig(object):
 
 class ServerAppConfig(_AppConfig):
 
-    """Validation for configuration options."""
+    """Validation for server configuration options."""
 
     def validate(self):
         """Validation for options that can't be validated individually
         using custom Action classes via argparse.
         """
-        self._parse()
+        super(ServerAppConfig, self).validate()
 
         if self.access_log is None and self.daemon:
             raise ValueError(
@@ -257,9 +257,8 @@ class ServerAppConfig(_AppConfig):
         
         
 class ScanAppConfig(_AppConfig):
-    """ """
 
-    def validate(self):
-        """ """
-        self._parse()
+    """Validation for scan configuration options."""
+
+    pass
 
