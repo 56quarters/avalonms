@@ -94,7 +94,7 @@ class AvalonServer(CherryPyWSGIServer):
             # Something bad happened. Don't kill the app but mark
             # it as down and log the error along with a traceback.
             self._app.ready = False
-            self._log.critical(e.message, exc_info=True)
+            self._log.critical(str(e), exc_info=True)
         else:
             self._app.ready = True
             self._log.info("Handler caches reloaded")
