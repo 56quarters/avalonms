@@ -66,7 +66,12 @@ APP_PATH = '/avalon'
 
 
 def _install_default_signal_handler():
-    """Simple signal handler to quietly handle ^C."""
+    """Simple signal handler to quietly handle ^C.
+
+    These handlers are only used until the server finishes starting
+    a which point they are replaced by the signal handler plugin for
+    the server which uses the message bus to shutdown.
+    """
 
     def _exit_handler(signum, frame):
         """Handle TERM and INT by exiting."""
