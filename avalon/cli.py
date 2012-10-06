@@ -41,8 +41,6 @@ import avalon.util
 
 
 __all__ = [
-    'ScanAppDefaults',
-    'ScanAppConfig',
     'ServerAppDefaults',
     'ServerAppConfig',
     'CollectionAction',
@@ -187,16 +185,6 @@ class ServerAppDefaults(object):
         self.server_threads = 4
 
 
-class ScanAppDefaults(object):
-
-    """Compute default values for scanner configuration options."""
-
-    def __init__(self):
-        """Set defaults for all arguments or options."""
-        self.collection = None
-        self.db_path = os.path.join(tempfile.gettempdir(), 'avalon.sqlite')
-
-
 class _AppConfig(object):
 
     """Base class for accessing user input and default values."""
@@ -256,9 +244,4 @@ class ServerAppConfig(_AppConfig):
                 "You must specify an error log in daemon mode")
         
         
-class ScanAppConfig(_AppConfig):
-
-    """Validation for scan configuration options."""
-
-    pass
 
