@@ -1,4 +1,4 @@
-cherrypy
+cherrypy>=3.2.2
 distribute
 python-daemon
 sqlalchemy
