@@ -42,7 +42,6 @@ from avalon.elms import IdNameElm, TrackElm
 
 
 __all__ = [
-    'model_to_elm',
     'AlbumStore',
     'ArtistStore',
     'GenreStore',
@@ -50,25 +49,6 @@ __all__ = [
     'InsertService',
     'TrackStore'
     ]
-
-
-def model_to_elm(model):
-    """Convert an ORM model object to an immutable, hashable
-    object suitable for serialization.
-    """
-    if isinstance(model, Track):
-        return TrackElm(
-            id=model.id,
-            name=model.name,
-            track=model.track,
-            year=model.year,
-            album=model.album.name,
-            album_id=model.album_id,
-            artist=model.artist.name,
-            artist_id=model.artist_id,
-            genre=model.genre.name,
-            genre_id=model.genre_id)
-    return IdNameElm(id=model.id, name=model.name)
 
 
 class InsertService(object):
@@ -165,41 +145,35 @@ class IdLookupCache(object):
     and genres based on their name.
     """
 
-    def __init__(self, session_handler, case_sensitive=False):
+    def __init__(self, session_handler):
         """Set the session handler and initialize ID caches."""
         self._session_handler = session_handler
-        self._case_sensitive = case_sensitive
         self._cache = None
-
         self.reload()
 
     def _get_key(self, val):
-        """Return the given value or the value with the case normalized
-        based on if we are doing case insensitive comparisons or not.
-        """
-        if  self._case_sensitive:
-            return val
+        """Return the given value with the case normalized."""
         return val.lower()
 
     def get_id(self, field, val):
-        """Get the ID associated with the give field and name, 0 if
+        """Get the ID associated with the give field and name, blank string if
         no ID is found.
         """
         try:
             return self._cache[field][self._get_key(val)]
         except KeyError:
-            return 0
+            return ''
 
     def get_album_id(self, val):
-        """Get the ID associated with an album name, 0 if no ID is found."""
+        """Get the ID associated with an album name, blank string if no ID is found."""
         return self.get_id('album', val)
 
     def get_artist_id(self, val):
-        """Get the ID associated with an artist name, 0 if no ID is found."""
+        """Get the ID associated with an artist name, blank string if no ID is found."""
         return self.get_id('artist', val)
 
     def get_genre_id(self, val):
-        """Get the ID associated with an genre name, 0 if no ID is found."""
+        """Get the ID associated with an genre name, blank string if no ID is found."""
         return self.get_id('genre', val)
 
     def reload(self):
@@ -218,8 +192,9 @@ class IdLookupCache(object):
     def _get_mapping(self, session, cls):
         """Get the name to ID mappings for a particular type of entity."""
         field_cache = {}
-        for thing in session.query(cls).all():
-            field_cache[self._get_key(thing.name)] = thing.id
+        for entity in session.query(cls).all():
+            elm = IdNameElm.from_model(entity)
+            field_cache[self._get_key(elm.name)] = elm.id
         return field_cache
 
 
@@ -266,10 +241,10 @@ class TrackStore(object):
         all_tracks = set()
 
         for track in res:
-            elm = model_to_elm(track)
-            by_album[track.album_id].add(elm)
-            by_artist[track.artist_id].add(elm)
-            by_genre[track.genre_id].add(elm)
+            elm = TrackElm.from_model(track)
+            by_album[elm.album_id].add(elm)
+            by_artist[elm.artist_id].add(elm)
+            by_genre[elm.genre_id].add(elm)
             all_tracks.add(elm)
 
         self._by_album = self._freeze(by_album)
@@ -314,7 +289,7 @@ class _IdNameStore(object):
             res = session.query(self._cls).all()
         finally:
             self._session_handler.close(session)
-        self._all = frozenset(model_to_elm(thing) for thing in res)
+        self._all = frozenset(IdNameElm.from_model(thing) for thing in res)
 
     def all(self):
         """Get all elements."""

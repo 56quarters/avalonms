@@ -48,6 +48,12 @@ class IdNameElm(collections.namedtuple('_IdNameElm', ['id', 'name'])):
     """Immutable, hashable representation of a model with ID
     and name attributes (everything besides Tracks)"""
 
+    @classmethod
+    def from_model(cls, model):
+        return cls(
+            id=str(model.id),
+            name=model.name)
+    
 
 class TrackElm(collections.namedtuple('_TrackElm', [
         'id',
@@ -63,3 +69,16 @@ class TrackElm(collections.namedtuple('_TrackElm', [
     
     """Immutable, hashable representation of a Track model"""
     
+    @classmethod
+    def from_model(cls, model):
+        return cls(
+            id=str(model.id),
+            name=model.name,
+            track=model.track,
+            year=model.year,
+            album=model.album.name,
+            album_id=str(model.album_id),
+            artist=model.artist.name,
+            artist_id=str(model.artist_id),
+            genre=model.genre.name,
+            genre_id=str(model.genre_id))

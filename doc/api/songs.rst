@@ -16,10 +16,9 @@ Filtering Parameters
 
 * ``album_id``
 
-  + Type: ``integer``
+  + Type: ``string``
 
-  + Description: Select only songs belonging to this album ID. A non-integer value
-    will result in an error response.
+  + Description: Select only songs belonging to this album by UUID.
 
 * ``artist``
 
@@ -29,10 +28,9 @@ Filtering Parameters
 
 * ``artist_id``
 
-  + Type: ``integer``
+  + Type: ``string``
 
-  + Description: Select only songs by this artist ID. A non-integer value will
-    result in an error response.
+  + Description: Select only songs by this artist by UUID.
 
 * ``genre``
 
@@ -42,10 +40,9 @@ Filtering Parameters
 
 * ``genre_id``
 
-  + Type: ``integer``
+  + Type: ``string``
 
-  + Description: Select only songs belonging to this genre ID. A non-integer value
-    will result in an error response.
+  + Description: Select only songs belonging to this genre by UUID.
 
 
 Other Parameters
@@ -83,22 +80,29 @@ Success output format
       "result_count": 2,
       "results": [
         {
-          "id": 123,
+          "id": "597f5485-f046-5a54-bb60-7bc60be5c2a1",
           "name": "Basket Case",
           "year": 1994,
           "track": 7,
           "album": "Dookie",
+          "album_id": "2d24515c-a459-552a-b022-e85d1621425a",
           "artist": "Green Day",
-          "genre": "Punk"
+          "artist_id": "b048612e-1207-59f4-bbeb-ba0bc9a48cd1",
+          "genre": "Punk",
+          "genre_id": "8794d7b7-fff3-50bb-b1f1-438659e05fe5"
         },
         {
-          "id": 456,
+          "id": "ffaa2a77-2482-5999-b8cd-be5caf4b994e",
           "name": "She",
           "year": 1994,
           "track": 8,
           "album": "Dookie",
+          "album_id": "2d24515c-a459-552a-b022-e85d1621425a",
           "artist": "Green Day",
-          "genre": "Punk"
+          "artist_id": "b048612e-1207-59f4-bbeb-ba0bc9a48cd1",
+          "genre": "Punk",
+          "genre_id": "8794d7b7-fff3-50bb-b1f1-438659e05fe5"
+
         }
       ]
     }
@@ -112,7 +116,7 @@ Error output format
     {
       "is_error": true,
       "error_name": "InvalidParameterError",
-      "error_msg": "Invalid value for field [genre_id]",
+      "error_msg": "Invalid value for field [limit]",
       "result_count": 0,
       "results": []
     }
@@ -123,14 +127,14 @@ Example requests
 
 * ``http://localhost:8080/avalon/songs?artist=NOFX``
 
-* ``http://localhost:8080/avalon/songs?artist_id=123``
+* ``http://localhost:8080/avalon/songs?artist_id=b048612e-1207-59f4-bbeb-ba0bc9a48cd1``
 
 * ``http://localhost:8080/avalon/songs?album=Live&artist=Bouncing+Souls``
 
-* ``http://localhost:8080/avalon/songs?album_id=456``
+* ``http://localhost:8080/avalon/songs?album_id=2d24515c-a459-552a-b022-e85d1621425a``
 
 * ``http://localhost:8080/avalon/songs?genre=Ska``
 
-* ``http://localhost:8080/avalon/songs?genre_id=1``
+* ``http://localhost:8080/avalon/songs?genre_id=8794d7b7-fff3-50bb-b1f1-438659e05fe5``
    
 

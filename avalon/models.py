@@ -39,7 +39,6 @@ import uuid
 
 from sqlalchemy import (
     create_engine,
-    BigInteger,
     CHAR,
     Column,
     ForeignKey,

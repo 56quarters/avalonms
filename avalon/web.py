@@ -288,12 +288,12 @@ class AvalonHandler(object):
                 self._tracks.by_genre(
                     self._id_cache.get_genre_id(params.get('genre'))))
 
-        if None is not params.get_int('album_id'):
-            sets.append(self._tracks.by_album(params.get_int('album_id')))
-        if None is not params.get_int('artist_id'):
-            sets.append(self._tracks.by_artist(params.get_int('artist_id')))
-        if None is not params.get_int('genre_id'):
-            sets.append(self._tracks.by_genre(params.get_int('genre_id')))
+        if None is not params.get('album_id'):
+            sets.append(self._tracks.by_album(params.get('album_id')))
+        if None is not params.get('artist_id'):
+            sets.append(self._tracks.by_artist(params.get('artist_id')))
+        if None is not params.get('genre_id'):
+            sets.append(self._tracks.by_genre(params.get('genre_id')))
             
         if sets:
             # Return the intersection of any non-None sets
