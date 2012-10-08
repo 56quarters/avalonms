@@ -1,9 +1,9 @@
 UUID Generation
 ---------------
 
-AvalonMS uses UUIDs (version 5) to act as unique identifiers for albums, artists,
-genres, and tracks. If you wish to generate compatible IDs outside of AvalonMS the
-process is as follows (in Python):
+The Avalon Music Server uses UUIDs (version 5) to act as unique identifiers for albums,
+artists, genres, and tracks. If you wish to generate compatible IDs outside of the Avalon
+Music Server the process is as follows (in Python):
 
 
 Albums
@@ -57,9 +57,9 @@ The namespace UUID is ``4151ace3-6a98-41cd-a3de-8c242654cb67``.
 
 >>> import uuid
 >>> song_namespace = uuid.UUID('4151ace3-6a98-41cd-a3de-8c242654cb67')
->>> song_path = u'/music/Voodoo_Glow_Skulls/02-adicción\,_tradición\,_revolución.ogg'.encode('utf-8')
+>>> song_path = u'/music/Voodoo_Glow_Skulls/02-adicción,_tradición,_revolución.ogg'.encode('utf-8')
 >>> song_id = uuid.uuid5(song_namespace, song_path)
 >>> song_id
-UUID('89fe1112-c16b-5bab-95ba-c7fb3c86268d')
+UUID('56b33b92-d5b6-5971-b166-dc959b442c0c')
   
 
