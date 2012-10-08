@@ -37,6 +37,8 @@ import os.path
 
 import tagpy
 
+import avalon
+
 
 __all__ = [
     'get_files',
@@ -61,7 +63,10 @@ def is_valid_file(path):
 def get_files(root):
     """Get a list of supported files under the given root."""
     out = []
-    for root, dirs, files in os.walk(root):
+    # Force a unicode object here so that we get unicode
+    # objects back for paths so that we can treat path the
+    # same as we treat tag values.
+    for root, dirs, files in os.walk(unicode(root)):
         for entry in files:
             path = os.path.normpath(os.path.join(root, entry))
             if not is_valid_file(path):
@@ -71,18 +76,17 @@ def get_files(root):
     
 
 def get_tags(files):
-    """Get a dictionary of metadata ScannedTrack objects for
-    each audio file indexed by its path.
-    """
-    out = {}
+    """Get a list of metadata ScannedTrack objects for each audio file."""
+    out = []
     for path in files:
-        ref = tagpy.FileRef(path)
+        ref = tagpy.FileRef(path.encode(avalon.DEFAULT_ENCODING))
         tag = ref.tag()
-        out[path] = ScannedTrack.from_tag(tag)
+        out.append(ScannedTrack.from_tag(path, tag))
     return out
 
 
 class ScannedTrack(collections.namedtuple('_ScannedTrack', [
+        'path',
         'album',
         'artist',
         'genre',
@@ -93,9 +97,10 @@ class ScannedTrack(collections.namedtuple('_ScannedTrack', [
     """Container for metadata of an audio file"""
 
     @classmethod
-    def from_tag(cls, tag):
+    def from_tag(cls, path, tag):
         """Create a new ScannedTrack instance from a TagPy tag object."""
         out = cls(
+            path=path,
             album=tag.album,
             artist=tag.artist,
             genre=tag.genre,

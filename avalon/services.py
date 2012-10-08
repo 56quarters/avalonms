@@ -36,6 +36,7 @@ areas.
 
 import collections
 
+import avalon.ids
 from avalon.models import Album, Artist, Genre, Track
 from avalon.elms import IdNameElm, TrackElm
 
@@ -82,34 +83,40 @@ class InsertService(object):
     def _load_relations(self, scanned):
         """Insert relations for each track into the database."""
         inserts = []
-        values = {'album': set(), 'artist': set(), 'genre': set()}
+        values = {'album': list(), 'artist': list(), 'genre': list()}
         session = self._session_handler.get_session()
 
         try:
             for tag in scanned:
-                # Insert all the values into sets to eliminate
-                # duplicates before saving them to the DB.
                 for field in ('album', 'artist', 'genre'):
-                    values[field].add(getattr(tag, field))
+                    values[field].append(getattr(tag, field))
 
             # Build a list of brand new objects to insert
-            inserts.extend(self._get_new_objs(values['album'], Album))
-            inserts.extend(self._get_new_objs(values['artist'], Artist))
-            inserts.extend(self._get_new_objs(values['genre'], Genre))
+            inserts.extend(self._get_new_objs(
+                    values['album'], Album, avalon.ids.get_album_id))
+            inserts.extend(self._get_new_objs(
+                    values['artist'], Artist, avalon.ids.get_artist_id))
+            inserts.extend(self._get_new_objs(
+                    values['genre'], Genre, avalon.ids.get_genre_id))
 
             session.add_all(inserts)
             session.commit()
         finally:
             self._session_handler.close(session)
 
-    def _get_new_objs(self, values, cls):
+    def _get_new_objs(self, values, cls, id_gen):
         """Generate new objects for insertion for each of the given values."""
-        out = []
+        out = {}
         for val in values:
             obj = cls()
+            obj.id = id_gen(val)
             obj.name = val
-            out.append(obj)
-        return out
+
+            # Add each object to a map indexed by ID so that we
+            # filter out dupes using the same mechanism as the ID 
+            # generation.
+            out[obj.id] = obj
+        return out.values()
 
     def _clean(self):
         """Delete all the things."""
@@ -136,6 +143,7 @@ class InsertService(object):
         try:
             for tag in scanned:
                 track = Track()
+                track.id = avalon.ids.get_track_id(tag.path)
                 track.name = tag.title
                 track.track = tag.track
                 track.year = tag.year

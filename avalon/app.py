@@ -322,7 +322,7 @@ class _CollectionScanPlugin(cherrypy.process.plugins.SimplePlugin):
         files = avalon.scan.get_files(os.path.abspath(self._collection))
         tags = avalon.scan.get_tags(files)
         loader = avalon.services.InsertService(self._db)
-        loader.insert(tags.values())
+        loader.insert(tags)
         
         self._log.info('Forcing cache reload...')
         self.bus.graceful()

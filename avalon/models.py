@@ -35,7 +35,18 @@ along with functionality to manage connections to the backing database.
 """
 
 
-from sqlalchemy import create_engine, Column, ForeignKey, Integer, String
+import uuid
+
+from sqlalchemy import (
+    create_engine,
+    BigInteger,
+    CHAR,
+    Column,
+    ForeignKey,
+    Integer,
+    String,
+    TypeDecorator)
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.engine.url import make_url
 from sqlalchemy.exc import ArgumentError, OperationalError, SQLAlchemyError
 from sqlalchemy.ext.declarative import declarative_base
@@ -50,15 +61,44 @@ __all__ = [
     'Base',
     'Genre',
     'SessionHandler',
-    'Track'
+    'Track',
+    'UUIDType'
     ]
+
+
+class UUIDType(TypeDecorator):
+    """Platform-independent GUID type.
+
+    See http://docs.sqlalchemy.org/en/rel_0_7/core/types.html
+    """
+
+    impl = CHAR
+
+    def load_dialect_impl(self, dialect):
+        if dialect.name == 'postgresql':
+            return dialect.type_descriptor(UUID())
+        return dialect.type_descriptor(CHAR(32))
+
+    def process_bind_param(self, value, dialect):
+        if value is None:
+            return value
+        elif dialect.name == 'postgresql':
+            return str(value)
+        elif not isinstance(value, uuid.UUID):
+            return "%.32x" % uuid.UUID(value)
+        return "%.32x" % value
+
+    def process_result_value(self, value, dialect):
+        if value is None:
+            return value
+        return uuid.UUID(value)
 
 
 class Base(object):
 
     """A Base for all models that defines name and id fields."""
 
-    id = Column(Integer, primary_key=True)
+    id = Column(UUIDType, primary_key=True)
     name = Column(String)
 
 
@@ -76,9 +116,9 @@ class Track(Base):
     track = Column(Integer)
     year = Column(Integer)
 
-    album_id = Column(Integer, ForeignKey('albums.id'), index=True)
-    artist_id = Column(Integer, ForeignKey('artists.id'), index=True)
-    genre_id = Column(Integer, ForeignKey('genres.id'), index=True)
+    album_id = Column(UUIDType, ForeignKey('albums.id'), index=True)
+    artist_id = Column(UUIDType, ForeignKey('artists.id'), index=True)
+    genre_id = Column(UUIDType, ForeignKey('genres.id'), index=True)
 
     album = relationship('Album', backref='tracks', lazy='joined', order_by='Track.id')
     artist = relationship('Artist', backref='tracks', lazy='joined', order_by='Track.id')
@@ -187,4 +227,3 @@ class SessionHandler(object):
         """Get a new session."""
         return self._session_factory()
 
-    
