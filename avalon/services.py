@@ -81,7 +81,7 @@ class InsertService(object):
 
     def _load_relations(self, scanned):
         """Insert relations for each track into the database."""
-        insert = []
+        inserts = []
         values = {'album': set(), 'artist': set(), 'genre': set()}
         session = self._session_handler.get_session()
 
@@ -93,28 +93,44 @@ class InsertService(object):
                     values[field].add(getattr(tag, field))
 
             # Build a list of brand new objects to insert
-            self._queue_inserts(insert, values['album'], Album)
-            self._queue_inserts(insert, values['artist'], Artist)
-            self._queue_inserts(insert, values['genre'], Genre)
+            inserts.extend(self._get_new_objs(values['album'], Album))
+            inserts.extend(self._get_new_objs(values['artist'], Artist))
+            inserts.extend(self._get_new_objs(values['genre'], Genre))
 
-            session.add_all(insert)
+            session.add_all(inserts)
             session.commit()
         finally:
             self._session_handler.close(session)
 
-    def _queue_inserts(self, queue, values, cls):
+    def _get_new_objs(self, values, cls):
         """Generate new objects for insertion for each of the given values."""
+        out = []
         for val in values:
             obj = cls()
             obj.name = val
-            queue.append(obj)
+            out.append(obj)
+        return out
+
+    def _clean(self):
+        """Delete all the things."""
+        session = self._session_handler.get_session()
+
+        try:
+            session.query(Album).delete()
+            session.query(Artist).delete()
+            session.query(Genre).delete()
+            session.query(Track).delete()
+            session.commit()
+        finally:
+            self._session_handler.close(session)
 
     def insert(self, scanned):
         """Insert the tracks and all related data."""
+        self._clean()
         self._load_relations(scanned)
-        cache = IdLookupCache(self._session_handler)
 
         insert = []
+        cache = IdLookupCache(self._session_handler)
         session = self._session_handler.get_session()
 
         try:
