@@ -50,6 +50,7 @@ class IdNameElm(collections.namedtuple('_IdNameElm', ['id', 'name'])):
 
     @classmethod
     def from_model(cls, model):
+        """Construct a new ID name element from various types of models."""
         return cls(
             id=str(model.id),
             name=model.name)
@@ -71,6 +72,7 @@ class TrackElm(collections.namedtuple('_TrackElm', [
     
     @classmethod
     def from_model(cls, model):
+        """Construct a new track element from a track model."""
         return cls(
             id=str(model.id),
             name=model.name,

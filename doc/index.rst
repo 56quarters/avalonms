@@ -28,6 +28,7 @@ Contents
    installation
    usage
    api
+   ids
 
 
 Indices and tables
