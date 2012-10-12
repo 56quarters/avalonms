@@ -88,16 +88,9 @@ class AvalonServer(CherryPyWSGIServer):
 
     def reload(self):
         """Refresh application in-memory caches."""
-        try:
-            self._app.reload()
-        except Exception, e:
-            # Something bad happened. Don't kill the app but mark
-            # it as down and log the error along with a traceback.
-            self._app.ready = False
-            self._log.critical(str(e), exc_info=True)
-        else:
-            self._app.ready = True
-            self._log.info("Handler caches reloaded")
+        self._app.reload()
+        self._app.ready = True
+        self._log.info("Handler caches reloaded")
 
     def start(self):
         """Run the server forever."""
@@ -123,4 +116,3 @@ class AvalonServerPlugin(cherrypy.process.servers.ServerAdapter):
         """Unregister start, stop, and graceful handlers."""
         super(AvalonServerPlugin, self).unsubscribe()
         self.bus.unsubscribe('graceful', self.httpserver.reload)
-

@@ -142,13 +142,7 @@ class AvalonMS(object):
         """
         self._log.info("Connecting to database...")
         self._db = avalon.models.SessionHandler(self._get_db_url(), self._log)
-        # Clean the database (drop and recreate tables) unless
-        # the user has requested not to rescan the collection.
-        should_clean = not self._config.no_scan
-
-        if should_clean:
-            self._log.info("Removing existing collection information...")
-        self._db.connect(clean=should_clean)
+        self._db.connect()
 
     def start(self):
         """Install signal handlers for the server and begin handling

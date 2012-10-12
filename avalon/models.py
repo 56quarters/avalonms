@@ -167,7 +167,7 @@ class SessionHandler(object):
         except SQLAlchemyError, e:
             self._log.warn('Problem closing session: %s', e.message, exc_info=True)
 
-    def connect(self, clean=False):
+    def connect(self):
         """Connect to the database and configure the session factory
         to use the connection, and create any needed tables (optionally
         dropping them first).
@@ -190,14 +190,6 @@ class SessionHandler(object):
                 'Invalid database connector', e)
 
         self._session_factory.configure(bind=self._engine)
-
-        if clean:
-            try:
-                Base.metadata.drop_all(self._engine)
-            except OperationalError, e:
-                raise avalon.exc.PermissionError(
-                    'Insufficient permission to remove existing tables or '
-                    'data in the database [%s]' % self._url, e)        
         Base.metadata.create_all(self._engine)
 
     def get_open_paths(self):

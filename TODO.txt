@@ -1,3 +1,6 @@
+Bugs:
+* Handle errors during rescan better
+
 Cleanup:
 * avalon.cli
 * avalon.services.InsertService
