@@ -313,24 +313,30 @@ class _CollectionScanPlugin(cherrypy.process.plugins.SimplePlugin):
         self._db = db
         self._log = log
 
-    def start(self):
-        """Scan the music collection and load the metadata into the
-        database. Trigger a 'graceful' event after to force a reload
-        of the in memory data stores.
+    def graceful(self):
+        """Scan the music collection for meta data and insert it into a
+        database.
         """
         self._log.info('Scanning music collection...')
         files = avalon.scan.get_files(os.path.abspath(self._collection))
         tags = avalon.scan.get_tags(files)
         loader = avalon.services.InsertService(self._db)
         loader.insert(tags)
-        
-        self._log.info('Forcing cache reload...')
+
+    # Set the rescan done as part of a graceful to a higher priority
+    # than the server reload done for a graceful so that the new db
+    # has been built by the time the in-memory stores are reloaded.
+    graceful.priority = 45
+
+    def start(self):
+        """Trigger a graceful event at the end of start up to force
+        the music collection to be rescan and in-memory stores reloaded.
+        """
+        self._log.info('Forcing collection scan and cache reload...')
         self.bus.graceful()
 
-    # Set the priority low so that the server is effectively done
-    # starting when we begin and we aren't preventing any other
-    # handlers from running while scanning takes place (which may
-    # take several minutes).
+    # Set the scan priority lower than everything else so that start
+    # up is done when we trigger a graceful to begin scanning.
     start.priority = 100
 
 

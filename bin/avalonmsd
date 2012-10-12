@@ -91,7 +91,8 @@ def get_parser(prog, defaults):
     parser.add_argument(
         '--no-scan',
         action='store_true',
-        help='Do not rescan and rebuild the music collection database')
+        help='Do not rescan and rebuild the music collection database '
+        'at start up or during any reloads (graceful events)')
     parser.add_argument(
         '--server-address',
         action=avalon.cli.IpAddressAction,

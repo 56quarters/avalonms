@@ -79,6 +79,7 @@ def get_tags(files):
     """Get a list of metadata ScannedTrack objects for each audio file."""
     out = []
     for path in files:
+        # convert back from a unicode object to just bytes
         ref = tagpy.FileRef(path.encode(avalon.DEFAULT_ENCODING))
         tag = ref.tag()
         out.append(ScannedTrack.from_tag(path, tag))
