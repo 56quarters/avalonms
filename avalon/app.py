@@ -253,7 +253,9 @@ class AvalonEngine(object):
         h.subscribe()
 
     def enable_scan(self, root):
-        """Scan (or rescan) the music collection."""
+        """Subscribe a listener on the bus to scan (or rescan) the music
+        collection.
+        """
         h = _CollectionScanPlugin(
             self._bus, 
             collection=root, 
@@ -324,7 +326,7 @@ class _CollectionScanPlugin(cherrypy.process.plugins.SimplePlugin):
 
     def start(self):
         """Trigger a graceful event at the end of start up to force
-        the music collection to be rescan and in-memory stores reloaded.
+        the music collection to be rescanned and in-memory stores reloaded.
         """
         self._log.info('Forcing collection scan and cache reload...')
         self.bus.graceful()
@@ -417,6 +419,4 @@ class _FilePermissionPlugin(cherrypy.process.plugins.SimplePlugin):
     # so that the logs are owned correctly before we lose
     # the ability to change it.
     start.priority = 50
-
-
 
