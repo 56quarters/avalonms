@@ -1,7 +1,21 @@
 Usage
 -----
 
-Blah blah blah
+Running The Server
+~~~~~~~~~~~~~~~~~~
+
+
+Running In The Foreground
+=========================
+
+
+Running As A Daemon
+===================
+
+
+Running As A Daemon Started As Root
+===================================
+
 
 Arguments
 ~~~~~~~~~
@@ -23,7 +37,7 @@ Options
 
 * ``--error-log=PATH`` - Path to a file to use for server errors and application informational logging.
 
-* ``--no-scan`` - If present, don't remove existing information about the music collection and rescan it.
+* ``--no-scan`` - Do not rescan and rebuild the music collection at server start or durning any reloads of the server (graceful events).
 
 * ``--server-address=ADDR`` - Interface address to bind the server to. IPv4 and IPv6 addresses are supported. Default is localhost IPv4.
 

@@ -2,15 +2,12 @@ Bugs:
 * Handle errors during rescan better
 
 Cleanup:
-* avalon.cli
 * avalon.services.InsertService
 
 For v2:
-* Release process (base off requests?)
-** Build
-** Update pypi
 * Infrastructure
 ** pypi
+* Usage docs
 
 For v3:
 * Tests
