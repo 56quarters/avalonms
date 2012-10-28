@@ -37,7 +37,8 @@ and ``--error-log`` options are required.
 
   ::
 
-     avalonmsd --daemon --error-log /tmp/error.log --access-log /tmp/access.log ~/Music
+     avalonmsd --daemon --error-log /tmp/error.log \
+         --access-log /tmp/access.log ~/Music
 
 
 Running As A Daemon Started As Root
@@ -51,7 +52,9 @@ error log, and database file so that it will still be able to write to them.
 
   ::
 
-    sudo avalonmsd --daemon --error-log /tmp/error.log --access-log /tmp/access.log --daemon-user apache --daemon-group apache ~/Music
+    sudo avalonmsd --daemon --error-log /tmp/error.log \
+        --access-log /tmp/access.log --daemon-user apache \
+        --daemon-group apache ~/Music
 
 Arguments
 ~~~~~~~~~
