@@ -61,8 +61,8 @@ In-Place Rescan
 ===============
 
 The Avalon Music Server can be told to rescan a music collection and reload meta data
-from the database while still running and serving requests. To do this send the server
-a ``SIGUSR1`` using a program such as ``pkill`` or ``kill``.
+from the database while still running and serving requests. To do this, send the server
+the signal ``SIGUSR1`` using a program such as ``pkill`` or ``kill``.
 
   ::
 
