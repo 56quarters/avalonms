@@ -57,7 +57,7 @@ error log, and database file so that it will still be able to write to them.
         --daemon-group apache ~/Music
 
 
-In Place Rescan
+In-Place Rescan
 ===============
 
 The Avalon Music Server can be told to rescan a music collection and reload meta data
