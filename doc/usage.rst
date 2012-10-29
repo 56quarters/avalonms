@@ -56,6 +56,19 @@ error log, and database file so that it will still be able to write to them.
         --access-log /tmp/access.log --daemon-user apache \
         --daemon-group apache ~/Music
 
+
+In Place Rescan
+===============
+
+The Avalon Music Server can be told to rescan a music collection and reload meta data
+from the database while still running and serving requests. To do this send the server
+a ``SIGUSR1`` using a program such as ``pkill`` or ``kill``.
+
+  ::
+
+    pkill -USR1 avalonmsd
+
+
 Arguments
 ~~~~~~~~~
 
