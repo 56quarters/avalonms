@@ -44,8 +44,8 @@ __all__ = [
     'get_files',
     'get_tags',
     'is_valid_file'
-    'ScannedTrack',
     'track_from_tag',
+    'ScannedTrack',
     'VALID_EXTS'
     ]
 

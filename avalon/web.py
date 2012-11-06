@@ -147,17 +147,29 @@ def _render_results(func):
     return wrapper
 
 
+class AvalonHandlerConfig(object):
+
+    """Configuration for the handler."""
+
+    def __init__(self):
+        self.track_store = None
+        self.album_store = None
+        self.artist_store = None
+        self.genre_store = None
+        self.id_cache = None
+
+
 class AvalonHandler(object):
 
     """Handle HTTP requests and return result sets in JSON."""
 
-    def __init__(self, session_handler):
+    def __init__(self, config):
         """Initialize each of the stores by loading from the database."""
-        self._tracks = avalon.services.TrackStore(session_handler)
-        self._albums = avalon.services.AlbumStore(session_handler)
-        self._artists = avalon.services.ArtistStore(session_handler)
-        self._genres = avalon.services.GenreStore(session_handler)
-        self._id_cache = avalon.services.IdLookupCache(session_handler)
+        self._tracks = config.track_store
+        self._albums = config.album_store
+        self._artists = config.artist_store
+        self._genres = config.genre_store
+        self._id_cache = config.id_cache
         self._startup = datetime.utcnow()
         self._ready = threading.Event()
 

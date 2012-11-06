@@ -122,6 +122,15 @@ class AvalonMS(object):
         config.error_path = self._config.error_log
         return avalon.log.AvalonLog(config)
 
+    def _get_handler(self):
+        config = avalon.web.AvalonHandlerConfig()
+        config.track_store = avalon.services.TrackStore(self._db)
+        config.album_store = avalon.services.AlbumStore(self._db)
+        config.artist_store = avalon.services.ArtistStore(self._db)
+        config.genre_store = avalon.services.GenreStore(self._db)
+        config.id_cache = avalon.services.IdLookupCache(self._db)
+        return avalon.web.AvalonHandler(config)
+
     def _get_server(self):
         """Configure and return the application server."""
         config = avalon.server.AvalonServerConfig()
@@ -132,7 +141,7 @@ class AvalonMS(object):
         config.num_threads = self._config.server_threads
         config.queue_size = self._config.server_queue
         config.application = CherryPyApplication(
-            avalon.web.AvalonHandler(self._db), 
+            self._get_handler(),
             script_name=APP_PATH)
         return avalon.server.AvalonServer(config)
 
