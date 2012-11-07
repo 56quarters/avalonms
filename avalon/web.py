@@ -48,7 +48,8 @@ import avalon.elms
 
 
 __all__ = [
-    'AvalonHandler'
+    'AvalonHandler',
+    'AvalonHandlerConfig'
     ]
 
 
