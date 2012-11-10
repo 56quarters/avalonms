@@ -57,7 +57,10 @@ class AvalonError(Exception):
 
     def __str__(self):
         """Return a string representation of this error."""
-        return self.message
+        msg = self.message
+        if None is not self.err:
+            msg += ': %s' % self.err.message
+        return msg
 
     @property
     def name(self):

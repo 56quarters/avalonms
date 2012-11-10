@@ -108,11 +108,16 @@ class AvalonMS(object):
         self._log = self._get_logger()
         self._db = None
 
-    def _get_db_url(self):
-        """Get a database connection URL from the path to the
-        SQLite database.
-        """
-        return 'sqlite:///%s' % self._config.db_path
+    def _get_db_engine(self):
+        """Configure and return the database handler."""
+        url = 'sqlite:///%s' % self._config.db_path
+        config = avalon.models.SessionHandlerConfig()
+        config.engine = avalon.models.get_engine(url)
+        config.session_factory = avalon.models.get_session_factory()
+        config.metadata = avalon.models.get_metadata()
+        config.log = self._log
+
+        return avalon.models.SessionHandler(config)
 
     def _get_logger(self):
         """Configure and return the application logger."""
@@ -123,6 +128,7 @@ class AvalonMS(object):
         return avalon.log.AvalonLog(config)
 
     def _get_handler(self):
+        """Configure and return the web request handler."""
         config = avalon.web.AvalonHandlerConfig()
         config.track_store = avalon.services.TrackStore(self._db)
         config.album_store = avalon.services.AlbumStore(self._db)
@@ -150,7 +156,7 @@ class AvalonMS(object):
         database setup for the application.
         """
         self._log.info("Connecting to database...")
-        self._db = avalon.models.SessionHandler(self._get_db_url(), self._log)
+        self._db = self._get_db_engine()
         self._db.connect()
 
     def start(self):

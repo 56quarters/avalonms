@@ -46,7 +46,6 @@ from sqlalchemy import (
     String,
     TypeDecorator)
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.engine.url import make_url
 from sqlalchemy.exc import ArgumentError, OperationalError, SQLAlchemyError
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
@@ -55,11 +54,15 @@ import avalon.exc
 
 
 __all__ = [
+    'get_engine',
+    'get_metadata',
+    'get_session_factory',
     'Album',
     'Artist',
     'Base',
     'Genre',
     'SessionHandler',
+    'SessionHandlerConfig',
     'Track',
     'UUIDType'
     ]
@@ -93,15 +96,15 @@ class UUIDType(TypeDecorator):
         return uuid.UUID(value)
 
 
-class Base(object):
+class _Base(object):
 
-    """A Base for all models that defines name and id fields."""
+    """A base for all models that defines name and id fields."""
 
     id = Column(UUIDType, primary_key=True)
     name = Column(String)
 
 
-Base = declarative_base(cls=Base)
+Base = declarative_base(cls=_Base)
 
 
 class Track(Base):
@@ -145,18 +148,43 @@ class Genre(Base):
     __tablename__ = 'genres'
 
 
+def get_engine(url):
+    """Get a database engine for the given URL."""
+    return create_engine(url)
+
+
+def get_metadata():
+    """Accessor for metadata about the base for all models."""
+    return Base.metadata
+
+
+def get_session_factory():
+    """Get a new session factory callable."""
+    return sessionmaker()
+
+
+class SessionHandlerConfig(object):
+
+    """Configuration for the handler."""
+
+    def __init__(self):
+        self.engine = None
+        self.session_factory = None
+        self.metadata = None
+        self.log = None
+
+
 class SessionHandler(object):
 
     """Wrapper for connecting to a database and generating
     new sessions.
     """
 
-    def __init__(self, url, log):
-        """Initialize the session factory and database connection."""
-        self._url = url
-        self._log = log
-        self._session_factory = sessionmaker()
-        self._engine = None
+    def __init__(self, config):
+        self._engine = config.engine
+        self._session_factory = config.session_factory
+        self._metadata = config.metadata
+        self._log = config.log
 
     def close(self, session):
         """Safely close a session."""
@@ -173,24 +201,19 @@ class SessionHandler(object):
         dropping them first).
         """
         try:
-            # Attempt to connect to the engine immediately after it
-            # is created in order to make sure it's valid and flush
-            # out any errors we're going to encounter before trying
+            # Attempt to connect to the engine to make sure it's valid and
+            # flush out any errors we're going to encounter before trying
             # to create tables or insert into it.
-            self._engine = create_engine(self._url)
             self.validate()
-        except ArgumentError, e:
-            raise avalon.exc.ConnectionError(
-                'Invalid database path or URL %s' % self._url, e)
         except OperationalError, e:
             raise avalon.exc.ConnectionError(
-                'Could not connect to database URL %s' % self._url, e)
+                'Could not connect to %s database' % self._engine.name, e)
         except ImportError, e:
             raise avalon.exc.ConnectionError(
                 'Invalid database connector', e)
 
         self._session_factory.configure(bind=self._engine)
-        Base.metadata.create_all(self._engine)
+        self._metadata.create_all(self._engine)
 
     def get_open_paths(self):
         """Return the path to the database being used (if we are using
@@ -200,10 +223,9 @@ class SessionHandler(object):
         while we have root permissions but then dropping them and still
         expecting to be able to write to the database.
         """
-        db_url = make_url(self._url)
-        if 'sqlite' != db_url.drivername:
+        if 'sqlite' != self._engine.name:
             return []
-        return [db_url.database]
+        return []
 
     def validate(self):
         """Ensure our database engine is valid by attempting a connection."""
