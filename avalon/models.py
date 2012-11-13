@@ -215,18 +215,6 @@ class SessionHandler(object):
         self._session_factory.configure(bind=self._engine)
         self._metadata.create_all(self._engine)
 
-    def get_open_paths(self):
-        """Return the path to the database being used (if we are using
-        a file-backed DB engine).
-
-        This is more-or-less a hack to deal with having to open the db
-        while we have root permissions but then dropping them and still
-        expecting to be able to write to the database.
-        """
-        if 'sqlite' != self._engine.name:
-            return []
-        return []
-
     def validate(self):
         """Ensure our database engine is valid by attempting a connection."""
         conn = None

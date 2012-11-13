@@ -49,25 +49,6 @@ __all__ = [
     ]
 
 
-def _error_decorator(func):
-    """Create a decorator that turns IOError permission
-    issues into our PermissionError, reraise all other types.
-    """
-    @functools.wraps(func)
-    def wrapper(self, *args, **kwargs):
-        try:
-            return func(self, *args, **kwargs)
-        except IOError, e:
-            if not avalon.util.is_perm_error(e):
-                # If this isn't a permission related error 
-                # simply reraise the exception untouched.
-                raise
-            raise avalon.exc.PermissionError(
-                'Insufficient permission to create or open '
-                'log [%s]' %  e.filename, e)
-    return wrapper
-
-
 class AvalonLogConfig(object):
 
     """Configuration for the logger."""
@@ -108,11 +89,6 @@ class AvalonLog(object):
         return [
             handler.stream.fileno() for handler in self._handlers if handler.stream]
 
-    def get_open_paths(self):
-        """Get the file path of any open log files."""
-        return [
-            handler.stream.name for handler in self._handlers if handler.stream]
-
     def reload(self):
         """ Configure logging and install our own handlers."""
         # Clear any existing handlers we've installed
@@ -122,13 +98,22 @@ class AvalonLog(object):
             self._log_root.error_log.removeHandler(handler)
         
         self._handlers = []
-        self._setup_access_log()
-        self._setup_error_log()
+
+        try:
+            self._setup_access_log()
+            self._setup_error_log()
+        except IOError, e:
+            if not avalon.util.is_perm_error(e):
+                # If this isn't a permission related error 
+                # simply reraise the exception untouched.
+                raise
+            raise avalon.exc.PermissionError(
+                'Insufficient permission to create or open '
+                'log [%s]' %  e.filename, e)
 
         # Application logging uses the error log
         self._logger = self._log_root.error_log
 
-    @_error_decorator
     def _setup_access_log(self):
         """Add a configured handler to the access log of the logging root."""
         if self._access_path is None:
@@ -140,7 +125,6 @@ class AvalonLog(object):
         self._log_root.access_log.addHandler(handler)
         self._handlers.append(handler)
 
-    @_error_decorator
     def _setup_error_log(self):
         """Add a configured handler to the error log of the logging root."""
         if self._error_path is None:

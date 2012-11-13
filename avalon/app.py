@@ -151,6 +151,13 @@ class AvalonMS(object):
             script_name=APP_PATH)
         return avalon.server.AvalonServer(config)
 
+    def _get_required_files(self):
+        """Get the paths of files that we require write access too."""
+        return set([
+            self._config.access_log,
+            self._config.error_log,
+            self._config.db_path])
+
     def connect(self):
         """Create a database session handler and perform the initial
         database setup for the application.
@@ -179,7 +186,8 @@ class AvalonMS(object):
         if self._config.daemon:
             engine.enable_daemon(
                 avalon.util.get_uid(self._config.daemon_user),
-                avalon.util.get_gid(self._config.daemon_group))
+                avalon.util.get_gid(self._config.daemon_group),
+                self._get_required_files())
 
         if not self._config.no_scan:
             engine.enable_scan(self._config.collection)
@@ -234,12 +242,15 @@ class AvalonEngine(object):
         h = avalon.log.AvalonLogPlugin(self._bus, self._log)
         h.subscribe()
 
-    def enable_daemon(self, uid, gid):
+    def enable_daemon(self, uid, gid, required_files):
         """Enable and configure any plugins needed to run in daemon mode."""
         # Daemon mode entails the actual daemonization process
         # which includes preserving any open file descriptors.
         h = _DaemonPlugin(
             self._bus, 
+            # File handles of files that the application has open
+            # right now that need to be preserved as part of the 
+            # daemonization process.
             files=self._log.get_open_fds())
         h.subscribe()
 
@@ -251,7 +262,10 @@ class AvalonEngine(object):
         # user.
         h = _FilePermissionPlugin(
             self._bus,
-            files=self._log.get_open_paths() + self._db.get_open_paths(),
+            # Files that may not be open right now but need to be
+            # writable by the server once we switch to a different
+            # (non-root) user.
+            files=required_files,
             uid=uid,
             gid=gid)
         h.subscribe()
