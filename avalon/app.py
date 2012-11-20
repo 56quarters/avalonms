@@ -250,7 +250,8 @@ class AvalonEngine(object):
             self._bus, 
             # File handles of files that the application has open
             # right now that need to be preserved as part of the 
-            # daemonization process.
+            # daemonization process. Only the logs should be open
+            # at this point.
             files=self._log.get_open_fds())
         h.subscribe()
 
