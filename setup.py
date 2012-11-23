@@ -45,8 +45,14 @@ EMAIL = 'projects@tshlabs.org'
 RELEASE = '0.1.0'
 URL = 'http://www.tshlabs.org/'
 LICENSE = 'BSD'
+CLASSIFIERS = [
+    "Development Status :: 3 - Alpha",
+    "License :: OSI Approved :: BSD License",
+    "Operating System :: POSIX",
+    "Topic :: Internet :: WWW/HTTP"
+    ]
 
-# TODO: Parse this out of pip file?
+
 REQUIRES = []
 
 
@@ -56,6 +62,7 @@ setup(
     author=AUTHOR,
     description=DESCRIPTION,
     author_email=EMAIL,
+    classifiers=CLASSIFIERS,
     license=LICENSE,
     url=URL,
     install_requires=REQUIRES,
