@@ -33,6 +33,7 @@ from __future__ import print_function
 
 import os
 import os.path
+import re
 import subprocess
 import sys
 
@@ -53,7 +54,23 @@ CLASSIFIERS = [
     ]
 
 
-REQUIRES = []
+def get_requires(filename):
+    out = []
+    with open(filename) as handle:
+        for line in handle:
+            parts = re.split('[^\w]', line, 1)
+            if parts:
+                out.append(parts[0].strip())
+    return out
+
+
+def get_readme(filename):
+    with open(filename) as handle:
+        return handle.read()
+
+
+README = get_readme('README.rst')
+REQUIRES = get_requires('requires.txt')
 
 
 setup(
@@ -61,6 +78,7 @@ setup(
     version=RELEASE,
     author=AUTHOR,
     description=DESCRIPTION,
+    long_description=README,
     author_email=EMAIL,
     classifiers=CLASSIFIERS,
     license=LICENSE,
