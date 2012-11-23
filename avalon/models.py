@@ -46,7 +46,7 @@ from sqlalchemy import (
     String,
     TypeDecorator)
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.exc import ArgumentError, OperationalError, SQLAlchemyError
+from sqlalchemy.exc import OperationalError, SQLAlchemyError
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
 
