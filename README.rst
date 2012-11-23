@@ -26,3 +26,5 @@ Features include:
 * Unicode output support
 * Running as a daemon (including dropping super user permissions)
 * IPv6 support
+
+The latest documentation is available at https://avalonms.readthedocs.org/
