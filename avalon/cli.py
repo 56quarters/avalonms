@@ -242,6 +242,4 @@ class ServerAppConfig(_AppConfig):
         if self.error_log is None and self.daemon:
             raise ValueError(
                 "You must specify an error log in daemon mode")
-        
-        
 
