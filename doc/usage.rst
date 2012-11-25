@@ -60,7 +60,7 @@ error log, and database file so that it will still be able to write to them.
 In-Place Rescan
 ===============
 
-The Avalon Music Server can be told to rescan a music collection and reload meta data
+The Avalon Music Server can be told to rescan a music collection and reload metadata
 from the database while still running and serving requests. To do this, send the server
 the signal ``SIGUSR1`` using a program such as ``pkill`` or ``kill``.
 
@@ -85,7 +85,7 @@ Options
 
 * ``--daemon-group=GROUP`` - Run the server as this group. The server will switch to this non-privileged group when started as root and run in daemon mode.
 
-* ``--db-path=PATH`` - Path to a file to use for the the backing SQLite database for storing collection meta data.
+* ``--db-path=PATH`` - Path to a file to use for the the backing SQLite database for storing collection metadata.
 
 * ``--error-log=PATH`` - Path to a file to use for server errors and application informational logging.
 

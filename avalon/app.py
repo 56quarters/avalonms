@@ -341,7 +341,7 @@ class _CollectionScanPlugin(cherrypy.process.plugins.SimplePlugin):
         self._log = log
 
     def graceful(self):
-        """Scan the music collection for meta data and insert it into a
+        """Scan the music collection for metadata and insert it into a
         database.
         """
         self._log.info('Scanning music collection...')

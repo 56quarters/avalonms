@@ -11,7 +11,7 @@ the server in text/html format.
 
 * ``/avalon/heartbeat``
 
-Meta data endpoints return information about a music collection in JSON
+Metadata endpoints return information about a music collection in JSON
 format based on path and/or query string parameters. Endpoints will return
 data as JSON and set HTTP response code ``200`` for successful requests.
 Errors will still return JSON results but will set a non-``200`` response
@@ -38,7 +38,7 @@ Informational Endpoints
    api/status
    api/heartbeat
 
-Meta Data Endpoints
+Metadata Endpoints
 ~~~~~~~~~~~~~~~~~~~
 
 .. toctree::

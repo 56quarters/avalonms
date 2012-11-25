@@ -29,7 +29,7 @@
 #
 
 
-"""Functions for scanning a music collection for meta data."""
+"""Functions for scanning a music collection for metadata."""
 
 
 import collections

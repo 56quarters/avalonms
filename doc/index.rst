@@ -11,10 +11,10 @@
 Avalon Music Server
 ===================
 
-The Avalon Music Server is a BSD licensed server that scans meta data
+The Avalon Music Server is a BSD licensed server that scans metadata
 from a music collection and provides a JSON interface to it over HTTP.
 
-The server is able to read meta data from ogg, flac, and mp3 files. Clients
+The server is able to read metadata from ogg, flac, and mp3 files. Clients
 can then query the server to pull information about songs, albums, artists, 
 and genres in the collection.
 

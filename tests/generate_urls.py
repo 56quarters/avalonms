@@ -5,7 +5,7 @@
 
 """
 Output valid requests with query string params to each of the
-meta data endpoints.
+metadata endpoints.
 """
 
 
