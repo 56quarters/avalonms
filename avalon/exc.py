@@ -33,15 +33,12 @@
 
 
 __all__ = [
-    'AlreadyLockedError',
     'ApiError',
     'AvalonError',
     'ConnectionError',
     'DatabaseError',
     'InvalidParameterError',
-    'LockError',
     'PermissionError',
-    'ServerError',
     'ServerNotReadyError'
     ]
 
@@ -75,21 +72,6 @@ class DatabaseError(AvalonError):
 
 class ConnectionError(DatabaseError):
     """There was an error connecting to the database."""
-    pass
-
-
-class LockError(AvalonError):
-    """There was an error acquiring or releasing a lock."""
-    pass
-
-
-class AlreadyLockedError(LockError):
-    """We attempted to acquire a resource that wasn't available."""
-    pass
-
-
-class ServerError(AvalonError):
-    """There was an error starting the HTTP server."""
     pass
 
 
