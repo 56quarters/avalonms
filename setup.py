@@ -50,7 +50,8 @@ CLASSIFIERS = [
     "Development Status :: 3 - Alpha",
     "License :: OSI Approved :: BSD License",
     "Operating System :: POSIX",
-    "Topic :: Internet :: WWW/HTTP"
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Multimedia :: Sound/Audio"
     ]
 
 
@@ -58,9 +59,8 @@ def get_requires(filename):
     out = []
     with open(filename) as handle:
         for line in handle:
-            parts = re.split('[^\w]', line, 1)
-            if parts:
-                out.append(parts[0].strip())
+            package, _ = re.split('[^\w]', line, 1)
+            out.append(package.strip())
     return out
 
 
