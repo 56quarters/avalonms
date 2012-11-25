@@ -2,12 +2,19 @@ Bugs:
 * Handle errors during rescan better
 
 Cleanup:
-* avalon.services.InsertService
-
-For v2:
-* Infrastructure
-** pypi
-* Usage docs
+* avalon.app - Need IoC
+* avalon.cli - Need tests
+* avalon.elms - Need tests
+* avalon.err - OK?
+* avalon.exc - OK?
+* avalon.ids - Need tests
+* avalon.log - Need IoC
+* avalon.models - Need tests
+* avalon.scan - I don't even know
+* avalon.server - Need tests
+* avalon.services - Need tests
+* avalon.util - Need tests
+* avalon.web - Need to break up
 
 For v3:
 * Tests
