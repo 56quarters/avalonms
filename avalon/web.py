@@ -160,9 +160,86 @@ class AvalonHandlerConfig(object):
         self.id_cache = None
 
 
+class AvalonHandlerWrapper(object):
+
+    """Handler to query in memory stores of audio metadata
+    and render the results as JSON.
+    """
+
+    def __init__(self, handler):
+        """Set the application handler we are wrapping."""
+        self._handler = handler
+
+    def _get_ready(self):
+        """ """
+        return self._handler.ready
+
+    def _set_ready(self, val):
+        self._handler.ready = val
+
+    ready = property(
+        _get_ready, _set_ready, None, 
+        "Is the application ready to handle requests")
+
+    def reload(self):
+        """Reload the backing handler."""
+        self._handler.reload()
+
+    @cherrypy.expose
+    def index(self, *args, **kwargs):
+        """Display a server status page."""
+        return self._handler.index(*args, **kwargs)
+
+    @cherrypy.expose
+    def heartbeat(self, *args, **kwargs):
+        """Display the string 'OKOKOK' if the server is
+        ready to handle requests, 'NONONO' otherwise.
+        """
+        return self._handler.heartbeat(*args, **kwargs)
+
+    @cherrypy.expose
+    @cherrypy.tools.json_out()
+    @_render_results
+    @_application_ready
+    def albums(self, *args, **kwargs):
+        """Render a list of all albums as JSON."""
+        return self._handler.albums(*args, **kwargs)
+
+    @cherrypy.expose
+    @cherrypy.tools.json_out()
+    @_render_results
+    @_application_ready
+    def artists(self, *args, **kwargs):
+        """Render a list of all artists as JSON."""
+        return self._handler.artists(*args, **kwargs)
+
+    @cherrypy.expose
+    @cherrypy.tools.json_out()
+    @_render_results
+    @_application_ready
+    def genres(self, *args, **kwargs):
+        """Render a list of all genres as JSON."""
+        return self._handler.genres(*args, **kwargs)
+
+    @cherrypy.expose
+    @cherrypy.tools.json_out()
+    @_render_results
+    @_application_ready
+    def songs(self, *args, **kwargs):
+        """Render song results based on the given query string paramters
+        as JSON.
+        """
+        return self._handler.songs(*args, **kwargs)
+
+
+# Split the logic out from the class that gets exposed via
+# CherryPy and returns results as JSON to make it easier to
+# test with unit tests.
+
+
 class AvalonHandler(object):
 
-    """Handle HTTP requests and return result sets in JSON."""
+    """Handler to query in memory stores of audio metadata."""
 
     def __init__(self, config):
         """Initialize each of the stores by loading from the database."""
@@ -197,7 +274,6 @@ class AvalonHandler(object):
         self._genres.reload()
         self._id_cache.reload()
 
-    @cherrypy.expose
     def index(self, *args, **kwargs):
         """Display a server status page."""
         status = 'READY'
@@ -220,7 +296,6 @@ class AvalonHandler(object):
             'tracks': len(self._tracks.all())
             }
 
-    @cherrypy.expose
     def heartbeat(self, *args, **kwargs):
         """Display the string 'OKOKOK' if the server is
         ready to handle requests, 'NONONO' otherwise.
@@ -230,34 +305,18 @@ class AvalonHandler(object):
         _set_http_status(503)
         return "NONONO"
 
-    @cherrypy.expose
-    @cherrypy.tools.json_out()
-    @_render_results
-    @_application_ready
     def albums(self, *args, **kwargs):
         """Return a list of all albums."""
         return _filter(self._albums.all(), _RequestParams(kwargs))
 
-    @cherrypy.expose
-    @cherrypy.tools.json_out()
-    @_render_results
-    @_application_ready
     def artists(self, *args, **kwargs):
         """Return a list of all artists."""
         return _filter(self._artists.all(), _RequestParams(kwargs))
 
-    @cherrypy.expose
-    @cherrypy.tools.json_out()
-    @_render_results
-    @_application_ready
     def genres(self, *args, **kwargs):
         """Return a list of all genres."""
         return _filter(self._genres.all(), _RequestParams(kwargs))
 
-    @cherrypy.expose
-    @cherrypy.tools.json_out()
-    @_render_results
-    @_application_ready
     def songs(self, *args, **kwargs):
         """Return song results based on the given query string parameters."""
         params = _RequestParams(kwargs)

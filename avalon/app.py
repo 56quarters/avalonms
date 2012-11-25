@@ -135,7 +135,8 @@ class AvalonMS(object):
         config.artist_store = avalon.services.ArtistStore(self._db)
         config.genre_store = avalon.services.GenreStore(self._db)
         config.id_cache = avalon.services.IdLookupCache(self._db)
-        return avalon.web.AvalonHandler(config)
+        handler = avalon.web.AvalonHandler(config)
+        return avalon.web.AvalonHandlerWrapper(handler)
 
     def _get_server(self):
         """Configure and return the application server."""
