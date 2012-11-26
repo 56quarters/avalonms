@@ -32,28 +32,13 @@
 """ """
 
 
-import functools
-
-import avalon.err
-import avalon.exc
-
 
 __all__ = [
-    'startup_decorator',
+    'render',
     'results_decorator',
     'RequestOutput'
     ]
 
-
-def startup_decorator(func):
-    """Decorator for checking if the application has started."""
-    @functools.wraps(func)
-    def wrapper(self, *args, **kwargs):
-        if not self.ready:
-            raise avalon.exc.ServerNotReadyError(
-                avalon.err.ERROR_SERVER_NOT_READY())
-        return func(self, *args, **kwargs)
-    return wrapper
 
 
 def results_decorator(func):
@@ -63,10 +48,20 @@ def results_decorator(func):
     @functools.wraps(func)
     def wrapper(self, *args, **kwargs):
         try:
-            return _get_output(res=func(self, *args, **kwargs))
+            return render(results=func(self, *args, **kwargs))
         except avalon.exc.ApiError, e:
-            return _get_output(err=e)
+            return render(error=e)
     return wrapper
+
+
+def render(results=None, error=None):
+    """ """
+    output = RequestOutput()
+    if results is not None:
+        output.results = results
+    if error is not None:
+        output.error = error
+    return output.render()
 
 
 class RequestOutput(object):
@@ -117,3 +112,4 @@ class RequestOutput(object):
             'result_count': res['result_count'],
             'results': res['results']
             }
+

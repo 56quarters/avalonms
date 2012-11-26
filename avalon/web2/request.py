@@ -44,9 +44,9 @@ class RequestParameters(object):
 
     """Logic for accessing query string parameters of interest."""
 
-    valid = frozenset(['album', 'album_id', 'artist', 'artist_id', 
-                        'direction', 'order', 'genre', 'genre_id',
-                        'limit', 'offset'])
+    valid = frozenset(
+        ['album', 'album_id', 'artist', 'artist_id', 'direction', 
+         'order', 'genre', 'genre_id', 'limit', 'offset'])
 
     def __init__(self, query_params):
         """Set the query string params to use."""

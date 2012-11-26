@@ -29,3 +29,26 @@
 #
 
 
+import functools
+
+import avalon.err
+import avalon.exc
+
+
+
+
+__all__ = [
+    'startup_decorator'
+    ]
+
+
+def startup_decorator(func):
+    """Decorator for checking if the application has started."""
+    @functools.wraps(func)
+    def wrapper(self, *args, **kwargs):
+        if not self.ready:
+            raise avalon.exc.ServerNotReadyError(
+                avalon.err.ERROR_SERVER_NOT_READY())
+        return func(self, *args, **kwargs)
+    return wrapper
+
