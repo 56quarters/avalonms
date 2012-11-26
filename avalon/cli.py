@@ -32,7 +32,6 @@
 """Command line configuration parsing classes."""
 
 import argparse
-import os
 import os.path
 import socket
 import tempfile

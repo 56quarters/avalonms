@@ -2,3 +2,6 @@
 .#*
 _build
 dist/
+.project
+.pydevproject
+.settings

@@ -134,7 +134,8 @@ def _application_ready(func):
 
 def _render_results(func):
     """Render the results of method calls and any ApiErrors raised 
-    by the method as output."""
+    by the method as output.
+    """
     @functools.wraps(func)
     def wrapper(self, *args, **kwargs):
         try:
@@ -339,7 +340,7 @@ class AvalonHandlerWrapper(object):
     @_render_results
     @_application_ready
     def songs(self, *args, **kwargs):
-        """Render song results based on the given query string paramters
+        """Render song results based on the given query string parameters
         as JSON.
         """
         return self._handler.songs(*args, **kwargs)
