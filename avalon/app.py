@@ -347,7 +347,8 @@ class _CollectionScanPlugin(cherrypy.process.plugins.SimplePlugin):
         self._log.info('Scanning music collection...')
         files = avalon.scan.get_files(os.path.abspath(self._collection))
         tags = avalon.scan.get_tags(files)
-        loader = avalon.services.InsertService(self._db)
+        id_cache = avalon.services.IdLookupCache(self._db)
+        loader = avalon.services.InsertService(self._db, id_cache)
         loader.insert(tags)
 
     # Set the rescan done as part of a graceful to a higher priority

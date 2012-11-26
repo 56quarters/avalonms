@@ -54,11 +54,13 @@ __all__ = [
 class InsertService(object):
 
     """Methods for inserting multiple tracks and all associated
-    relations."""
+    relations.
+    """
 
-    def __init__(self, session_handler):
+    def __init__(self, session_handler, id_cache):
         """Set the list of scan result tags and session handler."""
         self._session_handler = session_handler
+        self._id_cache = id_cache
 
     def _load_relations(self, scanned):
         """Insert relations for each track into the database."""
@@ -72,19 +74,28 @@ class InsertService(object):
                     values[field].append(getattr(tag, field))
 
             # Build a list of brand new objects to insert
-            inserts.extend(self._get_new_objs(
-                    values['album'], Album, avalon.ids.get_album_id))
-            inserts.extend(self._get_new_objs(
-                    values['artist'], Artist, avalon.ids.get_artist_id))
-            inserts.extend(self._get_new_objs(
-                    values['genre'], Genre, avalon.ids.get_genre_id))
+            inserts.extend(
+                self._get_queued_models(
+                    values['album'], 
+                    Album, 
+                    avalon.ids.get_album_id))
+            inserts.extend(
+                self._get_queued_models(
+                    values['artist'], 
+                    Artist, 
+                    avalon.ids.get_artist_id))
+            inserts.extend(
+                self._get_queued_models(
+                    values['genre'], 
+                    Genre, 
+                    avalon.ids.get_genre_id))
 
             session.add_all(inserts)
             session.commit()
         finally:
             self._session_handler.close(session)
 
-    def _get_new_objs(self, values, cls, id_gen):
+    def _get_queued_models(self, values, cls, id_gen):
         """Generate new objects for insertion for each of the given values."""
         out = {}
         for val in values:
@@ -115,9 +126,9 @@ class InsertService(object):
         """Insert the tracks and all related data."""
         self._clean()
         self._load_relations(scanned)
+        self._id_cache.reload()
 
         insert = []
-        cache = IdLookupCache(self._session_handler)
         session = self._session_handler.get_session()
 
         try:
@@ -128,9 +139,9 @@ class InsertService(object):
                 track.track = tag.track
                 track.year = tag.year
 
-                track.album_id = cache.get_id('album', tag.album)
-                track.artist_id = cache.get_id('artist', tag.artist)
-                track.genre_id = cache.get_id('genre', tag.genre)
+                track.album_id = self._id_cache.get_album_id(tag.album)
+                track.artist_id = self._id_cache.get_artist_id(tag.artist)
+                track.genre_id = self._id_cache.get_genre_id(tag.genre)
 
                 insert.append(track)
             session.add_all(insert)
@@ -151,30 +162,28 @@ class IdLookupCache(object):
         self._cache = None
         self.reload()
 
-    def _get_key(self, val):
-        """Return the given value with the case normalized."""
-        return val.lower()
-
-    def get_id(self, field, val):
+    def _get_id(self, field, val):
         """Get the ID associated with the give field and name, blank string if
         no ID is found.
         """
         try:
-            return self._cache[field][self._get_key(val)]
+            return self._cache[field][val.lower()]
+        except AttributeError:
+            return ''
         except KeyError:
             return ''
 
     def get_album_id(self, val):
         """Get the ID associated with an album name, blank string if no ID is found."""
-        return self.get_id('album', val)
+        return self._get_id('album', val)
 
     def get_artist_id(self, val):
         """Get the ID associated with an artist name, blank string if no ID is found."""
-        return self.get_id('artist', val)
+        return self._get_id('artist', val)
 
     def get_genre_id(self, val):
         """Get the ID associated with an genre name, blank string if no ID is found."""
-        return self.get_id('genre', val)
+        return self._get_id('genre', val)
 
     def reload(self):
         """Atomically load all name to ID mappings from the database."""
@@ -182,19 +191,19 @@ class IdLookupCache(object):
         cache = {}
 
         try:
-            cache['album'] = self._get_mapping(session, Album)
-            cache['artist'] = self._get_mapping(session, Artist)
-            cache['genre'] = self._get_mapping(session, Genre)
+            cache['album'] = self._get_name_id_map(session, Album)
+            cache['artist'] = self._get_name_id_map(session, Artist)
+            cache['genre'] = self._get_name_id_map(session, Genre)
         finally:
             self._session_handler.close(session)
         self._cache = cache
 
-    def _get_mapping(self, session, cls):
+    def _get_name_id_map(self, session, cls):
         """Get the name to ID mappings for a particular type of entity."""
         field_cache = {}
         for entity in session.query(cls).all():
             elm = IdNameElm.from_model(entity)
-            field_cache[self._get_key(elm.name)] = elm.id
+            field_cache[elm.name.lower()] = elm.id
         return field_cache
 
 
