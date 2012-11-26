@@ -32,4 +32,88 @@
 """ """
 
 
+import functools
 
+import avalon.err
+import avalon.exc
+
+
+__all__ = [
+    'startup_decorator',
+    'results_decorator',
+    'RequestOutput'
+    ]
+
+
+def startup_decorator(func):
+    """Decorator for checking if the application has started."""
+    @functools.wraps(func)
+    def wrapper(self, *args, **kwargs):
+        if not self.ready:
+            raise avalon.exc.ServerNotReadyError(
+                avalon.err.ERROR_SERVER_NOT_READY())
+        return func(self, *args, **kwargs)
+    return wrapper
+
+
+def results_decorator(func):
+    """Render the results of method calls and any ApiErrors raised 
+    by the method as output.
+    """
+    @functools.wraps(func)
+    def wrapper(self, *args, **kwargs):
+        try:
+            return _get_output(res=func(self, *args, **kwargs))
+        except avalon.exc.ApiError, e:
+            return _get_output(err=e)
+    return wrapper
+
+
+class RequestOutput(object):
+
+    """ """
+
+    def __init__(self):
+        """Initialize errors and results from this query."""
+        self.error = None
+        self.results = []
+
+    def _format_error(self):
+        """Format a query error (if there was one)."""
+        out = {
+            'is_error': False,
+            'error_name': '',
+            'error_msg': ''
+            }
+        if self.error is not None:
+            out['is_error'] = True
+            out['error_name'] = self.error.name
+            out['error_msg'] = self.error.message
+        return out
+        
+    def _format_results(self):
+        """Format query results (if any)."""
+        out = {
+            'result_count': 0,
+            'results': []
+            }
+        
+        if self.results is not None:
+            out['result_count'] = len(self.results)
+            out['results'] = self.results
+        return out
+
+    def render(self):
+        """Format any results or errors as a dictionary to be turned into a
+        JSON payload.
+        """
+        err = self._format_error()
+        res = self._format_results()
+
+        return {
+            'is_error': err['is_error'],
+            'error_name': err['error_name'],
+            'error_msg': err['error_msg'],
+            'result_count': res['result_count'],
+            'results': res['results']
+            }
