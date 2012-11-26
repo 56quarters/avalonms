@@ -148,6 +148,11 @@ class Genre(Base):
     __tablename__ = 'genres'
 
 
+# Factory methods for the purposes of separating this
+# object creation from the SessionHandler class so that
+# we can test it more easily.
+
+
 def get_engine(url):
     """Get a database engine for the given URL."""
     return create_engine(url)
