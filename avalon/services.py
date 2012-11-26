@@ -159,7 +159,7 @@ class IdLookupCache(object):
     def __init__(self, session_handler):
         """Set the session handler and initialize ID caches."""
         self._session_handler = session_handler
-        self._cache = None
+        self._cache = {}
         self.reload()
 
     def _get_id(self, field, val):

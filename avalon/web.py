@@ -32,19 +32,14 @@
 """Application frontend for handling requests."""
 
 
-import collections
 import functools
-import simplejson
 import threading
-import uuid
 from datetime import datetime
 
 import cherrypy
 
 import avalon.err
 import avalon.exc
-import avalon.services
-import avalon.elms
 
 
 __all__ = [
