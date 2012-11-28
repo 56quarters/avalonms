@@ -42,8 +42,8 @@ __all__ = [
 
 
 def results_decorator(func):
-    """Render the results of method calls and any ApiErrors raised 
-    by the method as output.
+    """Decorator to render the results of method calls and 
+    any ApiErrors raised by the method as output.
     """
     @functools.wraps(func)
     def wrapper(self, *args, **kwargs):
@@ -55,7 +55,9 @@ def results_decorator(func):
 
 
 def render(results=None, error=None):
-    """ """
+    """Factory function for a RequestOutput object with optional
+    error and success payload parameters.
+    """
     output = RequestOutput()
     if results is not None:
         output.results = results

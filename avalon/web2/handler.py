@@ -31,18 +31,25 @@
 
 import functools
 
+import cherrypy
+
 import avalon.err
 import avalon.exc
-
+import avalon.web2.filtering
+import avalon.web2.api
+import avalon.web2.output
 
 
 
 __all__ = [
-    'startup_decorator'
+    'application_ready',
+    'render_results',
+    'AvalonHandler',
+    'AvalonHandlerConfig'
     ]
 
 
-def startup_decorator(func):
+def application_ready(func):
     """Decorator for checking if the application has started."""
     @functools.wraps(func)
     def wrapper(self, *args, **kwargs):
@@ -51,4 +58,89 @@ def startup_decorator(func):
                 avalon.err.ERROR_SERVER_NOT_READY())
         return func(self, *args, **kwargs)
     return wrapper
+
+
+def render_results(func):
+    """Decorator to render the results of method calls and 
+    any ApiErrors raised by the method as output that can be
+    correctly serialized by simplejson.
+    """
+    @functools.wraps(func)
+    def wrapper(self, *args, **kwargs):
+        try:
+            return avalon.web2.output.render(results=func(self, *args, **kwargs))
+        except avalon.exc.ApiError, e:
+            return avalon.web2.output.render(error=e)
+    return wrapper
+
+
+class AvalonHandlerConfig(object):
+
+    def __init__(self):
+        self.api_endpoints = None
+        self.status_endpoints = None
+        self.filters = []
+        self.startup = None
+
+
+class AvalonHandler(object):
+    
+    def __init__(self, config):
+        """ """
+        self._api = config.api_endpoints
+        self._status = config.status_endpoints
+        self._filters = config.filters
+        self._startup = config.startup
+
+    def _filter(self, results, params):
+        """ """
+        out = list(results)
+        for out_filter in self._filters:
+            out = out_filter(out, params)
+        return out
+
+    @cherrypy.expose
+    def index(self, *args, **kwargs):
+        return "This is the status"
+
+    @cherrypy.expose
+    def heartbeat(self, *args, **kwargs):
+        return "OKOKOK"
+
+    @cherrypy.expose
+    @cherrypy.tools.json_out()
+    @render_results
+    @application_ready
+    def albums(self, *args, **kwargs):
+        return self._filter(
+            self._api.get_albums(),
+            avalon.web2.request.Parameters(kwargs))
+
+    @cherrypy.expose
+    @cherrypy.tools.json_out()
+    @render_results
+    @application_ready
+    def artists(self, *args, **kwargs):
+        return self._filter(
+            self._api.get_artists(),
+            avalon.web2.request.Parameters(kwargs))
+
+    @cherrypy.expose
+    @cherrypy.tools.json_out()
+    @render_results
+    @application_ready
+    def genres(self, *args, **kwargs):
+        return self._filter(
+            self._api.get_genres(),
+            avalon.web2.request.Parameters(kwargs))
+
+    @cherrypy.expose
+    @cherrypy.tools.json_out()
+    @render_results
+    @application_ready
+    def songs(self, *args, **kwargs):
+        params = avalon.web2.request.Parameters(kwargs)
+        return self._filter(
+            self._api.get_songs(params),
+            params)
 

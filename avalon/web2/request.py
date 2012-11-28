@@ -29,9 +29,15 @@
 #
 
 
+""" """
+
+import avalon.err
+import avalon.exc
+
+
 __all__ = [
     'set_http_status',
-    'RequestParamters'
+    'Paramters'
     ]
 
 
@@ -40,7 +46,7 @@ def set_http_status(code):
     cherrypy.serving.response.status = code
 
 
-class RequestParameters(object):
+class Parameters(object):
 
     """Logic for accessing query string parameters of interest."""
 

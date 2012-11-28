@@ -28,6 +28,10 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+
+""" """
+
+
 import functools
 import threading
 from datetime import datetime
@@ -39,90 +43,79 @@ import avalon.exc
 
 
 __all__ = [
-    'LimitFilter',
-    'SortFilter'
+    'SORT_ASC',
+    'SORT_DESC',
+    'limit_filter',
+    'sort_filter'
     ]
 
 
-
-class SortFilter(object):
-
-    """ """
-
-    sort_desc = 'desc'
-
-    sort_asc = 'asc'
-
-    class SortHelper(object):
+class _SortHelper(object):
         
-        """Object meant to be used as a comparison function
-        for objects based on their attributes.
+    """Object meant to be used as a comparison function
+    for objects based on their attributes.
 
-        Doing sorting this way allows more flexibility than
-        implementing the __cmp__ method for each object since
-        that limits sorting to a single field.
+    Doing sorting this way allows more flexibility than
+    implementing the __cmp__ method for each object since
+    that limits sorting to a single field.
+    """
+
+    def __init__(self, field):
+        """Set the field to be used for sorting."""
+        self.field = field
+        
+    def __call__(self, o1, o2):
+        """Return the results of cmp() on the field of
+        the two given objects.
         """
-
-        def __init__(self, field):
-            """Set the field to be used for sorting."""
-            self.field = field
-        
-        def __call__(self, o1, o2):
-            """Return the results of cmp() on the field of
-            the two given objects.
-            """
-            v1 = getattr(o1, self.field)
-            v2 = getattr(o2, self.field)
-            return cmp(v1, v2)
-
-    def __init__(self, params):
-        """ """
-        self._field = params.get('order')
-        self._direction = params.get('direction', self.sort_asc)
-        self._sort_helper = SortHelper(self._field)
-
-    def apply(elms):
-        """ """
-        if self._field is None:
-            return elms    
-
-        if self._direction not in (self.sort_asc, self.sort_desc):
-            raise avalon.exc.InvalidParameterError(
-                avalon.err.ERROR_INVALID_FIELD_VALUE('direction'))
-        
-        reverse = self.sort_desc == direction
-    
-        try:
-            elms.sort(cmp=self._sort_helper, reverse=reverse)
-        except AttributeError:
-            raise avalon.exc.InvalidParameterError(
-                avalon.err.ERROR_INVALID_FIELD_VALUE('order'))
-        return elms
+        v1 = getattr(o1, self.field)
+        v2 = getattr(o2, self.field)
+        return cmp(v1, v2)
 
 
-class LimitFilter(object):
+SORT_DESC = 'desc'
+SORT_ASC = 'asc'
 
+
+def sort_filter(elms, params):
     """ """
+    field = params.get('order')
+    direction = params.get('direction', 'asc')
+    sort_helper = SortHelper(field)
 
-    def __init__(self, params):
-        """ """
-        self._limit = params.get_int('limit')
-        self._offset = params.get_int('offset', 0)
+    if field is None:
+        return elms    
 
-    def apply(elms):
-        """ """
-        if self._limit is None:
-            return elms   
+    if direction not in (sort_asc, sort_desc):
+        raise avalon.exc.InvalidParameterError(
+            avalon.err.ERROR_INVALID_FIELD_VALUE('direction'))
+        
+    reverse = sort_desc == direction
+    
+    try:
+        elms.sort(cmp=sort_helper, reverse=reverse)
+    except AttributeError:
+        raise avalon.exc.InvalidParameterError(
+            avalon.err.ERROR_INVALID_FIELD_VALUE('order'))
+    return elms
 
-        if self._limit < 0:
-            raise avalon.exc.InvalidParameterError(
-                avalon.err.ERROR_NEGATIVE_FIELD_VALUE('limit'))
-        if self._offset < 0:
-            raise avalon.exc.InvalidParameterError(
-                avalon.err.ERROR_NEGATIVE_FIELD_VALUE('offset'))
 
-        start = self._offset
-        end = self._offset + self._limit
-        return elms[start:end]
+def limit_filter(elms, params):
+    """ """
+    limit = params.get_int('limit')
+    offset = params.get_int('offset', 0)
 
+    if limit is None:
+        return elms   
+
+    if limit < 0:
+        raise avalon.exc.InvalidParameterError(
+            avalon.err.ERROR_NEGATIVE_FIELD_VALUE('limit'))
+    if offset < 0:
+        raise avalon.exc.InvalidParameterError(
+            avalon.err.ERROR_NEGATIVE_FIELD_VALUE('offset'))
+
+    start = offset
+    end = offset + limit
+    return elms[start:end]
 
