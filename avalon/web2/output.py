@@ -35,23 +35,10 @@
 
 __all__ = [
     'render',
-    'results_decorator',
     'RequestOutput'
     ]
 
 
-
-def results_decorator(func):
-    """Decorator to render the results of method calls and 
-    any ApiErrors raised by the method as output.
-    """
-    @functools.wraps(func)
-    def wrapper(self, *args, **kwargs):
-        try:
-            return render(results=func(self, *args, **kwargs))
-        except avalon.exc.ApiError, e:
-            return render(error=e)
-    return wrapper
 
 
 def render(results=None, error=None):
