@@ -101,35 +101,41 @@ class AvalonHandlerConfig(object):
 
 class AvalonHandler(object):
     
-    """ """
+    """Avalon web application with status and metadata endpoints."""
     
     def __init__(self, config):
-        """ """
+        """Set the endpoints, filters, and startup time for the handler."""
         self._api = config.api_endpoints
         self._status = config.status_endpoints
         self._filters = config.filters
         self._startup = config.startup
+        
+        # Hack until I figure out a better way to delegate this
+        self.ready = True
 
     def _filter(self, results, params):
-        """ """
+        """Apply each of the filter callbacks to the results."""
         out = list(results)
         for out_filter in self._filters:
             out = out_filter(out, params)
         return out
 
     def reload(self):
+        """Reload any cache values for the API and status handlers."""
         self._api.reload()
         self._status.reload()
 
     @cherrypy.expose
     def index(self, *args, **kwargs):
-        """ """
+        """Application status page."""
         return "This is the status"
 
     @cherrypy.expose
     def heartbeat(self, *args, **kwargs):
-        """ """
-        return "OKOKOK"
+        """Application heartbeat endpoint."""
+        if self.ready:
+            return "OKOKOK"
+        return "NONONO"
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
@@ -137,7 +143,7 @@ class AvalonHandler(object):
     @application_ready
     @convert_parameters
     def albums(self, params):
-        """ """
+        """Albums metadata endpoint."""
         return self._filter(self._api.get_albums(), params)
 
     @cherrypy.expose
@@ -146,7 +152,7 @@ class AvalonHandler(object):
     @application_ready
     @convert_parameters
     def artists(self, params):
-        """ """
+        """Artists metadata endpoint."""
         return self._filter(self._api.get_artists(), params)
 
     @cherrypy.expose
@@ -155,7 +161,7 @@ class AvalonHandler(object):
     @application_ready
     @convert_parameters
     def genres(self, params):
-        """ """
+        """Genres metadata endpoint."""
         return self._filter(self._api.get_genres(), params)
 
     @cherrypy.expose
@@ -164,6 +170,6 @@ class AvalonHandler(object):
     @application_ready
     @convert_parameters
     def songs(self, params):
-        """ """
+        """Songs metadata endpoint."""
         return self._filter(self._api.get_songs(params), params)
 
