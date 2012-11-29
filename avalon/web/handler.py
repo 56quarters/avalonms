@@ -38,9 +38,10 @@ import cherrypy
 
 import avalon.err
 import avalon.exc
-import avalon.web.filtering
 import avalon.web.api
+import avalon.web.filtering
 import avalon.web.output
+import avalon.web.request
 
 
 __all__ = [
@@ -115,6 +116,10 @@ class AvalonHandler(object):
         for out_filter in self._filters:
             out = out_filter(out, params)
         return out
+
+    def reload(self):
+        self._api.reload()
+        self._status.reload()
 
     @cherrypy.expose
     def index(self, *args, **kwargs):

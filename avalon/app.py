@@ -34,6 +34,7 @@
 
 import os.path
 import signal
+from datetime import datetime
 
 import cherrypy
 # Import the cherrypy Application class directly and use it
@@ -51,7 +52,9 @@ import avalon.models
 import avalon.scan
 import avalon.server
 import avalon.services
-import avalon.web
+import avalon.web.api
+import avalon.web.handler
+import avalon.web.filtering
 
 
 __all__ = [
@@ -129,14 +132,31 @@ class AvalonMS(object):
 
     def _get_handler(self):
         """Configure and return the web request handler."""
-        config = avalon.web.AvalonHandlerConfig()
-        config.track_store = avalon.services.TrackStore(self._db)
-        config.album_store = avalon.services.AlbumStore(self._db)
-        config.artist_store = avalon.services.ArtistStore(self._db)
-        config.genre_store = avalon.services.GenreStore(self._db)
-        config.id_cache = avalon.services.IdLookupCache(self._db)
-        handler = avalon.web.AvalonHandler(config)
-        return avalon.web.AvalonHandlerWrapper(handler)
+        api_config = avalon.web.api.AvalonApiEndpointsConfig()
+        api_config.track_store = avalon.services.TrackStore(self._db)
+        api_config.album_store = avalon.services.AlbumStore(self._db)
+        api_config.artist_store = avalon.services.ArtistStore(self._db)
+        api_config.genre_store = avalon.services.GenreStore(self._db)
+        api_config.id_cache = avalon.services.IdLookupCache(self._db)
+        api = avalon.web.api.AvalonApiEndpoints(api_config)
+
+        status_config = avalon.web.api.AvalonStatusEndpointsConfig()
+        status = avalon.web.api.AvalonStatusEndpoints(status_config)
+
+        filters = [
+            # NOTE: Sort needs to come before limit
+            avalon.web.filtering.sort_filter,
+            avalon.web.filtering.limit_filter]
+
+        startup = datetime.utcnow()
+
+        config = avalon.web.handler.AvalonHandlerConfig()
+        config.api_endpoints = api
+        config.status_endpoints = status
+        config.filters = filters
+        config.startup = startup
+
+        return avalon.web.handler.AvalonHandler(config)
 
     def _get_server(self):
         """Configure and return the application server."""

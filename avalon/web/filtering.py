@@ -81,16 +81,16 @@ def sort_filter(elms, params):
     """ """
     field = params.get('order')
     direction = params.get('direction', 'asc')
-    sort_helper = SortHelper(field)
+    sort_helper = _SortHelper(field)
 
     if field is None:
         return elms    
 
-    if direction not in (sort_asc, sort_desc):
+    if direction not in (SORT_ASC, SORT_DESC):
         raise avalon.exc.InvalidParameterError(
             avalon.err.ERROR_INVALID_FIELD_VALUE('direction'))
         
-    reverse = sort_desc == direction
+    reverse = SORT_DESC == direction
     
     try:
         elms.sort(cmp=sort_helper, reverse=reverse)

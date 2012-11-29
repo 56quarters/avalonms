@@ -57,6 +57,7 @@ class Parameters(object):
     def __init__(self, query_params):
         """Set the query string params to use."""
         self._query_params = query_params
+        print query_params
 
     def get_int(self, field, default=None):
         """Return the value of the field as an int, raising an error if
@@ -69,20 +70,28 @@ class Parameters(object):
 
         try:
             return int(val)
-        except ValueError:
+        except (ValueError, TypeError):
             raise avalon.exc.InvalidParameterError(
                 avalon.err.ERROR_INVALID_FIELD_VALUE(field))
 
     def get(self, field, default=None):
         """Return the value of the field, raising an error if it isn't
-        a valid field, and returning None if the field isn't in the query
+        a valid field, raising an error if there are multiple values for
+        the field, and returning None if the field isn't in the query 
         string.
         """
         if field not in self.valid:
             raise avalon.exc.InvalidParameterError(
                 avalon.err.ERROR_INVALID_FIELD(field))
-        
+
         if field not in self._query_params:
             return default
-        return self._query_params[field]
+
+        value = self._query_params[field]
+        
+        if isinstance(value, list):
+            raise avalon.exc.InvalidParameterError(
+                avalon.err.ERROR_DUPLICATE_FIELD_VALUE(field))
+
+        return value
 

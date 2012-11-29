@@ -57,12 +57,17 @@ def intersection(sets):
 
 class AvalonStatusEndpointsConfig(object):
 
-    pass
+    def __init__(self):
+        pass
 
 
 class AvalonStatusEndpoints(object):
 
-    pass
+    def __init__(self, config):
+        pass
+
+    def reload(self):
+        pass
 
 
 class AvalonApiEndpointsConfig(object):
