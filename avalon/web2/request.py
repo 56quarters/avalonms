@@ -37,7 +37,7 @@ import avalon.exc
 
 __all__ = [
     'set_http_status',
-    'Paramters'
+    'Parameters'
     ]
 
 

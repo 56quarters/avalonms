@@ -44,6 +44,7 @@ import avalon.web2.output
 __all__ = [
     'application_ready',
     'render_results',
+    'convert_parameters',
     'AvalonHandler',
     'AvalonHandlerConfig'
     ]
@@ -74,7 +75,19 @@ def render_results(func):
     return wrapper
 
 
+def convert_parameters(func):
+    """Decorator to convert the standard cherrypy *args and **kwargs
+    method arguments into our Parameters object to pass to the method.
+    """
+    @functools.wraps(func)
+    def wrapper(self, *args, **kwargs):
+        return func(self, avalon.web2.request.Parameters(kwargs))
+    return wrapper
+
+
 class AvalonHandlerConfig(object):
+
+    """ """
 
     def __init__(self):
         self.api_endpoints = None
@@ -84,6 +97,8 @@ class AvalonHandlerConfig(object):
 
 
 class AvalonHandler(object):
+    
+    """ """
     
     def __init__(self, config):
         """ """
@@ -101,46 +116,47 @@ class AvalonHandler(object):
 
     @cherrypy.expose
     def index(self, *args, **kwargs):
+        """ """
         return "This is the status"
 
     @cherrypy.expose
     def heartbeat(self, *args, **kwargs):
+        """ """
         return "OKOKOK"
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
     @render_results
     @application_ready
-    def albums(self, *args, **kwargs):
-        return self._filter(
-            self._api.get_albums(),
-            avalon.web2.request.Parameters(kwargs))
+    @convert_parameters
+    def albums(self, params):
+        """ """
+        return self._filter(self._api.get_albums(), params)
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
     @render_results
     @application_ready
-    def artists(self, *args, **kwargs):
-        return self._filter(
-            self._api.get_artists(),
-            avalon.web2.request.Parameters(kwargs))
+    @convert_parameters
+    def artists(self, params):
+        """ """
+        return self._filter(self._api.get_artists(), params)
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
     @render_results
     @application_ready
-    def genres(self, *args, **kwargs):
-        return self._filter(
-            self._api.get_genres(),
-            avalon.web2.request.Parameters(kwargs))
+    @convert_parameters
+    def genres(self, params):
+        """ """
+        return self._filter(self._api.get_genres(), params)
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
     @render_results
     @application_ready
-    def songs(self, *args, **kwargs):
-        params = avalon.web2.request.Parameters(kwargs)
-        return self._filter(
-            self._api.get_songs(params),
-            params)
+    @convert_parameters
+    def songs(self, params):
+        """ """
+        return self._filter(self._api.get_songs(params), params)
 
