@@ -174,7 +174,7 @@ class AvalonMS(object):
         return avalon.server.AvalonServer(config)
 
     def _get_required_files(self):
-        """Get the paths of files that we require write access too."""
+        """Get the paths of files that we require write access to."""
         return set([
             self._config.access_log,
             self._config.error_log,
