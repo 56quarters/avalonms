@@ -57,11 +57,15 @@ def intersection(sets):
 
 class AvalonStatusEndpointsConfig(object):
 
+    """Configuration for the status endpoints."""
+
     def __init__(self):
         pass
 
 
 class AvalonStatusEndpoints(object):
+
+    """Status endpoints for information about the running application."""
 
     def __init__(self, config):
         pass
@@ -69,8 +73,16 @@ class AvalonStatusEndpoints(object):
     def reload(self):
         pass
 
+    def get_status_page(self):
+        pass
+
+    def get_heartbeat(self):
+        pass
+
 
 class AvalonApiEndpointsConfig(object):
+
+    """Configuration for the metadata endpoints."""
 
     def __init__(self):
         self.track_store = None
@@ -81,6 +93,8 @@ class AvalonApiEndpointsConfig(object):
 
 
 class AvalonApiEndpoints(object):
+
+    """Endpoints for querying in memory stores of audio metadata."""
 
     def __init__(self, config):
         """Initialize each of the stores by loading from the database."""

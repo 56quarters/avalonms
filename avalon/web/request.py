@@ -29,7 +29,8 @@
 #
 
 
-""" """
+"""Methods for accessing request parameters and altering the reponse code."""
+
 
 import avalon.err
 import avalon.exc
@@ -92,6 +93,5 @@ class Parameters(object):
         if isinstance(value, list):
             raise avalon.exc.InvalidParameterError(
                 avalon.err.ERROR_DUPLICATE_FIELD_VALUE(field))
-
         return value
 

@@ -29,7 +29,7 @@
 #
 
 
-""" """
+"""Callbacks for sorting and limiting the result set."""
 
 
 import functools

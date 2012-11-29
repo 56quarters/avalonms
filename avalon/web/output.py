@@ -29,16 +29,13 @@
 #
 
 
-""" """
-
+"""Methods for rendering results or errors in a consistent format."""
 
 
 __all__ = [
     'render',
     'RequestOutput'
     ]
-
-
 
 
 def render(results=None, error=None):
@@ -55,7 +52,7 @@ def render(results=None, error=None):
 
 class RequestOutput(object):
 
-    """ """
+    """Format results or errors encountered."""
 
     def __init__(self):
         """Initialize errors and results from this query."""
