@@ -29,16 +29,18 @@
 #
 
 
+""" """
+
+
 import functools
 
 import cherrypy
 
 import avalon.err
 import avalon.exc
-import avalon.web2.filtering
-import avalon.web2.api
-import avalon.web2.output
-
+import avalon.web.filtering
+import avalon.web.api
+import avalon.web.output
 
 
 __all__ = [
@@ -69,9 +71,9 @@ def render_results(func):
     @functools.wraps(func)
     def wrapper(self, *args, **kwargs):
         try:
-            return avalon.web2.output.render(results=func(self, *args, **kwargs))
+            return avalon.web.output.render(results=func(self, *args, **kwargs))
         except avalon.exc.ApiError, e:
-            return avalon.web2.output.render(error=e)
+            return avalon.web.output.render(error=e)
     return wrapper
 
 
@@ -81,7 +83,7 @@ def convert_parameters(func):
     """
     @functools.wraps(func)
     def wrapper(self, *args, **kwargs):
-        return func(self, avalon.web2.request.Parameters(kwargs))
+        return func(self, avalon.web.request.Parameters(kwargs))
     return wrapper
 
 
