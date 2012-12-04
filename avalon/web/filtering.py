@@ -32,12 +32,6 @@
 """Callbacks for sorting and limiting the result set."""
 
 
-import functools
-import threading
-from datetime import datetime
-
-import cherrypy
-
 import avalon.err
 import avalon.exc
 
@@ -64,13 +58,13 @@ class _SortHelper(object):
         """Set the field to be used for sorting."""
         self.field = field
         
-    def __call__(self, o1, o2):
+    def __call__(self, obj1, obj2):
         """Return the results of cmp() on the field of
         the two given objects.
         """
-        v1 = getattr(o1, self.field)
-        v2 = getattr(o2, self.field)
-        return cmp(v1, v2)
+        val1 = getattr(obj1, self.field)
+        val2 = getattr(obj2, self.field)
+        return cmp(val1, val2)
 
 
 SORT_DESC = 'desc'
@@ -78,7 +72,9 @@ SORT_ASC = 'asc'
 
 
 def sort_filter(elms, params):
-    """ """
+    """Use query string parameters to sort the resutl set 
+    appropriately.
+    """
     field = params.get('order')
     direction = params.get('direction', 'asc')
     sort_helper = _SortHelper(field)
@@ -101,7 +97,9 @@ def sort_filter(elms, params):
 
 
 def limit_filter(elms, params):
-    """ """
+    """Use query string parameters to only return a portion 
+    of the result set.
+    """
     limit = params.get_int('limit')
     offset = params.get_int('offset', 0)
 

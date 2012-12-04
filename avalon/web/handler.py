@@ -29,7 +29,7 @@
 #
 
 
-""" """
+"""Avalon web application for handling requests."""
 
 
 import functools
@@ -90,7 +90,7 @@ def convert_parameters(func):
 
 class AvalonHandlerConfig(object):
 
-    """ """
+    """Configuration for the Avalon web application."""
 
     def __init__(self):
         self.api_endpoints = None
