@@ -142,6 +142,7 @@ class AvalonMS(object):
         api = avalon.web.api.AvalonApiEndpoints(api_config)
 
         status_config = avalon.web.api.AvalonStatusEndpointsConfig()
+        status_config.ready = threading.Event()
         status = avalon.web.api.AvalonStatusEndpoints(status_config)
 
         filters = [

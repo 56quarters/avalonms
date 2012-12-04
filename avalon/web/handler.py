@@ -109,9 +109,6 @@ class AvalonHandler(object):
         self._status = config.status_endpoints
         self._filters = config.filters
         self._startup = config.startup
-        
-        # Hack until I figure out a better way to delegate this
-        self.ready = True
 
     def _filter(self, results, params):
         """Apply each of the filter callbacks to the results."""
@@ -119,6 +116,17 @@ class AvalonHandler(object):
         for out_filter in self._filters:
             out = out_filter(out, params)
         return out
+
+    def _get_ready(self):
+        """Get the ready state of the application."""
+        return self._status.ready
+
+    def _set_ready(self, val):
+        """Set the ready state of the application."""
+        self._status.ready = val
+
+    ready = property(
+        _get_ready, _set_ready, None, "Is the application ready")
 
     def reload(self):
         """Reload any cache values for the API and status handlers."""
@@ -128,14 +136,12 @@ class AvalonHandler(object):
     @cherrypy.expose
     def index(self, *args, **kwargs):
         """Application status page."""
-        return "This is the status"
+        return self._status.get_status_page(self._startup, self._api)
 
     @cherrypy.expose
     def heartbeat(self, *args, **kwargs):
         """Application heartbeat endpoint."""
-        if self.ready:
-            return "OKOKOK"
-        return "NONONO"
+        return self._status.get_heartbeat()
 
     @cherrypy.expose
     @cherrypy.tools.json_out()

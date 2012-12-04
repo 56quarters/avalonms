@@ -33,6 +33,9 @@
 
 
 import functools
+from datetime import datetime
+
+import avalon.util
 
 
 __all__ = [
@@ -52,32 +55,6 @@ def intersection(sets):
     return functools.reduce(
         lambda x, y: x.intersection(y),
         [res_set for res_set in sets if res_set is not None])
-
-
-
-class AvalonStatusEndpointsConfig(object):
-
-    """Configuration for the status endpoints."""
-
-    def __init__(self):
-        pass
-
-
-class AvalonStatusEndpoints(object):
-
-    """Status endpoints for information about the running application."""
-
-    def __init__(self, config):
-        pass
-
-    def reload(self):
-        pass
-
-    def get_status_page(self):
-        pass
-
-    def get_heartbeat(self):
-        pass
 
 
 class AvalonApiEndpointsConfig(object):
@@ -154,4 +131,135 @@ class AvalonApiEndpoints(object):
         # There were no parameters to filter songs by any criteria
         return self._tracks.all()
 
+
+
+class AvalonStatusEndpointsConfig(object):
+
+    """Configuration for the status endpoints."""
+
+    def __init__(self):
+        self.ready = None
+
+
+class AvalonStatusEndpoints(object):
+
+    """Status endpoints for information about the running application."""
+
+    def __init__(self, config):
+        """Initialize the ready state of the server."""
+        self._ready = config.ready
+
+    def _get_ready(self):
+        """Get the ready state of the application."""
+        return self._ready.is_set()
+
+    def _set_ready(self, val):
+        """Set the ready state of the application."""
+        if val:
+            self._ready.set()
+        else:
+            self._ready.clear()
+
+    ready = property(
+        _get_ready, _set_ready, None, "Is the application ready")
+
+    def reload(self):
+        pass
+
+    def get_status_page(self, startup, api):
+        """ """
+        return _STATUS_PAGE_TPT % {
+            'status': 'ready' if self.ready else 'not ready',
+            'user': avalon.util.get_current_uname(),
+            'group': avalon.util.get_current_gname(),
+            'uptime': datetime.utcnow() - startup,
+            'memory': avalon.util.get_mem_usage(),
+            'threads': '<br />'.join(avalon.util.get_thread_names()),
+            'albums': len(api.get_albums()),
+            'artists': len(api.get_artists()),
+            'genres': len(api.get_genres()),
+            'tracks': 0
+            }
+
+    def get_heartbeat(self):
+        if self.ready:
+            return "OKOKOK"
+        return "NONONO"
+
+#
+#
+#
+_STATUS_PAGE_TPT = """<!DOCTYPE html>
+<html>
+<head>
+  <title>Avalon Music Server</title>
+  <style type="text/css">
+    body {
+      background-color: #363636;
+      color: #E7E7E7;
+      font-family: helvetica, arial, sans-serif;
+      font-size: 14px;
+      line-height: 20px;
+    }
+    h1 {
+      border-bottom: 1px solid #FFF;
+      color: #00ADEE;
+      margin-top: 10px;
+      padding-bottom: 15px;
+      text-shadow: 0 0 1px #444;
+    }
+    dt {
+      color: #00ADEE;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+    .stats {
+      background-color: #171717;
+      border: 1px solid #FFF;
+      border-radius: 15px;
+      box-shadow: 0 3px 3px 3px #444;
+      margin: 50px auto;
+      padding: 15px;
+      width: 500px;
+    }
+    .status {
+      text-transform: uppercase;
+    }
+    .status.not.ready {
+      color: #C00;
+      font-weight: bold;
+     }
+  </style>
+</head>
+<body class="%(status)s">
+  <div class="stats">
+  <h1>Avalon Music Server</h1>
+  <dl>
+    <dt>Server is:</dt>
+    <dd class="status %(status)s">%(status)s</dd>
+
+    <dt>Running as:</dt>
+    <dd>%(user)s:%(group)s</dd>
+
+    <dt>Uptime:</dt>
+    <dd>%(uptime)s</dd>
+
+    <dt>Memory:</dt>
+    <dd>%(memory)s MB</dd>
+
+    <dt>Threads:</dt>
+    <dd>%(threads)s</dd>
+
+    <dt>Loaded:</dt>
+    <dd>
+      Albums: %(albums)s<br /> 
+      Artists: %(artists)s<br /> 
+      Genres: %(genres)s<br /> 
+      Tracks: %(tracks)s<br />
+    </dd>
+  </dl>
+  </div>
+</body>
+</html>
+"""
 
