@@ -139,6 +139,7 @@ class AvalonStatusEndpointsConfig(object):
 
     def __init__(self):
         self.ready = None
+        self.status_tpt = None
 
 
 class AvalonStatusEndpoints(object):
@@ -148,6 +149,7 @@ class AvalonStatusEndpoints(object):
     def __init__(self, config):
         """Initialize the ready state of the server."""
         self._ready = config.ready
+        self._status_tpt = config.status_tpt
 
     def _get_ready(self):
         """Get the ready state of the application."""
@@ -167,8 +169,10 @@ class AvalonStatusEndpoints(object):
         pass
 
     def get_status_page(self, startup, api):
-        """ """
-        return _STATUS_PAGE_TPT % {
+        """Get an HTML status page interpolated with values from the
+        running server.
+        """
+        return self._status_tpt % {
             'status': 'ready' if self.ready else 'not ready',
             'user': avalon.util.get_current_uname(),
             'group': avalon.util.get_current_gname(),
@@ -182,84 +186,8 @@ class AvalonStatusEndpoints(object):
             }
 
     def get_heartbeat(self):
+        """Get the heartbeat to indicate if the server has started."""
         if self.ready:
             return "OKOKOK"
         return "NONONO"
-
-#
-#
-#
-_STATUS_PAGE_TPT = """<!DOCTYPE html>
-<html>
-<head>
-  <title>Avalon Music Server</title>
-  <style type="text/css">
-    body {
-      background-color: #363636;
-      color: #E7E7E7;
-      font-family: helvetica, arial, sans-serif;
-      font-size: 14px;
-      line-height: 20px;
-    }
-    h1 {
-      border-bottom: 1px solid #FFF;
-      color: #00ADEE;
-      margin-top: 10px;
-      padding-bottom: 15px;
-      text-shadow: 0 0 1px #444;
-    }
-    dt {
-      color: #00ADEE;
-      font-weight: bold;
-      margin-top: 10px;
-    }
-    .stats {
-      background-color: #171717;
-      border: 1px solid #FFF;
-      border-radius: 15px;
-      box-shadow: 0 3px 3px 3px #444;
-      margin: 50px auto;
-      padding: 15px;
-      width: 500px;
-    }
-    .status {
-      text-transform: uppercase;
-    }
-    .status.not.ready {
-      color: #C00;
-      font-weight: bold;
-     }
-  </style>
-</head>
-<body class="%(status)s">
-  <div class="stats">
-  <h1>Avalon Music Server</h1>
-  <dl>
-    <dt>Server is:</dt>
-    <dd class="status %(status)s">%(status)s</dd>
-
-    <dt>Running as:</dt>
-    <dd>%(user)s:%(group)s</dd>
-
-    <dt>Uptime:</dt>
-    <dd>%(uptime)s</dd>
-
-    <dt>Memory:</dt>
-    <dd>%(memory)s MB</dd>
-
-    <dt>Threads:</dt>
-    <dd>%(threads)s</dd>
-
-    <dt>Loaded:</dt>
-    <dd>
-      Albums: %(albums)s<br /> 
-      Artists: %(artists)s<br /> 
-      Genres: %(genres)s<br /> 
-      Tracks: %(tracks)s<br />
-    </dd>
-  </dl>
-  </div>
-</body>
-</html>
-"""
 
