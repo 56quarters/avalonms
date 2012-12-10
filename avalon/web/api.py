@@ -132,7 +132,6 @@ class AvalonApiEndpoints(object):
         return self._tracks.all()
 
 
-
 class AvalonStatusEndpointsConfig(object):
 
     """Configuration for the status endpoints."""

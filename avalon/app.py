@@ -142,6 +142,8 @@ class AvalonMS(object):
         api_config.id_cache = avalon.services.IdLookupCache(self._db)
         api = avalon.web.api.AvalonApiEndpoints(api_config)
 
+        # Configure the status endpoints including loading an HTML
+        # template file using the pkgutil module
         status_config = avalon.web.api.AvalonStatusEndpointsConfig()
         status_config.ready = threading.Event()
         status_config.status_tpt = pkgutil.get_data('avalon.web', 'status.html')

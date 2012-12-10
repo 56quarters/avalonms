@@ -14,8 +14,7 @@ Cleanup:
 * avalon.server - Need tests
 * avalon.services - Need tests
 * avalon.util - Need tests
-* avalon.web - Need to break up
-** avalon.web.handler vs avalon.web.output?
+* avalon.web - Need tests
 
 For v3:
 * Tests

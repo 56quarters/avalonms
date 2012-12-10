@@ -43,7 +43,6 @@ from setuptools import setup, find_packages
 AUTHOR = 'TSH Labs'
 DESCRIPTION = 'Avalon Music Server'
 EMAIL = 'projects@tshlabs.org'
-RELEASE = '0.1.0'
 URL = 'http://www.tshlabs.org/'
 LICENSE = 'BSD'
 CLASSIFIERS = [
@@ -69,8 +68,13 @@ def get_readme(filename):
         return handle.read()
 
 
+def get_release_version():
+    return '0.1.0'
+
+
 README = get_readme('README.rst')
 REQUIRES = get_requires('requires.txt')
+RELEASE = get_release_version()
 
 
 setup(
