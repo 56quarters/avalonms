@@ -1,6 +1,12 @@
 ChangeLog for Avalon Music Server
 
-2012-11-25 - v0.2.0
+2012-12-13 - v0.2.2
+    * Packaging fix
+
+2012-12-13 - v0.2.1
+    * Packaging fix
+
+2012-12-13 - v0.2.0
     * Documentation improvements
     * Ordering, limit, and offset parameter support
     * Use of UUIDs for stable IDs for albums, artists, genres, and songs
