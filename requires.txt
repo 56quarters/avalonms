@@ -4,3 +4,4 @@ python-daemon
 simplejson
 sqlalchemy
 tagpy
+daemon
