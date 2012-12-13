@@ -75,7 +75,9 @@ def get_release_version():
         stderr=subprocess.PIPE)
 
     out, err = proc.communicate()
-    return out.strip()
+    tag = out.strip()
+    _, version = tag.split('-')
+    return version
 
 
 README = get_readme('README.rst')
@@ -99,6 +101,6 @@ setup(
 
 
 print(RELEASE)
-
+print(REQUIRES)
 
 
