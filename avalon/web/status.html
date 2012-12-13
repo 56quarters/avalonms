@@ -34,7 +34,7 @@
     .status {
       text-transform: uppercase;
     }
-    .status.not.ready {
+    .not.ready .status {
       color: #C00;
       font-weight: bold;
      }
@@ -45,7 +45,7 @@
   <h1>Avalon Music Server</h1>
   <dl>
     <dt>Server is:</dt>
-    <dd class="status %(status)s">%(status)s</dd>
+    <dd class="status">%(status)s</dd>
 
     <dt>Running as:</dt>
     <dd>%(user)s:%(group)s</dd>
