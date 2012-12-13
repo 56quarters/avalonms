@@ -29,7 +29,7 @@
 #
 
 
-""" """
+"""API endpoints for the in memory stores."""
 
 
 import functools
