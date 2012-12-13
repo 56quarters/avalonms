@@ -69,7 +69,7 @@ def get_readme(filename):
 
 
 def get_release_version():
-    return '0.1.0'
+    return '0.2.0'
 
 
 README = get_readme('README.rst')
