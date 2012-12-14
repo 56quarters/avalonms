@@ -72,7 +72,7 @@ def get_readme(filename):
 
 README = get_readme('README.rst')
 REQUIRES = get_requires('requires.txt')
-RELEASE = '0.2.4'
+RELEASE = '0.2.5'
 
 
 setup(
