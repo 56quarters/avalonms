@@ -18,13 +18,11 @@ Possible error responses
     
   + Reason: An invalid value for query string parameter was passed.
 
-  + HTTP Code: ``400``
 
 * ``ServerNotReadyError``
   
   + Reason: A request was made before the server finished starting.
 
-  + HTTP Code: ``503``
 
 
 Success output format

@@ -3,8 +3,7 @@ Heartbeat Endpoint
 
 The ``heartbeat`` endpoint returns the plain text string ``OKOKOK`` if the server has
 completed starting and loading collection data, the plain text string ``NONONO`` if it
-has not. In addition, HTTP status ``503`` will be sent if the server has not completed
-starting.
+has not.
 
 
 Parameters
