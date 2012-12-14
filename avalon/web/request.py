@@ -39,14 +39,8 @@ import avalon.exc
 
 
 __all__ = [
-    'set_http_status',
     'Parameters'
     ]
-
-
-def set_http_status(code):
-    """Set the HTTP status of the current response."""
-    cherrypy.serving.response.status = code
 
 
 class Parameters(object):
