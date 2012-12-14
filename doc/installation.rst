@@ -1,52 +1,17 @@
 Installation
 ------------
 
-.. TODO: Simplify this, either via PyPI or make installing far fewer commands
 
-
-Installing globally
-~~~~~~~~~~~~~~~~~~~
-
-  ::
-
-    wget http://cdn.tshlabs.org/dist/avalonms/avalonms-0.1.0.tar.bz2
-
-    tar -xvjf avalonms-0.1.0.tar.bz2
-
-    cd avalonms-0.1.0
-
-    sudo pip install -r requires.txt
-
-    sudo python setup.py install
-
-
-Installing in a ``virtualenv``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-  ::
-
-    wget http://cdn.tshlabs.org/dist/avalonms/avalonms-0.1.0.tar.bz2
-
-    tar -xvjf avalonms-0.1.0.tar.bz2
-
-    cd avalonms-0.1.0
-
-    virtualenv --distribute ~/.avalonms
-
-    source ~/.avalonms/bin/activate
-
-    pip install -r requires.txt
-
-    python setpy.py install
-
-
-
-Installation via PyPI
+Installation via pip and PyPI
 ~~~~~~~~~~~~~~~~~~~~~
 
-Comming soon.
+  ::
+
+    sudo pip install avalonms
 
 
 Troubleshooting
 ~~~~~~~~~~~~~~~
 
+I've never been able to get TagPy to install using pip/PyPi. If you run into
+issues with it, try installing TagPy using your system package manager.
