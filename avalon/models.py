@@ -64,11 +64,11 @@ __all__ = [
     'SessionHandler',
     'SessionHandlerConfig',
     'Track',
-    'UUIDType'
+    'UuidType'
     ]
 
 
-class UUIDType(TypeDecorator):
+class UuidType(TypeDecorator):
     """Platform-independent GUID type.
 
     See http://docs.sqlalchemy.org/en/rel_0_7/core/types.html
@@ -100,7 +100,7 @@ class _Base(object):
 
     """A base for all models that defines name and id fields."""
 
-    id = Column(UUIDType, primary_key=True)
+    id = Column(UuidType, primary_key=True)
     name = Column(String)
 
 
@@ -118,9 +118,9 @@ class Track(Base):
     track = Column(Integer)
     year = Column(Integer)
 
-    album_id = Column(UUIDType, ForeignKey('albums.id'), index=True)
-    artist_id = Column(UUIDType, ForeignKey('artists.id'), index=True)
-    genre_id = Column(UUIDType, ForeignKey('genres.id'), index=True)
+    album_id = Column(UuidType, ForeignKey('albums.id'), index=True)
+    artist_id = Column(UuidType, ForeignKey('artists.id'), index=True)
+    genre_id = Column(UuidType, ForeignKey('genres.id'), index=True)
 
     album = relationship('Album', backref='tracks', lazy='joined', order_by='Track.id')
     artist = relationship('Artist', backref='tracks', lazy='joined', order_by='Track.id')
