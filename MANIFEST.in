@@ -1,9 +1,9 @@
 include ChangeLog MANIFEST.in README.rst requires.txt
 include bin/*
-include avalon/web/status.html
 recursive-include doc *
 global-exclude *~
 global-exclude *.tmp
 global-exclude *.bak
 global-exclude *.old
 global-exclude .git
+global-exclude .#*

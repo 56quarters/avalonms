@@ -32,7 +32,6 @@
 """Main entry point for collection scanning and HTTP server."""
 
 
-import pkgutil
 import os.path
 import signal
 import threading
@@ -57,6 +56,7 @@ import avalon.services
 import avalon.web.api
 import avalon.web.handler
 import avalon.web.filtering
+import avalon.web.tpt
 
 
 __all__ = [
@@ -146,7 +146,7 @@ class AvalonMS(object):
         # template file using the pkgutil module
         status_config = avalon.web.api.AvalonStatusEndpointsConfig()
         status_config.ready = threading.Event()
-        status_config.status_tpt = pkgutil.get_data('avalon.web', 'status.html')
+        status_config.status_tpt = avalon.web.tpt.STATUS_TPT
         status = avalon.web.api.AvalonStatusEndpoints(status_config)
 
         filters = [
