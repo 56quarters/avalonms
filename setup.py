@@ -68,21 +68,9 @@ def get_readme(filename):
         return handle.read()
 
 
-def get_release_version():
-    proc = subprocess.Popen(
-        ['git', 'describe', '--tags' ,'--abbrev=0'],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE)
-
-    out, err = proc.communicate()
-    tag = out.strip()
-    _, version = tag.split('-')
-    return version
-
-
 README = get_readme('README.rst')
 REQUIRES = get_requires('requires.txt')
-RELEASE = get_release_version()
+RELEASE = '0.2.4'
 
 
 setup(
@@ -99,8 +87,5 @@ setup(
     packages=find_packages(),
     scripts=[os.path.join('bin', 'avalonmsd')])
 
-
-print(RELEASE)
-print(REQUIRES)
 
 
