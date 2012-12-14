@@ -101,6 +101,10 @@ class AvalonApiEndpoints(object):
         """Return a list of all genres."""
         return self._genres.all()
 
+    def get_all_songs(self):
+        """Return a list of all songs."""
+        return self._tracks.all()
+
     def get_songs(self, params):
         """Return song results based on the given query string parameters."""
         sets = []
@@ -181,7 +185,7 @@ class AvalonStatusEndpoints(object):
             'albums': len(api.get_albums()),
             'artists': len(api.get_artists()),
             'genres': len(api.get_genres()),
-            'tracks': 0
+            'tracks': len(api.get_all_songs())
             }
 
     def get_heartbeat(self):
