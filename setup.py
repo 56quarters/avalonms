@@ -55,6 +55,7 @@ CLASSIFIERS = [
 
 
 def get_requires(filename):
+    """Get the required packages from the pip file."""
     out = []
     with open(filename) as handle:
         for line in handle:
@@ -64,6 +65,7 @@ def get_requires(filename):
 
 
 def get_readme(filename):
+    """Get the contents of the README file."""
     with open(filename) as handle:
         return handle.read()
 
@@ -86,6 +88,4 @@ setup(
     install_requires=REQUIRES,
     packages=find_packages(),
     scripts=[os.path.join('bin', 'avalonmsd')])
-
-
 
