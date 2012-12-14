@@ -54,8 +54,7 @@ class Parameters(object):
     def __init__(self, query_params):
         """Set the query string params to use."""
         self._query_params = query_params
-        print query_params
-
+    
     def get_int(self, field, default=None):
         """Return the value of the field as an int, raising an error if
         it isn't a valid field or cannot be converted to an int, and
