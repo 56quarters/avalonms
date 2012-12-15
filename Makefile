@@ -23,8 +23,12 @@ init:
 	pip install -r requires.txt
 
 push:
-	git push origin
-	git push github
+	git push --all origin
+	git push --all github
+
+release: push
+	python setup.py version
+	python setup.py register sdist upload
 
 site:
 	cd doc; make dirhtml

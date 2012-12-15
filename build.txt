@@ -1,5 +1,2 @@
-git tag 0.2.6
-git push --tags origin
-git push --tags github
-python setup.py version
-python setup.py register sdist upload
+git tag avalonms-0.2.6
+make release
