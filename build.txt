@@ -1,5 +1,5 @@
-git tag 0.2.0
-git push --tags
-python setup.py sdist
-python setup.py update
-python setup.py register
+git tag 0.2.6
+git push --tags origin
+git push --tags github
+python setup.py version
+python setup.py register sdist upload

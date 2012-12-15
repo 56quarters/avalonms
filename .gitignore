@@ -6,3 +6,5 @@ dist/
 .pydevproject
 .settings
 *.egg-info
+VERSION
+MANIFEST

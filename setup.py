@@ -37,7 +37,7 @@ import re
 import subprocess
 import sys
 
-from setuptools import setup, find_packages
+from setuptools import setup, find_packages, Command
 
 
 AUTHOR = 'TSH Labs'
@@ -54,6 +54,9 @@ CLASSIFIERS = [
     ]
 
 
+_VERSION_FILE = 'VERSION'
+
+
 def get_requires(filename):
     """Get the required packages from the pip file."""
     out = []
@@ -64,15 +67,63 @@ def get_requires(filename):
     return out
 
 
-def get_readme(filename):
-    """Get the contents of the README file."""
+def get_contents(filename):
+    """Get the contents of the given file."""
     with open(filename) as handle:
-        return handle.read()
+        return handle.read().strip()
 
 
-README = get_readme('README.rst')
+def get_version_from_git():
+    """Get the current release version from git."""
+    proc = subprocess.Popen(
+        ['git', 'describe', '--tags', '--abbrev=0'],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE)
+
+    (out, err) = proc.communicate()
+    tag = out.strip()
+
+    if not tag:
+        raise ValueError('Could not determine tag: [%s]' % err)        
+    try:
+        return tag.split('-')[1]
+    except ValueError:
+        raise ValueError('Could not determine version: [%s]' % tag)
+
+
+def write_version(filename):
+    """Write the current release version from git to a file."""
+    with open(filename, 'wb') as handle:
+        handle.write(get_version_from_git())
+
+
+class VersionGenerator(Command):
+
+    """Command to generate the current release from git."""
+
+    description = "Generate the release version from the git tag"
+
+    user_options = []
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        """Write the current release version from Git."""
+        write_version(_VERSION_FILE)
+
+
 REQUIRES = get_requires('requires.txt')
-RELEASE = '0.2.5'
+README = get_contents('README.rst')
+RELEASE = None
+
+try:
+    RELEASE = get_contents(_VERSION_FILE)
+except IOError:
+    pass
 
 
 setup(
@@ -85,6 +136,7 @@ setup(
     classifiers=CLASSIFIERS,
     license=LICENSE,
     url=URL,
+    cmdclass={'version': VersionGenerator},
     install_requires=REQUIRES,
     packages=find_packages(),
     scripts=[os.path.join('bin', 'avalonmsd')])

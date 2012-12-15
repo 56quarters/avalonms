@@ -1,4 +1,4 @@
-include ChangeLog MANIFEST.in README.rst requires.txt
+include ChangeLog MANIFEST.in README.rst VERSION requires.txt
 include bin/*
 recursive-include doc *
 global-exclude *~
