@@ -8,7 +8,8 @@ help:
 	@echo "    docpreview: Build documentation and start an HTTP server to preview it"
 	@echo "    init: Set up the development environment using 'develop' mode (requires root)"
 	@echo "    push: Push origin and github remotes"
-	@echo "    test: Run the unit test suite"
+	@echo "    release: Create and push a new release"
+	@echo "    tags: Push newly created tags to origin and github remotes"
 
 clean:
 	cd doc; make clean
@@ -23,16 +24,18 @@ init:
 	pip install -r requires.txt
 
 push:
-	git push --all origin
-	git push --all github
+	git push origin
+	git push github
 
-release: push
+release: tags
 	python setup.py version
 	python setup.py register sdist upload
+
+tags: push
+	git push --tags origin
+	git push --tags github
 
 site:
 	cd doc; make dirhtml
 
-test:
-	ls
 
