@@ -223,7 +223,7 @@ class TrackStore(object):
 
         self.reload()
 
-    def _freeze(self, table):
+    def _get_frozen(self, table):
         """Return a copy of a dictionary with mutable setS for values
         replaced with frozensetS for values.
         """
@@ -256,9 +256,9 @@ class TrackStore(object):
             by_genre[elm.genre_id].add(elm)
             all_tracks.add(elm)
 
-        self._by_album = self._freeze(by_album)
-        self._by_artist = self._freeze(by_artist)
-        self._by_genre = self._freeze(by_genre)
+        self._by_album = self._get_frozen(by_album)
+        self._by_artist = self._get_frozen(by_artist)
+        self._by_genre = self._get_frozen(by_genre)
         self._all = frozenset(all_tracks)
 
     def by_album(self, album_id):
