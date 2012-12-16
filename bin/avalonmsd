@@ -70,14 +70,12 @@ def get_parser(prog, defaults):
         '--daemon-user',
         action=avalon.cli.DaemonUserAction,
         metavar='USER',
-        help='Switch to this user when running as a daemon '
-        '(default is %s)' % defaults.daemon_user)
+        help='Switch to this user when running as a daemon')
     parser.add_argument(
         '--daemon-group',
         action=avalon.cli.DaemonGroupAction,
         metavar='GROUP',
-        help='Switch to this group when running as a daemon '
-        'default is %s)' % defaults.daemon_group)
+        help='Switch to this group when running as a daemon')
     parser.add_argument(
         '--db-path',
         metavar='PATH',

@@ -4,5 +4,4 @@ python-daemon
 simplejson
 sqlalchemy
 tagpy
-daemon
 argparse
