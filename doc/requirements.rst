@@ -14,5 +14,4 @@ Python requirements:
 
 Non-Python requirements:
 
-* Taglib
-* Boost
+* Taglib and Boost (required by TagPy)
