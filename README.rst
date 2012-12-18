@@ -28,3 +28,5 @@ Features include:
 * IPv6 support
 
 The latest documentation is available at https://avalonms.readthedocs.org/
+
+The source is available at https://github.com/tshlabs/avalonms
