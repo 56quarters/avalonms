@@ -116,3 +116,4 @@ class AvalonServerPlugin(cherrypy.process.servers.ServerAdapter):
         """Unregister start, stop, and graceful handlers."""
         super(AvalonServerPlugin, self).unsubscribe()
         self.bus.unsubscribe('graceful', self.httpserver.reload)
+

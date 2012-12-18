@@ -32,8 +32,6 @@
 """Methods for accessing request parameters and altering the reponse code."""
 
 
-import cherrypy
-
 import avalon.err
 import avalon.exc
 

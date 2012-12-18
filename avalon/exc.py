@@ -82,19 +82,15 @@ class PermissionError(AvalonError):
 
 class ApiError(AvalonError):
     """Base for all errors relating to invalid API requests."""
-    http_code = 0
-    """Default is not to set an HTTP response code."""
-    
+    pass
+
 
 class InvalidParameterError(ApiError):
     """An invalid parameter or parameter value was given."""
-    http_code = 400
-    """Set HTTP status 400."""
+    pass
 
 
 class ServerNotReadyError(ApiError):
     """The API server is not ready to handle requests."""
-    http_code = 503
-    """Set HTTP status 503."""
-
+    pass
 

@@ -46,7 +46,8 @@ __all__ = [
 class IdNameElm(collections.namedtuple('_IdNameElm', ['id', 'name'])):
 
     """Immutable, hashable representation of a model with ID
-    and name attributes (everything besides Tracks)"""
+    and name attributes (everything besides Tracks)
+    """
 
     @classmethod
     def from_model(cls, model):

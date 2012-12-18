@@ -29,8 +29,8 @@
 #
 
 
-""" Miscellaneous utility functions and classes.
-"""
+"""Miscellaneous utility functions and classes."""
+
 
 import errno
 import grp
