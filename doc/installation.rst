@@ -4,11 +4,9 @@ Installation
 Prerequisites
 ~~~~~~~~~~~~~
 
-Make sure you have the pip Installer available.
+Make sure you have the `pip Installer <http://www.pip-installer.org>`_ available.
 
-It is available here: ``http://www.pip-installer.org``
-
-Or by running something like the following:
+You can install it by running something like the following:
 
 Gentoo:
 
