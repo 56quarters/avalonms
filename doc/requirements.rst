@@ -1,6 +1,9 @@
 Requirements
 ------------
 
+If you follow the instructions in :doc:`installation` (using pip) most of
+these requirements should be installed for you.
+
 Python requirements:
 
 * Python >= 2.6

@@ -1,13 +1,34 @@
 Installation
 ------------
 
+Prerequisites
+~~~~~~~~~~~~~
 
-Installation via pip and PyPI
-~~~~~~~~~~~~~~~~~~~~~
+Make sure you have the pip Installer available.
+
+It is available here: ``http://www.pip-installer.org``
+
+Or by running something like the following:
+
+Gentoo:
+
+  :: 
+
+    emerge pip
+
+Ubuntu/Debian
 
   ::
 
-    sudo pip install avalonms
+    apt-get install python-pip
+
+
+Installation via pip and PyPI
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  ::
+
+    pip install avalonms
 
 
 Troubleshooting
