@@ -42,11 +42,24 @@ import avalon.exc
 
 
 __all__ = [
+    'DEFAULT_LOG_LEVEL',
+    'DEFAULT_ACCESS_FMT',
+    'DEFAULT_ERROR_FMT',
+    'DEFAULT_DATE_FMT',
     'AvalonLog',
     'AvalonLogConfig',
     'AvalonLogPlugin'
 
     ]
+
+
+DEFAULT_LOG_LEVEL = logging.INFO
+
+DEFAULT_ACCESS_FMT = '%(message)s'
+
+DEFAULT_ERROR_FMT = '%(levelname)s %(asctime)s %(message)s'
+
+DEFAULT_DATE_FMT = '%Y-%m-%d %H:%M:%S'
 
 
 class AvalonLogConfig(object):
@@ -57,7 +70,10 @@ class AvalonLogConfig(object):
         self.log_root = None
         self.access_path = None
         self.error_path = None
-        self.log_level = logging.INFO
+        self.log_level = DEFAULT_LOG_LEVEL
+        self.access_fmt = DEFAULT_ACCESS_FMT
+        self.error_fmt = DEFAULT_ERROR_FMT
+        self.date_fmt = DEFAULT_DATE_FMT
 
 
 class AvalonLog(object):
@@ -66,18 +82,15 @@ class AvalonLog(object):
     on configuration settings.
     """
 
-    _access_fmt = '%(message)s'
-    
-    _error_fmt = '%(levelname)s %(asctime)s %(message)s'
-
-    _date_fmt = '%Y-%m-%d %H:%M:%S'
-
     def __init__(self, config):
         """Set the path to the log file or None to use stderr."""
         self._log_root = config.log_root
         self._access_path = config.access_path
         self._error_path = config.error_path
         self._level = config.log_level
+        self._access_fmt = config.access_fmt
+        self._error_fmt = config.error_fmt
+        self._date_fmt = config.date_fmt
 
         self._logger = None
         self._handlers = []
