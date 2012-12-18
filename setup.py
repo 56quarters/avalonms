@@ -38,7 +38,10 @@ import re
 import subprocess
 import sys
 
-from setuptools import setup, find_packages, Command
+try:
+    from setuptools import setup, Command
+except ImportError:
+    from distutils.core import setup, Command
 
 
 AUTHOR = 'TSH Labs'
@@ -63,7 +66,7 @@ def get_requires(filename):
     out = []
     with open(filename) as handle:
         for line in handle:
-            package, _ = re.split('[^\w]', line, 1)
+            package, _ = re.split('[^\w\-]', line, 1)
             out.append(package.strip())
     return out
 
@@ -139,6 +142,6 @@ setup(
     url=URL,
     cmdclass={'version': VersionGenerator},
     install_requires=REQUIRES,
-    packages=find_packages(),
+    packages=['avalon', 'avalon.web'],
     scripts=[os.path.join('bin', 'avalonmsd')])
 
