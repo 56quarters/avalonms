@@ -143,5 +143,6 @@ setup(
     cmdclass={'version': VersionGenerator},
     install_requires=REQUIRES,
     packages=['avalon', 'avalon.web'],
+    use_2to3=True,
     scripts=[os.path.join('bin', 'avalonmsd')])
 
