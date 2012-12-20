@@ -52,7 +52,7 @@ import avalon.log
 import avalon.models
 import avalon.scan
 import avalon.server
-import avalon.services
+import avalon.cache
 import avalon.web.api
 import avalon.web.handler
 import avalon.web.filtering
@@ -135,11 +135,11 @@ class AvalonMS(object):
     def _get_handler(self):
         """Configure and return the web request handler."""
         api_config = avalon.web.api.AvalonApiEndpointsConfig()
-        api_config.track_store = avalon.services.TrackStore(self._db)
-        api_config.album_store = avalon.services.AlbumStore(self._db)
-        api_config.artist_store = avalon.services.ArtistStore(self._db)
-        api_config.genre_store = avalon.services.GenreStore(self._db)
-        api_config.id_cache = avalon.services.IdLookupCache(self._db)
+        api_config.track_store = avalon.cache.TrackStore(self._db)
+        api_config.album_store = avalon.cache.AlbumStore(self._db)
+        api_config.artist_store = avalon.cache.ArtistStore(self._db)
+        api_config.genre_store = avalon.cache.GenreStore(self._db)
+        api_config.id_cache = avalon.cache.IdLookupCache(self._db)
         api = avalon.web.api.AvalonApiEndpoints(api_config)
 
         # Configure the status endpoints including loading an HTML

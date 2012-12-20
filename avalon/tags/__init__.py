@@ -29,5 +29,5 @@
 #
 
 
-"""Avalon web endpoint handler package."""
+"""Avalon tag scanning and insertion package."""
 
