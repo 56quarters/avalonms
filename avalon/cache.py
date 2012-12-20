@@ -29,10 +29,8 @@
 #
 
 
-"""
-Classes that encompass business logic spanning multiple functional
-areas.
-"""
+"""Various in-memory stores for meta data."""
+
 
 import collections
 
