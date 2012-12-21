@@ -29,6 +29,9 @@
 #
 
 
+""" """
+
+
 import collections
 
 try:
@@ -73,12 +76,23 @@ class Metadata(collections.namedtuple('_Metadata', [
 
 class MetadataLoader(object):
 
+    """Use a given reader and factory method to load
+    audio metadata based on the file path.
+    """
+
     def __init__(self, reader, factory):
+        """Set the reader and factory to use (TagPy or 
+        Mutagen based).
+        """
         self._reader = reader
         self._factory = factory
 
     @classmethod
     def factory(cls):
+        """Construct a new metadata loader based on which
+        audio tag libraries are available. Raise a
+        NotImplementedError if neither is installed.
+        """
         if _have_mutagen:
             return cls(read_mutagen, from_mutagen)
         elif _have_tagpy:
@@ -86,6 +100,11 @@ class MetadataLoader(object):
         raise NotImplementedError("Did not find supported tag library")
 
     def get_from_path(self, path):
+        """Get a Metadata object representing the audio file at
+        the given path. Raise an IOError if there is an error
+        reading the file or it is not a valid type. Raise a value
+        error if the tag contains invalid data.
+        """
         return self._factory(path, self._reader(path))
 
 
