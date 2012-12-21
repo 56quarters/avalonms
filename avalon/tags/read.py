@@ -32,26 +32,25 @@
 import collections
 
 try:
-    import tagpy
-except ImportError:
-    have_tagpy = False
-else:
-    have_tagpy = True
-
-try:
     import mutagen
 except ImportError:
-    have_mutagen = False
+    _have_mutagen = False
 else:
-    have_mutagen = True
+    _have_mutagen = True
 
-if not have_tagpy and not have_mutagen:
-    raise ImportError("TagPy or Mutagen could not be imported")
+try:
+    import tagpy
+except ImportError:
+    _have_tagpy = False
+else:
+    _have_tagpy = True
+
 
 import avalon.exc
 
 
 __all__ = [
+    'Metadata',
     'MetadataLoader',
     'read_tagpy',
     'read_mutagen',
@@ -78,22 +77,20 @@ class MetadataLoader(object):
         self._reader = reader
         self._factory = factory
 
+    @classmethod
+    def factory(cls):
+        if _have_mutagen:
+            return cls(read_mutagen, from_mutagen)
+        elif _have_tagpy:
+            return cls(read_tagpy, from_tagpy)
+        raise NotImplementedError("Did not find supported tag library")
+
     def get_from_path(self, path):
-        meta = None
-
-        try:
-            meta = self._reader(path)
-        except IOError, e:
-            pass
-
-        try:
-            return self._factory(meta)
-        except ValueError, e:
-            pass
+        return self._factory(path, self._reader(path))
 
 
 def read_tagpy(path):
-    """ """
+    """Get a TagPy tag metadata representation"""
     file_ref = None
     try:
         file_ref = tagpy.FileRef(path.encode(avalon.DEFAULT_ENCODING))
@@ -105,7 +102,7 @@ def read_tagpy(path):
 
 
 def read_mutagen(path):
-    """ """
+    """Get a Mutagen tag metadata representation"""
     tag_file = None
     try:
         tag_file = mutagen.File(path, easy=True)
@@ -116,8 +113,22 @@ def read_mutagen(path):
     return tag_file
 
 
+def _norm_list_str(val):
+    """Convert a possibly-None single element list into a unicode string"""
+    if val is None:
+        return unicode('')
+    return unicode(val[0])
+
+
+def _norm_list_int(val):
+    """Convert a possibly-None single elemtn list into an integer"""
+    if val is None:
+        return 0
+    return int(val[0])
+
+
 def from_tagpy(path, meta):
-    """ """
+    """Convert a TagPy tag object into a Metadata object"""
     return Metadata(
         path=path,
         album=meta.album,
@@ -129,13 +140,13 @@ def from_tagpy(path, meta):
 
 
 def from_mutagen(path, meta):
-    """ """
+    """Convert a Mutagen tag object into a Metadata object"""
     return Metadata(
         path=path,
-        album=meta.get('album')[0],
-        artist=meta.get('artist')[0],
-        genre=meta.get('genre')[0],
-        title=meta.get('title')[0],
-        track=int(meta.get('tracknumber')[0]),
-        year=int(meta.get('date')[0]))
+        album=_norm_list_str(meta.get('album')),
+        artist=_norm_list_str(meta.get('artist')),
+        genre=_norm_list_str(meta.get('genre')),
+        title=_norm_list_str(meta.get('title')),
+        track=_norm_list_int(meta.get('tracknumber')),
+        year=_norm_list_int(meta.get('date')))
 
