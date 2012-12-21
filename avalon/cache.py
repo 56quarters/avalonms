@@ -44,7 +44,6 @@ __all__ = [
     'ArtistStore',
     'GenreStore',
     'IdLookupCache',
-    'InsertService',
     'TrackStore'
     ]
 
@@ -123,8 +122,8 @@ class TrackStore(object):
         self.reload()
 
     def _get_frozen(self, table):
-        """Return a copy of a dictionary with mutable setS for values
-        replaced with frozensetS for values.
+        """Return a copy of a dictionary with mutable sets for values
+        replaced with frozensets for values.
         """
         out = collections.defaultdict(frozenset)
 
