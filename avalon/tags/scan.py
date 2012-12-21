@@ -29,3 +29,48 @@
 #
 
 
+""" """
+
+
+import collections
+import os
+import os.path
+
+
+__all__ = [
+    'get_files',
+    'get_tags',
+    'is_valid_file'
+    'VALID_EXTS'
+    ]
+
+
+VALID_EXTS = frozenset(['.mp3', '.ogg', '.flac'])
+
+
+def is_valid_file(path):
+    """Return true if the path is a audio file that is
+    supported (by extension), false otherwise.
+    """
+    return os.path.splitext(path)[1] in VALID_EXTS
+
+
+def get_files(root):
+    """Get a list of supported files under the given root."""
+    out = []
+    # Force a unicode object here so that we get unicode
+    # objects back for paths so that we can treat path the
+    # same as we treat tag values.
+    for root, dirs, files in os.walk(unicode(root)):
+        for entry in files:
+            path = os.path.normpath(os.path.join(root, entry))
+            if not is_valid_file(path):
+                continue
+            out.append(path)
+    return out
+
+
+def get_tags(files, loader):
+    """Get a list of Metadata objects for each audio file."""
+    return [loader.get_from_path(path) for path in files]
+

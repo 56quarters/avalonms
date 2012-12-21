@@ -29,7 +29,9 @@
 #
 
 
-""" """
+"""Functionality for reading audio metadata from local files using
+either the TagPy or Mutagen libraries.
+"""
 
 
 import collections
@@ -48,7 +50,7 @@ except ImportError:
 else:
     _have_tagpy = True
 
-
+import avalon
 import avalon.exc
 
 
@@ -91,7 +93,8 @@ class MetadataLoader(object):
     def factory(cls):
         """Construct a new metadata loader based on which
         audio tag libraries are available. Raise a
-        NotImplementedError if neither is installed.
+        NotImplementedError if neither TagPy or Mutagen is 
+        installed.
         """
         if _have_mutagen:
             return cls(read_mutagen, from_mutagen)
@@ -102,14 +105,14 @@ class MetadataLoader(object):
     def get_from_path(self, path):
         """Get a Metadata object representing the audio file at
         the given path. Raise an IOError if there is an error
-        reading the file or it is not a valid type. Raise a value
-        error if the tag contains invalid data.
+        reading the file or it is not a valid type. Raise a 
+        ValueError if the tag contains invalid data.
         """
         return self._factory(path, self._reader(path))
 
 
 def read_tagpy(path):
-    """Get a TagPy tag metadata representation"""
+    """Get a TagPy native tag representation"""
     file_ref = None
     try:
         file_ref = tagpy.FileRef(path.encode(avalon.DEFAULT_ENCODING))
@@ -121,7 +124,7 @@ def read_tagpy(path):
 
 
 def read_mutagen(path):
-    """Get a Mutagen tag metadata representation"""
+    """Get a Mutagen native tag representation"""
     tag_file = None
     try:
         tag_file = mutagen.File(path, easy=True)
