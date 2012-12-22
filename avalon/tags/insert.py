@@ -38,18 +38,23 @@ __all__ = [
 
 class TrackFieldLoader(object):
 
-    """ """
+    """Create and insert entries for the associated data for each
+    tag (albums, artists, genres).
+    """
 
     def __init__(self, session_handler, tags):
-        """ """
+        """Set the session handler and tags."""
         self._session_handler = session_handler
         self._tags = tags
 
     def insert(self, cls, id_gen, field):
-        """ """
+        """Insert entries for the associated data for each tag
+        using the given model class, ID generator, and field of
+        the metadata tag.
+        """
         queued = {}
         for tag in tags:
-            obj = self._get_new_obj(cls, field, id_gen, tag)
+            obj = self._get_new_obj(cls, id_gen, field, tag)
             queued[obj.id] = obj
 
         session = self._session_handler.get_session()
@@ -59,8 +64,10 @@ class TrackFieldLoader(object):
         finally:
             self._session_handler.close(session)
 
-    def _get_new_obj(self, cls, field, id_gen, tag):
-        """ """
+    def _get_new_obj(self, cls, id_gen, field, tag):
+        """Generate a new model object for associated data for
+        an audio tag.
+        """
         val = getattr(tag, field, None)
         if val is None:
             # Raise an AttributeError (which would have happened
@@ -76,16 +83,19 @@ class TrackFieldLoader(object):
 
 class TrackLoader(object):
 
-    """ """
+    """Create and insert entries for each tag and associated IDs."""
 
     def __init__(self, session_handler, tags, id_cache):
-        """ """
+        """Set the session handler, tags, and ID lookup cache."""
         self._session_handler = session_handler
         self._tags = tags
         self._id_cache = id_cache
 
     def insert(self, cls, id_gen):
-        """ """
+        """Insert entries for each audio metadata tag using the
+        given model class and ID generator along with associated
+        IDs for albums, artists, and genres.
+        """
         queue = []
         for tag in self._tags:
             queue.append(self._get_new_obj(cls, id_gen, tag)) 
@@ -98,7 +108,9 @@ class TrackLoader(object):
             self._session_handler.close(session)
 
     def _get_new_obj(self, cls, id_gen, tag):
-        """ """
+        """Generate a new model object for an audio tag and set
+        the associated IDs for albums, artists, and genres.
+        """
         obj = cls()
         obj.id = id_gen(tag.path)
         obj.name = tag.title
@@ -112,6 +124,7 @@ class TrackLoader(object):
         obj.album_id = self._id_cache.get_album_id(tag.album)
         obj.artist_id = self._id_cache.get_artist_id(tag.artist)
         obj.genre_id = self._id_cache.get_genre_id(tag.genre)
+
         return obj
 
 
