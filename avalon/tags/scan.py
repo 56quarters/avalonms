@@ -29,7 +29,7 @@
 #
 
 
-""" """
+"""Functionality for crawling a filesystem to find valid audio files."""
 
 
 import collections

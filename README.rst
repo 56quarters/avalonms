@@ -20,7 +20,7 @@ The server can also be run as a well-behaved Unix daemon
 
 Features include:
 
-* Support for Mp3, Vorbis (Ogg), or Flac audio files (via TagPy)
+* Support for Mp3, Vorbis (Ogg), or Flac audio files
 * Simple, clean JSON interface
 * Tunable concurrency support
 * Unicode output support
