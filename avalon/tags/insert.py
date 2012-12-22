@@ -29,6 +29,9 @@
 #
 
 
+"""Functionality for loading various audio tag metadata into the database."""
+
+
 __all__ = [
     'TrackFieldLoader',
     'TrackLoader',

@@ -47,16 +47,19 @@ import cherrypy
 from cherrypy._cptree import Application as CherryPyApplication
 import daemon
 
+import avalon.cache
 import avalon.exc
 import avalon.log
 import avalon.models
-import avalon.scan
 import avalon.server
-import avalon.cache
+import avalon.tags.insert
+import avalon.tags.read
+import avalon.tags.scan
 import avalon.web.api
 import avalon.web.handler
 import avalon.web.filtering
 import avalon.web.tpt
+from avalon.models import Album, Artist, Genre, Track
 
 
 __all__ = [
@@ -371,11 +374,22 @@ class _CollectionScanPlugin(cherrypy.process.plugins.SimplePlugin):
         database.
         """
         self._log.info('Scanning music collection...')
-        files = avalon.scan.get_files(os.path.abspath(self._collection))
-        tags = avalon.scan.get_tags(files)
+        tag_loader = avalon.tags.read.new_loader()
+        tag_files = avalon.tags.scan.get_files(os.path.abspath(self._collection))
+        tag_metas = avalon.tags.scan.get_tags(tag_files, tag_loader)
+
         id_cache = avalon.cache.IdLookupCache(self._db)
-        loader = avalon.tags.insert.InsertService(self._db, id_cache)
-        loader.insert(tags)
+        field_loader = avalon.tags.insert.TrackFieldLoader(self._db, tag_metas)
+        track_loader = avalon.tags.insert.TrackLoader(self._db, tag_metas, id_cache)
+        cleaner = avalon.tags.insert.Cleaner(self._db)
+
+        for cls in (Album, Artist, Genre, Track):
+            cleaner.clean(cls)
+
+        field_loader.insert(Albums, avalon.ids.get_album_id, 'album')
+        field_loader.insert(Artist, avalon.ids.get_artist_id, 'artist')
+        field_loader.insert(Genre, avalon.ids.get_genre_id, 'genre')
+        track_loader.insert(Track, avalon.ids.get_track_id)
 
     # Set the rescan done as part of a graceful to a higher priority
     # than the server reload done for a graceful so that the new db

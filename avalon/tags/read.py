@@ -57,6 +57,7 @@ import avalon.exc
 __all__ = [
     'Metadata',
     'MetadataLoader',
+    'new_loader',
     'read_tagpy',
     'read_mutagen',
     'from_tagpy',
@@ -89,19 +90,6 @@ class MetadataLoader(object):
         self._reader = reader
         self._factory = factory
 
-    @classmethod
-    def factory(cls):
-        """Construct a new metadata loader based on which
-        audio tag libraries are available. Raise a
-        NotImplementedError if neither TagPy or Mutagen is 
-        installed.
-        """
-        if _have_mutagen:
-            return cls(read_mutagen, from_mutagen)
-        elif _have_tagpy:
-            return cls(read_tagpy, from_tagpy)
-        raise NotImplementedError("Did not find supported tag library")
-
     def get_from_path(self, path):
         """Get a Metadata object representing the audio file at
         the given path. Raise an IOError if there is an error
@@ -109,6 +97,18 @@ class MetadataLoader(object):
         ValueError if the tag contains invalid data.
         """
         return self._factory(path, self._reader(path))
+
+
+def new_loader():
+    """Construct a new metadata loader based on which audio 
+    tag libraries are available. Raise a NotImplementedError
+    if neither TagPy or Mutagen is installed.
+    """
+    if _have_mutagen:
+        return MetadataLoader(read_mutagen, from_mutagen)
+    elif _have_tagpy:
+        return MetadataLoader(read_tagpy, from_tagpy)
+    raise NotImplementedError("Did not find supported tag library")
 
 
 def read_tagpy(path):
