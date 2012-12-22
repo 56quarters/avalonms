@@ -48,26 +48,30 @@ __all__ = [
 VALID_EXTS = frozenset(['.mp3', '.ogg', '.flac'])
 
 
+def _get_files(callback, root):
+    """Get a list of files under the given root filtered
+    using the supplied callback.
+    """
+    out = []
+    for root, dirs, files in os.walk(root):
+        for entry in files:
+            out.append(os.path.normpath(os.path.join(root, entry)))
+    return filter(callback, out)
+
+
+def get_files(root):
+    """Get a list of supported files under the given root."""
+    # Force a unicode object here so that we get unicode
+    # objects back for paths so that we can treat path the
+    # same as we treat tag values.
+    return _get_files(is_valid_file, unicode(root))
+
+
 def is_valid_file(path):
     """Return true if the path is a audio file that is
     supported (by extension), false otherwise.
     """
     return os.path.splitext(path)[1] in VALID_EXTS
-
-
-def get_files(root):
-    """Get a list of supported files under the given root."""
-    out = []
-    # Force a unicode object here so that we get unicode
-    # objects back for paths so that we can treat path the
-    # same as we treat tag values.
-    for root, dirs, files in os.walk(unicode(root)):
-        for entry in files:
-            path = os.path.normpath(os.path.join(root, entry))
-            if not is_valid_file(path):
-                continue
-            out.append(path)
-    return out
 
 
 def get_tags(files, loader):

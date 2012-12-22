@@ -2,5 +2,5 @@ cherrypy>=3.2.2
 python-daemon
 simplejson
 sqlalchemy
-tagpy
+mutagen
 argparse
