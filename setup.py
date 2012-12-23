@@ -33,10 +33,8 @@
 from __future__ import print_function
 
 import os
-import os.path
 import re
 import subprocess
-import sys
 
 try:
     from setuptools import setup, Command

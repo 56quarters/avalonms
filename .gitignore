@@ -5,6 +5,8 @@ dist/
 .project
 .pydevproject
 .settings
+.idea
+*.iml
 *.egg-info
 VERSION
 MANIFEST
