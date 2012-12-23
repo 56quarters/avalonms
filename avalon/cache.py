@@ -34,7 +34,6 @@
 
 import collections
 
-import avalon.ids
 from avalon.models import Album, Artist, Genre, Track
 from avalon.elms import IdNameElm, TrackElm
 
