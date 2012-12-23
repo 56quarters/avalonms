@@ -33,6 +33,7 @@
 
 
 import os.path
+import pkgutil
 import signal
 import threading
 from datetime import datetime
@@ -59,7 +60,6 @@ import avalon.tags.scan
 import avalon.web.api
 import avalon.web.handler
 import avalon.web.filtering
-import avalon.web.tpt
 from avalon.models import Album, Artist, Genre, Track
 
 
@@ -146,11 +146,10 @@ class AvalonMS(object):
         api_config.id_cache = avalon.cache.IdLookupCache(self._db)
         api = avalon.web.api.AvalonApiEndpoints(api_config)
 
-        # Configure the status endpoints including loading an HTML
-        # template file using the pkgutil module
+        # Configure the status endpoints including loading an HTML template
         status_config = avalon.web.api.AvalonStatusEndpointsConfig()
         status_config.ready = threading.Event()
-        status_config.status_tpt = avalon.web.tpt.STATUS_TPT
+        status_config.status_tpt = pkgutil.get_data('avalon.web', 'data/status.html')
         status = avalon.web.api.AvalonStatusEndpoints(status_config)
 
         filters = [

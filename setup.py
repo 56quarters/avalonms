@@ -120,17 +120,17 @@ class VersionGenerator(Command):
 
 REQUIRES = get_requires('requires.txt')
 README = get_contents('README.rst')
-RELEASE = None
+VERSION = None
 
 try:
-    RELEASE = get_contents(_VERSION_FILE)
+    VERSION = get_contents(_VERSION_FILE)
 except IOError:
     pass
 
 
 setup(
     name='avalonms',
-    version=RELEASE,
+    version=VERSION,
     author=AUTHOR,
     description=DESCRIPTION,
     long_description=README,
@@ -140,7 +140,8 @@ setup(
     url=URL,
     cmdclass={'version': VersionGenerator},
     install_requires=REQUIRES,
-    packages=['avalon', 'avalon.web'],
+    packages=['avalon', 'avalon.tags', 'avalon.web'],
+    package_data={'avalon.web': ['data/status.html']},
     use_2to3=True,
     scripts=[os.path.join('bin', 'avalonmsd')])
 
