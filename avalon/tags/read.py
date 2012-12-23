@@ -35,6 +35,8 @@ either the TagPy or Mutagen libraries.
 
 
 import collections
+import re
+from datetime import datetime
 
 try:
     import mutagen
@@ -57,6 +59,8 @@ import avalon.exc
 __all__ = [
     'Metadata',
     'MetadataLoader',
+    'MetadataDateParser',
+    'MetadataTrackParser',
     'new_loader',
     'read_tagpy',
     'read_mutagen',
@@ -135,6 +139,67 @@ def read_mutagen(path):
     return tag_file
 
 
+class MetadataDateParser(object):
+    
+    """Parser for extracing the year of a track."""
+
+    fmt_iso = '%Y-%m-%dT%H:%M:%S'
+
+    def __init__(self, parser_impl):
+        """Set the date parser which is expected to behave like
+        datetime.strptime().
+        """
+        self._parser = parser_impl
+
+    def parse(self, val):
+        """Attempt to parse the given date string for a year, raise a
+        ValueError if the year could not be parsed.
+        """
+        if val.isdigit():
+            return int(val)
+
+        try:
+            ts = self._parser(val, self.fmt_iso)
+        except ValueError:
+            raise ValueError("Could not parse year from value [%s]" % val)
+        return ts.year
+
+
+class MetadataTrackParser(object):
+    
+    """Parser for extracting the number of a track."""
+
+    fmt_fraction = '(\d+)/\d+'
+
+    def __init__(self, parser_impl):
+        """Set the regular expression parser which is expected
+        to behave like re.match().
+        """
+        self._parser = parser_impl
+
+    def parse(self, val):
+        """Attempt to parse the given track string, raise the ValueError
+        if the track string could not be parsed.
+        """
+        if val.isdigit():
+            return int(val)
+
+        match = self._parser(self.fmt_fraction, val)
+        if match is not None:
+            return int(match.group(1))
+        raise ValueError("Could not parse track from value [%s]" % val)
+
+
+# Default parser to use for converting various formats
+# of track number into a plain integer.
+_track_parser = MetadataTrackParser(re.match)
+
+
+# Default parser to use for converting various types of
+# date like values into a plain old year.
+_date_parser = MetadataDateParser(datetime.strptime)
+
+
 def _norm_list_str(val):
     """Convert a possibly-None single element list into a unicode string"""
     if val is None:
@@ -142,15 +207,24 @@ def _norm_list_str(val):
     return unicode(val[0])
 
 
-def _norm_list_int(val):
-    """Convert a possibly-None single elemtn list into an integer"""
+def _norm_list_track(val):
+    """ """
     if val is None:
         return 0
-    return int(val[0])
+    return _track_parser.parse(val[0])
+
+
+def _norm_list_date(val):
+    """Convert a possibly-None single element list into a year (integer)."""
+    if val is None:
+        return 0
+    return _date_parser.parse(val[0])
 
 
 def from_tagpy(path, meta):
     """Convert a TagPy tag object into a Metadata object"""
+    # TagPy wraps Taglib which does all the data coercion
+    # for us so we don't have to do any parsing on our own
     return Metadata(
         path=path,
         album=meta.album,
@@ -169,6 +243,6 @@ def from_mutagen(path, meta):
         artist=_norm_list_str(meta.get('artist')),
         genre=_norm_list_str(meta.get('genre')),
         title=_norm_list_str(meta.get('title')),
-        track=_norm_list_int(meta.get('tracknumber')),
-        year=_norm_list_int(meta.get('date')))
+        track=_norm_list_track(meta.get('tracknumber')),
+        year=_norm_list_date(meta.get('date')))
 

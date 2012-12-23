@@ -56,7 +56,7 @@ class TrackFieldLoader(object):
         the metadata tag.
         """
         queued = {}
-        for tag in tags:
+        for tag in self._tags:
             obj = self._get_new_obj(cls, id_gen, field, tag)
             queued[obj.id] = obj
 
@@ -119,11 +119,7 @@ class TrackLoader(object):
         obj.name = tag.title
         obj.track = tag.track
         obj.year = tag.year
-
-        obj.album = tag.album
-        obj.artist = tag.artist
-        obj.genre = tag.genre
-
+        
         obj.album_id = self._id_cache.get_album_id(tag.album)
         obj.artist_id = self._id_cache.get_artist_id(tag.artist)
         obj.genre_id = self._id_cache.get_genre_id(tag.genre)
@@ -137,7 +133,7 @@ class Cleaner(object):
 
     def __init__(self, session_handler):
         """Set the session handler."""
-        self._session_handler
+        self._session_handler = session_handler
 
     def clean_all(self, cls):
         """Delete all entities of the given class."""
