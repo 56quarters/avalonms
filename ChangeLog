@@ -1,5 +1,11 @@
 ChangeLog for Avalon Music Server
 
+2012-12-23 - v0.2.11
+   * Refactor avalon.scan into avalon.tags package
+   * Switch to use Mutagen by default instead of TagPy
+   * Allow avalon.tags package to fall back to TagPy if
+     Mutagen isn't installed
+
 2012-12-17 - v0.2.10
    * Fix build dependencies and remove setuptools/distribute requirement
 
