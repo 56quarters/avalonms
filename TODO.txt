@@ -10,7 +10,6 @@ Cleanup:
 * avalon.ids - Need tests
 * avalon.log - Need IoC
 * avalon.models - Need tests
-* avalon.scan - I don't even know
 * avalon.server - Need tests
 * avalon.services - Need tests
 * avalon.util - Need tests
