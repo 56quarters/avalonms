@@ -168,6 +168,7 @@ class AvalonStatusEndpoints(object):
         _get_ready, _set_ready, None, "Is the application ready")
 
     def reload(self):
+        """No-op."""
         pass
 
     def get_status_page(self, startup, api):

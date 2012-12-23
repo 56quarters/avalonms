@@ -209,21 +209,27 @@ _date_parser = MetadataDateParser(datetime.strptime)
 
 
 def _norm_list_str(val):
-    """Convert a possibly-None single element list into a unicode string"""
+    """Convert a possibly-None single element list into a unicode
+    string.
+    """
     if val is None:
         return unicode('')
     return unicode(val[0])
 
 
 def _norm_list_track(val):
-    """ """
+    """Convert a possibly-None single element list into a track 
+    number (integer).
+    """
     if val is None:
         return 0
     return _track_parser.parse(val[0])
 
 
 def _norm_list_date(val):
-    """Convert a possibly-None single element list into a year (integer)."""
+    """Convert a possibly-None single element list into a year 
+    (integer).
+    """
     if val is None:
         return 0
     return _date_parser.parse(val[0])

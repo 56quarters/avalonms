@@ -32,7 +32,6 @@
 """Functionality for crawling a filesystem to find valid audio files."""
 
 
-import collections
 import os
 import os.path
 
@@ -56,7 +55,7 @@ def _get_files(callback, root):
     for root, dirs, files in os.walk(root):
         for entry in files:
             out.append(os.path.normpath(os.path.join(root, entry)))
-    return filter(callback, out)
+    return [entry for entry in out if callback(entry)]
 
 
 def get_files(root):
