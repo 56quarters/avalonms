@@ -53,7 +53,6 @@ else:
     _have_tagpy = True
 
 import avalon
-import avalon.exc
 
 
 __all__ = [
@@ -131,7 +130,7 @@ def read_mutagen(path):
     """Get a Mutagen native tag representation"""
     tag_file = None
     try:
-        tag_file = mutagen.File(path, easy=True)
+        tag_file = mutagen.File(path.encode(avalon.DEFAULT_ENCODING), easy=True)
     except IOError, e:
         raise IOError("Could not open [%s]: %s" % (path, str(e)))
     if tag_file is None:
