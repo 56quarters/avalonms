@@ -101,32 +101,31 @@ class AvalonApiEndpoints(object):
         """Return a list of all genres."""
         return self._genres.all()
 
-    def get_all_songs(self):
-        """Return a list of all songs."""
-        return self._tracks.all()
+    def get_songs(self, params=None):
+        """Return song results based on the given query string
+        parameters, all songs if there are no parameters."""
+        if params is None:
+            return self._tracks.all()
 
-    def get_songs(self, params):
-        """Return song results based on the given query string parameters."""
-        sets = []
-
-        if None is not params.get('album'):
+        sets = []        
+        if params.get('album') is not None:
             sets.append(
                 self._tracks.by_album(
                     self._id_cache.get_album_id(params.get('album'))))
-        if None is not params.get('artist'):
+        if params.get('artist') is not None:
             sets.append(
                 self._tracks.by_artist(
                     self._id_cache.get_artist_id(params.get('artist'))))
-        if None is not params.get('genre'):
+        if params.get('genre') is not None:
             sets.append(
                 self._tracks.by_genre(
                     self._id_cache.get_genre_id(params.get('genre'))))
 
-        if None is not params.get('album_id'):
+        if params.get('album_id') is not None:
             sets.append(self._tracks.by_album(params.get('album_id')))
-        if None is not params.get('artist_id'):
+        if params.get('artist_id') is not None:
             sets.append(self._tracks.by_artist(params.get('artist_id')))
-        if None is not params.get('genre_id'):
+        if params.get('genre_id') is not None:
             sets.append(self._tracks.by_genre(params.get('genre_id')))
             
         if sets:
@@ -185,7 +184,7 @@ class AvalonStatusEndpoints(object):
             'albums': len(api.get_albums()),
             'artists': len(api.get_artists()),
             'genres': len(api.get_genres()),
-            'tracks': len(api.get_all_songs())
+            'tracks': len(api.get_songs())
             }
 
     def get_heartbeat(self):

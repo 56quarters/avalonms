@@ -378,17 +378,17 @@ class _CollectionScanPlugin(cherrypy.process.plugins.SimplePlugin):
         tag_files = avalon.tags.scan.get_files(os.path.abspath(self._collection))
         tag_metas = avalon.tags.scan.get_tags(tag_files, tag_loader)
 
-        id_cache = avalon.cache.IdLookupCache(self._db)
-        field_loader = avalon.tags.insert.TrackFieldLoader(self._db, tag_metas)
-        track_loader = avalon.tags.insert.TrackLoader(self._db, tag_metas, id_cache)
         cleaner = avalon.tags.insert.Cleaner(self._db)
-
         for cls in (Album, Artist, Genre, Track):
             cleaner.clean_all(cls)
 
+        field_loader = avalon.tags.insert.TrackFieldLoader(self._db, tag_metas)
         field_loader.insert(Album, avalon.ids.get_album_id, 'album')
         field_loader.insert(Artist, avalon.ids.get_artist_id, 'artist')
         field_loader.insert(Genre, avalon.ids.get_genre_id, 'genre')
+
+        id_cache = avalon.cache.IdLookupCache(self._db)
+        track_loader = avalon.tags.insert.TrackLoader(self._db, tag_metas, id_cache)
         track_loader.insert(Track, avalon.ids.get_track_id)
 
     # Set the rescan done as part of a graceful to a higher priority

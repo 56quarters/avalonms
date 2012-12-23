@@ -141,7 +141,11 @@ def read_mutagen(path):
 
 class MetadataDateParser(object):
     
-    """Parser for extracing the year of a track."""
+    """Parser for extracing the year of a track
+
+    Some audio tags have entire timestamps for the date instead
+    of just a year.
+    """
 
     fmt_iso = '%Y-%m-%dT%H:%M:%S'
 
@@ -167,7 +171,11 @@ class MetadataDateParser(object):
 
 class MetadataTrackParser(object):
     
-    """Parser for extracting the number of a track."""
+    """Parser for extracting the number of a track.
+    
+    Some audio tags have less than perfect data for track numbers
+    like "1/5", "2/5", etc.
+    """
 
     fmt_fraction = '(\d+)/\d+'
 
