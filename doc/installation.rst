@@ -12,9 +12,9 @@ Gentoo:
 
   :: 
 
-    emerge pip
+    emerge dev-python/pip
 
-Ubuntu/Debian
+Ubuntu/Mint/Debian
 
   ::
 
