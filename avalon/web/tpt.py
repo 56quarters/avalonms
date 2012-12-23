@@ -37,6 +37,7 @@ __all__ = [
     ]
 
 
+# TODO: Move this to a datafile
 STATUS_TPT = """
 <!DOCTYPE html>
 <html>

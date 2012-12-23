@@ -38,9 +38,9 @@ import threading
 from datetime import datetime
 
 import cherrypy
-# Import the cherrypy Application class directly and use it
+# Import the CherryPy Application class directly and use it
 # instead of using the global cherrypy.tree Tree instance. We
-# then pass this wsgi app directly to the server when it starts.
+# then pass this WSGI app directly to the server when it starts.
 # All this really buys us is making the code path a little
 # simpler and easier to understand (plus avoiding some global
 # state).
@@ -49,6 +49,7 @@ import daemon
 
 import avalon.cache
 import avalon.exc
+import avalon.ids
 import avalon.log
 import avalon.models
 import avalon.server

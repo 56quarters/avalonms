@@ -29,7 +29,7 @@
 #
 
 
-"""Various in-memory stores for meta data."""
+"""Various in-memory stores for metadata."""
 
 
 import collections
