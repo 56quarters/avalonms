@@ -28,3 +28,19 @@ Installation via pip and PyPI
 
     pip install avalonms
 
+
+Manual installation
+~~~~~~~~~~~~~~~~~~~
+
+You'll need to ensure you have each of the dependencies listed in :doc:`requirements`
+if you choose to install without using pip and PyPI.
+
+  ::
+
+    # Download from http://pypi.python.org/pypi/avalonms
+
+    tar -xzf avalonms-$version.tar.gz
+
+    cd avalonms-$version
+
+    python setup.py install
