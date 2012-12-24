@@ -1,7 +1,7 @@
 Usage
 -----
 
-Running The Server
+Running the server
 ~~~~~~~~~~~~~~~~~~
 
 The Avalon Music Server can be run in the foreground or in the background as a UNIX 
@@ -18,7 +18,7 @@ The default mode, with no CLI options, run as an unprivileged user, is:
 * Write access and error logs to the current console
 * Rescan the music collection on ``SIGUSR1``
 
-Running In The Foreground
+Running in the foreground
 =========================
 
 With no options, the Avalon Music Server will run in the foreground. By default, the
@@ -28,7 +28,7 @@ access log will be written to ``STDOUT``. The error log will be written to ``STD
 
     avalonmsd ~/Music
 
-Running As A Daemon
+Running as a daemon
 ===================
 
 When given the ``--daemon`` option, the Avalon Music server will become a well-behaved
@@ -41,7 +41,7 @@ and ``--error-log`` options are required.
          --access-log /tmp/access.log ~/Music
 
 
-Running As A Daemon Started As Root
+Running as a daemon started as root
 ===================================
 
 When run as root and given the ``--daemon-user`` and ``--daemon-group`` options (in
@@ -57,7 +57,7 @@ error log, and database file so that it will still be able to write to them.
         --daemon-group apache ~/Music
 
 
-In-Place Rescan
+In-place rescan
 ===============
 
 The Avalon Music Server can be told to rescan a music collection and reload metadata
@@ -67,6 +67,27 @@ the signal ``SIGUSR1`` using a program such as ``pkill`` or ``kill``.
   ::
 
     pkill -USR1 avalonmsd
+
+
+Running on a public interface
+=============================
+
+By default the Avalon Music Server will bind to a local address (typically 127.0.0.1) and
+will not be publicly accessible. If you want it to bind to a public address (and therefore
+allow other people to connect to the server) you must use the ``--server-address`` option
+to specify what address to use.
+
+IPv4
+
+  ::
+
+    avalonmsd --server-address 0.0.0.0 ~/Music
+
+IPv6
+
+  ::
+
+    avalonmsd --server-address :: ~/Music
 
 
 Arguments
