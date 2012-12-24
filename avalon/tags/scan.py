@@ -59,7 +59,9 @@ def _get_files(callback, root):
 
 
 def get_files(root):
-    """Get a list of supported files under the given root."""
+    """Get a list of supported files (indicated by VALID_EXTS)
+    under the given root.
+    """
     # Force a unicode object here so that we get unicode
     # objects back for paths so that we can treat path the
     # same as we treat tag values.

@@ -116,11 +116,10 @@ def new_loader():
 
 def read_tagpy(path):
     """Get a TagPy native tag representation"""
-    file_ref = None
     try:
         file_ref = tagpy.FileRef(path.encode(avalon.DEFAULT_ENCODING))
     except UnicodeError, e:
-        raise IOError("Could not encode audio path: %s" % str(e))
+        raise IOError("Could not encode audio path [%s]" % str(e))
     except ValueError, e:
         raise IOError("Could not open [%s]: %s" % (path, str(e)))
     return file_ref.tag()
@@ -128,7 +127,6 @@ def read_tagpy(path):
 
 def read_mutagen(path):
     """Get a Mutagen native tag representation"""
-    tag_file = None
     try:
         tag_file = mutagen.File(path.encode(avalon.DEFAULT_ENCODING), easy=True)
     except IOError, e:
