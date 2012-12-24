@@ -150,7 +150,7 @@ class AvalonHandler(object):
     @convert_parameters
     def albums(self, params):
         """Albums metadata endpoint."""
-        return self._filter(self._api.get_albums(), params)
+        return self._filter(self._api.get_albums(params), params)
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
@@ -159,7 +159,7 @@ class AvalonHandler(object):
     @convert_parameters
     def artists(self, params):
         """Artists metadata endpoint."""
-        return self._filter(self._api.get_artists(), params)
+        return self._filter(self._api.get_artists(params), params)
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
@@ -168,7 +168,7 @@ class AvalonHandler(object):
     @convert_parameters
     def genres(self, params):
         """Genres metadata endpoint."""
-        return self._filter(self._api.get_genres(), params)
+        return self._filter(self._api.get_genres(params), params)
 
     @cherrypy.expose
     @cherrypy.tools.json_out()

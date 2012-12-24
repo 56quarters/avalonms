@@ -66,6 +66,7 @@ class AvalonApiEndpointsConfig(object):
         self.album_store = None
         self.artist_store = None
         self.genre_store = None
+        self.search = None
         self.id_cache = None
 
 
@@ -79,6 +80,7 @@ class AvalonApiEndpoints(object):
         self._albums = config.album_store
         self._artists = config.artist_store
         self._genres = config.genre_store
+        self._search = config.search
         self._id_cache = config.id_cache
 
     def reload(self):
@@ -89,15 +91,25 @@ class AvalonApiEndpoints(object):
         self._genres.reload()
         self._id_cache.reload()
 
-    def get_albums(self):
+    def get_albums(self, params=None):
         """Return a list of all albums."""
-        return self._albums.all()
+        all_albums = self._albums.all()
+        if params is None:
+            return all_albums
 
-    def get_artists(self):
+        sets = []
+        if params.get('query') is not None:
+            sets.append(self._search.search_basic(all_albums, params.get('query')))
+
+        if sets:
+            return intersection(sets)
+        return all_albums
+
+    def get_artists(self, params=None):
         """Return a list of all artists."""
         return self._artists.all()
 
-    def get_genres(self):
+    def get_genres(self, params=None):
         """Return a list of all genres."""
         return self._genres.all()
 

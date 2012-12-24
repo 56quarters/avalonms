@@ -47,7 +47,7 @@ class Parameters(object):
 
     valid = frozenset(
         ['album', 'album_id', 'artist', 'artist_id', 'direction', 
-         'order', 'genre', 'genre_id', 'limit', 'offset'])
+         'order', 'genre', 'genre_id', 'limit', 'offset', 'query'])
 
     def __init__(self, query_params):
         """Set the query string params to use."""

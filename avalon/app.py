@@ -60,6 +60,7 @@ import avalon.tags.scan
 import avalon.web.api
 import avalon.web.handler
 import avalon.web.filtering
+import avalon.web.search
 from avalon.models import Album, Artist, Genre, Track
 
 
@@ -143,6 +144,7 @@ class AvalonMS(object):
         api_config.album_store = avalon.cache.AlbumStore(self._db)
         api_config.artist_store = avalon.cache.ArtistStore(self._db)
         api_config.genre_store = avalon.cache.GenreStore(self._db)
+        api_config.search = avalon.web.search.AvalonTextSearch()
         api_config.id_cache = avalon.cache.IdLookupCache(self._db)
         api = avalon.web.api.AvalonApiEndpoints(api_config)
 
