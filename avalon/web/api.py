@@ -92,26 +92,25 @@ class AvalonApiEndpoints(object):
         self._id_cache.reload()
 
     def get_albums(self, params=None):
-        """Return a list of all albums."""
+        """ """
         all_albums = self._albums.all()
-        if params is None:
+        if params is None or params.get('query') is None:
             return all_albums
-
-        sets = []
-        if params.get('query') is not None:
-            sets.append(self._search.search_basic(all_albums, params.get('query')))
-
-        if sets:
-            return intersection(sets)
-        return all_albums
+        return self._search.search_basic(all_albums, params.get('query'))
 
     def get_artists(self, params=None):
-        """Return a list of all artists."""
-        return self._artists.all()
+        """ """
+        all_artists = self._artists.all()
+        if params is None or params.get('query') is None:
+            return all_artists
+        return self._search.search_basic(all_artists, params.get('query'))
 
     def get_genres(self, params=None):
-        """Return a list of all genres."""
-        return self._genres.all()
+        """ """
+        all_genres = self._genres.all()
+        if params is None or params.get('query') is None:
+            return all_genres
+        return self._search.search_basic(all_genres, params.get('query'))
 
     def get_songs(self, params=None):
         """Return song results based on the given query string
@@ -119,7 +118,7 @@ class AvalonApiEndpoints(object):
         if params is None:
             return self._tracks.all()
 
-        sets = []        
+        sets = []
         if params.get('album') is not None:
             sets.append(
                 self._tracks.by_album(
