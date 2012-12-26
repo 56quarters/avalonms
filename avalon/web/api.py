@@ -136,12 +136,16 @@ class AvalonApiEndpoints(object):
                 self._tracks.by_genre(
                     self._id_cache.get_genre_id(params.get('genre'))))
 
-        if params.get('album_id') is not None:
-            sets.append(self._tracks.by_album(params.get('album_id')))
-        if params.get('artist_id') is not None:
-            sets.append(self._tracks.by_artist(params.get('artist_id')))
-        if params.get('genre_id') is not None:
-            sets.append(self._tracks.by_genre(params.get('genre_id')))
+        album_id = params.get_uuid('album_id')
+        artist_id = params.get_uuid('artist_id')
+        genre_id = params.get_uuid('genre_id')
+
+        if album_id is not None:
+            sets.append(self._tracks.by_album(album_id))
+        if artist_id is not None:
+            sets.append(self._tracks.by_artist(artist_id))
+        if genre_id is not None:
+            sets.append(self._tracks.by_genre(genre_id))
             
         if sets:
             # Return the intersection of any non-None sets

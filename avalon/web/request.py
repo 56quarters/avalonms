@@ -32,6 +32,8 @@
 """Methods for accessing request parameters and altering the reponse code."""
 
 
+import uuid
+
 import avalon.err
 import avalon.exc
 
@@ -65,6 +67,21 @@ class Parameters(object):
         try:
             return int(val)
         except (ValueError, TypeError):
+            raise avalon.exc.InvalidParameterError(
+                avalon.err.ERROR_INVALID_FIELD_VALUE(field))
+
+    def get_uuid(self, field, default=None):
+        """Return the value of the field as a UUID, raising an error
+        if it isn't a valid field or cannot be converted to a UUID, and
+        returning None if the field isn't in the query string.
+        """
+        val = self.get(field)
+        if val is None:
+            return default
+
+        try:
+            return uuid.UUID(val)
+        except ValueError:
             raise avalon.exc.InvalidParameterError(
                 avalon.err.ERROR_INVALID_FIELD_VALUE(field))
 
