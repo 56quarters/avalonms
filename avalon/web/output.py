@@ -32,10 +32,48 @@
 """Methods for rendering results or errors in a consistent format."""
 
 
+import uuid
+
+import cherrypy
+import simplejson
+
+
 __all__ = [
+    'json_handler',
     'render',
+    'JsonEncoder',
+    'JsonHandler'
     'RequestOutput'
     ]
+
+
+class JsonHandler(object):
+
+    """Adapter to work with CherryPy JSON handling."""
+
+    def __init__(self, encoder):
+        """Set the JSON encoder to use."""
+        self._encoder = encoder
+
+    def __call__(self, *args, **kwargs):
+        """Encode the output from a request as JSON."""
+        value = cherrypy.serving.request._json_inner_handler(*args, **kwargs)
+        return self._encoder.encode(value)
+
+
+class JsonEncoder(simplejson.JSONEncoder):
+
+    """Avalon specific JSON encoder."""
+
+    def default(self, o):
+        """Handle encoding a UUID to JSON."""
+        if isinstance(o, uuid.UUID):
+            return str(o)
+        return super(JsonEncoder, self).default(o)
+
+
+# Singleton instance of a handler callable
+json_handler = JsonHandler(JsonEncoder())
 
 
 def render(results=None, error=None):

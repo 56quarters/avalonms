@@ -53,7 +53,7 @@ class IdNameElm(collections.namedtuple('_IdNameElm', ['id', 'name'])):
     def from_model(cls, model):
         """Construct a new ID name element from various types of models."""
         return cls(
-            id=str(model.id),
+            id=model.id,
             name=model.name)
     
 
@@ -75,13 +75,13 @@ class TrackElm(collections.namedtuple('_TrackElm', [
     def from_model(cls, model):
         """Construct a new track element from a track model."""
         return cls(
-            id=str(model.id),
+            id=model.id,
             name=model.name,
             track=model.track,
             year=model.year,
             album=model.album.name,
-            album_id=str(model.album_id),
+            album_id=model.album_id,
             artist=model.artist.name,
-            artist_id=str(model.artist_id),
+            artist_id=model.artist_id,
             genre=model.genre.name,
-            genre_id=str(model.genre_id))
+            genre_id=model.genre_id)
