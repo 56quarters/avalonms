@@ -144,8 +144,14 @@ class AvalonMS(object):
         api_config.album_store = avalon.cache.AlbumStore(self._db)
         api_config.artist_store = avalon.cache.ArtistStore(self._db)
         api_config.genre_store = avalon.cache.GenreStore(self._db)
-        api_config.search = avalon.web.search.AvalonTextSearch()
         api_config.id_cache = avalon.cache.IdLookupCache(self._db)
+
+        api_config.search = avalon.web.search.AvalonTextSearch(
+            api_config.album_store,
+            api_config.artist_store,
+            api_config.genre_store,
+            api_config.track_store)
+
         api = avalon.web.api.AvalonApiEndpoints(api_config)
 
         # Configure the status endpoints including loading an HTML template

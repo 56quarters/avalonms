@@ -43,48 +43,66 @@ class AvalonTextSearch(object):
     text matching.
     """
 
-    basic_fields = frozenset(['name'])
+    def __init__(self, album_store, artist_store, genre_store, track_store):
+        """Set the backing stores for searching."""
+        self._albums = album_store
+        self._artists = artist_store
+        self._genres = genre_store
+        self._tracks = track_store
 
-    track_fields = frozenset(['name', 'album', 'artist', 'genre'])
+    def search_albums(self, needle):
+        """Search albums by name (case insensitive)."""
+        return self._search_elms(self._albums.all(), needle)
 
-    def search_basic(self, elms, needle):
-        """Search the text fields of album, artist, or genre elements
-        for the given needle after converting all value to lowercase
-        (case insensitive comparison).
+    def search_artists(self, needle):
+        """Search artists by name (case insensitive)."""
+        return self._search_elms(self._artists.all(), needle)
+
+    def search_genres(self, needle):
+        """Search genres by name (case insensitive)."""
+        return self._search_elms(self._genres.all(), needle)
+
+    def search_tracks(self, needle):
+        """Search for tracks that have an album, artist, genre,
+        or name or containing the given needle (case insensitive).
         """
-        return self._search_elms(elms, needle, self.basic_fields)
+        albums = self.search_albums(needle)
+        artists = self.search_artists(needle)
+        genres = self.search_genres(needle)
 
-    def search_tracks(self, elms, needle):
-        """Search the text fields of track elements for the given
-        needle after converting all values to lowercase (case
-        insensitive comparison).
-        """
-        return self._search_elms(elms, needle, self.track_fields)
+        out = set()
 
-    def _search_elms(self, elms, needle, fields):
-        """Search fields of the given elements for the
-        needle (after all values have been converted to
-        lowercase).
+        for album in albums:
+            out.update(self._tracks.by_album(album.id))
+        for artist in artists:
+            out.update(self._tracks.by_artist(artist.id))
+        for genre in genres:
+            out.update(self._tracks.by_genre(genre.id))
+
+        return out.union(self._search_elms(self._tracks.all(), needle))
+
+    def _search_elms(self, elms, needle):
+        """Search the name field of the given elements for the
+        needle (case insensitive).
         """
-        out = set([])
+        out = set()
         if not elms or not needle:
             return out
 
         query = needle.lower()
         for elm in elms:
-            match = self._search_fields(elm, query, fields)
+            match = self._search_elm(elm, query)
             if match is not None:
                 out.add(match)
                 continue
         return out
 
-    def _search_fields(self, elm, needle, fields):
-        """Return the given element if any fields match
-        the needle, None otherwise.
+    def _search_elm(self, elm, needle):
+        """Return the element if it matches the needle, None
+        otherwise.
         """
-        for field in fields:
-            val = getattr(elm, field, '').lower()
-            if needle in val:
-                return elm
+        val = getattr(elm, 'name', '').lower()
+        if needle in val:
+            return elm
         return None
 

@@ -119,10 +119,10 @@ class AvalonApiEndpoints(object):
             return self._tracks.all()
 
         sets = []
+
         if params.get('query') is not None:
             sets.append(
-                self._search.search_tracks(
-                    self._tracks.all(), params.get('query')))
+                    self._search.search_tracks(params.get('query')))
         if params.get('album') is not None:
             sets.append(
                 self._tracks.by_album(
