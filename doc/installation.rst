@@ -24,16 +24,28 @@ Ubuntu/Mint/Debian
 Installation via pip and PyPI
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+To install the latest stable-ish version from PyPI:
+
   ::
 
     pip install avalonms
+
+
+Installation via pip from source
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To install the latest bleeding edge version from source:
+
+  ::
+
+    pip install -e git+https://github.com/tshlabs/avalonms.git#egg=avalonms
 
 
 Manual installation
 ~~~~~~~~~~~~~~~~~~~
 
 You'll need to ensure you have each of the dependencies listed in :doc:`requirements`
-if you choose to install without using pip and PyPI.
+if you choose to install without using pip.
 
   ::
 

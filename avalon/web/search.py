@@ -66,6 +66,11 @@ class AvalonTextSearch(object):
         """Search for tracks that have an album, artist, genre,
         or name or containing the given needle (case insensitive).
         """
+        # Search for the needle in albums, artists, and genres separately
+        # so that we aren't checking those fields on every track, just the
+        # name field for each track. This takes advantage of the fact that
+        # there are probably far fewer albums, artists, and genres than
+        # tracks. In practice this is only marginally faster but cleaner.
         albums = self.search_albums(needle)
         artists = self.search_artists(needle)
         genres = self.search_genres(needle)
