@@ -29,7 +29,7 @@
 #
 
 
-""" Text searching functionality."""
+"""Text searching functionality."""
 
 
 __all__ = [

@@ -5,8 +5,17 @@ The ``albums`` endpoint returns data for all the different albums that songs
 in the music collection belong to.
 
 
-Parameters
-^^^^^^^^^^
+Filtering Parameters
+^^^^^^^^^^^^^^^^^^^^
+
+* ``query``
+
+  + Type: ``string``
+
+  + Description: Select only albums whose name contains ``query`` (not case sensitive).
+
+Other Parameters
+^^^^^^^^^^^^^^^^
 
 .. include:: order_limit.rst
 
@@ -66,6 +75,8 @@ Example request
 ^^^^^^^^^^^^^^^
 
 * ``http://localhost:8080/avalon/albums``
+
+* ``http://localhost:8080/avalon/albums?query=live``
 
 * ``http://localhost:8080/avalon/albums?order=name&direction=asc``
 

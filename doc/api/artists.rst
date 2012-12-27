@@ -5,8 +5,17 @@ The ``artists`` endpoint returns data for all the different artists that songs
 in the music collection are performed by.
 
 
-Parameters
-^^^^^^^^^^
+Filtering Parameters
+^^^^^^^^^^^^^^^^^^^^
+
+* ``query``
+
+  + Type: ``string``
+
+  + Description: Select only artists whose name contains ``query`` (not case sensitive).
+
+Other Parameters
+^^^^^^^^^^^^^^^^^^^^
 
 .. include:: order_limit.rst
 
@@ -64,6 +73,8 @@ Example request
 ^^^^^^^^^^^^^^^
 
 * ``http://localhost:8080/avalon/artists``
+
+* ``http://localhost:8080/avalon/artists?query=who``
 
 * ``http://localhost:8080/avalon/artists?order=id``
 

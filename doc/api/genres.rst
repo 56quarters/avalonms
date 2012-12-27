@@ -5,8 +5,17 @@ The ``genres`` endpoint returns data for all the different genres that songs in
 the music collection belong to.
 
 
-Parameters
-^^^^^^^^^^
+Filtering Parameters
+^^^^^^^^^^^^^^^^^^^^
+
+* ``query``
+
+  + Type: ``string``
+
+  + Description: Select only genres whose name contains ``query`` (not case sensitive).
+
+Other Parameters
+^^^^^^^^^^^^^^^^
 
 .. include:: order_limit.rst
 
@@ -64,6 +73,8 @@ Example request
 ^^^^^^^^^^^^^^^
 
 * ``http://localhost:8080/avalon/genres``
+
+* ``http://localhost:8080/avalon/genres?query=rock``
 
 * ``http://localhost:8080/avalon/genres?order=name``
 

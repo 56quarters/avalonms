@@ -96,21 +96,21 @@ class AvalonApiEndpoints(object):
         all_albums = self._albums.all()
         if params is None or params.get('query') is None:
             return all_albums
-        return self._search.search_basic(all_albums, params.get('query'))
+        return self._search.search_albums(params.get('query'))
 
     def get_artists(self, params=None):
         """ """
         all_artists = self._artists.all()
         if params is None or params.get('query') is None:
             return all_artists
-        return self._search.search_basic(all_artists, params.get('query'))
+        return self._search.search_artists(params.get('query'))
 
     def get_genres(self, params=None):
         """ """
         all_genres = self._genres.all()
         if params is None or params.get('query') is None:
             return all_genres
-        return self._search.search_basic(all_genres, params.get('query'))
+        return self._search.search_genres(params.get('query'))
 
     def get_songs(self, params=None):
         """Return song results based on the given query string

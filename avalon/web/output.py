@@ -29,7 +29,9 @@
 #
 
 
-"""Methods for rendering results or errors in a consistent format."""
+"""Methods for converting results or errors to a serializable format
+and then rendering them as JSON.
+"""
 
 
 import uuid
@@ -42,14 +44,14 @@ __all__ = [
     'json_handler',
     'render',
     'JsonEncoder',
-    'JsonHandler'
+    'JsonHandler',
     'RequestOutput'
     ]
 
 
 class JsonHandler(object):
 
-    """Adapter to work with CherryPy JSON handling."""
+    """Adapter to use our own JSON encoder with CherryPy."""
 
     def __init__(self, encoder):
         """Set the JSON encoder to use."""
@@ -90,7 +92,9 @@ def render(results=None, error=None):
 
 class RequestOutput(object):
 
-    """Format results or errors encountered."""
+    """Format results or errors encountered using builtin
+    structures and types (mostly).
+    """
 
     def __init__(self):
         """Initialize errors and results from this query."""

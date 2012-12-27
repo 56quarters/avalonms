@@ -44,6 +44,11 @@ Filtering Parameters
 
   + Description: Select only songs belonging to this genre by UUID.
 
+* ``query``
+
+  + Type: ``string``
+
+  + Description: Select only songs whose album, artist, genre, or name contains ``query`` (not case sensitive).
 
 Other Parameters
 ^^^^^^^^^^^^^^^^
@@ -132,5 +137,7 @@ Example requests
 * ``http://localhost:8080/avalon/songs?genre=Ska``
 
 * ``http://localhost:8080/avalon/songs?genre_id=8794d7b7-fff3-50bb-b1f1-438659e05fe5``
+
+* ``http://localhost:8080/avalon/songs?query=anywhere``
    
 
