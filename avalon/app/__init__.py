@@ -4,17 +4,17 @@
 #
 # Copyright (c) 2012 TSH Labs <projects@tshlabs.org>
 # All rights reserved.
-# 
-# Redistribution and use in source and binary forms, with or without 
+#
+# Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are
 # met:
-# 
-# * Redistributions of source code must retain the above copyright 
+#
+# * Redistributions of source code must retain the above copyright
 #   notice, this list of conditions and the following disclaimer.
 # * Redistributions in binary form must reproduce the above copyright
 #   notice, this list of conditions and the following disclaimer in the
 #   documentation and/or other materials provided with the distribution.
-# 
+#
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 # "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
 # LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -69,7 +69,7 @@ __all__ = [
     'AvalonEngine',
     'AvalonEngineConfig',
     'AvalonMS'
-    ]
+]
 
 
 APP_PATH = '/avalon'
@@ -87,7 +87,7 @@ def _install_default_signal_handler():
         """Handle TERM and INT by exiting."""
         if signum in (signal.SIGTERM, signal.SIGINT):
             raise SystemExit()
-    
+
     signal.signal(signal.SIGINT, _exit_handler)
     signal.signal(signal.SIGTERM, _exit_handler)
 
@@ -103,7 +103,7 @@ def _setup_cherrypy_env():
 class AvalonMS(object):
 
     """Wrapper around the main functionality of the Avalon MS, database
-    connections, collection scanning, request handling, and 
+    connections, collection scanning, request handling, and
     daemonization.
     """
 
@@ -180,7 +180,7 @@ class AvalonMS(object):
         config = avalon.server.AvalonServerConfig()
         config.log = self._log
         config.bind_addr = (
-            self._config.server_address, 
+            self._config.server_address,
             self._config.server_port)
         config.num_threads = self._config.server_threads
         config.queue_size = self._config.server_queue
@@ -270,7 +270,7 @@ class AvalonEngine(object):
     def enable_server(self):
         """Enable and configure the web server plugin."""
         h = avalon.server.AvalonServerPlugin(
-            self._bus, 
+            self._bus,
             httpserver=self._server,
             bind_addr=self._server.bind_addr)
         h.subscribe()
@@ -285,9 +285,9 @@ class AvalonEngine(object):
         # Daemon mode entails the actual daemonization process
         # which includes preserving any open file descriptors.
         h = _DaemonPlugin(
-            self._bus, 
+            self._bus,
             # File handles of files that the application has open
-            # right now that need to be preserved as part of the 
+            # right now that need to be preserved as part of the
             # daemonization process. Only the logs should be open
             # at this point.
             files=self._log.get_open_fds())
@@ -310,12 +310,12 @@ class AvalonEngine(object):
         h.subscribe()
 
         # Switch to a non-super user. This is separate from forking
-        # since forking needs to happen before the HTTP server is started 
+        # since forking needs to happen before the HTTP server is started
         # (threads and forking don't mix) and dropping privileges needs
         # to happen after we've bound to a port.
         h = cherrypy.process.plugins.DropPrivileges(
-            self._bus, 
-            uid=uid, 
+            self._bus,
+            uid=uid,
             gid=gid,
             umask=0)
         h.subscribe()
@@ -325,8 +325,8 @@ class AvalonEngine(object):
         collection.
         """
         h = _CollectionScanPlugin(
-            self._bus, 
-            collection=root, 
+            self._bus,
+            collection=root,
             db=self._db,
             log=self._log)
         h.subscribe()
@@ -359,7 +359,7 @@ class AvalonEngine(object):
             'SIGTERM': self._bus.exit,
             'SIGINT': self._bus.exit,
             'SIGUSR1': self._bus.graceful
-            }
+        }
 
 
 class _CollectionScanPlugin(cherrypy.process.plugins.SimplePlugin):
@@ -369,7 +369,7 @@ class _CollectionScanPlugin(cherrypy.process.plugins.SimplePlugin):
     """
 
     def __init__(self, bus, collection=None, db=None, log=None):
-        """Set the root of the music collection and database 
+        """Set the root of the music collection and database
         session handler.
         """
         super(_CollectionScanPlugin, self).__init__(bus)
@@ -494,7 +494,7 @@ class _FilePermissionPlugin(cherrypy.process.plugins.SimplePlugin):
         """Fix ownership of each file."""
         for log_file in self._files:
             self._fix(log_file)
-    
+
     # Use a higher priority than the DropPrivileges plugin
     # so that the logs are owned correctly before we lose
     # the ability to change it.
