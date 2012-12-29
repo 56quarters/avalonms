@@ -72,12 +72,9 @@ class AvalonHandlerFactory(object):
 
     def _setup(self):
         self._log = self._build_logger()
-
         self._db = self._build_db_engine()
         self._db.connect()
-
         self._app = self._build_handler()
-        self._app.ready = True
 
     def _build_logger(self):
         """Configure and return the application logger."""
@@ -148,7 +145,10 @@ def default_settings():
 def new_handler():
     config = default_settings()
     factory = AvalonHandlerFactory(config)
-    return cherrypy.tree.mount(factory.get_handler(), script_name='/avalon')
+    handler = factory.get_handler()
+    handler.ready = True
+
+    return cherrypy.tree.mount(handler, script_name='/avalon')
 
 
 application = new_handler()
