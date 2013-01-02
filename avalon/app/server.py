@@ -230,6 +230,7 @@ class AvalonServerApp(object):
 
     def initialize(self):
         """ """
+        # TODO: Push object creation up into avalonmsd
         setup_signal_handler()
         avalon.app.setup_cherrypy_env()
         self._log = avalon.app.new_logger(self._app_config, cherrypy.log)

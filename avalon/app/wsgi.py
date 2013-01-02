@@ -48,6 +48,7 @@ class AvalonWsgiApp(object):
 
     def initialize(self):
         """ """
+        # TODO: Push object creation into avalonms-wsgi.py
         avalon.app.setup_cherrypy_env()
         self._log = avalon.app.new_logger(self._app_config, cherrypy.log)
         self._db = avalon.app.new_db_engine(self._app_config, self._log)
