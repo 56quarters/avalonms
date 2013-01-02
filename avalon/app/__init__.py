@@ -75,6 +75,19 @@ __all__ = [
 APP_PATH = '/avalon'
 
 
+def new_logger(config):
+    pass
+
+
+def new_db_engine(config, logger):
+    pass
+
+
+def new_handler(config, logger, db_engine):
+    pass
+
+
+
 def _install_default_signal_handler():
     """Simple signal handler to quietly handle ^C.
 
@@ -383,8 +396,9 @@ class _CollectionScanPlugin(cherrypy.process.plugins.SimplePlugin):
         """
         self._log.info('Scanning music collection...')
         tag_loader = avalon.tags.read.new_loader()
+        tag_crawler = avalon.tags.scan.TagCrawler(tag_loader, self._log)
         tag_files = avalon.tags.scan.get_files(os.path.abspath(self._collection))
-        tag_metas = avalon.tags.scan.get_tags(tag_files, tag_loader)
+        tag_metas = tag_crawler.get_tags(tag_files)
 
         cleaner = avalon.tags.insert.Cleaner(self._db)
         for cls in (Album, Artist, Genre, Track):

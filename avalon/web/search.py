@@ -96,18 +96,13 @@ class AvalonTextSearch(object):
 
         query = needle.lower()
         for elm in elms:
-            match = self._search_elm(elm, query)
-            if match is not None:
-                out.add(match)
-                continue
+            if self._matches(elm, query):
+                out.add(elm)
         return out
 
-    def _search_elm(self, elm, needle):
-        """Return the element if it matches the needle, None
-        otherwise.
+    def _matches(self, elm, needle):
+        """Return true if the needle is contained in the lower
+        cased 'name' field of the element, false otherwise.
         """
-        val = getattr(elm, 'name', '').lower()
-        if needle in val:
-            return elm
-        return None
+        return needle in getattr(elm, 'name', '').lower()
 

@@ -38,8 +38,8 @@ import os.path
 
 __all__ = [
     'get_files',
-    'get_tags',
-    'is_valid_file'
+    'is_valid_file',
+    'TagCrawler',
     'VALID_EXTS'
     ]
 
@@ -75,7 +75,29 @@ def is_valid_file(path):
     return os.path.splitext(path)[1] in VALID_EXTS
 
 
-def get_tags(files, loader):
-    """Get a list of Metadata objects for each audio file."""
-    return [loader.get_from_path(path) for path in files]
+class TagCrawler(object):
+
+    """Use the given metadata loader to read information for
+    each audio file.
+    """
+
+    def __init__(self, loader, log):
+        """Set the tag metadata loader and logger."""
+        self._loader = loader
+        self._log = log
+
+    def get_tags(self, files):
+        """Get a list of Metadata objects for each audio file,
+        logging a warning if there was an issue reading the file
+        or parsing the tag info.
+        """
+        out = []
+        for tag_file in files:
+            try:
+                out.append(self._loader.get_from_path(tag_file))
+            except IOError, e:
+                self._log.warn(str(e))
+            except ValueError, e:
+                self._log.warn(str(e))
+        return out
 

@@ -87,8 +87,8 @@ class MetadataLoader(object):
     """
 
     def __init__(self, reader, factory):
-        """Set the reader and factory to use (TagPy or 
-        Mutagen based).
+        """Set the reader and factory callables to use (TagPy
+        or Mutagen based).
         """
         self._reader = reader
         self._factory = factory
@@ -114,10 +114,12 @@ def new_loader():
     raise NotImplementedError("Did not find supported tag library")
 
 
-def read_tagpy(path):
+def read_tagpy(path, impl=None):
     """Get a TagPy native tag representation"""
+    if impl is None:
+        impl = tagpy
     try:
-        file_ref = tagpy.FileRef(path.encode(avalon.DEFAULT_ENCODING))
+        file_ref = impl.FileRef(path.encode(avalon.DEFAULT_ENCODING))
     except UnicodeError, e:
         raise IOError("Could not encode audio path [%s]" % str(e))
     except ValueError, e:
@@ -125,10 +127,12 @@ def read_tagpy(path):
     return file_ref.tag()
 
 
-def read_mutagen(path):
+def read_mutagen(path, impl=None):
     """Get a Mutagen native tag representation"""
+    if impl is None:
+        impl = mutagen
     try:
-        tag_file = mutagen.File(path.encode(avalon.DEFAULT_ENCODING), easy=True)
+        tag_file = impl.File(path.encode(avalon.DEFAULT_ENCODING), easy=True)
     except IOError, e:
         raise IOError("Could not open [%s]: %s" % (path, str(e)))
     if tag_file is None:
