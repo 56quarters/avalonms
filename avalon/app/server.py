@@ -29,17 +29,78 @@
 #
 
 
-def setup_cherrypy_env(impl):
-    impl.config.update({'environment': 'production'})
-    impl.log.access_file = None
-    impl.log.error_file = None
-    impl.log.screen = False
+import signal
+
+import cherrypy
+from cherrypy._cptree import Application as CherryPyApplication
+
+import avalon.server
 
 
-def get_required_files(config):
-    pass
+
+def setup_signal_handler():
+    """Simple signal handler to quietly handle ^C.
+
+    These handlers are only used until the server finishes starting
+    a which point they are replaced by the signal handler plugin for
+    the server which uses the message bus to shutdown.
+    """
+
+    def _exit_handler(signum, frame):
+        """Handle TERM and INT by exiting."""
+        if signum in (signal.SIGTERM, signal.SIGINT):
+            raise SystemExit()
+
+    signal.signal(signal.SIGINT, _exit_handler)
+    signal.signal(signal.SIGTERM, _exit_handler)
 
 
-def new_server(config, logger, db_engine, handler):
-    pass
+def get_required_files(app_config):
+    """ """
+    return set([
+        app_config.access_log,
+        app_config.error_log,
+        app_config.db_path])
+
+
+def new_server(app_config, logger, handler):
+    """ """
+    server_config = avalon.server.AvalonServerConfig()
+    server_config.log = logger
+    server_config.bind_addr = (
+        app_config.server_address,
+        app_config.server_port)
+    server_config.num_threads = app_config.server_threads
+    server_config.queue_size = app_config.server_queue
+    server_config.application = CherryPyApplication(
+        handler,
+        script_name=avalon.app.APP_PATH)
+    return avalon.server.AvalonServer(server_config)
+
+
+class AvalonServerApp(object):
+
+    """ """
+
+    def __init__(self, app_config):
+        """ """
+        self._app_config = app_config
+        self._log = None
+        self._db = None
+        self._handler = None
+        self._server = None
+
+    def initialize(self):
+        """ """
+        setup_signal_handler()
+        avalon.app.setup_cherrypy_env()
+        self._log = avalon.app.new_logger(self._app_config, cherrypy.log)
+        self._db = avalon.app.new_db_engine(self._app_config, self._log)
+        self._handler = avalon.app.new_handler(self._db)
+        self._server = new_server(self._app_config, self._log, self._handler)
+
+    def start(self):
+        """ """
+        pass
+
 

@@ -64,167 +64,88 @@ import avalon.web.search
 from avalon.models import Album, Artist, Genre, Track
 
 
-__all__ = [
-    'APP_PATH',
-    'AvalonEngine',
-    'AvalonEngineConfig',
-    'AvalonMS'
-]
+
 
 
 APP_PATH = '/avalon'
 
 
-def new_logger(config):
-    pass
-
-
-def new_db_engine(config, logger):
-    pass
-
-
-def new_handler(config, logger, db_engine):
-    pass
-
-
-
-def _install_default_signal_handler():
-    """Simple signal handler to quietly handle ^C.
-
-    These handlers are only used until the server finishes starting
-    a which point they are replaced by the signal handler plugin for
-    the server which uses the message bus to shutdown.
-    """
-
-    def _exit_handler(signum, frame):
-        """Handle TERM and INT by exiting."""
-        if signum in (signal.SIGTERM, signal.SIGINT):
-            raise SystemExit()
-
-    signal.signal(signal.SIGINT, _exit_handler)
-    signal.signal(signal.SIGTERM, _exit_handler)
-
-
-def _setup_cherrypy_env():
-    """Configure the global cherrypy environment."""
+def setup_cherrypy_env():
+    """ """
     cherrypy.config.update({'environment': 'production'})
     cherrypy.log.access_file = None
     cherrypy.log.error_file = None
     cherrypy.log.screen = False
 
 
-class AvalonMS(object):
+def new_logger(app_config, logger_root):
+    """ """
+    log_config = avalon.log.AvalonLogConfig()
+    log_config.log_root = logger_root
+    log_config.access_path = app_config.access_log
+    log_config.error_path = app_config.error_log
+    return avalon.log.AvalonLog(log_config)
 
-    """Wrapper around the main functionality of the Avalon MS, database
-    connections, collection scanning, request handling, and
-    daemonization.
-    """
+
+def new_db_engine(app_config, logger):
+    """ """
+    url = 'sqlite:///%s' % app_config.db_path
+    db_config = avalon.models.SessionHandlerConfig()
+    db_config.engine = avalon.models.get_engine(url)
+    db_config.session_factory = avalon.models.get_session_factory()
+    db_config.metadata = avalon.models.get_metadata()
+    db_config.log = logger
+    return avalon.models.SessionHandler(db_config)
+
+
+def new_handler(db_engine):
+    """ """
+    api_config = avalon.web.api.AvalonApiEndpointsConfig()
+    api_config.track_store = avalon.cache.TrackStore(db_engine)
+    api_config.album_store = avalon.cache.AlbumStore(db_engine)
+    api_config.artist_store = avalon.cache.ArtistStore(db_engine)
+    api_config.genre_store = avalon.cache.GenreStore(db_engine)
+    api_config.id_cache = avalon.cache.IdLookupCache(db_engine)
+
+    api_config.search = avalon.web.search.AvalonTextSearch(
+        api_config.album_store,
+        api_config.artist_store,
+        api_config.genre_store,
+        api_config.track_store)
+
+    api = avalon.web.api.AvalonApiEndpoints(api_config)
+
+    # Configure the status endpoints including loading an HTML template
+    status_config = avalon.web.api.AvalonStatusEndpointsConfig()
+    status_config.ready = threading.Event()
+    status_config.status_tpt = pkgutil.get_data('avalon.web', 'data/status.html')
+    status = avalon.web.api.AvalonStatusEndpoints(status_config)
+
+    filters = [
+        # NOTE: Sort needs to come before limit
+        avalon.web.filtering.sort_filter,
+        avalon.web.filtering.limit_filter]
+
+    startup = datetime.utcnow()
+
+    handler_config = avalon.web.handler.AvalonHandlerConfig()
+    handler_config.api_endpoints = api
+    handler_config.status_endpoints = status
+    handler_config.filters = filters
+    handler_config.startup = startup
+
+    return avalon.web.handler.AvalonHandler(handler_config)
+
+
+class AvalonMs(object):
 
     def __init__(self, config):
-        """Set the application configuration, create a logger, and
-        set up signal handlers.
-        """
-        _install_default_signal_handler()
-        _setup_cherrypy_env()
-
-        self._config = config
-        self._log = self._get_logger()
-        self._db = None
-
-    def _get_db_engine(self):
-        """Configure and return the database handler."""
-        url = 'sqlite:///%s' % self._config.db_path
-        config = avalon.models.SessionHandlerConfig()
-        config.engine = avalon.models.get_engine(url)
-        config.session_factory = avalon.models.get_session_factory()
-        config.metadata = avalon.models.get_metadata()
-        config.log = self._log
-
-        return avalon.models.SessionHandler(config)
-
-    def _get_logger(self):
-        """Configure and return the application logger."""
-        config = avalon.log.AvalonLogConfig()
-        config.log_root = cherrypy.log
-        config.access_path = self._config.access_log
-        config.error_path = self._config.error_log
-        return avalon.log.AvalonLog(config)
-
-    def _get_handler(self):
-        """Configure and return the web request handler."""
-        api_config = avalon.web.api.AvalonApiEndpointsConfig()
-        api_config.track_store = avalon.cache.TrackStore(self._db)
-        api_config.album_store = avalon.cache.AlbumStore(self._db)
-        api_config.artist_store = avalon.cache.ArtistStore(self._db)
-        api_config.genre_store = avalon.cache.GenreStore(self._db)
-        api_config.id_cache = avalon.cache.IdLookupCache(self._db)
-
-        api_config.search = avalon.web.search.AvalonTextSearch(
-            api_config.album_store,
-            api_config.artist_store,
-            api_config.genre_store,
-            api_config.track_store)
-
-        api = avalon.web.api.AvalonApiEndpoints(api_config)
-
-        # Configure the status endpoints including loading an HTML template
-        status_config = avalon.web.api.AvalonStatusEndpointsConfig()
-        status_config.ready = threading.Event()
-        status_config.status_tpt = pkgutil.get_data('avalon.web', 'data/status.html')
-        status = avalon.web.api.AvalonStatusEndpoints(status_config)
-
-        filters = [
-            # NOTE: Sort needs to come before limit
-            avalon.web.filtering.sort_filter,
-            avalon.web.filtering.limit_filter]
-
-        startup = datetime.utcnow()
-
-        config = avalon.web.handler.AvalonHandlerConfig()
-        config.api_endpoints = api
-        config.status_endpoints = status
-        config.filters = filters
-        config.startup = startup
-
-        return avalon.web.handler.AvalonHandler(config)
-
-    def _get_server(self):
-        """Configure and return the application server."""
-        config = avalon.server.AvalonServerConfig()
-        config.log = self._log
-        config.bind_addr = (
-            self._config.server_address,
-            self._config.server_port)
-        config.num_threads = self._config.server_threads
-        config.queue_size = self._config.server_queue
-        config.application = CherryPyApplication(
-            self._get_handler(),
-            script_name=APP_PATH)
-        return avalon.server.AvalonServer(config)
-
-    def _get_required_files(self):
-        """Get the paths of files that we require write access to."""
-        return set([
-            self._config.access_log,
-            self._config.error_log,
-            self._config.db_path])
-
-    def connect(self):
-        """Create a database session handler and perform the initial
-        database setup for the application.
-        """
-        self._log.info("Connecting to database...")
-        self._db = self._get_db_engine()
-        self._db.connect()
+        self._app = config
 
     def start(self):
         """Install signal handlers for the server and begin handling
         requests.
         """
-        # TODO: Look into setting up a timeout checker (like cherrypy.engine)
-        if self._db is None:
-            raise avalon.exc.DatabaseError(
-                "Can't start server: database is not connected")
 
         self._log.info("Starting server...")
         config = AvalonEngineConfig()
