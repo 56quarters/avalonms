@@ -35,8 +35,6 @@
 import logging
 import sys
 
-import cherrypy
-
 import avalon.exc
 
 
@@ -46,9 +44,7 @@ __all__ = [
     'DEFAULT_ERROR_FMT',
     'DEFAULT_DATE_FMT',
     'AvalonLog',
-    'AvalonLogConfig',
-    'AvalonLogPlugin'
-
+    'AvalonLogConfig'
     ]
 
 
@@ -172,36 +168,3 @@ class AvalonLog(object):
         """ Log at the given level."""
         self._logger.log(level, msg, *args, **kwargs)
 
-
-class AvalonLogPlugin(cherrypy.process.plugins.SimplePlugin):
-
-    """Adapter to allow our logger to be used as a CherryPy
-    plugin for the bus system.
-
-    Supports the 'graceful' and 'log' channels.
-    """
-
-    def __init__(self, bus, log):
-        super(AvalonLogPlugin, self).__init__(bus)
-        self._log = log
-
-    def graceful(self):
-        """Configure and reinstall our log handlers (including
-        reopening log files.
-        """
-        self._log.info("Reopening logs...")
-        self._log.reload()
-        self._log.info("Logs reopened")
-
-    # Set the priority for graceful higher than the default so
-    # that we can ensure we have a valid log handle when any
-    # other graceful subscribers run.
-    graceful.priority = 45
-
-    def log(self, msg, level):
-        """Log the message at the desired level."""
-        # NOTE: CherryPy argument order is reversed compared
-        # to the logging module.
-        self._log.log(level, msg)
-    
-        

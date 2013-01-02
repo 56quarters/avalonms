@@ -40,11 +40,10 @@ from __future__ import print_function
 
 import argparse
 import os
-import os.path
 import re
 import sys
 
-import avalon.app
+import avalon.app.server
 import avalon.cli
 import avalon.exc
 
@@ -131,8 +130,8 @@ def main():
         return 1
 
     try:
-        app = avalon.app.AvalonMS(config)
-        app.connect()
+        app = avalon.app.server.AvalonServerApp(config)
+        app.initialize()
     except (avalon.exc.DatabaseError, avalon.exc.PermissionError), e:
         # NOTE: permission errors are caught here instead of attempting
         # to check for them during configuration validation since that

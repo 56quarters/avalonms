@@ -35,14 +35,12 @@
 import logging
 import traceback
 
-import cherrypy
 from cherrypy.wsgiserver import CherryPyWSGIServer
 
 
 __all__ = [
     'AvalonServer',
-    'AvalonServerConfig',
-    'AvalonServerPlugin'
+    'AvalonServerConfig'
     ]
 
 
@@ -101,19 +99,4 @@ class AvalonServer(CherryPyWSGIServer):
         """Stop the server."""
         self._log.info('Stopping HTTP server...')
         super(AvalonServer, self).stop()
-
-
-class AvalonServerPlugin(cherrypy.process.servers.ServerAdapter):
-
-    """Adapter between our HTTP server and the CherryPy bus system."""
-
-    def subscribe(self):
-        """Register start, stop, and graceful handlers."""
-        super(AvalonServerPlugin, self).subscribe()
-        self.bus.subscribe('graceful', self.httpserver.reload)
-
-    def unsubscribe(self):
-        """Unregister start, stop, and graceful handlers."""
-        super(AvalonServerPlugin, self).unsubscribe()
-        self.bus.unsubscribe('graceful', self.httpserver.reload)
 

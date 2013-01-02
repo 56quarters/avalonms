@@ -33,7 +33,6 @@
 
 
 import os
-import os.path
 
 
 __all__ = [
