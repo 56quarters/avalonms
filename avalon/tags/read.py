@@ -75,7 +75,8 @@ class Metadata(collections.namedtuple('_Metadata', [
             'genre',
             'title',
             'track',
-            'year'])):
+            'year',
+            'length'])):
 
     """Container for metadata of audio file"""
 
@@ -124,7 +125,7 @@ def read_tagpy(path, impl=None):
         raise IOError("Could not encode audio path [%s]" % str(e))
     except ValueError, e:
         raise IOError("Could not open [%s]: %s" % (path, str(e)))
-    return file_ref.tag()
+    return file_ref
 
 
 def read_mutagen(path, impl=None):
@@ -132,12 +133,12 @@ def read_mutagen(path, impl=None):
     if impl is None:
         impl = mutagen
     try:
-        tag_file = impl.File(path.encode(avalon.DEFAULT_ENCODING), easy=True)
+        file_ref = impl.File(path.encode(avalon.DEFAULT_ENCODING), easy=True)
     except IOError, e:
         raise IOError("Could not open [%s]: %s" % (path, str(e)))
-    if tag_file is None:
+    if file_ref is None:
         raise IOError("Invalid audio file [%s]" % path)
-    return tag_file
+    return file_ref
 
 
 class MetadataDateParser(object):
@@ -240,18 +241,22 @@ def from_tagpy(path, meta):
     """Convert a TagPy tag object into a Metadata object"""
     # TagPy wraps Taglib which does all the data coercion
     # for us so we don't have to do any parsing on our own
+    tag = meta.tag()
+    audio = meta.audioProperties()
     return Metadata(
         path=path,
-        album=meta.album,
-        artist=meta.artist,
-        genre=meta.genre,
-        title=meta.title,
-        track=int(meta.track),
-        year=int(meta.year))
+        album=tag.album,
+        artist=tag.artist,
+        genre=tag.genre,
+        title=tag.title,
+        track=int(tag.track),
+        year=int(tag.year),
+        length=int(audio.length))
 
 
 def from_mutagen(path, meta):
     """Convert a Mutagen tag object into a Metadata object"""
+    audio = meta.info
     return Metadata(
         path=path,
         album=_norm_list_str(meta.get('album')),
@@ -259,5 +264,6 @@ def from_mutagen(path, meta):
         genre=_norm_list_str(meta.get('genre')),
         title=_norm_list_str(meta.get('title')),
         track=_norm_list_track(meta.get('tracknumber')),
-        year=_norm_list_date(meta.get('date')))
+        year=_norm_list_date(meta.get('date')),
+        length=int(audio.length))
 

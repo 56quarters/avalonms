@@ -119,6 +119,7 @@ class TrackLoader(object):
         obj.name = tag.title
         obj.track = tag.track
         obj.year = tag.year
+        obj.length = tag.length
         
         obj.album_id = self._id_cache.get_album_id(tag.album)
         obj.artist_id = self._id_cache.get_artist_id(tag.artist)
