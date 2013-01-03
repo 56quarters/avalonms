@@ -117,10 +117,10 @@ class TrackLoader(object):
         obj = cls()
         obj.id = id_gen(tag.path)
         obj.name = tag.title
+        obj.length = tag.length
         obj.track = tag.track
         obj.year = tag.year
-        obj.length = tag.length
-        
+
         obj.album_id = self._id_cache.get_album_id(tag.album)
         obj.artist_id = self._id_cache.get_artist_id(tag.artist)
         obj.genre_id = self._id_cache.get_genre_id(tag.genre)

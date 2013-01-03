@@ -60,9 +60,9 @@ class IdNameElm(collections.namedtuple('_IdNameElm', ['id', 'name'])):
 class TrackElm(collections.namedtuple('_TrackElm', [
         'id',
         'name',
+        'length',
         'track',
         'year',
-        'length',
         'album',
         'album_id',
         'artist',
@@ -78,9 +78,9 @@ class TrackElm(collections.namedtuple('_TrackElm', [
         return cls(
             id=model.id,
             name=model.name,
+            length=model.length,
             track=model.track,
             year=model.year,
-            length=model.length,
             album=model.album.name,
             album_id=model.album_id,
             artist=model.artist.name,

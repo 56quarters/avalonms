@@ -114,10 +114,10 @@ class Track(Base):
     """
     
     __tablename__ = 'tracks'
- 
+
+    length = Column(Integer)
     track = Column(Integer)
     year = Column(Integer)
-    length = Column(Integer)
 
     album_id = Column(UuidType, ForeignKey('albums.id'), index=True)
     artist_id = Column(UuidType, ForeignKey('artists.id'), index=True)

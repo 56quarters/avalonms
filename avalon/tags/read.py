@@ -248,10 +248,10 @@ def from_tagpy(path, meta):
         album=tag.album,
         artist=tag.artist,
         genre=tag.genre,
+        length=int(audio.length),
         title=tag.title,
         track=int(tag.track),
-        year=int(tag.year),
-        length=int(audio.length))
+        year=int(tag.year))
 
 
 def from_mutagen(path, meta):
@@ -262,8 +262,8 @@ def from_mutagen(path, meta):
         album=_norm_list_str(meta.get('album')),
         artist=_norm_list_str(meta.get('artist')),
         genre=_norm_list_str(meta.get('genre')),
+        length=int(audio.length),
         title=_norm_list_str(meta.get('title')),
         track=_norm_list_track(meta.get('tracknumber')),
-        year=_norm_list_date(meta.get('date')),
-        length=int(audio.length))
+        year=_norm_list_date(meta.get('date')))
 

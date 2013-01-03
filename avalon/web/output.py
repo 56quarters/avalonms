@@ -37,6 +37,9 @@ and then rendering them as JSON.
 import uuid
 
 import cherrypy
+# NOTE: We use simplejson explicitly here instead of the stdlib
+# json module since simplejson renders named tuples as JSON
+# objects and the stdlib json renders them as JSON lists.
 import simplejson
 
 

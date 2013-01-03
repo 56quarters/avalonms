@@ -83,6 +83,7 @@ Success output format
         {
           "id": "597f5485-f046-5a54-bb60-7bc60be5c2a1",
           "name": "Basket Case",
+          "length": 183,
           "year": 1994,
           "track": 7,
           "album": "Dookie",
@@ -95,6 +96,7 @@ Success output format
         {
           "id": "ffaa2a77-2482-5999-b8cd-be5caf4b994e",
           "name": "She",
+          "length": 134,
           "year": 1994,
           "track": 8,
           "album": "Dookie",
