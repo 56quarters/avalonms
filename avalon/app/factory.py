@@ -75,7 +75,7 @@ def new_logger(app_config, logger_root):
 
 def new_db_engine(app_config, logger):
     """Construct a new database handler with an SQLite backend
-    based on the given config and logger.
+    based on the given configuration and logger.
 
     Expected configuration properties are: db_path.
     """
@@ -130,7 +130,7 @@ def new_handler(db_engine):
 
 
 def new_server(app_config, logger, handler, path):
-    """Construct a new HTTP server using the given config,
+    """Construct a new HTTP server using the given configuration,
     logger, request handler, and desired application path.
 
     Expected configuration properties are: server_address,
