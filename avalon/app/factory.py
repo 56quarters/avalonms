@@ -38,10 +38,12 @@ from datetime import datetime
 
 from cherrypy._cptree import Application as CherryPyApplication
 
+import avalon.app.plugins
 import avalon.cache
 import avalon.log
 import avalon.models
 import avalon.server
+import avalon.util
 import avalon.web.api
 import avalon.web.handler
 import avalon.web.filtering
@@ -52,7 +54,8 @@ __all__ = [
     'new_logger',
     'new_db_engine',
     'new_handler',
-    'new_server'
+    'new_server',
+    'new_plugin_engine'
     ]
 
 
@@ -144,4 +147,34 @@ def new_server(app_config, logger, handler, path):
         handler,
         script_name=path)
     return avalon.server.AvalonServer(server_config)
+
+
+def new_plugin_engine(app_config, logger, db_engine, server, bus):
+    """Construct a new plugin engine/manager from the given logger,
+    database handler, HTTP server, and message bus.
+
+    Expected configuration properties are: daemon_user,
+    daemon_group, access_log, error_log, db_path, collection.
+    """
+    engine_config = avalon.app.plugins.PluginEngineConfig()
+    engine_config.log = logger
+    engine_config.db = db_engine
+    engine_config.server = server
+    engine_config.bus = bus
+
+    engine = avalon.app.plugins.PluginEngine(engine_config)
+
+    if app_config.daemon:
+        engine.enable_daemon(
+            avalon.util.get_uid(app_config.daemon_user),
+            avalon.util.get_gid(app_config.daemon_group),
+            set([
+                app_config.access_log,
+                app_config.error_log,
+                app_config.db_path]))
+
+    if not app_config.no_scan:
+        engine.enable_scan(app_config.collection)
+
+    return engine
 

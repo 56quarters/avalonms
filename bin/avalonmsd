@@ -41,11 +41,17 @@ from __future__ import print_function
 import argparse
 import os
 import re
+import signal
 import sys
 
-import avalon.app.server
+import cherrypy
+
+import avalon.app.factory
 import avalon.cli
 import avalon.exc
+
+
+APP_PATH = '/avalon'
 
 
 def get_parser(prog, defaults):
@@ -116,12 +122,38 @@ def get_parser(prog, defaults):
 
     return parser
 
+def setup_signal_handler():
+    """Set up a basic signal handler to deal with ^C quietly
+    until the server starts up (which will install its own
+    handlers).
+    """
+    def _exit_handler(signum, frame):
+        """Handle TERM and INT by exiting."""
+        if signum in (signal.SIGTERM, signal.SIGINT):
+            raise SystemExit()
+
+    signal.signal(signal.SIGINT, _exit_handler)
+    signal.signal(signal.SIGTERM, _exit_handler)
+
+
+def setup_cherrypy_env():
+    """Disable printing of stack traces for errors and make
+    sure that we disable default logging.
+    """
+    cherrypy.config.update({'environment': 'production'})
+    cherrypy.log.access_file = None
+    cherrypy.log.error_file = None
+    cherrypy.log.screen = False
+
 
 def main():
     """Parse and validate user input and start the application."""
     prog = re.sub('[^\w]+', '', os.path.basename(sys.argv[0]))
     defaults = avalon.cli.ServerAppDefaults()
     config = avalon.cli.ServerAppConfig(get_parser(prog, defaults), defaults)
+
+    setup_signal_handler()
+    setup_cherrypy_env()
 
     try:
         config.validate()
@@ -130,8 +162,9 @@ def main():
         return 1
 
     try:
-        app = avalon.app.server.AvalonServerApp(config)
-        app.initialize()
+        log = avalon.app.factory.new_logger(config, cherrypy.log)
+        db = avalon.app.factory.new_db_engine(config, log)
+        db.connect()
     except (avalon.exc.DatabaseError, avalon.exc.PermissionError), e:
         # NOTE: permission errors are caught here instead of attempting
         # to check for them during configuration validation since that
@@ -139,7 +172,16 @@ def main():
         print('%s: %s' % (prog, str(e)), file=sys.stderr)
         return 1
 
-    app.start()
+    handler = avalon.app.factory.new_handler(db)
+    server = avalon.app.factory.new_server(config, log, handler, APP_PATH)
+    bus = cherrypy.process.wspbus.Bus()
+
+    engine = avalon.app.factory.new_plugin_engine(
+        config, log, db, server, bus)
+
+    log.info("Starting server...")
+    engine.start()
+    log.info("Server stopped")
     return 0
     
 

@@ -59,14 +59,14 @@ __all__ = [
     'DummyCollectionScanPlugin',
     'DaemonPlugin',
     'FilePermissionPlugin',
-    'PluginManager',
-    'PluginManagerConfig',
+    'PluginEngine',
+    'PluginEngineConfig ',
     'ServerPlugin',
     'LogPlugin'
     ]
 
 
-class PluginManagerConfig(object):
+class PluginEngineConfig(object):
 
     """Configuration for the message bus wrapper."""
 
@@ -77,7 +77,7 @@ class PluginManagerConfig(object):
         self.server = None
 
 
-class PluginManager(object):
+class PluginEngine(object):
 
     """Manage optional and required subscribers to a message bus.
 
@@ -333,6 +333,7 @@ class FilePermissionPlugin(cherrypy.process.plugins.SimplePlugin):
     # so that the logs are owned correctly before we lose
     # the ability to change it.
     start.priority = 50
+
 
 class ServerPlugin(cherrypy.process.servers.ServerAdapter):
 
