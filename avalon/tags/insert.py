@@ -136,7 +136,7 @@ class Cleaner(object):
         """Set the session handler."""
         self._session_handler = session_handler
 
-    def clean_all(self, cls):
+    def clean_type(self, cls):
         """Delete all entities of the given class."""
         session = self._session_handler.get_session()
         try:

@@ -29,7 +29,7 @@
 #
 
 
-"""Functionality for crawling a filesystem to find valid audio files."""
+"""Functionality for crawling a filesystem to find audio files."""
 
 
 import os
@@ -37,7 +37,6 @@ import os
 
 __all__ = [
     'get_files',
-    'is_valid_file',
     'TagCrawler'
     ]
 

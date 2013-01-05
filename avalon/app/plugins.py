@@ -222,7 +222,7 @@ class CollectionScanPlugin(cherrypy.process.plugins.SimplePlugin):
 
         cleaner = avalon.tags.insert.Cleaner(self._db)
         for cls in (Album, Artist, Genre, Track):
-            cleaner.clean_all(cls)
+            cleaner.clean_type(cls)
 
         field_loader = avalon.tags.insert.TrackFieldLoader(self._db, tag_metas)
         field_loader.insert(Album, avalon.ids.get_album_id, 'album')
