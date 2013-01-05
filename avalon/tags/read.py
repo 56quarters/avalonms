@@ -108,7 +108,7 @@ def new_loader():
     tag libraries are available. Raise a NotImplementedError
     if neither TagPy or Mutagen is installed.
     """
-    if False and _have_mutagen:
+    if _have_mutagen:
         return MetadataLoader(read_mutagen, from_mutagen)
     elif _have_tagpy:
         return MetadataLoader(read_tagpy, from_tagpy)
