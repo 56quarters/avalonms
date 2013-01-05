@@ -28,7 +28,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-"""Plugins the provide the functionality of the server as subscribers
+"""Plugins the provide the functionality of the music server as subscribers
 to a message bus.
 """
 
@@ -202,8 +202,8 @@ class CollectionScanPlugin(cherrypy.process.plugins.SimplePlugin):
     """
 
     def __init__(self, bus, collection=None, db=None, log=None):
-        """Set the root of the music collection and database
-        session handler.
+        """Set the message bus, root of the music collection, database
+        session handler, and logger.
         """
         super(CollectionScanPlugin, self).__init__(bus)
         self._collection = collection
@@ -253,7 +253,7 @@ class CollectionScanPlugin(cherrypy.process.plugins.SimplePlugin):
 class DummyCollectionScanPlugin(cherrypy.process.plugins.SimplePlugin):
 
     """Fake collection scanning plugin that just forces a graceful
-    of the server to reload in memory data stores.
+    of the server to reload in-memory data stores.
     """
 
     def __init__(self, bus, log=None):
@@ -262,7 +262,7 @@ class DummyCollectionScanPlugin(cherrypy.process.plugins.SimplePlugin):
         self._log = log
 
     def start(self):
-        """Trigger a 'graceful' event to force a reload of the in
+        """Trigger a 'graceful' event to force a reload of the in-
         memory data stores.
         ."""
         self._log.info('Forcing cache reload...')

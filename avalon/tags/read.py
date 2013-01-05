@@ -108,7 +108,7 @@ def new_loader():
     tag libraries are available. Raise a NotImplementedError
     if neither TagPy or Mutagen is installed.
     """
-    if _have_mutagen:
+    if False and _have_mutagen:
         return MetadataLoader(read_mutagen, from_mutagen)
     elif _have_tagpy:
         return MetadataLoader(read_tagpy, from_tagpy)
@@ -122,9 +122,11 @@ def read_tagpy(path, impl=None):
     try:
         file_ref = impl.FileRef(path.encode(avalon.DEFAULT_ENCODING))
     except UnicodeError, e:
-        raise IOError("Could not encode audio path [%s]" % str(e))
-    except ValueError, e:
-        raise IOError("Could not open [%s]: %s" % (path, str(e)))
+        raise IOError("Could not encode audio path [%s]" % e.message)
+    except ValueError:
+        raise IOError("Invalid or unsupported audio file [%s]" % path)
+    if file_ref.tag() is None:
+        raise IOError("Invalid or unsupported audio file [%s]" % path)
     return file_ref
 
 
@@ -135,9 +137,9 @@ def read_mutagen(path, impl=None):
     try:
         file_ref = impl.File(path.encode(avalon.DEFAULT_ENCODING), easy=True)
     except IOError, e:
-        raise IOError("Could not open [%s]: %s" % (path, str(e)))
+        raise IOError("Could not open [%s]: %s" % (path, e.message))
     if file_ref is None:
-        raise IOError("Invalid audio file [%s]" % path)
+        raise IOError("Invalid or unsupported audio file [%s]" % path)
     return file_ref
 
 

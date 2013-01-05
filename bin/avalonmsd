@@ -122,6 +122,7 @@ def get_parser(prog, defaults):
 
     return parser
 
+
 def setup_signal_handler():
     """Set up a basic signal handler to deal with ^C quietly
     until the server starts up (which will install its own

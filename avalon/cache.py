@@ -159,15 +159,21 @@ class TrackStore(object):
         self._all = frozenset(all_tracks)
 
     def by_album(self, album_id):
-        """Get tracks by an album ID."""
+        """Get tracks by an album ID, empty set if there are no tracks
+        with that album ID.
+        """
         return self._by_album[album_id]
 
     def by_artist(self, artist_id):
-        """Get tracks by an artist ID."""
+        """Get tracks by an artist ID, empty set if there are no tracks
+        with that artist ID.
+        """
         return self._by_artist[artist_id]
 
     def by_genre(self, genre_id):
-        """Get tracks by a genre ID."""
+        """Get tracks by a genre ID, empty set if there are no tracks
+        with that genre ID.
+        """
         return self._by_genre[genre_id]
 
     def all(self):
@@ -198,7 +204,7 @@ class _IdNameStore(object):
         self._all = frozenset(IdNameElm.from_model(thing) for thing in res)
 
     def all(self):
-        """Get all elements."""
+        """Get all elements in the store."""
         return self._all
 
 

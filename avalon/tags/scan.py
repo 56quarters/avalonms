@@ -38,40 +38,21 @@ import os
 __all__ = [
     'get_files',
     'is_valid_file',
-    'TagCrawler',
-    'VALID_EXTS'
+    'TagCrawler'
     ]
 
 
-VALID_EXTS = frozenset(['.mp3', '.ogg', '.flac'])
-
-
-def _get_files(callback, root):
-    """Get a list of files under the given root filtered
-    using the supplied callback.
+def get_files(root):
+    """Get a list of files under the given root.
     """
     out = []
-    for root, dirs, files in os.walk(root):
-        for entry in files:
-            out.append(os.path.normpath(os.path.join(root, entry)))
-    return [entry for entry in out if callback(entry)]
-
-
-def get_files(root):
-    """Get a list of supported files (indicated by VALID_EXTS)
-    under the given root.
-    """
     # Force a unicode object here so that we get unicode
     # objects back for paths so that we can treat path the
     # same as we treat tag values.
-    return _get_files(is_valid_file, unicode(root))
-
-
-def is_valid_file(path):
-    """Return true if the path is a audio file that is
-    supported (by extension), false otherwise.
-    """
-    return os.path.splitext(path)[1] in VALID_EXTS
+    for root, dirs, files in os.walk(unicode(root)):
+        for entry in files:
+            out.append(os.path.normpath(os.path.join(root, entry)))
+    return out
 
 
 class TagCrawler(object):
@@ -95,8 +76,8 @@ class TagCrawler(object):
             try:
                 out.append(self._loader.get_from_path(tag_file))
             except IOError, e:
-                self._log.warn(str(e))
+                self._log.warn(e.message)
             except ValueError, e:
-                self._log.warn(str(e))
+                self._log.warn(e.message)
         return out
 

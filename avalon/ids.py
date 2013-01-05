@@ -66,21 +66,21 @@ def _normalize(value):
 
 
 def get_album_id(name):
-    """Generate an ID based on the album name (case insensitive)."""
+    """Generate a UUID based on the album name (case insensitive)."""
     return uuid.uuid5(NS_ALBUMS, _normalize_no_case(name))
 
 
 def get_artist_id(name):
-    """Generate an ID based on the artist name (case insensitive)."""
+    """Generate a UUID based on the artist name (case insensitive)."""
     return uuid.uuid5(NS_ARTISTS, _normalize_no_case(name))
 
 
 def get_genre_id(name):
-    """Generate an ID based on the genre name (case insensitive)."""
+    """Generate a UUID based on the genre name (case insensitive)."""
     return uuid.uuid5(NS_GENRES, _normalize_no_case(name))
 
 
 def get_track_id(path):
-    """Generate an ID based on the path of a track (case sensitive)."""
+    """Generate a UUID based on the path of a track (case sensitive)."""
     return uuid.uuid5(NS_TRACKS, _normalize(path))
 

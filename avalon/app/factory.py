@@ -29,7 +29,7 @@
 #
 
 
-"""Factory methods for the major components for the server."""
+"""Factory methods for the major components of the music server."""
 
 
 import pkgutil
@@ -153,7 +153,7 @@ def new_plugin_engine(app_config, logger, db_engine, server, bus):
     """Construct a new plugin engine/manager from the given logger,
     database handler, HTTP server, and message bus.
 
-    Expected configuration properties are: daemon_user,
+    Expected configuration properties are: daemon, daemon_user,
     daemon_group, access_log, error_log, db_path, collection.
     """
     engine_config = avalon.app.plugins.PluginEngineConfig()

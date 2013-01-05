@@ -203,8 +203,8 @@ class SessionHandler(object):
 
     def connect(self):
         """Connect to the database and configure the session factory
-        to use the connection, and create any needed tables (optionally
-        dropping them first).
+        to use the connection, and create any needed tables (if they
+        do not already exist).
         """
         try:
             # Attempt to connect to the engine to make sure it's valid and

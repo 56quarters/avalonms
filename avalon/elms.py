@@ -30,7 +30,7 @@
 
 
 """
-Immutable wrappers for model objects suitable for being rendered as JSON
+Immutable wrappers for model objects suitable for being rendered as JSON.
 """
 
 
@@ -46,7 +46,7 @@ __all__ = [
 class IdNameElm(collections.namedtuple('_IdNameElm', ['id', 'name'])):
 
     """Immutable, hashable representation of a model with ID
-    and name attributes (everything besides Tracks)
+    and name attributes (everything besides Tracks).
     """
 
     @classmethod
@@ -70,7 +70,7 @@ class TrackElm(collections.namedtuple('_TrackElm', [
         'genre',
         'genre_id'])):
     
-    """Immutable, hashable representation of a Track model"""
+    """Immutable, hashable representation of a Track model."""
     
     @classmethod
     def from_model(cls, model):
