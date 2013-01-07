@@ -2,7 +2,6 @@
 #
 
 import mox
-import pytest
 
 import avalon.log
 import avalon.tags.read
