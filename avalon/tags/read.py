@@ -136,6 +136,8 @@ def read_mutagen(path, impl=None):
         impl = mutagen
     try:
         file_ref = impl.File(path.encode(avalon.DEFAULT_ENCODING), easy=True)
+    except UnicodeError, e:
+        raise IOError("Could not encode audio path [%s]", e.message)
     except IOError, e:
         raise IOError("Could not open [%s]: %s" % (path, e.message))
     if file_ref is None:
