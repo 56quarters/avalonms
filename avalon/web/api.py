@@ -89,6 +89,7 @@ class AvalonApiEndpoints(object):
         self._albums.reload()
         self._artists.reload()
         self._genres.reload()
+        self._search.reload()
         self._id_cache.reload()
 
     def get_albums(self, params=None):

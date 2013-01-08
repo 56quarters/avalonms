@@ -32,9 +32,54 @@
 """Text searching functionality."""
 
 
+import collections
+from unicodedata import normalize, category
+
+
 __all__ = [
-    'AvalonTextSearch'
+    'searchable',
+    'strip_accents',
+    'AvalonTextSearch',
+    'SearchMeta'
     ]
+
+
+def searchable(s):
+    """Convert an input string to a consistent searchable form by
+    removing accents, diaretics, and converting it to lowercase.
+    """
+    if not s:
+        return ''
+    return strip_accents(s).lower()
+
+
+def strip_accents(s):
+    """Decompose unicode characters into their base characters so
+    that we can return more meaningful search results by not taking
+    accents and such into account.
+
+    See http://stackoverflow.com/a/1410365
+    """
+    return ''.join((c for c in normalize('NFD', unicode(s)) if category(c) != 'Mn'))
+
+
+class SearchMeta(collections.namedtuple('_SearchMeta', [
+    'name',
+    'elm'])):
+
+    """Wrapper for a code-folded, searchable, version of a metadata
+    element.
+    """
+
+    @classmethod
+    def from_elm(cls, elm):
+        """Construct a new searchable wrapper from the given element.
+
+        The 'name' field of the element is used as the search text after
+        having accents and diaretic marks stripped and being converted to
+        lowercase.
+        """
+        return cls(searchable(elm.name), elm)
 
 
 class AvalonTextSearch(object):
@@ -44,23 +89,38 @@ class AvalonTextSearch(object):
     """
 
     def __init__(self, album_store, artist_store, genre_store, track_store):
-        """Set the backing stores for searching."""
-        self._albums = album_store
-        self._artists = artist_store
-        self._genres = genre_store
-        self._tracks = track_store
+        """Set the backing stores for searching and use them
+        to build a search index for the music collection.
+        """
+        self._album_store = album_store
+        self._artist_store = artist_store
+        self._genre_store = genre_store
+        self._track_store = track_store
+        self._albums = None
+        self._artists = None
+        self._genres = None
+        self._tracks = None
+
+        self.reload()
+
+    def reload(self):
+        """Rebuild the search indexes for the collection."""
+        self._albums = frozenset(SearchMeta.from_elm(elm) for elm in self._album_store.all())
+        self._artists = frozenset(SearchMeta.from_elm(elm) for elm in self._artist_store.all())
+        self._genres = frozenset(SearchMeta.from_elm(elm) for elm in self._genre_store.all())
+        self._tracks = frozenset(SearchMeta.from_elm(elm) for elm in self._track_store.all())
 
     def search_albums(self, needle):
         """Search albums by name (case insensitive)."""
-        return self._search_elms(self._albums.all(), needle)
+        return self._search_metas(self._albums, needle)
 
     def search_artists(self, needle):
         """Search artists by name (case insensitive)."""
-        return self._search_elms(self._artists.all(), needle)
+        return self._search_metas(self._artists, needle)
 
     def search_genres(self, needle):
         """Search genres by name (case insensitive)."""
-        return self._search_elms(self._genres.all(), needle)
+        return self._search_metas(self._genres, needle)
 
     def search_tracks(self, needle):
         """Search for tracks that have an album, artist, genre,
@@ -78,31 +138,33 @@ class AvalonTextSearch(object):
         out = set()
 
         for album in albums:
-            out.update(self._tracks.by_album(album.id))
+            out.update(self._track_store.by_album(album.id))
         for artist in artists:
-            out.update(self._tracks.by_artist(artist.id))
+            out.update(self._track_store.by_artist(artist.id))
         for genre in genres:
-            out.update(self._tracks.by_genre(genre.id))
+            out.update(self._track_store.by_genre(genre.id))
 
-        return out.union(self._search_elms(self._tracks.all(), needle))
+        return out.union(self._search_metas(self._tracks, needle))
 
-    def _search_elms(self, elms, needle):
+    def _search_metas(self, metas, needle):
         """Search the name field of the given elements for the
         needle (case insensitive).
         """
         out = set()
-        if not elms or not needle:
+        if not metas or not needle:
             return out
 
-        query = needle.lower()
-        for elm in elms:
-            if self._matches(elm, query):
-                out.add(elm)
+        query = searchable(needle)
+        for meta in metas:
+            if self._matches(meta, query):
+                # If the normalized, code-folded name matches the
+                # query we add the backing element to the result set
+                out.add(meta.elm)
         return out
 
-    def _matches(self, elm, needle):
-        """Return true if the needle is contained in the lower
-        cased 'name' field of the element, false otherwise.
+    def _matches(self, meta, needle):
+        """Return true if the needle is contained in the 'name' field
+        of the element, false otherwise.
         """
-        return needle in getattr(elm, 'name', '').lower()
+        return needle in getattr(meta, 'name', '')
 

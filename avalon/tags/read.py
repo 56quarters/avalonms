@@ -69,15 +69,14 @@ __all__ = [
 
 
 class Metadata(collections.namedtuple('_Metadata', [
-            'path',
-            'album',
-            'artist',
-            'genre',
-            'title',
-            'track',
-            'year',
-            'length'])):
-
+    'path',
+    'album',
+    'artist',
+    'genre',
+    'title',
+    'track',
+    'year',
+    'length'])):
     """Container for metadata of audio file"""
 
 
