@@ -24,8 +24,14 @@ except IndexError:
     print("You must supply a DB connection URL!", file=sys.stderr)
     sys.exit(1)
 
+config = avalon.models.SessionHandlerConfig()
+config.engine = avalon.models.get_engine(db_url)
+config.session_factory = avalon.models.get_session_factory()
+config.metadata = avalon.models.get_metadata()
+config.log = None
+
 try:
-    handle = avalon.models.SessionHandler(db_url, None)
+    handle = avalon.models.SessionHandler(config)
     handle.connect()
 except avalon.exc.ConnectionError, e:
     print(str(e), file=sys.stderr)
@@ -44,6 +50,7 @@ for album in session.query(avalon.models.Album).all():
     urls.append(song_base + 'album=' + urllib.quote_plus(album.name.encode('utf-8')))
     urls.append(song_base + 'album=' + urllib.quote_plus(album.name.lower().encode('utf-8')))
     urls.append(song_base + 'album=' + urllib.quote_plus(album.name.upper().encode('utf-8')))
+    urls.append(song_base + 'query=' + urllib.quote_plus(album.name.upper().encode('utf-8')))
     urls.append(song_base + 'album_id=' + urllib.quote_plus(str(album.id)))
     urls.append(album_base + 'order=name' )
 
@@ -51,6 +58,7 @@ for artist in session.query(avalon.models.Artist).all():
     urls.append(song_base + 'artist=' + urllib.quote_plus(artist.name.encode('utf-8')))
     urls.append(song_base + 'artist=' + urllib.quote_plus(artist.name.lower().encode('utf-8')))
     urls.append(song_base + 'artist=' + urllib.quote_plus(artist.name.upper().encode('utf-8')))
+    urls.append(song_base + 'query=' + urllib.quote_plus(artist.name.encode('utf-8')))
     urls.append(song_base + 'artist_id=' + urllib.quote_plus(str(artist.id)))
     urls.append(artist_base + 'order=name')
 
@@ -58,6 +66,7 @@ for genre in session.query(avalon.models.Genre).all():
     urls.append(song_base + 'genre=' + urllib.quote_plus(genre.name.encode('utf-8')))
     urls.append(song_base + 'genre=' + urllib.quote_plus(genre.name.lower().encode('utf-8')))
     urls.append(song_base + 'genre=' + urllib.quote_plus(genre.name.upper().encode('utf-8')))
+    urls.append(song_base + 'query=' + urllib.quote_plus(genre.name.upper().encode('utf-8')))
     urls.append(song_base + 'genre_id=' + urllib.quote_plus(str(genre.id)))
     urls.append(genre_base + 'order=name')
 
