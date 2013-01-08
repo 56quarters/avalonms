@@ -1,5 +1,10 @@
 ChangeLog for Avalon Music Server
 
+2013-01-10 - v0.2.13
+   * Unicode code folding for better search results
+   * Beginings of a test suite for the supporting library
+   * Documentation links to reference server installation
+
 2012-12-28 - v0.2.12
    * Text searching functionality via 'query' param for
      albums, artists, genres, and songs endpoints
