@@ -36,10 +36,9 @@ import functools
 
 import cherrypy
 
+import avalon
 import avalon.err
 import avalon.exc
-import avalon.web.api
-import avalon.web.filtering
 import avalon.web.output
 import avalon.web.request
 
@@ -144,6 +143,7 @@ class AvalonHandler(object):
         return self._status.get_heartbeat()
 
     @cherrypy.expose
+    @cherrypy.tools.encode(encoding=avalon.DEFAULT_ENCODING)
     @cherrypy.tools.json_out(handler=avalon.web.output.json_handler)
     @render_results
     @application_ready
@@ -153,6 +153,7 @@ class AvalonHandler(object):
         return self._filter(self._api.get_albums(params), params)
 
     @cherrypy.expose
+    @cherrypy.tools.encode(encoding=avalon.DEFAULT_ENCODING)
     @cherrypy.tools.json_out(handler=avalon.web.output.json_handler)
     @render_results
     @application_ready
@@ -162,6 +163,7 @@ class AvalonHandler(object):
         return self._filter(self._api.get_artists(params), params)
 
     @cherrypy.expose
+    @cherrypy.tools.encode(encoding=avalon.DEFAULT_ENCODING)
     @cherrypy.tools.json_out(handler=avalon.web.output.json_handler)
     @render_results
     @application_ready
@@ -171,6 +173,7 @@ class AvalonHandler(object):
         return self._filter(self._api.get_genres(params), params)
 
     @cherrypy.expose
+    @cherrypy.tools.encode(encoding=avalon.DEFAULT_ENCODING)
     @cherrypy.tools.json_out(handler=avalon.web.output.json_handler)
     @render_results
     @application_ready
