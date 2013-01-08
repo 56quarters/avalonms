@@ -2,7 +2,7 @@ Status page
 ~~~~~~~~~~~
 
 The status page (at the path ``/avalon/``) displays information about the currently running
-server using HTML for presentation. 
+server.
 
 Information presented includes
 
