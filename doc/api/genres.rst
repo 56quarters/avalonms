@@ -72,12 +72,12 @@ Error output format
 Example request
 ^^^^^^^^^^^^^^^
 
-* ``http://localhost:8080/avalon/genres``
+* http://api.tshlabs.org/avalon/genres
 
-* ``http://localhost:8080/avalon/genres?query=rock``
+* http://api.tshlabs.org/avalon/genres?query=rock
 
-* ``http://localhost:8080/avalon/genres?order=name``
+* http://api.tshlabs.org/avalon/genres?order=name
 
-* ``http://localhost:8080/avalon/genres?order=name&limit=10``
+* http://api.tshlabs.org/avalon/genres?order=name&limit=10
 
 

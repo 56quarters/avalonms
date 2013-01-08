@@ -37,5 +37,5 @@ Error output format
 Example request
 ^^^^^^^^^^^^^^^
 
-* ``http://localhost:8080/avalon/heartbeat``
+* http://api.tshlabs.org/avalon/heartbeat
 

@@ -74,11 +74,11 @@ Error output format
 Example request
 ^^^^^^^^^^^^^^^
 
-* ``http://localhost:8080/avalon/albums``
+* http://api.tshlabs.org/avalon/albums
 
-* ``http://localhost:8080/avalon/albums?query=live``
+* http://api.tshlabs.org/avalon/albums?query=live
 
-* ``http://localhost:8080/avalon/albums?order=name&direction=asc``
+* http://api.tshlabs.org/avalon/albums?order=name&direction=asc
 
-* ``http://localhost:8080/avalon/albums?order=name&direction=desc&limit=5``
+* http://api.tshlabs.org/avalon/albums?order=name&direction=desc&limit=5
 

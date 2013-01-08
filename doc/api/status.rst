@@ -14,3 +14,8 @@ Information presented includes
 
 * The live threads being run by the server
 
+Example request
+^^^^^^^^^^^^^^^
+
+* http://api.tshlabs.org/avalon/
+
