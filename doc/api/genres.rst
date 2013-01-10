@@ -12,7 +12,9 @@ Filtering Parameters
 
   + Type: ``string``
 
-  + Description: Select only genres whose name contains ``query`` (not case sensitive).
+  + Description: Select only genres whose name contains ``query``. The match
+    is not case sensitive and unicode characters will be normalized if possible
+    before being compared (in the ``query`` and fields being compared).
 
 Other Parameters
 ^^^^^^^^^^^^^^^^
