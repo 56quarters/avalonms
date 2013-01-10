@@ -40,7 +40,9 @@ __all__ = [
     'searchable',
     'strip_accents',
     'AvalonTextSearch',
-    'SearchMeta'
+    'SearchMeta',
+    'SearchTrie',
+    'TrieNode'
     ]
 
 
@@ -82,6 +84,70 @@ class SearchMeta(collections.namedtuple('_SearchMeta', [
         return cls(searchable(elm.name), elm)
 
 
+class TrieNode(object):
+
+    """ """
+
+    def __init__(self):
+        """ """
+        self.prefix = ''
+        self.elements = set()
+        self.children = {}
+
+    def __str__(self):
+        """ """
+        return '<TrieNode prefix: %s>' % self.prefix
+
+
+class SearchTrie(object):
+
+    """ """
+
+    def __init__(self, node_cls):
+        """ """
+        self._node_cls = node_cls
+        self._root = self._node_cls()
+
+    def add_element(self, term, element):
+        """ """
+        self._add_element(self._root, term, 0, element)
+
+    def _add_element(self, node, term, i, element):
+        """ """
+        if i > 0:
+            node.elements.add(element)
+        if i == len(term):
+            return
+        char = term[i]
+        if char not in node.children:
+            next = self._node_cls()
+            next.prefix = char
+            node.children[char] = next
+        else:
+            next = node.children[char]
+        self._add_element(next, term, i + 1, element)
+
+    def search(self, term):
+        """ """
+        return self._search(self._root, term, 0)
+
+    def _search(self, node, term, i):
+        """ """
+        if not term:
+            return set()
+
+        if i == len(term):
+            return node.elements
+
+        char = term[i]
+        if char not in node.children:
+            return set()
+
+        if not node.children:
+            return node.elements
+        return self._search(node.children[char], term, i + 1)
+
+
 class AvalonTextSearch(object):
 
     """Methods for searching basic or track elements based on
@@ -96,31 +162,53 @@ class AvalonTextSearch(object):
         self._artist_store = artist_store
         self._genre_store = genre_store
         self._track_store = track_store
-        self._albums = None
-        self._artists = None
-        self._genres = None
-        self._tracks = None
+
+        self._album_search = None
+        self._artist_search = None
+        self._genre_search = None
+        self._track_search = None
 
         self.reload()
 
     def reload(self):
         """Rebuild the search indexes for the collection."""
-        self._albums = frozenset(SearchMeta.from_elm(elm) for elm in self._album_store.all())
-        self._artists = frozenset(SearchMeta.from_elm(elm) for elm in self._artist_store.all())
-        self._genres = frozenset(SearchMeta.from_elm(elm) for elm in self._genre_store.all())
-        self._tracks = frozenset(SearchMeta.from_elm(elm) for elm in self._track_store.all())
+        albums = frozenset(SearchMeta.from_elm(elm) for elm in self._album_store.all())
+        artists = frozenset(SearchMeta.from_elm(elm) for elm in self._artist_store.all())
+        genres = frozenset(SearchMeta.from_elm(elm) for elm in self._genre_store.all())
+        tracks = frozenset(SearchMeta.from_elm(elm) for elm in self._track_store.all())
+
+        self._album_search = SearchTrie(TrieNode)
+        self._artist_search = SearchTrie(TrieNode)
+        self._genre_search = SearchTrie(TrieNode)
+        self._track_search = SearchTrie(TrieNode)
+
+        for meta in albums:
+            for term in meta.name.split():
+                self._album_search.add_element(term, meta.elm)
+
+        for meta in artists:
+            for term in meta.name.split():
+                self._artist_search.add_element(term, meta.elm)
+
+        for meta in genres:
+            for term in meta.name.split():
+                self._genre_search.add_element(term, meta.elm)
+
+        for meta in tracks:
+            for term in meta.name.split():
+                self._track_search.add_element(term, meta.elm)
 
     def search_albums(self, needle):
         """Search albums by name (case insensitive)."""
-        return self._search_metas(self._albums, needle)
+        return self._album_search.search(searchable(needle))
 
     def search_artists(self, needle):
         """Search artists by name (case insensitive)."""
-        return self._search_metas(self._artists, needle)
+        return self._artist_search.search(searchable(needle))
 
     def search_genres(self, needle):
         """Search genres by name (case insensitive)."""
-        return self._search_metas(self._genres, needle)
+        return self._genre_search.search(searchable(needle))
 
     def search_tracks(self, needle):
         """Search for tracks that have an album, artist, genre,
@@ -128,9 +216,7 @@ class AvalonTextSearch(object):
         """
         # Search for the needle in albums, artists, and genres separately
         # so that we aren't checking those fields on every track, just the
-        # name field for each track. This takes advantage of the fact that
-        # there are probably far fewer albums, artists, and genres than
-        # tracks. In practice this is only marginally faster but cleaner.
+        # name field for each track.
         albums = self.search_albums(needle)
         artists = self.search_artists(needle)
         genres = self.search_genres(needle)
@@ -144,27 +230,6 @@ class AvalonTextSearch(object):
         for genre in genres:
             out.update(self._track_store.by_genre(genre.id))
 
-        return out.union(self._search_metas(self._tracks, needle))
+        return out.union(self._track_search.search(searchable(needle)))
 
-    def _search_metas(self, metas, needle):
-        """Search the name field of the given elements for the
-        needle (case insensitive).
-        """
-        out = set()
-        if not metas or not needle:
-            return out
-
-        query = searchable(needle)
-        for meta in metas:
-            if self._matches(meta, query):
-                # If the normalized, code-folded name matches the
-                # query we add the backing element to the result set
-                out.add(meta.elm)
-        return out
-
-    def _matches(self, meta, needle):
-        """Return true if the needle is contained in the 'name' field
-        of the element, false otherwise.
-        """
-        return needle in getattr(meta, 'name', '')
 
