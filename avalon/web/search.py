@@ -31,8 +31,6 @@
 
 """Text searching functionality."""
 
-
-import collections
 from unicodedata import normalize, category
 
 
