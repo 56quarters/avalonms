@@ -137,6 +137,9 @@ class SearchTrie(object):
         element, adding the element to every intermediate node along the way.
         """
         if i > 0:
+            # If this isn't the root node add the element to the
+            # node since it will be considered a match for the
+            # current prefix
             node.elements.add(element)
         if i == len(term):
             return
@@ -163,17 +166,27 @@ class SearchTrie(object):
         node based on the position i being examined in the given term.
         """
         if not term:
+            # No search term, no results
             return set()
 
         if i == len(term):
+            # We hit the end of the search term, everything at
+            # the current node is a match for the term
             return node.elements
 
         char = term[i]
         if char not in node.children:
+            # We're not at a leaf node or the end of the search
+            # term but none of the children of the current node
+            # match, no results
             return set()
 
         if not node.children:
+            # Leaf node of the trie, everything at the current
+            # node is a match for the term.
             return node.elements
+
+        # Otherwise, continue searching at the next node
         return self._search(node.children[char], term, i + 1)
 
 
