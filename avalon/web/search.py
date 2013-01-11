@@ -66,25 +66,6 @@ def strip_accents(s):
         (c for c in normalize('NFD', unicode(s)) if category(c) != 'Mn'))
 
 
-class SearchMeta(collections.namedtuple('_SearchMeta', [
-    'name',
-    'elm'])):
-
-    """Wrapper for a code-folded, searchable, version of a metadata
-    element.
-    """
-
-    @classmethod
-    def from_elm(cls, elm):
-        """Construct a new searchable wrapper from the given element.
-
-        The 'name' field of the element is used as the search text after
-        having accents and diaretic marks stripped and being converted to
-        lowercase.
-        """
-        return cls(searchable(elm.name), elm)
-
-
 class TrieNode(object):
 
     """Node in a trie that represents a particular path through
@@ -214,35 +195,28 @@ class AvalonTextSearch(object):
 
     def reload(self):
         """Rebuild the search indexes for the collection."""
-        albums = frozenset(
-            SearchMeta.from_elm(elm) for elm in self._album_store.all())
-        artists = frozenset(
-            SearchMeta.from_elm(elm) for elm in self._artist_store.all())
-        genres = frozenset(
-            SearchMeta.from_elm(elm) for elm in self._genre_store.all())
-        tracks = frozenset(
-            SearchMeta.from_elm(elm) for elm in self._track_store.all())
+        album_search = SearchTrie(TrieNode)
+        artist_search = SearchTrie(TrieNode)
+        genre_search = SearchTrie(TrieNode)
+        track_search = SearchTrie(TrieNode)
 
-        self._album_search = SearchTrie(TrieNode)
-        self._artist_search = SearchTrie(TrieNode)
-        self._genre_search = SearchTrie(TrieNode)
-        self._track_search = SearchTrie(TrieNode)
+        self._add_all_to_tree(self._album_store.all(), album_search)
+        self._add_all_to_tree(self._artist_store.all(), artist_search)
+        self._add_all_to_tree(self._genre_store.all(), genre_search)
+        self._add_all_to_tree(self._track_store.all(), track_search)
 
-        for meta in albums:
-            for term in meta.name.split():
-                self._album_search.add(term, meta.elm)
+        self._album_search = album_search
+        self._artist_search = artist_search
+        self._genre_search = genre_search
+        self._track_search = track_search
 
-        for meta in artists:
-            for term in meta.name.split():
-                self._artist_search.add(term, meta.elm)
-
-        for meta in genres:
-            for term in meta.name.split():
-                self._genre_search.add(term, meta.elm)
-
-        for meta in tracks:
-            for term in meta.name.split():
-                self._track_search.add(term, meta.elm)
+    def _add_all_to_tree(self, elms, trie):
+        """Add a normalized version of the name of each of the given
+        elements to the search trie.
+        """
+        for elm in elms:
+            for term in searchable(elm.name).split():
+                trie.add(term, elm)
 
     def search_albums(self, needle):
         """Search albums by name (case insensitive)."""
@@ -277,5 +251,4 @@ class AvalonTextSearch(object):
             out.update(self._track_store.by_genre(genre.id))
 
         return out.union(self._track_search.search(searchable(needle)))
-
 
