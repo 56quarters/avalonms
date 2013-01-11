@@ -14,12 +14,26 @@ Filtering Parameters
 
   + Description: Select only albums whose name contains ``query``. The match
     is not case sensitive and unicode characters will be normalized if possible
-    before being compared (in the ``query`` and fields being compared).
+    before being compared (in the ``query`` and fields being compared). The
+    ``query`` is compared using prefix matching against each portion of the
+    album name (delimitted by whitespace).
 
 Other Parameters
 ^^^^^^^^^^^^^^^^
 
 .. include:: order_limit.rst
+
+
+Example request
+^^^^^^^^^^^^^^^
+
+* http://api.tshlabs.org/avalon/albums
+
+* http://api.tshlabs.org/avalon/albums?query=live
+
+* http://api.tshlabs.org/avalon/albums?order=name&direction=asc
+
+* http://api.tshlabs.org/avalon/albums?order=name&direction=desc&limit=5
 
 
 Possible error responses
@@ -73,14 +87,4 @@ Error output format
     }
 
 
-Example request
-^^^^^^^^^^^^^^^
-
-* http://api.tshlabs.org/avalon/albums
-
-* http://api.tshlabs.org/avalon/albums?query=live
-
-* http://api.tshlabs.org/avalon/albums?order=name&direction=asc
-
-* http://api.tshlabs.org/avalon/albums?order=name&direction=desc&limit=5
 

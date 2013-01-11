@@ -51,13 +51,31 @@ Filtering Parameters
   + Description: Select only songs whose album, artist, genre, or name contains
     ``query``. The match is not case sensitive and unicode characters will be
     normalized if possible before being compared (in the ``query`` and fields being
-    compared).
+    compared). The ``query`` is compared using prefix matching against each portion
+    of the album, artist, genre, or song name (delimitted by whitespace).
 
 Other Parameters
 ^^^^^^^^^^^^^^^^
 
 .. include:: order_limit.rst
 
+
+Example requests
+^^^^^^^^^^^^^^^^
+
+* http://api.tshlabs.org/avalon/songs?artist=NOFX
+
+* http://api.tshlabs.org/avalon/songs?artist_id=b048612e-1207-59f4-bbeb-ba0bc9a48cd1
+
+* http://api.tshlabs.org/avalon/songs?query=Live&artist=The+Bouncing+Souls
+
+* http://api.tshlabs.org/avalon/songs?album_id=2d24515c-a459-552a-b022-e85d1621425a
+
+* http://api.tshlabs.org/avalon/songs?genre=Ska
+
+* http://api.tshlabs.org/avalon/songs?genre_id=8794d7b7-fff3-50bb-b1f1-438659e05fe5
+
+* http://api.tshlabs.org/avalon/songs?query=anywhere
 
 
 Possible error responses
@@ -127,22 +145,4 @@ Error output format
       "results": []
     }
 
-
-Example requests
-^^^^^^^^^^^^^^^^
-
-* http://api.tshlabs.org/avalon/songs?artist=NOFX
-
-* http://api.tshlabs.org/avalon/songs?artist_id=b048612e-1207-59f4-bbeb-ba0bc9a48cd1
-
-* http://api.tshlabs.org/avalon/songs?query=Live&artist=The+Bouncing+Souls
-
-* http://api.tshlabs.org/avalon/songs?album_id=2d24515c-a459-552a-b022-e85d1621425a
-
-* http://api.tshlabs.org/avalon/songs?genre=Ska
-
-* http://api.tshlabs.org/avalon/songs?genre_id=8794d7b7-fff3-50bb-b1f1-438659e05fe5
-
-* http://api.tshlabs.org/avalon/songs?query=anywhere
-   
 

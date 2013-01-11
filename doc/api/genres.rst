@@ -14,12 +14,26 @@ Filtering Parameters
 
   + Description: Select only genres whose name contains ``query``. The match
     is not case sensitive and unicode characters will be normalized if possible
-    before being compared (in the ``query`` and fields being compared).
+    before being compared (in the ``query`` and fields being compared). The
+    ``query`` is compared using prefix matching against each portion of the
+    genre name (delimitted by whitespace).
 
 Other Parameters
 ^^^^^^^^^^^^^^^^
 
 .. include:: order_limit.rst
+
+
+Example request
+^^^^^^^^^^^^^^^
+
+* http://api.tshlabs.org/avalon/genres
+
+* http://api.tshlabs.org/avalon/genres?query=rock
+
+* http://api.tshlabs.org/avalon/genres?order=name
+
+* http://api.tshlabs.org/avalon/genres?order=name&limit=10
 
 
 Possible error responses
@@ -70,16 +84,5 @@ Error output format
       "results": []
     }
 
-
-Example request
-^^^^^^^^^^^^^^^
-
-* http://api.tshlabs.org/avalon/genres
-
-* http://api.tshlabs.org/avalon/genres?query=rock
-
-* http://api.tshlabs.org/avalon/genres?order=name
-
-* http://api.tshlabs.org/avalon/genres?order=name&limit=10
 
 
