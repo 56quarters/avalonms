@@ -86,34 +86,55 @@ class SearchMeta(collections.namedtuple('_SearchMeta', [
 
 class TrieNode(object):
 
-    """ """
+    """Node in a trie that represents a particular path through
+    the trie.
+
+    A node has a set of metadata elements that are considered to
+    "match" it and links to child nodes indexed by the next character
+    in the path.
+    """
 
     def __init__(self):
-        """ """
+        """Set initial values for the prefix, elements, and child nodes."""
         self.prefix = ''
         self.elements = set()
         self.children = {}
 
     def __str__(self):
-        """ """
+        """String representation of the node."""
         return '<TrieNode prefix: %s>' % self.prefix
 
 
 class SearchTrie(object):
 
-    """ """
+    """Search trie structure with functionality for building an index
+    for text matching and querying it.
+
+    Insert and lookup performance should be O(m) where m is the length
+    of the term being inserted or looked up. No normalization is done
+    when terms are added to the trie or when the trie is queried, this
+    is expected to be done by the caller.
+    """
 
     def __init__(self, node_cls):
-        """ """
+        """Set the class to use for individual nodes in the trie and
+        build the root node.
+        """
         self._node_cls = node_cls
         self._root = self._node_cls()
 
-    def add_element(self, term, element):
-        """ """
-        self._add_element(self._root, term, 0, element)
+    def add(self, term, element):
+        """Add a metadata element to the trie indexed using the given term.
 
-    def _add_element(self, node, term, i, element):
-        """ """
+        The term is expected to be normalized using the same method that will
+        be used for searches against the trie.
+        """
+        self._add(self._root, term, 0, element)
+
+    def _add(self, node, term, i, element):
+        """Recursively construct nodes in a trie for the given term and metadata
+        element, adding the element to every intermediate node along the way.
+        """
         if i > 0:
             node.elements.add(element)
         if i == len(term):
@@ -125,14 +146,21 @@ class SearchTrie(object):
             node.children[char] = next
         else:
             next = node.children[char]
-        self._add_element(next, term, i + 1, element)
+        self._add(next, term, i + 1, element)
 
     def search(self, term):
-        """ """
+        """Search for metadata elements that match the given term, returning a
+        set of matching elements, and an empty set if there are no matches.
+
+        The term is expected to be normalized using the same method that was
+        used to build the trie.
+        """
         return self._search(self._root, term, 0)
 
     def _search(self, node, term, i):
-        """ """
+        """Recursively search down from the given node for the next
+        node based on the position i being examined in the given term.
+        """
         if not term:
             return set()
 
@@ -184,19 +212,19 @@ class AvalonTextSearch(object):
 
         for meta in albums:
             for term in meta.name.split():
-                self._album_search.add_element(term, meta.elm)
+                self._album_search.add(term, meta.elm)
 
         for meta in artists:
             for term in meta.name.split():
-                self._artist_search.add_element(term, meta.elm)
+                self._artist_search.add(term, meta.elm)
 
         for meta in genres:
             for term in meta.name.split():
-                self._genre_search.add_element(term, meta.elm)
+                self._genre_search.add(term, meta.elm)
 
         for meta in tracks:
             for term in meta.name.split():
-                self._track_search.add_element(term, meta.elm)
+                self._track_search.add(term, meta.elm)
 
     def search_albums(self, needle):
         """Search albums by name (case insensitive)."""
