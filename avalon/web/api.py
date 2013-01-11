@@ -93,21 +93,27 @@ class AvalonApiEndpoints(object):
         self._id_cache.reload()
 
     def get_albums(self, params=None):
-        """ """
+        """Return album results based on the given query string
+        parameters, all albums if there are no parameters.
+        """
         all_albums = self._albums.all()
         if params is None or params.get('query') is None:
             return all_albums
         return self._search.search_albums(params.get('query'))
 
     def get_artists(self, params=None):
-        """ """
+        """Return artist results based on the given query string
+        parameters, all artists if there are no parameters.
+        """
         all_artists = self._artists.all()
         if params is None or params.get('query') is None:
             return all_artists
         return self._search.search_artists(params.get('query'))
 
     def get_genres(self, params=None):
-        """ """
+        """Return genre results based on the given query string
+        parameters, all genres if there are no parameters.
+        """
         all_genres = self._genres.all()
         if params is None or params.get('query') is None:
             return all_genres

@@ -62,7 +62,8 @@ def strip_accents(s):
 
     See http://stackoverflow.com/a/1410365
     """
-    return ''.join((c for c in normalize('NFD', unicode(s)) if category(c) != 'Mn'))
+    return ''.join(
+        (c for c in normalize('NFD', unicode(s)) if category(c) != 'Mn'))
 
 
 class SearchMeta(collections.namedtuple('_SearchMeta', [
@@ -141,12 +142,12 @@ class SearchTrie(object):
             return
         char = term[i]
         if char not in node.children:
-            next = self._node_cls()
-            next.prefix = char
-            node.children[char] = next
+            child = self._node_cls()
+            child.prefix = char
+            node.children[char] = child
         else:
-            next = node.children[char]
-        self._add(next, term, i + 1, element)
+            child = node.children[char]
+        self._add(child, term, i + 1, element)
 
     def search(self, term):
         """Search for metadata elements that match the given term, returning a
@@ -200,10 +201,14 @@ class AvalonTextSearch(object):
 
     def reload(self):
         """Rebuild the search indexes for the collection."""
-        albums = frozenset(SearchMeta.from_elm(elm) for elm in self._album_store.all())
-        artists = frozenset(SearchMeta.from_elm(elm) for elm in self._artist_store.all())
-        genres = frozenset(SearchMeta.from_elm(elm) for elm in self._genre_store.all())
-        tracks = frozenset(SearchMeta.from_elm(elm) for elm in self._track_store.all())
+        albums = frozenset(
+            SearchMeta.from_elm(elm) for elm in self._album_store.all())
+        artists = frozenset(
+            SearchMeta.from_elm(elm) for elm in self._artist_store.all())
+        genres = frozenset(
+            SearchMeta.from_elm(elm) for elm in self._genre_store.all())
+        tracks = frozenset(
+            SearchMeta.from_elm(elm) for elm in self._track_store.all())
 
         self._album_search = SearchTrie(TrieNode)
         self._artist_search = SearchTrie(TrieNode)
