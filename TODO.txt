@@ -2,7 +2,7 @@ Bugs:
 * Handle errors during rescan better
 
 Cleanup:
-* avalon.app - Need IoC
+* avalon.app - Need tests?
 * avalon.cli - Need tests
 * avalon.elms - Need tests
 * avalon.err - OK?
@@ -12,6 +12,7 @@ Cleanup:
 * avalon.models - Need tests
 * avalon.server - Need tests
 * avalon.services - Need tests
+* avalon.tags - Need tests
 * avalon.util - Need tests
 * avalon.web - Need tests
 
