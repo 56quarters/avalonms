@@ -160,11 +160,6 @@ class SearchTrie(object):
             # match, no results
             return set()
 
-        if not node.children:
-            # Leaf node of the trie, everything at the current
-            # node is a match for the term.
-            return node.elements
-
         # Otherwise, continue searching at the next node
         return self._search(node.children[char], term, i + 1)
 
@@ -213,8 +208,29 @@ class AvalonTextSearch(object):
         elements to the search trie.
         """
         for elm in elms:
-            for term in searchable(elm.name).split():
-                trie.add(term, elm)
+            self._add_to_trie(elm, trie)
+
+    def _add_to_trie(self, elm, trie):
+        """Add an element to the trie, indexed under the entire name of
+        the element, each individual portion of the name (delineated via
+        whitespace), and possible combinations of the trailing portion of
+        the name.
+
+        For example, the song "This is giving up" will be indexed under:
+        The entire term: "This is giving up",
+        Each part: "This", "is", "giving", and "up"
+        Each trailing portion: "is giving up", "giving up",
+        """
+        term = searchable(elm.name)
+        parts = term.split()
+
+        trie.add(term, elm)
+        for part in parts:
+            trie.add(part, elm)
+        # Skipping the first and last elements since they are covered by
+        # indexing the entire term and each part of the term (respectively)
+        for i in range(1, len(parts) - 1):
+            trie.add(' '.join(parts[i:]), elm)
 
     def search_albums(self, needle):
         """Search albums by name (case insensitive)."""
@@ -233,8 +249,8 @@ class AvalonTextSearch(object):
         or name or containing the given needle (case insensitive).
         """
         # Search for the needle in albums, artists, and genres separately
-        # so that we aren't checking those fields on every track, just the
-        # name field for each track.
+        # so that we only check the name of an element for matches no matter
+        # what type it is.
         albums = self.search_albums(needle)
         artists = self.search_artists(needle)
         genres = self.search_genres(needle)
