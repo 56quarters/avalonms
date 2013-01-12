@@ -82,6 +82,7 @@ class TrieNode(collections.namedtuple('_TrieNode', [
     @classmethod
     def new_node(cls):
         """Set initial values for the prefix, elements, and child nodes."""
+        # TODO: set -> list reduces memory usage a lot
         return cls(elements=set(), children={})
 
 
@@ -96,16 +97,21 @@ class SearchTrie(object):
     is expected to be done by the caller.
     """
 
-    def __init__(self, node_cls):
-        """Set the class to use for individual nodes in the trie and
+    def __init__(self, node_factory):
+        """Set the factory to use for individual nodes in the trie and
         build the root node.
         """
-        self._node_cls = node_cls
-        self._root = self._node_cls()
-        self._size = 1
+        self._node_factory = node_factory
+        self._size = 0
+        self._root = self._node()
+
+    def _node(self):
+        """Create a new node and increment the node counter."""
+        self._size += 1
+        return self._node_factory()
 
     def size(self):
-        """ """
+        """Return the number of nodes in this search trie."""
         return self._size
 
     def add(self, term, element):
@@ -129,8 +135,7 @@ class SearchTrie(object):
             return
         char = term[i]
         if char not in node.children:
-            self._size += 1
-            child = self._node_cls()
+            child = self._node()
             node.children[char] = child
         else:
             child = node.children[char]
@@ -192,7 +197,7 @@ class AvalonTextSearch(object):
         self.reload()
 
     def size(self):
-        """ """
+        """Return the total number of nodes used by the search index."""
         return self._album_search.size() + \
             self._artist_search.size() + \
             self._genre_search.size() + \
