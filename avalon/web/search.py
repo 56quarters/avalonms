@@ -31,6 +31,7 @@
 
 """Text searching functionality."""
 
+import collections
 from unicodedata import normalize, category
 
 
@@ -64,7 +65,11 @@ def strip_accents(s):
         (c for c in normalize('NFD', unicode(s)) if category(c) != 'Mn'))
 
 
-class TrieNode(object):
+# Use a named tuple instead of a regular class/object since there are
+# going to be hundreds of thousands of these so memory usage matters.
+class TrieNode(collections.namedtuple('_TrieNode', [
+    'elements',
+    'children'])):
 
     """Node in a trie that represents a particular path through
     the trie.
@@ -74,15 +79,10 @@ class TrieNode(object):
     in the path.
     """
 
-    def __init__(self):
+    @classmethod
+    def new_node(cls):
         """Set initial values for the prefix, elements, and child nodes."""
-        self.prefix = ''
-        self.elements = set()
-        self.children = {}
-
-    def __str__(self):
-        """String representation of the node."""
-        return '<TrieNode prefix: %s>' % self.prefix
+        return cls(elements=set(), children={})
 
 
 class SearchTrie(object):
@@ -102,6 +102,11 @@ class SearchTrie(object):
         """
         self._node_cls = node_cls
         self._root = self._node_cls()
+        self._size = 1
+
+    def size(self):
+        """ """
+        return self._size
 
     def add(self, term, element):
         """Add a metadata element to the trie indexed using the given term.
@@ -124,8 +129,8 @@ class SearchTrie(object):
             return
         char = term[i]
         if char not in node.children:
+            self._size += 1
             child = self._node_cls()
-            child.prefix = char
             node.children[char] = child
         else:
             child = node.children[char]
@@ -186,12 +191,19 @@ class AvalonTextSearch(object):
 
         self.reload()
 
+    def size(self):
+        """ """
+        return self._album_search.size() + \
+            self._artist_search.size() + \
+            self._genre_search.size() + \
+            self._track_search.size()
+
     def reload(self):
         """Rebuild the search indexes for the collection."""
-        album_search = SearchTrie(TrieNode)
-        artist_search = SearchTrie(TrieNode)
-        genre_search = SearchTrie(TrieNode)
-        track_search = SearchTrie(TrieNode)
+        album_search = SearchTrie(TrieNode.new_node)
+        artist_search = SearchTrie(TrieNode.new_node)
+        genre_search = SearchTrie(TrieNode.new_node)
+        track_search = SearchTrie(TrieNode.new_node)
 
         self._add_all_to_tree(self._album_store.all(), album_search)
         self._add_all_to_tree(self._artist_store.all(), artist_search)

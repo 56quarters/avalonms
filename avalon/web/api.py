@@ -92,6 +92,10 @@ class AvalonApiEndpoints(object):
         self._search.reload()
         self._id_cache.reload()
 
+    def get_search_size(self):
+        """ """
+        return self._search.size()
+
     def get_albums(self, params=None):
         """Return album results based on the given query string
         parameters, all albums if there are no parameters.
@@ -211,7 +215,8 @@ class AvalonStatusEndpoints(object):
             'albums': len(api.get_albums()),
             'artists': len(api.get_artists()),
             'genres': len(api.get_genres()),
-            'tracks': len(api.get_songs())
+            'tracks': len(api.get_songs()),
+            'nodes': api.get_search_size()
             }
 
     def get_heartbeat(self):
