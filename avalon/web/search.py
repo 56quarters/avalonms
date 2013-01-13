@@ -31,7 +31,6 @@
 
 """Text searching functionality."""
 
-import collections
 from unicodedata import normalize, category
 
 
@@ -39,7 +38,6 @@ __all__ = [
     'searchable',
     'strip_accents',
     'AvalonTextSearch',
-    'SearchMeta',
     'SearchTrie',
     'TrieNode'
     ]
@@ -105,7 +103,7 @@ class TrieNode(object):
             self._child = self._child_prefix = None
         self._children[char] = node
 
-    def _get_children(self):
+    def get_children(self):
         """Get a directionary of the child nodes indexed by a character."""
         # Always return a dictionary representation of the children even
         # when we are cheating and not storing a single child in a dictionary.
@@ -114,8 +112,6 @@ class TrieNode(object):
         elif self._children is not None:
             return self._children
         return {}
-
-    children = property(_get_children, doc="Child nodes indexed by a character")
 
 
 class SearchTrie(object):
@@ -165,13 +161,15 @@ class SearchTrie(object):
             node.elements.add(element)
         if i == len(term):
             return
+
         char = term[i]
-        if char not in node.children:
+        children = node.get_children()
+        if char not in children:
             child = self._node()
             child.parent = node
             node.add_child(char, child)
         else:
-            child = node.children[char]
+            child = children[char]
         self._add(child, term, i + 1, element)
 
     def search(self, term):
@@ -197,14 +195,15 @@ class SearchTrie(object):
             return node.elements
 
         char = term[i]
-        if char not in node.children:
+        children = node.get_children()
+        if char not in children:
             # We're not at a leaf node or the end of the search
             # term but none of the children of the current node
             # match, no results
             return set()
 
         # Otherwise, continue searching at the next node
-        return self._search(node.children[char], term, i + 1)
+        return self._search(children[char], term, i + 1)
 
     def walk(self, callback):
         """Apply the given callback to every node in the trie."""
