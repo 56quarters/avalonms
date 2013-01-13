@@ -65,11 +65,7 @@ def strip_accents(s):
         (c for c in normalize('NFD', unicode(s)) if category(c) != 'Mn'))
 
 
-# Use a named tuple instead of a regular class/object since there are
-# going to be hundreds of thousands of these so memory usage matters.
-class TrieNode(collections.namedtuple('_TrieNode', [
-    'elements',
-    'children'])):
+class TrieNode(object):
 
     """Node in a trie that represents a particular path through
     the trie.
@@ -79,11 +75,47 @@ class TrieNode(collections.namedtuple('_TrieNode', [
     in the path.
     """
 
-    @classmethod
-    def new_node(cls):
+    # Avoid creating a dictionary attribute for each instance since
+    # there are going to be a lot of them and the memory used by those
+    # dictionaries quickly adds up
+    __slots__ = ('elements', 'parent', '_child', '_child_prefix', '_children')
+
+    def __init__(self):
         """Set initial values for the prefix, elements, and child nodes."""
-        # TODO: set -> list reduces memory usage a lot
-        return cls(elements=set(), children={})
+        self.elements = set()
+        self.parent = None
+
+        self._child = None
+        self._child_prefix = None
+        self._children = None
+
+    def add_child(self, char, node):
+        """Add a child node to this node indexed by the given character."""
+        # Since most nodes only have a single child, we cheat and just store
+        # the character and child node locally instead of using a dictionary
+        # since dictionaries are quite large (at 280 or so bytes). We only
+        # use a dictionary for children if there is more than one.
+        if self._children is None and self._child is None:
+            self._child_prefix = char
+            self._child = node
+            return
+
+        if self._children is None:
+            self._children = {self._child_prefix: self._child}
+            self._child = self._child_prefix = None
+        self._children[char] = node
+
+    def _get_children(self):
+        """Get a directionary of the child nodes indexed by a character."""
+        # Always return a dictionary representation of the children even
+        # when we are cheating and not storing a single child in a dictionary.
+        if self._child is not None:
+            return {self._child_prefix: self._child}
+        elif self._children is not None:
+            return self._children
+        return {}
+
+    children = property(_get_children, doc="Child nodes indexed by a character")
 
 
 class SearchTrie(object):
@@ -136,7 +168,8 @@ class SearchTrie(object):
         char = term[i]
         if char not in node.children:
             child = self._node()
-            node.children[char] = child
+            child.parent = node
+            node.add_child(char, child)
         else:
             child = node.children[char]
         self._add(child, term, i + 1, element)
@@ -215,10 +248,10 @@ class AvalonTextSearch(object):
 
     def reload(self):
         """Rebuild the search indexes for the collection."""
-        album_search = SearchTrie(TrieNode.new_node)
-        artist_search = SearchTrie(TrieNode.new_node)
-        genre_search = SearchTrie(TrieNode.new_node)
-        track_search = SearchTrie(TrieNode.new_node)
+        album_search = SearchTrie(TrieNode)
+        artist_search = SearchTrie(TrieNode)
+        genre_search = SearchTrie(TrieNode)
+        track_search = SearchTrie(TrieNode)
 
         self._add_all_to_tree(self._album_store.all(), album_search)
         self._add_all_to_tree(self._artist_store.all(), artist_search)
