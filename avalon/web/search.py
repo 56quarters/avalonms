@@ -173,6 +173,16 @@ class SearchTrie(object):
         # Otherwise, continue searching at the next node
         return self._search(node.children[char], term, i + 1)
 
+    def walk(self, callback):
+        """Apply the given callback to every node in the trie."""
+        self._walk(self._root, callback)
+
+    def _walk(self, node, callback):
+        """Recursively apply the given callback down from the given node."""
+        callback(node)
+        for key in node.children:
+            self._walk(node.children[key], callback)
+
 
 class AvalonTextSearch(object):
 
