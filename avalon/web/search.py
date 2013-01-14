@@ -76,45 +76,59 @@ class TrieNode(object):
     # Avoid creating a dictionary attribute for each instance since
     # there are going to be a lot of them and the memory used by those
     # dictionaries quickly adds up
-    __slots__ = ('_elements', '_child', '_child_prefix', '_children')
+    __slots__ = ('_element', '_elements', '_child_key', '_child_val', '_children')
 
     def __init__(self):
         """Set initial values for the prefix, elements, and child nodes."""
-        self._elements = set()
-        self._child = None
-        self._child_prefix = None
+        self._child_key = None
+        self._child_val = None
         self._children = None
+        self._element = None
+        self._elements = None
 
     def add_element(self, elm):
         """Add an element to the set of elements at this node."""
-        self._elements.add(elm)
+        # Most nodes only have a single element stored at them so we
+        # cheat and just store that element locally instead of in a set
+        # until we have more than one element since sets are quite large
+        # (about 280 bytes).
+        if self._elements is None and self._element is None:
+            self._element = elm
+        elif self._elements is None:
+            self._elements = set([self._element])
+            self._element = None
+        else:
+            self._elements.add(elm)
 
     def get_elements(self):
         """Get a set of all elements at this node."""
-        return self._elements
+        if self._element is not None:
+            return set([self._element])
+        if self._elements is not None:
+            return self._elements
+        return set()
 
     def add_child(self, char, node):
         """Add a child node to this node indexed by the given character."""
         # Since most nodes only have a single child, we cheat and just store
         # the character and child node locally instead of using a dictionary
-        # since dictionaries are quite large (at 280 or so bytes). We only
+        # since dictionaries are quite large (about 280 bytes). We only
         # use a dictionary for children if there is more than one.
-        if self._children is None and self._child is None:
-            self._child_prefix = char
-            self._child = node
-            return
-
-        if self._children is None:
-            self._children = {self._child_prefix: self._child}
-            self._child = self._child_prefix = None
-        self._children[char] = node
+        if self._children is None and self._child_val is None:
+            self._child_key = char
+            self._child_val = node
+        else:
+            if self._children is None:
+                self._children = {self._child_key: self._child_val}
+                self._child_key = self._child_val = None
+            self._children[char] = node
 
     def get_children(self):
         """Get a directionary of the child nodes indexed by a character."""
         # Always return a dictionary representation of the children even
         # when we are cheating and not storing a single child in a dictionary.
-        if self._child is not None:
-            return {self._child_prefix: self._child}
+        if self._child_val is not None:
+            return {self._child_key: self._child_val}
         elif self._children is not None:
             return self._children
         return {}
