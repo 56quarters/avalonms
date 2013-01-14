@@ -94,10 +94,10 @@ class TrieNode(object):
         # (about 280 bytes).
         if self._elements is None and self._element is None:
             self._element = elm
-        elif self._elements is None:
-            self._elements = set([self._element])
-            self._element = None
         else:
+            if self._elements is None:
+                self._elements = set([self._element])
+                self._element = None
             self._elements.add(elm)
 
     def get_elements(self):
