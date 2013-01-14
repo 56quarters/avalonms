@@ -76,16 +76,22 @@ class TrieNode(object):
     # Avoid creating a dictionary attribute for each instance since
     # there are going to be a lot of them and the memory used by those
     # dictionaries quickly adds up
-    __slots__ = ('elements', 'parent', '_child', '_child_prefix', '_children')
+    __slots__ = ('_elements', '_child', '_child_prefix', '_children')
 
     def __init__(self):
         """Set initial values for the prefix, elements, and child nodes."""
-        self.elements = set()
-        self.parent = None
-
+        self._elements = set()
         self._child = None
         self._child_prefix = None
         self._children = None
+
+    def add_element(self, elm):
+        """Add an element to the set of elements at this node."""
+        self._elements.add(elm)
+
+    def get_elements(self):
+        """Get a set of all elements at this node."""
+        return self._elements
 
     def add_child(self, char, node):
         """Add a child node to this node indexed by the given character."""
@@ -158,7 +164,7 @@ class SearchTrie(object):
             # If this isn't the root node add the element to the
             # node since it will be considered a match for the
             # current prefix
-            node.elements.add(element)
+            node.add_element(element)
         if i == len(term):
             return
 
@@ -166,7 +172,6 @@ class SearchTrie(object):
         children = node.get_children()
         if char not in children:
             child = self._node()
-            child.parent = node
             node.add_child(char, child)
         else:
             child = children[char]
@@ -192,7 +197,7 @@ class SearchTrie(object):
         if i == len(term):
             # We hit the end of the search term, everything at
             # the current node is a match for the term
-            return node.elements
+            return node.get_elements()
 
         char = term[i]
         children = node.get_children()
