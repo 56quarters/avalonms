@@ -106,7 +106,7 @@ class IdLookupCache(object):
 
 class TrackStore(object):
 
-    """ In memory store for TrackElm objects and methods to fetch
+    """ In-memory store for TrackElm objects and methods to fetch
     them by their attributes.
     """
 
@@ -210,7 +210,7 @@ class _IdNameStore(object):
 
 class AlbumStore(_IdNameStore):
 
-    """In memory store for Album models using IdNameElm."""
+    """In-memory store for Album models using IdNameElm."""
 
     def __init__(self, session_handler):
         super(AlbumStore, self).__init__(session_handler, Album)
@@ -218,7 +218,7 @@ class AlbumStore(_IdNameStore):
 
 class ArtistStore(_IdNameStore):
 
-    """In memory store for Artist models using IdNameElm."""
+    """In-memory store for Artist models using IdNameElm."""
 
     def __init__(self, session_handler):
         super(ArtistStore, self).__init__(session_handler, Artist)
@@ -226,7 +226,7 @@ class ArtistStore(_IdNameStore):
 
 class GenreStore(_IdNameStore):
 
-    """In memory store for Genre models using IdNameElm."""
+    """In-memory store for Genre models using IdNameElm."""
 
     def __init__(self, session_handler):
         super(GenreStore, self).__init__(session_handler, Genre)

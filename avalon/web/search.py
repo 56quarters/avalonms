@@ -86,7 +86,8 @@ class TrieNode(object):
     # Avoid creating a dictionary attribute for each instance since
     # there are going to be a lot of them and the memory used by those
     # dictionaries quickly adds up
-    __slots__ = ('_element', '_elements', '_child_key', '_child_val', '_children')
+    __slots__ = (
+        '_element', '_elements', '_child_key', '_child_val', '_children')
 
     def __init__(self):
         """Set initial values for elements and child nodes."""

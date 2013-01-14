@@ -29,7 +29,7 @@
 #
 
 
-"""API endpoints for the in memory stores."""
+"""API endpoints for the in-memory stores."""
 
 
 import functools
@@ -72,10 +72,10 @@ class AvalonApiEndpointsConfig(object):
 
 class AvalonApiEndpoints(object):
 
-    """Endpoints for querying in memory stores of audio metadata."""
+    """Endpoints for querying in-memory stores of audio metadata."""
 
     def __init__(self, config):
-        """Initialize each of the stores by loading from the database."""
+        """Set each of the in-memory stores to be used."""
         self._tracks = config.track_store
         self._albums = config.album_store
         self._artists = config.artist_store
@@ -84,7 +84,7 @@ class AvalonApiEndpoints(object):
         self._id_cache = config.id_cache
 
     def reload(self):
-        """Reload in memory stores from the database."""
+        """Reload in-memory stores from the database."""
         self._tracks.reload()
         self._albums.reload()
         self._artists.reload()
@@ -93,7 +93,7 @@ class AvalonApiEndpoints(object):
         self._id_cache.reload()
 
     def get_search_size(self):
-        """ """
+        """Get the number of nodes in the search index."""
         return self._search.size()
 
     def get_albums(self, params=None):
