@@ -150,6 +150,10 @@ class SearchTrie(object):
     of the term being inserted or looked up. No normalization is done
     when terms are added to the trie or when the trie is queried, this
     is expected to be done by the caller.
+
+    The SearchTrie is not inheriently threadsafe. However, if none of the
+    mutator methods are called (.add, .walk) the read methods (.search, .size)
+    are safe to be called by multiple threads.
     """
 
     def __init__(self, node_factory):
