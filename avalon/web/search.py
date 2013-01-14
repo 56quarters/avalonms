@@ -63,6 +63,16 @@ def strip_accents(s):
         (c for c in normalize('NFD', unicode(s)) if category(c) != 'Mn'))
 
 
+# Individual node in the search trie. This object is more complicated than
+# it could be in order to save on memory. For example we use the __slots__
+# functionality to avoid an extra dictionary per instance (about 280 bytes).
+# We store metadata elements for this node locally when there is only one to
+# avoid a set object (about 280 bytes). We also store a child node and index
+# character locally when there is only one to avoid a dictionary (about 280
+# bytes). This may not seem like a lot but it adds up. With my music collection
+# of about 6000 songs the search trie ends up with over 130K elements. The
+# memory optimizations for the TrieNode class mean the SearchTrie takes up
+# 25MB of memory vs 200MB for the naive implementation.
 class TrieNode(object):
 
     """Node in a trie that represents a particular path through
@@ -79,7 +89,7 @@ class TrieNode(object):
     __slots__ = ('_element', '_elements', '_child_key', '_child_val', '_children')
 
     def __init__(self):
-        """Set initial values for the prefix, elements, and child nodes."""
+        """Set initial values for elements and child nodes."""
         self._child_key = None
         self._child_val = None
         self._children = None
@@ -90,8 +100,7 @@ class TrieNode(object):
         """Add an element to the set of elements at this node."""
         # Most nodes only have a single element stored at them so we
         # cheat and just store that element locally instead of in a set
-        # until we have more than one element since sets are quite large
-        # (about 280 bytes).
+        # until we have more than one element since sets are quite large.
         if self._elements is None and self._element is None:
             self._element = elm
         else:
@@ -112,8 +121,8 @@ class TrieNode(object):
         """Add a child node to this node indexed by the given character."""
         # Since most nodes only have a single child, we cheat and just store
         # the character and child node locally instead of using a dictionary
-        # since dictionaries are quite large (about 280 bytes). We only
-        # use a dictionary for children if there is more than one.
+        # since dictionaries are quite large. We only use a dictionary for
+        # children if there is more than one.
         if self._children is None and self._child_val is None:
             self._child_key = char
             self._child_val = node
@@ -125,11 +134,9 @@ class TrieNode(object):
 
     def get_children(self):
         """Get a directionary of the child nodes indexed by a character."""
-        # Always return a dictionary representation of the children even
-        # when we are cheating and not storing a single child in a dictionary.
         if self._child_val is not None:
             return {self._child_key: self._child_val}
-        elif self._children is not None:
+        if self._children is not None:
             return self._children
         return {}
 
