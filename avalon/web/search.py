@@ -111,11 +111,11 @@ class TrieNode(object):
             self._elements.add(elm)
 
     def get_elements(self):
-        """Get a set of all elements at this node."""
+        """Get the set of all elements at this node."""
         if self._element is not None:
             return set([self._element])
         if self._elements is not None:
-            return self._elements
+            return set(self._elements)
         return set()
 
     def add_child(self, char, node):
@@ -138,7 +138,7 @@ class TrieNode(object):
         if self._child_val is not None:
             return {self._child_key: self._child_val}
         if self._children is not None:
-            return self._children
+            return dict(self._children)
         return {}
 
 
