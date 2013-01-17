@@ -31,6 +31,7 @@
 
 """Text searching functionality."""
 
+
 from unicodedata import normalize, category
 
 
@@ -134,7 +135,7 @@ class TrieNode(object):
             self._children[char] = node
 
     def get_children(self):
-        """Get a directionary of the child nodes indexed by a character."""
+        """Get a dictionary of the child nodes indexed by a character."""
         if self._child_val is not None:
             return {self._child_key: self._child_val}
         if self._children is not None:
