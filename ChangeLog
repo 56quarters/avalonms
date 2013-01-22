@@ -1,5 +1,9 @@
 ChangeLog for Avalon Music Server
 
+2013-01-21 - v0.2.14
+   * Text searching using a Trie for faster matching
+   * Documentation improvements
+
 2013-01-10 - v0.2.13
    * Unicode code folding for better search results
    * Beginnings of a test suite for the supporting library
