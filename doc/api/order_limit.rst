@@ -2,7 +2,7 @@
 .. Fragment for order/limit/offset params common to all informational endpoints
 
 ============= ============= ============= ============= ===============================================================
-Name          Required      Type          Mutiple?      Description
+Name          Required?     Type          Mutiple?      Description
 ============= ============= ============= ============= ===============================================================
 ``limit``     No            ``integer``   No            If there are more than ``limit`` results, only ``limit`` will
                                                         be returned. This must be a positive ``integer``. If the

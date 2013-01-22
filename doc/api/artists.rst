@@ -9,7 +9,7 @@ Filtering Parameters
 ^^^^^^^^^^^^^^^^^^^^
 
 ============= ============= ============= ============= ===============================================================
-Name          Required      Type          Mutiple?      Description
+Name          Required?     Type          Mutiple?      Description
 ============= ============= ============= ============= ===============================================================
 ``query``     No            ``string``    No            Select only artists whose name contains ``query``. The match is
                                                         not case sensitive and unicode characters will be normalized if
