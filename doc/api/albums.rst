@@ -8,15 +8,16 @@ in the music collection belong to.
 Filtering Parameters
 ^^^^^^^^^^^^^^^^^^^^
 
-* ``query``
-
-  + Type: ``string``
-
-  + Description: Select only albums whose name contains ``query``. The match
-    is not case sensitive and unicode characters will be normalized if possible
-    before being compared (in the ``query`` and fields being compared). The
-    ``query`` is compared using prefix matching against each portion of the
-    album name (delimitted by whitespace).
+============= ============= ============= ============= ===============================================================
+Name          Required      Type          Mutiple?      Description
+============= ============= ============= ============= ===============================================================
+``query``     No            ``string``    No            Select only albums whose name contains ``query``. The match is
+                                                        not case sensitive and unicode characters will be normalized if
+                                                        possible before being compared (in the ``query`` and fields
+                                                        being compared). The ``query`` is compared using prefix
+                                                        matching against each portion of the album (delimitted by
+                                                        whitespace).
+============= ============= ============= ============= ===============================================================
 
 Other Parameters
 ^^^^^^^^^^^^^^^^

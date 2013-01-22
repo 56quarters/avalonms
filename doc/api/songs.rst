@@ -8,51 +8,28 @@ can be limited and filtered based on query string parameters.
 Filtering Parameters
 ^^^^^^^^^^^^^^^^^^^^
 
-* ``album`` 
-
-  + Type: ``string``
-
-  + Description: Select only songs belonging to this album (not case sensitive)
-
-* ``album_id``
-
-  + Type: ``string``
-
-  + Description: Select only songs belonging to this album by UUID.
-
-* ``artist``
-
-  + Type: ``string``
-
-  + Description: Select only songs by this artist (not case sensitive)
-
-* ``artist_id``
-
-  + Type: ``string``
-
-  + Description: Select only songs by this artist by UUID.
-
-* ``genre``
-
-  + Type: ``string``
-
-  + Description: Select only songs belonging to this genre (not case sensitive)
-
-* ``genre_id``
-
-  + Type: ``string``
-
-  + Description: Select only songs belonging to this genre by UUID.
-
-* ``query``
-
-  + Type: ``string``
-
-  + Description: Select only songs whose album, artist, genre, or name contains
-    ``query``. The match is not case sensitive and unicode characters will be
-    normalized if possible before being compared (in the ``query`` and fields being
-    compared). The ``query`` is compared using prefix matching against each portion
-    of the album, artist, genre, or song name (delimitted by whitespace).
+============= ============= ============= ============= ===============================================================
+Name          Required      Type          Mutiple?      Description
+============= ============= ============= ============= ===============================================================
+``album``     No            ``string``    No            Select only songs belonging to this album (not case sensitive)
+------------- ------------- ------------- ------------- ---------------------------------------------------------------
+``album_id``  No            ``string``    No            Select only songs belonging to this album by UUID.
+------------- ------------- ------------- ------------- ---------------------------------------------------------------
+``artist``    No            ``string``    No            Select only songs by this artist (not case sensitive).
+------------- ------------- ------------- ------------- ---------------------------------------------------------------
+``artist_id`` No            ``string``    No            Select only songs by this artist by UUID.
+------------- ------------- ------------- ------------- ---------------------------------------------------------------
+``genre``     No            ``string``    No            Select only songs belonging to this genre (not case sensitive).
+------------- ------------- ------------- ------------- ---------------------------------------------------------------
+``genre_id``  No            ``string``    No            Select only songs belonging to this genre by UUID.
+------------- ------------- ------------- ------------- ---------------------------------------------------------------
+``query``     No            ``string``    No            Select only songs whose album, artist, genre, or name contains
+                                                        ``query``. The match is not case sensitive and unicode
+                                                        characters will be normalized if possible before being compared
+                                                        (in the ``query`` and fields being compared). The ``query`` is
+                                                        compared using prefix matching against each portion of the
+                                                        album, artist, genre, or song name (delimitted by whitespace).
+============= ============= ============= ============= ===============================================================
 
 Other Parameters
 ^^^^^^^^^^^^^^^^
