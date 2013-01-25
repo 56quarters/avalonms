@@ -99,11 +99,15 @@ def new_handler(db_engine):
     api_config.genre_store = avalon.cache.GenreStore(db_engine)
     api_config.id_cache = avalon.cache.IdLookupCache(db_engine)
 
+    def trie_factory():
+        return avalon.web.search.SearchTrie(avalon.web.search.TrieNode)
+
     api_config.search = avalon.web.search.AvalonTextSearch(
         api_config.album_store,
         api_config.artist_store,
         api_config.genre_store,
-        api_config.track_store)
+        api_config.track_store,
+        trie_factory)
 
     api = avalon.web.api.AvalonApiEndpoints(api_config)
 

@@ -164,9 +164,9 @@ class SearchTrie(object):
         """
         self._node_factory = node_factory
         self._size = 0
-        self._root = self._node()
+        self._root = self._new_node()
 
-    def _node(self):
+    def _new_node(self):
         """Create a new node and increment the node counter."""
         self._size += 1
         return self._node_factory()
@@ -198,7 +198,7 @@ class SearchTrie(object):
         char = term[i]
         children = node.get_children()
         if char not in children:
-            child = self._node()
+            child = self._new_node()
             node.add_child(char, child)
         else:
             child = children[char]
@@ -254,7 +254,8 @@ class AvalonTextSearch(object):
     text matching.
     """
 
-    def __init__(self, album_store, artist_store, genre_store, track_store):
+    def __init__(self, album_store, artist_store, genre_store,
+                 track_store, trie_factory):
         """Set the backing stores for searching and use them
         to build a search index for the music collection.
         """
@@ -262,6 +263,7 @@ class AvalonTextSearch(object):
         self._artist_store = artist_store
         self._genre_store = genre_store
         self._track_store = track_store
+        self._trie_factory = trie_factory
 
         self._album_search = None
         self._artist_search = None
@@ -279,10 +281,10 @@ class AvalonTextSearch(object):
 
     def reload(self):
         """Rebuild the search indexes for the collection."""
-        album_search = SearchTrie(TrieNode)
-        artist_search = SearchTrie(TrieNode)
-        genre_search = SearchTrie(TrieNode)
-        track_search = SearchTrie(TrieNode)
+        album_search = self._trie_factory()
+        artist_search = self._trie_factory()
+        genre_search = self._trie_factory()
+        track_search = self._trie_factory()
 
         self._add_all_to_tree(self._album_store.all(), album_search)
         self._add_all_to_tree(self._artist_store.all(), artist_search)
