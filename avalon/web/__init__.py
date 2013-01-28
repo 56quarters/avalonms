@@ -31,3 +31,25 @@
 
 """Avalon web endpoint handler package."""
 
+
+import pkgutil
+import os
+
+
+__all__ = [
+    'DATA_DIR',
+    'CONF_FILE'
+    ]
+
+
+_loader = pkgutil.get_loader('avalon.web')
+_package_base = os.path.dirname(_loader.get_filename())
+
+
+# Constants referenced by the INI config file
+DATA_DIR = os.path.join(_package_base, 'data')
+CONF_FILE = os.path.join(DATA_DIR, 'config.ini')
+
+
+del _loader, _package_base
+

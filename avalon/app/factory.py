@@ -33,6 +33,7 @@
 
 
 import pkgutil
+import os
 import threading
 from datetime import datetime
 
@@ -140,6 +141,7 @@ def new_server(app_config, logger, handler, path):
     Expected configuration properties are: server_address,
     server_port, server_threads, and server_queue.
     """
+
     server_config = avalon.server.AvalonServerConfig()
     server_config.log = logger
     server_config.bind_addr = (
@@ -149,7 +151,9 @@ def new_server(app_config, logger, handler, path):
     server_config.queue_size = app_config.server_queue
     server_config.application = CherryPyApplication(
         handler,
-        script_name=path)
+        script_name=path,
+        config=avalon.web.CONF_FILE)
+
     return avalon.server.AvalonServer(server_config)
 
 
