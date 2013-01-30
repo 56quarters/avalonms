@@ -1,5 +1,9 @@
 ChangeLog for Avalon Music Server
 
+2013-01-30 - v0.2.15
+   * Changed to Apache license 2.0 instead of FreeBSD license
+   * Updated copyright for 2013
+
 2013-01-21 - v0.2.14
    * Text searching using a Trie for faster matching
    * Documentation improvements

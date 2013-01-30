@@ -2,35 +2,23 @@
 #
 # Avalon Music Server
 #
-# Copyright (c) 2012 TSH Labs <projects@tshlabs.org>
-# All rights reserved.
-# 
-# Redistribution and use in source and binary forms, with or without 
-# modification, are permitted provided that the following conditions are
-# met:
-# 
-# * Redistributions of source code must retain the above copyright 
-#   notice, this list of conditions and the following disclaimer.
-# * Redistributions in binary form must reproduce the above copyright
-#   notice, this list of conditions and the following disclaimer in the
-#   documentation and/or other materials provided with the distribution.
-# 
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-# HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+# Copyright 2013 TSH Labs <projects@tshlabs.org>
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 #
 
 
 """API endpoints for the in-memory stores."""
-
 
 import functools
 from datetime import datetime
@@ -44,7 +32,7 @@ __all__ = [
     'AvalonApiEndpointsConfig'
     'AvalonStatusEndpoints',
     'AvalonStatusEndpointsConfig'
-    ]
+]
 
 
 def intersection(sets):
@@ -58,7 +46,6 @@ def intersection(sets):
 
 
 class AvalonApiEndpointsConfig(object):
-
     """Configuration for the metadata endpoints."""
 
     def __init__(self):
@@ -71,7 +58,6 @@ class AvalonApiEndpointsConfig(object):
 
 
 class AvalonApiEndpoints(object):
-
     """Endpoints for querying in-memory stores of audio metadata."""
 
     def __init__(self, config):
@@ -133,7 +119,7 @@ class AvalonApiEndpoints(object):
 
         if params.get('query') is not None:
             sets.append(
-                    self._search.search_tracks(params.get('query')))
+                self._search.search_tracks(params.get('query')))
         if params.get('album') is not None:
             sets.append(
                 self._tracks.by_album(
@@ -157,16 +143,15 @@ class AvalonApiEndpoints(object):
             sets.append(self._tracks.by_artist(artist_id))
         if genre_id is not None:
             sets.append(self._tracks.by_genre(genre_id))
-            
+
         if sets:
             # Return the intersection of any non-None sets
             return intersection(sets)
-        # There were no parameters to filter songs by any criteria
+            # There were no parameters to filter songs by any criteria
         return self._tracks.all()
 
 
 class AvalonStatusEndpointsConfig(object):
-
     """Configuration for the status endpoints."""
 
     def __init__(self):
@@ -175,7 +160,6 @@ class AvalonStatusEndpointsConfig(object):
 
 
 class AvalonStatusEndpoints(object):
-
     """Status endpoints for information about the running application."""
 
     def __init__(self, config):
@@ -217,7 +201,28 @@ class AvalonStatusEndpoints(object):
             'genres': len(api.get_genres()),
             'tracks': len(api.get_songs()),
             'nodes': api.get_search_size()
-            }
+        }
+
+    def get_server_data(self, startup, api):
+        """Get a dictionary of various bits of data about the currently
+        running server.
+
+        Keys include: status, user, group, uptime, memory, threads,
+        albums, artists, genres, tracks, and trie_nodes.
+        """
+        return {
+            'status': 'ready' if self.ready else 'not_ready',
+            'user': avalon.util.get_current_uname(),
+            'group': avalon.util.get_current_gname(),
+            'uptime': str(datetime.utcnow() - startup),
+            'memory': avalon.util.get_mem_usage(),
+            'threads': avalon.util.get_thread_names(),
+            'albums': len(api.get_albums()),
+            'artists': len(api.get_artists()),
+            'genres': len(api.get_genres()),
+            'tracks': len(api.get_songs()),
+            'trie_nodes': api.get_search_size()
+        }
 
     def get_heartbeat(self):
         """Get the heartbeat to indicate if the server has started."""
