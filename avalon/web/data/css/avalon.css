@@ -1,0 +1,11 @@
+.status.ready, .status.not-ready {
+    display: none;
+}
+
+.ready .status.ready {
+    display: block;
+}
+
+.not-ready .status.not-ready {
+    display: block;
+}

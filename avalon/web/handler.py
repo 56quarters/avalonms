@@ -122,11 +122,6 @@ class AvalonHandler(object):
         self._status.reload()
 
     @cherrypy.expose
-    def index(self, *args, **kwargs):
-        """Application status page."""
-        return self._status.get_status_page(self._startup, self._api)
-
-    @cherrypy.expose
     def heartbeat(self, *args, **kwargs):
         """Application heartbeat endpoint."""
         return self._status.get_heartbeat()

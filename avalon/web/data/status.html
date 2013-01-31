@@ -2,6 +2,92 @@
 <html>
 <head>
     <title>Avalon Music Server</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="stylesheet" href="/avalon/css/bootstrap.css"/>
+    <link rel="stylesheet" href="/avalon/css/bootstrap-responsive.css"/>
+    <link rel="stylesheet" href="/avalon/css/avalon.css"/>
+</head>
+<body>
+
+<div class="container">
+    <div class="page-header">
+        <h1>Avalon Music Server <small>Server status</small></h1>
+    </div>
+
+    <div class="status ready">
+        <div class="alert alert-success">
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+            Server is ready!
+        </div>
+    </div>
+
+    <div class="status not-ready">
+        <div class="alert alert-error">
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+            Server is <strong>not</strong> ready!
+        </div>
+    </div>
+
+    <div id="content"></div>
+</div>
+
+<script type="text/javascript" src="/avalon/js/jquery.js"></script>
+<script type="text/javascript" src="/avalon/js/bootstrap.js"></script>
+<script type="text/javascript" src="/avalon/js/mustache.js"></script>
+
+<script type="text/template" id="status_template">
+    <dl class="dl-horizontal">
+        <dt>Server is:</dt>
+        <dd class="status">{{status}}</dd>
+
+        <dt>Running as:</dt>
+        <dd>{{user}}:{{group}}</dd>
+
+        <dt>Uptime:</dt>
+        <dd>{{uptime}}</dd>
+
+        <dt>Memory:</dt>
+        <dd>{{memory}} MB</dd>
+
+        <dt>Threads:</dt>
+        <dd>
+            <ul class="unstyled">
+                {{#threads}}
+                <li>{{.}}</li>
+                {{/threads}}
+            </ul>
+        </dd>
+
+        <dt>Loaded:</dt>
+        <dd>
+            <ul class="unstyled">
+                <li>Albums: {{albums}}</li>
+                <li>Artists: {{artists}}</li>
+                <li>Genres: {{genres}}</li>
+                <li>Tracks: {{tracks}}</li>
+            </ul>
+        </dd>
+        <dt>Search index size:</dt>
+        <dd>{{trie_nodes}} nodes</dd>
+    </dl>
+</script>
+
+<script type="text/javascript">
+    // <![CDATA[
+    $.get('/avalon/server', function (data) {
+        $('body').removeClass('ready not-ready').addClass(data.status);
+        $('#content').html($('#status_template').mustache(data));
+    });
+    //]]>
+</script>
+</body>
+</html>
+
+<!--
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Avalon Music Server</title>
     <style type="text/css">
         body {
             background-color: #363636;
@@ -77,3 +163,4 @@
 </div>
 </body>
 </html>
+-->
