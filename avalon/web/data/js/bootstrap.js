@@ -1,4 +1,4 @@
-/* ===================================================
+/*! ===================================================
  * bootstrap-transition.js v2.2.2
  * http://twitter.github.com/bootstrap/javascript.html#transitions
  * ===================================================
@@ -17,6 +17,7 @@
  * limitations under the License.
  * ========================================================== */
 
+// NOTE: Header modified (added '!') to preserve license notice during build
 
 !function ($) {
 
