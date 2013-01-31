@@ -32,10 +32,11 @@ release: tags
 	python setup.py version
 	python setup.py register sdist upload
 
+# NOTE: Order of JS and CSS files matters!
 static:
 	cat avalon/web/data/js/jquery.js avalon/web/data/js/bootstrap.js avalon/web/data/js/mustache.js > avalon/web/data/js/all.js
 	java -jar /opt/yui/current.jar avalon/web/data/js/all.js > avalon/web/data/js/all.min.js
-	cat `ls -1 avalon/web/data/css/*.css | grep -v 'all.min.css' | grep -v 'all.css'` > avalon/web/data/css/all.css
+	cat avalon/web/data/css/bootstrap.css avalon/web/data/css/bootstrap-responsive.css avalon/web/data/css/avalon.css > avalon/web/data/css/all.css
 	java -jar /opt/yui/current.jar avalon/web/data/css/all.css > avalon/web/data/css/all.min.css
 
 tags: push
