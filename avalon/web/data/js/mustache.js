@@ -530,26 +530,3 @@
   return exports;
 
 }())));
-
-/*
-Shameless port of a shameless port
-@defunkt => @janl => @aq
- 
-See http://github.com/defunkt/mustache for more info.
-*/
- 
-;(function($) {
-
-  $.mustache = function (template, view, partials) {
-    return Mustache.render(template, view, partials);
-  };
-
-  $.fn.mustache = function (view, partials) {
-    return $(this).map(function (i, elm) {
-      var template = $(elm).html().trim();
-      var output = $.mustache(template, view, partials);
-      return $(output).get();
-    });
-  };
-
-})(jQuery);

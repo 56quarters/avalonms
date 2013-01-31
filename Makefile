@@ -9,6 +9,7 @@ help:
 	@echo "    init: Set up the development environment using 'develop' mode (requires root)"
 	@echo "    push: Push origin and github remotes"
 	@echo "    release: Create and push a new release"
+	@echo "    static: Build all static resources (JS, CSS, etc.)"
 	@echo "    tags: Push newly created tags to origin and github remotes"
 
 clean:
@@ -30,6 +31,12 @@ push:
 release: tags
 	python setup.py version
 	python setup.py register sdist upload
+
+static:
+	cat avalon/web/data/js/jquery.js avalon/web/data/js/bootstrap.js avalon/web/data/js/mustache.js > avalon/web/data/js/all.js
+	java -jar /opt/yui/current.jar avalon/web/data/js/all.js > avalon/web/data/js/all.min.js
+	cat `ls -1 avalon/web/data/css/*.css | grep -v 'all.min.css' | grep -v 'all.css'` > avalon/web/data/css/all.css
+	java -jar /opt/yui/current.jar avalon/web/data/css/all.css > avalon/web/data/css/all.min.css
 
 tags: push
 	git push --tags origin

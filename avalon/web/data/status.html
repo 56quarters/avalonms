@@ -3,9 +3,7 @@
 <head>
     <title>Avalon Music Server</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <link rel="stylesheet" href="/avalon/css/bootstrap.css"/>
-    <link rel="stylesheet" href="/avalon/css/bootstrap-responsive.css"/>
-    <link rel="stylesheet" href="/avalon/css/avalon.css"/>
+    <link rel="stylesheet" href="/avalon/css/all.min.css"/>
 </head>
 <body>
 
@@ -31,9 +29,7 @@
     <div id="content"></div>
 </div>
 
-<script type="text/javascript" src="/avalon/js/jquery.js"></script>
-<script type="text/javascript" src="/avalon/js/bootstrap.js"></script>
-<script type="text/javascript" src="/avalon/js/mustache.js"></script>
+<script type="text/javascript" src="/avalon/js/all.min.js"></script>
 
 <script type="text/template" id="status_template">
     <dl class="dl-horizontal">
@@ -76,91 +72,12 @@
     // <![CDATA[
     $.get('/avalon/server', function (data) {
         $('body').removeClass('ready not-ready').addClass(data.status);
-        $('#content').html($('#status_template').mustache(data));
+        var $template = $('#status_template'),
+            $container = $('#content');
+
+        $container.html(Mustache.render($template.text(), data));
     });
     //]]>
 </script>
 </body>
 </html>
-
-<!--
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Avalon Music Server</title>
-    <style type="text/css">
-        body {
-            background-color: #363636;
-            color: #E7E7E7;
-            font-family: helvetica, arial, sans-serif;
-            font-size: 14px;
-            line-height: 20px;
-        }
-
-        h1 {
-            border-bottom: 1px solid #FFF;
-            color: #00ADEE;
-            margin-top: 10px;
-            padding-bottom: 15px;
-            text-shadow: 0 0 1px #444;
-        }
-
-        dt {
-            color: #00ADEE;
-            font-weight: bold;
-            margin-top: 10px;
-        }
-
-        .stats {
-            background-color: #171717;
-            border: 1px solid #FFF;
-            border-radius: 15px;
-            box-shadow: 0 3px 3px 3px #444;
-            margin: 50px auto;
-            padding: 15px;
-            width: 500px;
-        }
-
-        .status {
-            text-transform: uppercase;
-        }
-
-        .not.ready .status {
-            color: #C00;
-            font-weight: bold;
-        }
-    </style>
-</head>
-<body class="%(status)s">
-<div class="stats">
-    <h1>Avalon Music Server</h1>
-    <dl>
-        <dt>Server is:</dt>
-        <dd class="status">%(status)s</dd>
-
-        <dt>Running as:</dt>
-        <dd>%(user)s:%(group)s</dd>
-
-        <dt>Uptime:</dt>
-        <dd>%(uptime)s</dd>
-
-        <dt>Memory:</dt>
-        <dd>%(memory)s MB</dd>
-
-        <dt>Threads:</dt>
-        <dd>%(threads)s</dd>
-
-        <dt>Loaded:</dt>
-        <dd>
-            Albums: %(albums)s<br/>
-            Artists: %(artists)s<br/>
-            Genres: %(genres)s<br/>
-            Tracks: %(tracks)s<br/>
-        </dd>
-        <dt>Search index size:</dt>
-        <dd>%(nodes)s nodes</dd>
-    </dl>
-</div>
-</body>
-</html>
--->
