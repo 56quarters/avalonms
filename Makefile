@@ -33,6 +33,7 @@ release: tags
 	python setup.py register sdist upload
 
 # NOTE: Order of JS and CSS files matters!
+# TODO: Should setup.py handle this?
 static:
 	cat avalon/web/data/js/jquery.js avalon/web/data/js/bootstrap.js avalon/web/data/js/mustache.js > avalon/web/data/js/all.js
 	java -jar /opt/yui/current.jar avalon/web/data/js/all.js > avalon/web/data/js/all.min.js

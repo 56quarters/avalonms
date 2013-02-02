@@ -1,5 +1,8 @@
 ChangeLog for Avalon Music Server
 
+2013-02-02 - v0.2.16
+   * Updates to status page to use Twitter Bootstrap
+
 2013-01-30 - v0.2.15
    * Changed to Apache license 2.0 instead of FreeBSD license
    * Updated copyright for 2013
