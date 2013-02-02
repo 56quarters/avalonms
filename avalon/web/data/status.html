@@ -8,25 +8,27 @@
 <body>
 
 <div class="container">
-    <div class="page-header">
-        <h1>Avalon Music Server <small>Server status</small></h1>
-    </div>
-
-    <div class="status ready">
-        <div class="alert alert-success">
-            <button type="button" class="close" data-dismiss="alert">&times;</button>
-            Server is ready!
+    <div class="page-wrapper">
+        <div class="page-header">
+            <h1>Avalon Music Server <small>Server status</small></h1>
         </div>
-    </div>
 
-    <div class="status not-ready">
-        <div class="alert alert-error">
-            <button type="button" class="close" data-dismiss="alert">&times;</button>
-            Server is <strong>not</strong> ready!
+        <div class="status ready">
+            <div class="alert alert-success">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                Server is ready!
+            </div>
         </div>
-    </div>
 
-    <div id="content"></div>
+        <div class="status not-ready">
+            <div class="alert alert-error">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                Server is <strong>not</strong> ready!
+            </div>
+        </div>
+
+        <div id="content"></div>
+    </div>
 </div>
 
 <script type="text/javascript" src="/avalon/js/all.min.js"></script>
@@ -34,7 +36,7 @@
 <script type="text/template" id="status_template">
     <dl class="dl-horizontal">
         <dt>Server is:</dt>
-        <dd class="status">{{status}}</dd>
+        <dd>{{status}}</dd>
 
         <dt>Running as:</dt>
         <dd>{{user}}:{{group}}</dd>
