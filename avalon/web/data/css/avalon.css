@@ -12,7 +12,6 @@ body {
 }
 
 h1, dt {
-    /* color: #00ADEE; */
     color: #222;
 }
 .status.ready, .status.not-ready {
