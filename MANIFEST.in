@@ -1,5 +1,4 @@
 include ChangeLog MANIFEST.in README.rst VERSION requires.txt
-recursive-include avalon/web/data *
 include bin/*
 recursive-include doc *
 global-exclude *~

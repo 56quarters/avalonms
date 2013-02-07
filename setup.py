@@ -51,7 +51,7 @@ _VERSION_FILE = 'VERSION'
 def get_requires(filename):
     """Get the required packages from the pip file."""
     out = []
-    with open(filename) as handle:
+    with open(filename, 'rb') as handle:
         for line in handle:
             package, _ = re.split('[^\w\-]', line, 1)
             out.append(package.strip())
@@ -60,32 +60,8 @@ def get_requires(filename):
 
 def get_contents(filename):
     """Get the contents of the given file."""
-    with open(filename) as handle:
+    with open(filename, 'rb') as handle:
         return handle.read().strip()
-
-
-def get_version_from_git():
-    """Get the current release version from git."""
-    proc = subprocess.Popen(
-        ['git', 'describe', '--tags', '--abbrev=0'],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE)
-
-    (out, err) = proc.communicate()
-    tag = out.strip()
-
-    if not tag:
-        raise ValueError('Could not determine tag: [%s]' % err)        
-    try:
-        return tag.split('-')[1]
-    except ValueError:
-        raise ValueError('Could not determine version: [%s]' % tag)
-
-
-def write_version(filename):
-    """Write the current release version from git to a file."""
-    with open(filename, 'wb') as handle:
-        handle.write(get_version_from_git())
 
 
 class VersionGenerator(Command):
@@ -102,14 +78,90 @@ class VersionGenerator(Command):
     def finalize_options(self):
         pass
 
+    def _get_version_from_git(self):
+        """Get the current release version from git."""
+        proc = subprocess.Popen(
+            ['git', 'describe', '--tags', '--abbrev=0'],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE)
+
+        (out, err) = proc.communicate()
+        tag = out.strip()
+
+        if not tag:
+            raise ValueError('Could not determine tag: [%s]' % err)
+        try:
+            return tag.split('-')[1]
+        except ValueError:
+            raise ValueError('Could not determine version: [%s]' % tag)
+
+    def _write_version(self, filename):
+        """Write the current release version from git to a file."""
+        with open(filename, 'wb') as handle:
+            handle.write(self._get_version_from_git())
+
     def run(self):
         """Write the current release version from Git."""
-        write_version(_VERSION_FILE)
+        self._write_version(_VERSION_FILE)
+
+
+class StaticCompilation(Command):
+
+    """Command to compress and concatenate CSS and JS"""
+
+    description = "Build static assets for the status page"
+
+    user_options = []
+
+    _static_base = 'avalon/web/data'
+
+    _css_files = ['css/bootstrap.css', 'css/bootstrap-responsive.css', 'css/avalon.css']
+
+    _js_files = ['js/jquery.js', 'js/bootstrap.js', 'js/mustache.js']
+
+    _yui = '/opt/yui/current.jar'
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+    def _compress(self, contents, out_file):
+        """Compress the given contents and write it to the output file."""
+        ext = os.path.splitext(out_file)[1].lstrip('.')
+
+        proc = subprocess.Popen(
+            ['java', '-jar', self._yui, '--type', ext, '-o', out_file],
+            stdin=subprocess.PIPE, stdout=None, stderr=subprocess.PIPE)
+
+        out, err = proc.communicate(input=contents)
+        if 0 != proc.wait():
+            raise OSError("Could not minimize %s: %s" % (out_file ,err))
+
+    def _compress_all(self, all_files, out_file):
+        """Compress the collection of files and write the contents to the
+        given output file.
+        """
+        all_content = []
+        for a_file in all_files:
+            full_path = os.path.join(self._static_base, a_file)
+            with open(full_path, 'rb') as handle:
+                all_content.append(handle.read())
+        self._compress('\n\n'.join(all_content), os.path.join(self._static_base, out_file))
+
+    def run(self):
+        """Compress all CSS and JS files and write them to respective
+        single files.
+        """
+        self._compress_all(self._css_files, 'css/all.min.css')
+        self._compress_all(self._js_files, 'js/all.min.js')
 
 
 REQUIRES = get_requires('requires.txt')
 README = get_contents('README.rst')
 VERSION = None
+
 
 try:
     VERSION = get_contents(_VERSION_FILE)
@@ -127,15 +179,18 @@ setup(
     classifiers=CLASSIFIERS,
     license=LICENSE,
     url=URL,
-    cmdclass={'version': VersionGenerator},
+    cmdclass={
+        'version': VersionGenerator,
+        'static': StaticCompilation},
     install_requires=REQUIRES,
     packages=['avalon', 'avalon.app', 'avalon.tags', 'avalon.web'],
     package_data={'avalon.web': [
             'data/status.html',
             'data/config.ini',
             'data/css/*.css',
+            'data/js/*.js',
             'data/img/*.png',
-            'data/js/*.js'
+
             ]},
     scripts=[os.path.join('bin', 'avalonmsd')])
 
