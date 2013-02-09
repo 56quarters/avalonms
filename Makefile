@@ -1,4 +1,4 @@
-#
+# Dev shortcuts
 #
 
 help:
@@ -9,7 +9,6 @@ help:
 	@echo "    init: Set up the development environment using 'develop' mode (requires root)"
 	@echo "    push: Push origin and github remotes"
 	@echo "    release: Create and push a new release"
-	@echo "    static: Build all static resources (JS, CSS, etc.)"
 	@echo "    tags: Push newly created tags to origin and github remotes"
 
 clean:

@@ -21,7 +21,6 @@
 
 
 import pkgutil
-import os
 import threading
 from datetime import datetime
 
@@ -141,7 +140,6 @@ def new_server(app_config, logger, handler, path):
         handler,
         script_name=path,
         config=avalon.web.CONF_FILE)
-
     return avalon.server.AvalonServer(server_config)
 
 

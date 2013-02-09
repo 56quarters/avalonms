@@ -137,7 +137,7 @@ class StaticCompilation(Command):
 
         out, err = proc.communicate(input=contents)
         if 0 != proc.wait():
-            raise OSError("Could not minimize %s: %s" % (out_file ,err))
+            raise OSError("Could not minimize %s: %s" % (out_file, err))
 
     def _compress_all(self, all_files, out_file):
         """Compress the collection of files and write the contents to the
