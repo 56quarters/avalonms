@@ -30,6 +30,8 @@ try:
 except ImportError:
     from distutils.core import setup, Command
 
+from distutils.errors import DistutilsOptionError
+
 
 AUTHOR = 'TSH Labs'
 DESCRIPTION = 'Avalon Music Server'
@@ -68,14 +70,17 @@ class VersionGenerator(Command):
 
     """Command to generate the current release from git."""
 
-    description = "Generate the release version from the git tag"
+    description = "Generate the release version from a git tag"
 
-    user_options = []
+    user_options = [
+        ('version-file=', None, 'File to write the version number to')]
 
     def initialize_options(self):
-        pass
+        self.version_file = _VERSION_FILE
 
     def finalize_options(self):
+        # We don't ensure that the version file exists here since
+        # we may be creating it for the first time
         pass
 
     def _get_version_from_git(self):
@@ -102,7 +107,7 @@ class VersionGenerator(Command):
 
     def run(self):
         """Write the current release version from Git."""
-        self._write_version(_VERSION_FILE)
+        self._write_version(self.version_file)
 
 
 class StaticCompilation(Command):
@@ -111,28 +116,41 @@ class StaticCompilation(Command):
 
     description = "Build static assets for the status page"
 
-    user_options = []
+    user_options = [
+        ('static-base=', None, 'Base directory for CSS and JS directories'),
+        ('css-files=', None, 'List of CSS files to concatenate and compress (comma separated, relative to `static-base`)'),
+        ('css-output=', None, 'Name of the final CSS output file (file only, no path)'),
+        ('js-files=', None, 'List of JS files to concatenate and compress (comma separated, relative to `static-base`)'),
+        ('js-output=', None, 'Name of the final JS output file (file only, no path)'),
+        ('yui-jar=', None, 'Path to YUI compressor jar')]
 
-    _static_base = 'avalon/web/data'
-
-    _css_files = ['css/bootstrap.css', 'css/bootstrap-responsive.css', 'css/avalon.css']
-
-    _js_files = ['js/jquery.js', 'js/bootstrap.js', 'js/mustache.js']
-
-    _yui = '/opt/yui/current.jar'
+    _valid_exts = frozenset(['js', 'css'])
 
     def initialize_options(self):
-        pass
+        self.static_base = 'avalon/web/data'
+        self.css_files = ['css/bootstrap.css', 'css/bootstrap-responsive.css', 'css/avalon.css']
+        self.css_output = 'all.min.css'
+        self.js_files = ['js/jquery.js', 'js/bootstrap.js', 'js/mustache.js']
+        self.js_output = 'all.min.js'
+        self.yui_jar = '/opt/yui/current.jar'
 
     def finalize_options(self):
-        pass
+        self.ensure_dirname('static_base')
+        self.ensure_string_list('css_files')
+        self.ensure_string_list('js_files')
+        self.ensure_filename('yui_jar')
 
     def _compress(self, contents, out_file):
         """Compress the given contents and write it to the output file."""
         ext = os.path.splitext(out_file)[1].lstrip('.')
 
+        if ext not in self._valid_exts:
+            raise DistutilsOptionError(
+                "Output file [%s] does not have a valid extension" % out_file)
+
+        full_out_file = os.path.join(self.static_base, ext, out_file)
         proc = subprocess.Popen(
-            ['java', '-jar', self._yui, '--type', ext, '-o', out_file],
+            ['java', '-jar', self.yui_jar, '--type', ext, '-o', full_out_file],
             stdin=subprocess.PIPE, stdout=None, stderr=subprocess.PIPE)
 
         out, err = proc.communicate(input=contents)
@@ -145,17 +163,17 @@ class StaticCompilation(Command):
         """
         all_content = []
         for a_file in all_files:
-            full_path = os.path.join(self._static_base, a_file)
+            full_path = os.path.join(self.static_base, a_file)
             with open(full_path, 'rb') as handle:
                 all_content.append(handle.read())
-        self._compress('\n\n'.join(all_content), os.path.join(self._static_base, out_file))
+        self._compress('\n\n'.join(all_content), out_file)
 
     def run(self):
         """Compress all CSS and JS files and write them to respective
         single files.
         """
-        self._compress_all(self._css_files, 'css/all.min.css')
-        self._compress_all(self._js_files, 'js/all.min.js')
+        self._compress_all(self.css_files, self.css_output)
+        self._compress_all(self.js_files, self.js_output)
 
 
 REQUIRES = get_requires('requires.txt')
