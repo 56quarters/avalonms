@@ -127,8 +127,10 @@ class AvalonHandler(object):
         return self._status.get_heartbeat()
 
     # NOTE: The text_only keyword argument is required to get the encoding
-    # tool to set the ';charset=utf-8' portion of the Content-Type header, otherwise
-    # it will only add charset to mime types that being with text/*
+    # tool to set the ';charset=utf-8' portion of the Content-Type header,
+    # otherwise it will only add charset to mime types that begin with text/*.
+    # This might not really be needed since JSON requires Unicode and the
+    # default is UTF-8 anyway but it shouldn't hurt.
 
     @cherrypy.expose
     @cherrypy.tools.encode(text_only=False, encoding=avalon.DEFAULT_ENCODING)
