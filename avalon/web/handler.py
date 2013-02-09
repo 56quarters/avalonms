@@ -126,15 +126,19 @@ class AvalonHandler(object):
         """Application heartbeat endpoint."""
         return self._status.get_heartbeat()
 
+    # NOTE: The text_only keyword argument is required to get the encoding
+    # tool to set the ';charset=utf-8' portion of the Content-Type header, otherwise
+    # it will only add charset to mime types that being with text/*
+
     @cherrypy.expose
-    @cherrypy.tools.encode(encoding=avalon.DEFAULT_ENCODING)
+    @cherrypy.tools.encode(text_only=False, encoding=avalon.DEFAULT_ENCODING)
     @cherrypy.tools.json_out(handler=avalon.web.output.json_handler)
     def server(self, *args, **kwargs):
         """Application status endpoint."""
         return self._status.get_server_data(self._startup, self._api)
 
     @cherrypy.expose
-    @cherrypy.tools.encode(encoding=avalon.DEFAULT_ENCODING)
+    @cherrypy.tools.encode(text_only=False, encoding=avalon.DEFAULT_ENCODING)
     @cherrypy.tools.json_out(handler=avalon.web.output.json_handler)
     @render_results
     @application_ready
@@ -144,7 +148,7 @@ class AvalonHandler(object):
         return self._filter(self._api.get_albums(params), params)
 
     @cherrypy.expose
-    @cherrypy.tools.encode(encoding=avalon.DEFAULT_ENCODING)
+    @cherrypy.tools.encode(text_only=False, encoding=avalon.DEFAULT_ENCODING)
     @cherrypy.tools.json_out(handler=avalon.web.output.json_handler)
     @render_results
     @application_ready
@@ -154,7 +158,7 @@ class AvalonHandler(object):
         return self._filter(self._api.get_artists(params), params)
 
     @cherrypy.expose
-    @cherrypy.tools.encode(encoding=avalon.DEFAULT_ENCODING)
+    @cherrypy.tools.encode(text_only=False, encoding=avalon.DEFAULT_ENCODING)
     @cherrypy.tools.json_out(handler=avalon.web.output.json_handler)
     @render_results
     @application_ready
@@ -164,7 +168,7 @@ class AvalonHandler(object):
         return self._filter(self._api.get_genres(params), params)
 
     @cherrypy.expose
-    @cherrypy.tools.encode(encoding=avalon.DEFAULT_ENCODING)
+    @cherrypy.tools.encode(text_only=False, encoding=avalon.DEFAULT_ENCODING)
     @cherrypy.tools.json_out(handler=avalon.web.output.json_handler)
     @render_results
     @application_ready
