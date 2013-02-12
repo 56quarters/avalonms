@@ -102,7 +102,6 @@ def new_handler(db_engine):
     # Configure the status endpoints including loading an HTML template
     status_config = avalon.web.api.AvalonStatusEndpointsConfig()
     status_config.ready = threading.Event()
-    status_config.status_tpt = pkgutil.get_data('avalon.web', 'data/status.html')
     status = avalon.web.api.AvalonStatusEndpoints(status_config)
 
     filters = [

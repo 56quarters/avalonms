@@ -156,7 +156,6 @@ class AvalonStatusEndpointsConfig(object):
 
     def __init__(self):
         self.ready = None
-        self.status_tpt = None
 
 
 class AvalonStatusEndpoints(object):
@@ -165,7 +164,6 @@ class AvalonStatusEndpoints(object):
     def __init__(self, config):
         """Initialize the ready state of the server."""
         self._ready = config.ready
-        self._status_tpt = config.status_tpt
 
     def _get_ready(self):
         """Get the ready state of the application."""
