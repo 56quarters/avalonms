@@ -32,7 +32,8 @@ __all__ = [
     'ArtistStore',
     'GenreStore',
     'IdLookupCache',
-    'TrackStore'
+    'TrackStore',
+    'get_frozen_mapping'
     ]
 
 
@@ -93,6 +94,17 @@ class IdLookupCache(object):
         return field_cache
 
 
+def get_frozen_mapping(table):
+    """Return a copy of a dictionary with mutable sets for values
+    replaced with frozensets for values.
+    """
+    out = collections.defaultdict(frozenset)
+
+    for key in table:
+        out[key] = frozenset(table[key])
+    return out
+
+
 class TrackStore(object):
 
     """ In-memory store for TrackElm objects and methods to fetch
@@ -105,19 +117,10 @@ class TrackStore(object):
         self._by_album = None
         self._by_artist = None
         self._by_genre = None
+        self._by_id = None
         self._all = None
 
         self.reload()
-
-    def _get_frozen(self, table):
-        """Return a copy of a dictionary with mutable sets for values
-        replaced with frozensets for values.
-        """
-        out = collections.defaultdict(frozenset)
-
-        for key in table:
-            out[key] = frozenset(table[key])
-        return out
 
     def reload(self):
         """Atomically populate the various structures for looking
@@ -133,6 +136,7 @@ class TrackStore(object):
         by_album = collections.defaultdict(set)
         by_artist = collections.defaultdict(set)
         by_genre = collections.defaultdict(set)
+        by_id = collections.defaultdict(set)
         all_tracks = set()
 
         for track in res:
@@ -140,11 +144,13 @@ class TrackStore(object):
             by_album[elm.album_id].add(elm)
             by_artist[elm.artist_id].add(elm)
             by_genre[elm.genre_id].add(elm)
+            by_id[elm.id].add(elm)
             all_tracks.add(elm)
 
-        self._by_album = self._get_frozen(by_album)
-        self._by_artist = self._get_frozen(by_artist)
-        self._by_genre = self._get_frozen(by_genre)
+        self._by_album = get_frozen_mapping(by_album)
+        self._by_artist = get_frozen_mapping(by_artist)
+        self._by_genre = get_frozen_mapping(by_genre)
+        self._by_id = get_frozen_mapping(by_id)
         self._all = frozenset(all_tracks)
 
     def by_album(self, album_id):
@@ -165,6 +171,12 @@ class TrackStore(object):
         """
         return self._by_genre[genre_id]
 
+    def by_id(self, track_id):
+        """Get tracks by a track ID, empty set if there are no tracks
+        with that ID.
+        """
+        return self._by_id[track_id]
+
     def all(self):
         """Get all tracks."""
         return self._all
@@ -178,6 +190,7 @@ class _IdNameStore(object):
         """Load all elements of the given type."""
         self._session_handler = session_handler
         self._cls = cls
+        self._by_id = None
         self._all = None
 
         self.reload()
@@ -190,7 +203,23 @@ class _IdNameStore(object):
             res = session.query(self._cls).all()
         finally:
             self._session_handler.close(session)
-        self._all = frozenset(IdNameElm.from_model(thing) for thing in res)
+
+        by_id = collections.defaultdict(set)
+        all_elms = set()
+
+        for thing in res:
+            elm = IdNameElm.from_model(thing)
+            by_id[elm.id].add(elm)
+            all_elms.add(elm)
+
+        self._by_id = get_frozen_mapping(by_id)
+        self._all = frozenset(all_elms)
+
+    def by_id(self, elm_id):
+        """Get elements by their ID, empty set if there are no elements
+        with that ID.
+        """
+        return self._by_id[elm_id]
 
     def all(self):
         """Get all elements in the store."""
