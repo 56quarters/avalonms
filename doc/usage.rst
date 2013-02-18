@@ -56,17 +56,40 @@ error log, and database file so that it will still be able to write to them.
         --access-log /tmp/access.log --daemon-user apache \
         --daemon-group apache ~/Music
 
+Running behind an Apache reverse proxy
+======================================
 
-In-place rescan
-===============
+If you already run a public facing Apache HTTP server you can configure it to act as
+a reverse proxy for a locally bound Avalon Music Server instance.
 
-The Avalon Music Server can be told to rescan a music collection and reload metadata
-from the database while still running and serving requests. To do this, send the server
-the signal ``SIGUSR1`` using a program such as ``pkill`` or ``kill``.
+Start the Avalon Music Server with a command like the following:
 
   ::
 
-    pkill -USR1 avalonmsd
+    sudo avalonmsd --daemon --error-log /tmp/error.log \
+        --access-log /tmp/access.log --daemon-user apache \
+        --daemon-group apache ~/Music
+
+And use an Apache virtual host configuration like the following:
+
+  ::
+
+    <VirtualHost *:80>
+        ServerName api.tshlabs.org
+
+        KeepAlive Off
+        RewriteEngine Off
+
+        SetOutPutFilter DEFLATE
+
+        <Location "/">
+          Order deny,allow
+          Allow from all
+        </Location>
+
+        ProxyPass /avalon http://localhost:8080/avalon
+        ProxyPassReverse /avalon http://localhost:8080/avalon
+    </VirtualHost>
 
 
 Running on a public interface
@@ -88,6 +111,18 @@ IPv6
   ::
 
     avalonmsd --server-address :: ~/Music
+
+
+In-place rescan
+===============
+
+The Avalon Music Server can be told to rescan a music collection and reload metadata
+from the database while still running and serving requests. To do this, send the server
+the signal ``SIGUSR1`` using a program such as ``pkill`` or ``kill``.
+
+  ::
+
+    pkill -USR1 avalonmsd
 
 
 Arguments
