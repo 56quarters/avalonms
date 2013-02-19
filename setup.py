@@ -37,10 +37,10 @@ AUTHOR = 'TSH Labs'
 DESCRIPTION = 'Avalon Music Server'
 EMAIL = 'projects@tshlabs.org'
 URL = 'http://www.tshlabs.org/'
-LICENSE = 'BSD'
+LICENSE = 'Apache'
 CLASSIFIERS = [
     "Development Status :: 3 - Alpha",
-    "License :: OSI Approved :: BSD License",
+    "License :: OSI Approved :: Apache Software License",
     "Operating System :: POSIX",
     "Topic :: Internet :: WWW/HTTP",
     "Topic :: Multimedia :: Sound/Audio"
