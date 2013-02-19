@@ -24,6 +24,8 @@ Ubuntu/Mint/Debian
 Installation via pip and PyPI
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+.. TODO: Change to be virtualenv install
+
 To install the latest stable-ish version from PyPI:
 
   ::
@@ -31,14 +33,7 @@ To install the latest stable-ish version from PyPI:
     pip install avalonms
 
 
-Installation via pip from source
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-To install the latest bleeding edge version from source:
-
-  ::
-
-    pip install -e git+https://github.com/tshlabs/avalonms.git#egg=avalonms
+.. TODO: Install from source with pip in a virtual env + yui
 
 
 Manual installation
