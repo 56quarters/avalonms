@@ -30,3 +30,5 @@ Features include:
 The latest documentation is available at https://avalonms.readthedocs.org/
 
 The source is available at https://github.com/tshlabs/avalonms
+
+The ChangeLog is available at https://raw.github.com/tshlabs/avalonms/master/ChangeLog
