@@ -28,6 +28,23 @@ class DummyQuery(object):
         pass
 
 
+class MockTag(object):
+
+    def __init__(self):
+        self.path = None
+        self.album = None
+        self.artist = None
+        self.genre = None
+        self.title = None
+        self.track = None
+        self.year = None
+        self.length = None
+
+
+def id_gen_mock(val):
+    return None
+
+
 class TestCleaner(object):
 
     def setup_method(self, method):
@@ -70,10 +87,40 @@ class TestCleaner(object):
 
 class TestTrackFieldLoader(object):
 
-    def test_insert_without_error(self):
+    def setup_method(self, method):
+        self.mox = mox.Mox()
+
+    def teardown_method(self, method):
+        self.mox.UnsetStubs()
+
+    def test_insert_invalid_attribute_error(self):
+        tag = MockTag()
+        tag.path = unicode('/home/something/music/song.flac')
+        tag.album = unicode('True North')
+        tag.artist = unicode('Bad Religion')
+        tag.genre = unicode('Punk')
+        tag.length = 115
+        tag.title = unicode('True North')
+        tag.track = 1
+        tag.year = 2013
+
+        session_handler = self.mox.CreateMock(avalon.models.SessionHandler)
+        model_cls = self.mox.CreateMockAnything(avalon.models.Album)
+
+        inserter = avalon.tags.insert.TrackFieldLoader(session_handler, [tag])
+
+        with pytest.raises(AttributeError):
+            inserter.insert(model_cls, id_gen_mock, 'blah')
+        self.mox.VerifyAll()
+
+
+    def test_insert_invalid_attribute_error_utf8_path(self):
         pass
 
-    def test_insert_with_error(self):
+    def test_insert_duplicate_ids(self):
+        pass
+
+    def test_insert_commit_error(self):
         pass
 
 
