@@ -4,21 +4,25 @@ Installation
 Prerequisites
 ~~~~~~~~~~~~~
 
-Make sure you have the `pip Installer <http://www.pip-installer.org>`_ available.
+Make sure you have the `pip Installer <http://www.pip-installer.org/>`_ and
+`virtualenv <http://www.virtualenv.org/>`_ available. The ```virtualenv``` tool
+is only needed if you do not have root permissions or don't wish to install
+the Avalon Music Server globally.
 
-You can install it by running something like the following:
+You can install ``pip`` and ``virtualenv`` by running something like the
+following:
 
 Gentoo:
 
   :: 
 
-    emerge dev-python/pip
+    emerge dev-python/pip dev-python/virtualenv
 
 Ubuntu/Mint/Debian
 
   ::
 
-    apt-get install python-pip
+    apt-get install python-pip python-virtualenv
 
 
 Installation via pip and PyPI
@@ -30,24 +34,27 @@ To install the latest stable-ish version from PyPI:
 
   ::
 
+    virtualenv ~/avalon
+    source ~/avalon/bin/activate
     pip install avalonms
 
 
-.. TODO: Install from source with pip in a virtual env + yui
+Installation from source
+~~~~~~~~~~~~~~~~~~~~~~~~
 
-
-Manual installation
-~~~~~~~~~~~~~~~~~~~
-
-You'll need to ensure you have each of the dependencies listed in :doc:`requirements`
-if you choose to install without using pip.
+To checkout and build the Avalon Music Server you'll need
+`Git <http://git-scm.com/>`_ installed and a copy of the
+`YUI build tool <http://yuilibrary.com/download/>`_ (in addition to ``pip``
+and ``virtualenv``).
 
   ::
 
-    # Download from http://pypi.python.org/pypi/avalonms
+    virtualenv ~/avalon
+    source ~/avalon/bin/activate
+    git clone https://github.com/tshlabs/avalonms.git ~/avalon-src
+    cd ~/avalon-src
+    python setup.py version
+    python setup.py static --yui-jar /path/to/yui.jar
+    pip install -r requires.txt
+    pip install .
 
-    tar -xzf avalonms-$version.tar.gz
-
-    cd avalonms-$version
-
-    python setup.py install
