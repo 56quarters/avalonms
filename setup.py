@@ -3,7 +3,7 @@
 #
 # Avalon Music Server
 #
-# Copyright 2013 TSH Labs <projects@tshlabs.org>
+# Copyright 2012-2013 TSH Labs <projects@tshlabs.org>
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
