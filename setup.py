@@ -207,8 +207,7 @@ setup(
             'data/config.ini',
             'data/css/*.css',
             'data/js/*.js',
-            'data/img/*.png',
-
+            'data/img/*.png'
             ]},
     scripts=[os.path.join('bin', 'avalonmsd')])
 
