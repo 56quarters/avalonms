@@ -28,8 +28,6 @@ Ubuntu/Mint/Debian
 Installation via pip and PyPI
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. TODO: Change to be virtualenv install
-
 To install the latest stable-ish version from PyPI:
 
   ::

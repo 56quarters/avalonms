@@ -66,7 +66,7 @@ class Metadata(collections.namedtuple('_Metadata', [
     'track',
     'year',
     'length'])):
-    """Container for metadata of audio file"""
+    """Container for metadata of an audio file"""
 
 
 class MetadataLoader(object):
@@ -180,7 +180,7 @@ class MetadataTrackParser(object):
         self._parser = parser_impl
 
     def parse(self, val):
-        """Attempt to parse the given track string, raise the ValueError
+        """Attempt to parse the given track string, raise a ValueError
         if the track string could not be parsed.
         """
         if val.isdigit():
