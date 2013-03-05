@@ -143,7 +143,7 @@ class SearchTrie(object):
     is expected to be done by the caller.
 
     The SearchTrie is not inheriently threadsafe. However, if none of the
-    mutator methods are called (.add, .walk) the read methods (.search, .size)
+    mutator methods are called (.add) the read methods (.search, .size)
     are safe to be called by multiple threads.
     """
 
@@ -225,16 +225,6 @@ class SearchTrie(object):
 
         # Otherwise, continue searching at the next node
         return self._search(children[char], term, i + 1)
-
-    def walk(self, callback):
-        """Apply the given callback to every node in the trie."""
-        self._walk(self._root, callback)
-
-    def _walk(self, node, callback):
-        """Recursively apply the given callback down from the given node."""
-        callback(node)
-        for key in node.children:
-            self._walk(node.children[key], callback)
 
 
 class AvalonTextSearch(object):
