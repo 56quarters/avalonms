@@ -17,6 +17,7 @@
 # limitations under the License.
 #
 
+
 """Factory methods for the major components of the music server."""
 
 
@@ -99,7 +100,6 @@ def new_handler(db_engine):
 
     api = avalon.web.api.AvalonApiEndpoints(api_config)
 
-    # Configure the status endpoints including loading an HTML template
     status_config = avalon.web.api.AvalonStatusEndpointsConfig()
     status_config.ready = threading.Event()
     status = avalon.web.api.AvalonStatusEndpoints(status_config)
@@ -127,7 +127,6 @@ def new_server(app_config, logger, handler, path):
     Expected configuration properties are: server_address,
     server_port, server_threads, and server_queue.
     """
-
     server_config = avalon.server.AvalonServerConfig()
     server_config.log = logger
     server_config.bind_addr = (
