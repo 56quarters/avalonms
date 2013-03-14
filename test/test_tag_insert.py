@@ -21,6 +21,9 @@ class DummySession(object):
     def close(self):
         pass
 
+    def add_all(self, values):
+        pass
+
 
 class DummyQuery(object):
 
@@ -135,7 +138,51 @@ class TestTrackFieldLoader(object):
         self.mox.VerifyAll()
 
     def test_insert_duplicate_ids(self):
-        pass
+        tag1 = MockTag()
+        tag1.path = u'/home/something/music/¡Tré!/song.flac'
+        tag1.album = u'¡Tré!'
+        tag1.artist = u'Green Day'
+        tag1.genre = u'Punk'
+        tag1.length = 148
+        tag1.title = u'Amanda'
+        tag1.track = 8
+        tag1.year = 2012
+
+        tag2 = MockTag()
+        tag2.path = u'/home/something/music/song.flac'
+        tag2.album = u'True North'
+        tag2.artist = u'Bad Religion'
+        tag2.genre = u'Punk'
+        tag2.length = 115
+        tag2.title = u'True North'
+        tag2.track = 1
+        tag2.year = 2013
+
+        session_handler = self.mox.CreateMock(avalon.models.SessionHandler)
+        session = self.mox.CreateMock(DummySession)
+        id_gen = self.mox.CreateMockAnything(id_gen_mock)
+        model_cls = self.mox.CreateMockAnything(avalon.models.Album)
+        model1 = self.mox.CreateMock(avalon.models.Album)
+        model2 = self.mox.CreateMock(avalon.models.Album)
+
+        model_cls().AndReturn(model1)
+        id_gen(mox.IsA(unicode)).AndReturn('b6c4bfc6-c088-48af-a1c0-7bcb3f37035c')
+
+        model_cls().AndReturn(model2)
+        id_gen(mox.IsA(unicode)).AndReturn('b6c4bfc6-c088-48af-a1c0-7bcb3f37035c')
+
+        session_handler.get_session().AndReturn(session)
+        session.add_all(mox.IsA(list))
+        session.commit()
+        session_handler.close(session)
+
+        self.mox.ReplayAll()
+
+        inserter = avalon.tags.insert.TrackFieldLoader(
+            session_handler, [tag1, tag2])
+
+        inserter.insert(model_cls, id_gen, 'album')
+        self.mox.VerifyAll()
 
     def test_insert_commit_error(self):
         pass
