@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
 #
 
+import uuid
+
 import mox
 import pytest
 
 import sqlalchemy.exc
 
+import avalon.cache
 import avalon.models
 import avalon.tags.insert
 
@@ -100,7 +103,7 @@ class TestTrackFieldLoader(object):
     def teardown_method(self, method):
         self.mox.UnsetStubs()
 
-    def test_insert_invalid_attribute_error(self):
+    def test_insert_invalid_attribute_raises_error(self):
         """Test that a call to insert a bogus tag field results in
         the expected attribute error.
         """
@@ -147,7 +150,7 @@ class TestTrackFieldLoader(object):
             inserter.insert(model_cls, id_gen_mock, 'blah')
         self.mox.VerifyAll()
 
-    def test_insert_duplicate_ids(self):
+    def test_insert_duplicate_ids_one_insert(self):
         """Test that fields are deduplicated based on their UUIDs
         when being inserted into the database.
         """
@@ -179,10 +182,10 @@ class TestTrackFieldLoader(object):
         model2 = self.mox.CreateMock(avalon.models.Album)
 
         model_cls().AndReturn(model1)
-        id_gen(mox.IsA(unicode)).AndReturn('b6c4bfc6-c088-48af-a1c0-7bcb3f37035c')
+        id_gen(mox.IsA(unicode)).AndReturn('422070a0-16a8-5c14-a4bf-a9fb82504894')
 
         model_cls().AndReturn(model2)
-        id_gen(mox.IsA(unicode)).AndReturn('b6c4bfc6-c088-48af-a1c0-7bcb3f37035c')
+        id_gen(mox.IsA(unicode)).AndReturn('ebaa57ed-4b57-5a1e-8295-16a3a20a2c42')
 
         session_handler.get_session().AndReturn(session)
         session.add_all(mox.Or(mox.In(model1), mox.In(model2)))
@@ -197,7 +200,7 @@ class TestTrackFieldLoader(object):
         inserter.insert(model_cls, id_gen, 'album')
         self.mox.VerifyAll()
 
-    def test_insert_commit_error(self):
+    def test_insert_commit_error_session_closed(self):
         """Test that errors inserting fields do not result in
         leaking database connections.
         """
@@ -218,7 +221,7 @@ class TestTrackFieldLoader(object):
         model = self.mox.CreateMock(avalon.models.Album)
 
         model_cls().AndReturn(model)
-        id_gen(mox.IsA(unicode)).AndReturn('b6c4bfc6-c088-48af-a1c0-7bcb3f37035c')
+        id_gen(mox.IsA(unicode)).AndReturn('ebaa57ed-4b57-5a1e-8295-16a3a20a2c42')
 
         session_handler.get_session().AndReturn(session)
         session.add_all([model])
@@ -254,7 +257,7 @@ class TestTrackFieldLoader(object):
         model = self.mox.CreateMock(avalon.models.Album)
 
         model_cls().AndReturn(model)
-        id_gen(mox.IsA(unicode)).AndReturn('b6c4bfc6-c088-48af-a1c0-7bcb3f37035c')
+        id_gen(mox.IsA(unicode)).AndReturn('422070a0-16a8-5c14-a4bf-a9fb82504894')
 
         session_handler.get_session().AndReturn(session)
         session.add_all([model])
@@ -269,7 +272,42 @@ class TestTrackFieldLoader(object):
 
 
 class TestTrackLoader(object):
-    pass
+
+    def setup_method(self, method):
+        self.mox = mox.Mox()
+
+    def teardown_method(self, method):
+        self.mox.UnsetStubs()
+
+    def test_attribute_ids_lookup_by_tag_values(self):
+        """Test that IDs are looked up in the ID cache based on
+        values from the tag being inserted.
+        """
+        ruiner = uuid.UUID('350c49d9-fa38-585a-a0d9-7343c8b910ed')
+        a_wilhelm_scream = uuid.UUID('aa143f55-65e3-59f3-a1d8-36eac7024e86')
+        hardcore = uuid.UUID('54cde78b-6d4b-5634-a666-cb7fa674c73f')
+
+        tag = MockTag()
+        tag.path = u'/home/something/music/song.flac'
+        tag.album = u'Ruiner'
+        tag.artist = u'A Wilhelm Scream'
+        tag.genre = u'Hardcore'
+        tag.length = 150
+        tag.title = u'The Soft Sell'
+        tag.track = 4
+        tag.year = 2005
+
+        cache = self.mox.CreateMock(avalon.cache.IdLookupCache)
+        cache.get_album_id(u'Ruiner').AndReturn(ruiner)
+        cache.get_artist_id(u'A Wilhelm Scream').AndReturn(a_wilhelm_scream)
+        cache.get_genre_id(u'Hardcore').AndReturn(hardcore)
+
+    def test_insert_commit_error_session_closed(self):
+            """Test that errors inserting tags do not results in leaking
+            database connections.
+            """
+            pass
+
 
 
 
