@@ -118,7 +118,9 @@ In-place rescan
 
 The Avalon Music Server can be told to rescan a music collection and reload metadata
 from the database while still running and serving requests. To do this, send the server
-the signal ``SIGUSR1`` using a program such as ``pkill`` or ``kill``.
+the signal ``SIGUSR1`` using a program such as ``pkill`` or ``kill``. If the server was
+started with the ``--no-scan`` option ``SIGUSR1`` will not cause it to rescan the music
+collection, only reload information from the database.
 
   ::
 
