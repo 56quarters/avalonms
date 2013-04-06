@@ -115,12 +115,18 @@ class StaticCompilation(Command):
     description = "Build static assets for the status page"
 
     user_options = [
-        ('static-base=', None, 'Base directory for CSS and JS directories'),
-        ('css-files=', None,'List of CSS files to concatenate and compress (comma separated, relative to `static-base`)'),
-        ('css-output=', None, 'Name of the final CSS output file (file only, no path)'),
-        ('js-files=', None, 'List of JS files to concatenate and compress (comma separated, relative to `static-base`)'),
-        ('js-output=', None, 'Name of the final JS output file (file only, no path)'),
-        ('yui-jar=', None, 'Path to YUI compressor jar')]
+        ('static-base=', None,
+            'Base directory for CSS and JS directories'),
+        ('css-files=', None,
+            'List of CSS files to concatenate and compress (comma separated, relative to `static-base`)'),
+        ('css-output=', None,
+            'Name of the final CSS output file (file only, no path)'),
+        ('js-files=', None,
+            'List of JS files to concatenate and compress (comma separated, relative to `static-base`)'),
+        ('js-output=', None,
+            'Name of the final JS output file (file only, no path)'),
+        ('yui-jar=', None,
+            'Path to YUI compressor jar')]
 
     _valid_exts = frozenset(['js', 'css'])
 
