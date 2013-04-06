@@ -22,18 +22,16 @@
 Immutable wrappers for model objects suitable for being rendered as JSON.
 """
 
-
 import collections
 
 
 __all__ = [
     'IdNameElm',
     'TrackElm'
-    ]
+]
 
 
 class IdNameElm(collections.namedtuple('_IdNameElm', ['id', 'name'])):
-
     """Immutable, hashable representation of a model with ID
     and name attributes (everything besides Tracks).
     """
@@ -44,23 +42,22 @@ class IdNameElm(collections.namedtuple('_IdNameElm', ['id', 'name'])):
         return cls(
             id=model.id,
             name=model.name)
-    
+
 
 class TrackElm(collections.namedtuple('_TrackElm', [
-        'id',
-        'name',
-        'length',
-        'track',
-        'year',
-        'album',
-        'album_id',
-        'artist',
-        'artist_id',
-        'genre',
-        'genre_id'])):
-    
+    'id',
+    'name',
+    'length',
+    'track',
+    'year',
+    'album',
+    'album_id',
+    'artist',
+    'artist_id',
+    'genre',
+    'genre_id'])):
     """Immutable, hashable representation of a Track model."""
-    
+
     @classmethod
     def from_model(cls, model):
         """Construct a new track element from a track model."""

@@ -20,7 +20,6 @@
 
 """Command line configuration parsing classes."""
 
-
 import argparse
 import os.path
 import socket
@@ -39,11 +38,10 @@ __all__ = [
     'ServerPortAction',
     'ServerQueueAction',
     'ServerThreadsAction'
-    ]
+]
 
 
 class CollectionAction(argparse.Action):
-
     """Validation for the path to the music collection."""
 
     def __call__(self, parser, namespace, values, option_string=None):
@@ -55,7 +53,6 @@ class CollectionAction(argparse.Action):
 
 
 class IpAddressAction(argparse.Action):
-
     """Validation for the address to bind the server to."""
 
     def __call__(self, parser, namespace, values, option_string=None):
@@ -67,7 +64,6 @@ class IpAddressAction(argparse.Action):
 
 
 class DaemonUserAction(argparse.Action):
-    
     """Validation for a user for the daemon to switch to."""
 
     def __call__(self, parser, namespace, values, option_string=None):
@@ -78,9 +74,8 @@ class DaemonUserAction(argparse.Action):
 
 
 class DaemonGroupAction(argparse.Action):
-
     """Validation for a group for the daemon to switch to."""
-    
+
     def __call__(self, parser, namespace, values, option_string=None):
         if not _is_valid_group(values):
             raise ValueError(
@@ -89,7 +84,6 @@ class DaemonGroupAction(argparse.Action):
 
 
 class ServerPortAction(argparse.Action):
-    
     """Validation for the port for the server to run on."""
 
     def __call__(self, parser, namespace, values, option_string=None):
@@ -98,18 +92,16 @@ class ServerPortAction(argparse.Action):
 
 
 class ServerQueueAction(argparse.Action):
-
     """Validation for the connection queue size for the server."""
-    
+
     def __call__(self, parser, namespace, values, option_string=None):
         val = _validate_int('queue size', values)
         setattr(namespace, self.dest, val)
 
 
 class ServerThreadsAction(argparse.Action):
-
     """Validation for the number threads to use for the server."""
-    
+
     def __call__(self, parser, namespace, values, option_string=None):
         val = _validate_int('number of threads', values)
         setattr(namespace, self.dest, val)
@@ -155,7 +147,6 @@ def _is_valid_group(group):
 
 
 class ServerAppDefaults(object):
-
     """Compute default values for server configuration options."""
 
     def __init__(self):
@@ -175,7 +166,6 @@ class ServerAppDefaults(object):
 
 
 class _AppConfig(object):
-
     """Base class for accessing user input and default values."""
 
     def __init__(self, parser, defaults):
@@ -215,7 +205,6 @@ class _AppConfig(object):
 
 
 class ServerAppConfig(_AppConfig):
-
     """Validation for server configuration options."""
 
     def validate(self):

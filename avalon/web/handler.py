@@ -20,7 +20,6 @@
 
 """Avalon web application for handling requests."""
 
-
 import functools
 
 import cherrypy
@@ -38,17 +37,19 @@ __all__ = [
     'convert_parameters',
     'AvalonHandler',
     'AvalonHandlerConfig'
-    ]
+]
 
 
 def application_ready(func):
     """Decorator for checking if the application has started."""
+
     @functools.wraps(func)
     def wrapper(self, *args, **kwargs):
         if not self.ready:
             raise avalon.exc.ServerNotReadyError(
                 avalon.err.ERROR_SERVER_NOT_READY())
         return func(self, *args, **kwargs)
+
     return wrapper
 
 
@@ -57,12 +58,14 @@ def render_results(func):
     any ApiErrors raised by the method as output that can be
     correctly serialized by simplejson.
     """
+
     @functools.wraps(func)
     def wrapper(self, *args, **kwargs):
         try:
             return avalon.web.output.render(results=func(self, *args, **kwargs))
         except avalon.exc.ApiError, e:
             return avalon.web.output.render(error=e)
+
     return wrapper
 
 
@@ -70,14 +73,15 @@ def convert_parameters(func):
     """Decorator to convert the standard cherrypy *args and **kwargs
     method arguments into our Parameters object to pass to the method.
     """
+
     @functools.wraps(func)
     def wrapper(self, *args, **kwargs):
         return func(self, avalon.web.request.Parameters(kwargs))
+
     return wrapper
 
 
 class AvalonHandlerConfig(object):
-
     """Configuration for the Avalon web application."""
 
     def __init__(self):
@@ -88,9 +92,8 @@ class AvalonHandlerConfig(object):
 
 
 class AvalonHandler(object):
-    
     """Avalon web application with status and metadata endpoints."""
-    
+
     def __init__(self, config):
         """Set the endpoints, filters, and startup time for the handler."""
         self._api = config.api_endpoints

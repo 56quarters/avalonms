@@ -24,7 +24,6 @@ AvalonMS: Scan a music collection for metadata and expose it as an HTTP
 service using JSON.
 """
 
-
 from __future__ import print_function
 
 import argparse
@@ -55,7 +54,7 @@ def get_parser(prog, defaults):
         '--access-log',
         metavar='PATH',
         help='Log all requests to the server to this file '
-        '(requests are logged to STDOUT by default)')
+             '(requests are logged to STDOUT by default)')
     parser.add_argument(
         '--daemon',
         action='store_true',
@@ -74,17 +73,17 @@ def get_parser(prog, defaults):
         '--db-path',
         metavar='PATH',
         help='File to use for backing SQLite database '
-        '(default is %s)' % defaults.db_path)
+             '(default is %s)' % defaults.db_path)
     parser.add_argument(
         '--error-log',
         metavar='PATH',
         help='Log any errors or informational messages to this file '
-        '(errors are logged to STDERR by default)')
+             '(errors are logged to STDERR by default)')
     parser.add_argument(
         '--no-scan',
         action='store_true',
         help='Do not rescan and rebuild the music collection database '
-        'at start up or during any reloads (graceful events)')
+             'at start up or during any reloads (graceful events)')
     parser.add_argument(
         '--server-address',
         action=avalon.cli.IpAddressAction,
@@ -95,19 +94,19 @@ def get_parser(prog, defaults):
         action=avalon.cli.ServerPortAction,
         metavar='PORT',
         help='Port for server to listen  on '
-        '(default is %s)' % defaults.server_port)
+             '(default is %s)' % defaults.server_port)
     parser.add_argument(
         '--server-queue',
         action=avalon.cli.ServerQueueAction,
         metavar='NUM',
         help='Number of connections to allow to be queued '
-        '(default is %s)' % defaults.server_queue)
+             '(default is %s)' % defaults.server_queue)
     parser.add_argument(
         '--server-threads',
         action=avalon.cli.ServerThreadsAction,
         metavar='NUM',
         help='Number of threads to use for handling requests '
-        '(default is %s)' % defaults.server_threads)
+             '(default is %s)' % defaults.server_threads)
 
     return parser
 
@@ -117,6 +116,7 @@ def setup_signal_handler():
     until the server starts up (which will install its own
     handlers).
     """
+
     def _exit_handler(signum, frame):
         """Handle TERM and INT by exiting."""
         if signum in (signal.SIGTERM, signal.SIGINT):
@@ -173,7 +173,7 @@ def main():
     engine.start()
     log.info("Server stopped")
     return 0
-    
+
 
 if __name__ == '__main__':
     sys.exit(main())

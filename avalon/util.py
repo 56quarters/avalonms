@@ -20,7 +20,6 @@
 
 """Miscellaneous utility functions and classes."""
 
-
 import errno
 import grp
 import os
@@ -40,7 +39,7 @@ __all__ = [
     'get_mem_usage',
     'get_thread_names',
     'is_perm_error'
-    ]
+]
 
 
 def are_root():

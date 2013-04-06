@@ -20,7 +20,6 @@
 
 """Simple logging wrapper."""
 
-
 import logging
 import sys
 
@@ -34,8 +33,7 @@ __all__ = [
     'DEFAULT_DATE_FMT',
     'AvalonLog',
     'AvalonLogConfig'
-    ]
-
+]
 
 DEFAULT_LOG_LEVEL = logging.INFO
 
@@ -47,7 +45,6 @@ DEFAULT_DATE_FMT = '%Y-%m-%d %H:%M:%S'
 
 
 class AvalonLogConfig(object):
-
     """Configuration for the logger."""
 
     def __init__(self):
@@ -61,7 +58,6 @@ class AvalonLogConfig(object):
 
 
 class AvalonLog(object):
-
     """Handle setting up log formatters and handlers based
     on configuration settings.
     """
@@ -80,7 +76,7 @@ class AvalonLog(object):
         self._handlers = []
 
         self.reload()
-        
+
     def get_open_fds(self):
         """Get the file number of any open log files."""
         return [
@@ -93,7 +89,7 @@ class AvalonLog(object):
             self._log_root.access_log.removeHandler(handler)
         for handler in self._handlers:
             self._log_root.error_log.removeHandler(handler)
-        
+
         self._handlers = []
 
         try:
@@ -106,7 +102,7 @@ class AvalonLog(object):
                 raise
             raise avalon.exc.PermissionError(
                 'Insufficient permission to create or open '
-                'log [%s]' %  e.filename, e)
+                'log [%s]' % e.filename, e)
 
         # Application logging uses the error log
         self._logger = self._log_root.error_log

@@ -20,14 +20,13 @@
 
 """Functionality for crawling a filesystem to find audio files."""
 
-
 import os
 
 
 __all__ = [
     'get_files',
     'TagCrawler'
-    ]
+]
 
 
 def get_files(root):
@@ -44,7 +43,6 @@ def get_files(root):
 
 
 class TagCrawler(object):
-
     """Use the given metadata loader to read information for
     each audio file.
     """

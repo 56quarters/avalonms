@@ -20,7 +20,6 @@
 
 """Callbacks for sorting and limiting the result set."""
 
-
 import avalon.err
 import avalon.exc
 
@@ -30,11 +29,10 @@ __all__ = [
     'SORT_DESC',
     'limit_filter',
     'sort_filter'
-    ]
+]
 
 
 class _SortHelper(object):
-        
     """Object meant to be used as a comparison function
     for objects based on their attributes.
 
@@ -46,7 +44,7 @@ class _SortHelper(object):
     def __init__(self, field):
         """Set the field to be used for sorting."""
         self.field = field
-        
+
     def __call__(self, obj1, obj2):
         """Return the results of cmp() on the field of
         the two given objects.
@@ -69,14 +67,14 @@ def sort_filter(elms, params):
     sort_helper = _SortHelper(field)
 
     if field is None:
-        return elms    
+        return elms
 
     if direction not in (SORT_ASC, SORT_DESC):
         raise avalon.exc.InvalidParameterError(
             avalon.err.ERROR_INVALID_FIELD_VALUE('direction'))
-        
+
     reverse = SORT_DESC == direction
-    
+
     try:
         elms.sort(cmp=sort_helper, reverse=reverse)
     except AttributeError:
@@ -93,7 +91,7 @@ def limit_filter(elms, params):
     offset = params.get_int('offset', 0)
 
     if limit is None:
-        return elms   
+        return elms
 
     if limit < 0:
         raise avalon.exc.InvalidParameterError(

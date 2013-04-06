@@ -20,7 +20,6 @@
 
 """Methods for generating stable IDs for albums, artists, genres, and tracks."""
 
-
 import uuid
 
 import avalon
@@ -35,8 +34,7 @@ __all__ = [
     'get_artist_id',
     'get_genre_id',
     'get_track_id'
-    ]
-
+]
 
 NS_ALBUMS = uuid.UUID('7655e605-6eaa-40d8-a25f-5c6c92a4d31a')
 NS_ARTISTS = uuid.UUID('fe4df0f6-2c55-4ba6-acf3-134eae3e710e')

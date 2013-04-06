@@ -20,7 +20,6 @@
 
 """Methods for accessing request parameters and altering the reponse code."""
 
-
 import uuid
 
 import avalon.err
@@ -29,21 +28,20 @@ import avalon.exc
 
 __all__ = [
     'Parameters'
-    ]
+]
 
 
 class Parameters(object):
-
     """Logic for accessing query string parameters of interest."""
 
     valid = frozenset(
-        ['album', 'album_id', 'artist', 'artist_id', 'direction', 
+        ['album', 'album_id', 'artist', 'artist_id', 'direction',
          'order', 'genre', 'genre_id', 'limit', 'offset', 'query'])
 
     def __init__(self, query_params):
         """Set the query string params to use."""
         self._query_params = query_params
-    
+
     def get_int(self, field, default=None):
         """Return the value of the field as an int, raising an error if
         it isn't a valid field or cannot be converted to an int, and
@@ -88,7 +86,7 @@ class Parameters(object):
             return default
 
         value = self._query_params[field]
-        
+
         if isinstance(value, list):
             raise avalon.exc.InvalidParameterError(
                 avalon.err.ERROR_DUPLICATE_FIELD_VALUE(field))

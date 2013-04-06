@@ -20,10 +20,9 @@
 
 """Supporting library for the Avalon Music Server."""
 
-
 __all__ = [
     'DEFAULT_ENCODING',
-    ]
+]
 
 
 # Character sets are hard, let's go shopping!

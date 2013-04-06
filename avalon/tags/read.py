@@ -22,7 +22,6 @@
 either the TagPy or Mutagen libraries.
 """
 
-
 import collections
 import re
 from datetime import datetime
@@ -30,16 +29,12 @@ from datetime import datetime
 try:
     import mutagen
 except ImportError:
-    _have_mutagen = False
-else:
-    _have_mutagen = True
+    mutagen = None
 
 try:
     import tagpy
 except ImportError:
-    _have_tagpy = False
-else:
-    _have_tagpy = True
+    tagpy = None
 
 import avalon
 
@@ -54,7 +49,7 @@ __all__ = [
     'read_mutagen',
     'from_tagpy',
     'from_mutagen'
-    ]
+]
 
 
 class Metadata(collections.namedtuple('_Metadata', [
@@ -70,7 +65,6 @@ class Metadata(collections.namedtuple('_Metadata', [
 
 
 class MetadataLoader(object):
-
     """Use a given reader and factory method to load
     audio metadata based on the file path.
     """
@@ -96,9 +90,9 @@ def new_loader():
     tag libraries are available. Raise a NotImplementedError
     if neither TagPy or Mutagen is installed.
     """
-    if _have_mutagen:
+    if mutagen is not None:
         return MetadataLoader(read_mutagen, from_mutagen)
-    elif _have_tagpy:
+    elif tagpy is not None:
         return MetadataLoader(read_tagpy, from_tagpy)
     raise NotImplementedError("Did not find supported tag library")
 
@@ -134,7 +128,6 @@ def read_mutagen(path, impl=None):
 
 
 class MetadataDateParser(object):
-    
     """Parser for extracing the year of a track
 
     Some audio tags have entire timestamps for the date instead
@@ -164,7 +157,6 @@ class MetadataDateParser(object):
 
 
 class MetadataTrackParser(object):
-    
     """Parser for extracting the number of a track.
     
     Some audio tags have less than perfect data for track numbers

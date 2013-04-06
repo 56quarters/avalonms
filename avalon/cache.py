@@ -20,7 +20,6 @@
 
 """Various in-memory stores for metadata."""
 
-
 import collections
 
 from avalon.models import Album, Artist, Genre, Track
@@ -34,11 +33,10 @@ __all__ = [
     'IdLookupCache',
     'TrackStore',
     'get_frozen_mapping'
-    ]
+]
 
 
 class IdLookupCache(object):
-
     """Cache for looking up the primary key of albums, artists,
     and genres based on their name.
     """
@@ -106,7 +104,6 @@ def get_frozen_mapping(table):
 
 
 class TrackStore(object):
-
     """ In-memory store for TrackElm objects and methods to fetch
     them by their attributes.
     """
@@ -127,7 +124,7 @@ class TrackStore(object):
         up track elements by their attributes.
         """
         session = self._session_handler.get_session()
-        
+
         try:
             res = session.query(Track).all()
         finally:
@@ -183,7 +180,6 @@ class TrackStore(object):
 
 
 class _IdNameStore(object):
-
     """Base store for any ID and name element."""
 
     def __init__(self, session_handler, cls):
@@ -198,7 +194,7 @@ class _IdNameStore(object):
     def reload(self):
         """Atomically populate all elements of the given type."""
         session = self._session_handler.get_session()
-        
+
         try:
             res = session.query(self._cls).all()
         finally:
@@ -227,7 +223,6 @@ class _IdNameStore(object):
 
 
 class AlbumStore(_IdNameStore):
-
     """In-memory store for Album models using IdNameElm."""
 
     def __init__(self, session_handler):
@@ -235,7 +230,6 @@ class AlbumStore(_IdNameStore):
 
 
 class ArtistStore(_IdNameStore):
-
     """In-memory store for Artist models using IdNameElm."""
 
     def __init__(self, session_handler):
@@ -243,7 +237,6 @@ class ArtistStore(_IdNameStore):
 
 
 class GenreStore(_IdNameStore):
-
     """In-memory store for Genre models using IdNameElm."""
 
     def __init__(self, session_handler):

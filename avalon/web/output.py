@@ -22,7 +22,6 @@
 and then rendering them as JSON.
 """
 
-
 import uuid
 
 import cherrypy
@@ -38,11 +37,10 @@ __all__ = [
     'JsonEncoder',
     'JsonHandler',
     'RequestOutput'
-    ]
+]
 
 
 class JsonHandler(object):
-
     """Adapter to use our own JSON encoder with CherryPy."""
 
     def __init__(self, encoder):
@@ -56,7 +54,6 @@ class JsonHandler(object):
 
 
 class JsonEncoder(simplejson.JSONEncoder):
-
     """Avalon specific JSON encoder."""
 
     def default(self, o):
@@ -83,7 +80,6 @@ def render(results=None, error=None):
 
 
 class RequestOutput(object):
-
     """Format results or errors encountered using builtin
     structures and types (mostly).
     """
@@ -99,20 +95,20 @@ class RequestOutput(object):
             'is_error': False,
             'error_name': '',
             'error_msg': ''
-            }
+        }
         if self.error is not None:
             out['is_error'] = True
             out['error_name'] = self.error.name
             out['error_msg'] = self.error.message
         return out
-        
+
     def _format_results(self):
         """Format query results (if any)."""
         out = {
             'result_count': 0,
             'results': []
-            }
-        
+        }
+
         if self.results is not None:
             out['result_count'] = len(self.results)
             out['results'] = self.results
@@ -131,5 +127,5 @@ class RequestOutput(object):
             'error_msg': err['error_msg'],
             'result_count': res['result_count'],
             'results': res['results']
-            }
+        }
 

@@ -20,7 +20,6 @@
 
 """Errors thrown by the Avalon music server."""
 
-
 __all__ = [
     'ApiError',
     'AvalonError',
@@ -29,11 +28,10 @@ __all__ = [
     'InvalidParameterError',
     'PermissionError',
     'ServerNotReadyError'
-    ]
+]
 
 
 class AvalonError(Exception):
-    
     """Base for all exceptions."""
 
     def __init__(self, msg, err=None):

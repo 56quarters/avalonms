@@ -20,7 +20,6 @@
 
 """Factory methods for the major components of the music server."""
 
-
 import pkgutil
 import threading
 from datetime import datetime
@@ -45,7 +44,7 @@ __all__ = [
     'new_handler',
     'new_server',
     'new_plugin_engine'
-    ]
+]
 
 
 def new_logger(app_config, logger_root):

@@ -20,16 +20,14 @@
 
 """Functionality for loading various audio tag metadata into the database."""
 
-
 __all__ = [
     'TrackFieldLoader',
     'TrackLoader',
     'Cleaner'
-    ]
+]
 
 
 class TrackFieldLoader(object):
-
     """Create and insert entries for the associated data for each
     tag (albums, artists, genres).
     """
@@ -74,7 +72,6 @@ class TrackFieldLoader(object):
 
 
 class TrackLoader(object):
-
     """Create and insert entries for each tag and associated IDs."""
 
     def __init__(self, session_handler, tags, id_cache):
@@ -90,7 +87,7 @@ class TrackLoader(object):
         """
         queue = []
         for tag in self._tags:
-            queue.append(self._get_new_obj(cls, id_gen, tag)) 
+            queue.append(self._get_new_obj(cls, id_gen, tag))
 
         session = self._session_handler.get_session()
         try:
@@ -118,7 +115,6 @@ class TrackLoader(object):
 
 
 class Cleaner(object):
-
     """Cleaner for removing already inserted entities."""
 
     def __init__(self, session_handler):

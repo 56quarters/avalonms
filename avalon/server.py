@@ -20,7 +20,6 @@
 
 """HTTP server for running the request handler application."""
 
-
 import logging
 import traceback
 
@@ -30,11 +29,10 @@ from cherrypy.wsgiserver import CherryPyWSGIServer
 __all__ = [
     'AvalonServer',
     'AvalonServerConfig'
-    ]
+]
 
 
 class AvalonServerConfig(object):
-
     """Configuration for our HTTP server."""
 
     def __init__(self):
@@ -46,7 +44,6 @@ class AvalonServerConfig(object):
 
 
 class AvalonServer(CherryPyWSGIServer):
-
     """Wrap the standard CherryPy server to use our own error
     logging mechanism.
     """
@@ -58,7 +55,7 @@ class AvalonServer(CherryPyWSGIServer):
             config.application,
             numthreads=config.num_threads,
             request_queue_size=config.queue_size)
-        
+
         self._app = config.application.root
         self._log = config.log
         self.socket = None
@@ -83,7 +80,7 @@ class AvalonServer(CherryPyWSGIServer):
         """Run the server forever."""
         self._log.info('HTTP server handling requests...')
         super(AvalonServer, self).start()
-        
+
     def stop(self):
         """Stop the server."""
         self._log.info('Stopping HTTP server...')

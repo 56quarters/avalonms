@@ -53,11 +53,10 @@ __all__ = [
     'PluginEngineConfig ',
     'ServerPlugin',
     'LogPlugin'
-    ]
+]
 
 
 class PluginEngineConfig(object):
-
     """Configuration for the message bus wrapper."""
 
     def __init__(self):
@@ -68,7 +67,6 @@ class PluginEngineConfig(object):
 
 
 class PluginEngine(object):
-
     """Manage optional and required subscribers to a message bus.
 
     Allow optional plugins to be registered with the bus and
@@ -186,7 +184,6 @@ class PluginEngine(object):
 
 
 class CollectionScanPlugin(cherrypy.process.plugins.SimplePlugin):
-
     """Read audio metadata from files in the collection and insert it
     into the database.
     """
@@ -241,7 +238,6 @@ class CollectionScanPlugin(cherrypy.process.plugins.SimplePlugin):
 
 
 class DummyCollectionScanPlugin(cherrypy.process.plugins.SimplePlugin):
-
     """Fake collection scanning plugin that just forces a graceful
     of the server to reload in-memory data stores.
     """
@@ -262,7 +258,6 @@ class DummyCollectionScanPlugin(cherrypy.process.plugins.SimplePlugin):
 
 
 class DaemonPlugin(cherrypy.process.plugins.SimplePlugin):
-
     """Adapt the python-daemon lib to work as a CherryPy plugin."""
 
     def __init__(self, bus, files=None):
@@ -286,7 +281,6 @@ class DaemonPlugin(cherrypy.process.plugins.SimplePlugin):
 
 
 class FilePermissionPlugin(cherrypy.process.plugins.SimplePlugin):
-
     """Change the ownership of files so that we retain access
     even after dropping root privileges.
     """
@@ -326,7 +320,6 @@ class FilePermissionPlugin(cherrypy.process.plugins.SimplePlugin):
 
 
 class ServerPlugin(cherrypy.process.servers.ServerAdapter):
-
     """Adapter between our HTTP server and the CherryPy bus system."""
 
     def subscribe(self):
@@ -341,7 +334,6 @@ class ServerPlugin(cherrypy.process.servers.ServerAdapter):
 
 
 class LogPlugin(cherrypy.process.plugins.SimplePlugin):
-
     """Adapter to allow our logger to be used as a CherryPy
     plugin for the bus system.
 

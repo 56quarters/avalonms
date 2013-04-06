@@ -20,7 +20,6 @@
 
 """Text searching functionality."""
 
-
 from unicodedata import normalize, category
 
 
@@ -30,7 +29,7 @@ __all__ = [
     'AvalonTextSearch',
     'SearchTrie',
     'TrieNode'
-    ]
+]
 
 
 def searchable(s):
@@ -64,7 +63,6 @@ def strip_accents(s):
 # memory optimizations for the TrieNode class mean the SearchTrie takes up
 # 25MB of memory vs 200MB for the naive implementation.
 class TrieNode(object):
-
     """Node in a trie that represents a particular path through
     the trie.
 
@@ -133,7 +131,6 @@ class TrieNode(object):
 
 
 class SearchTrie(object):
-
     """Search trie structure with functionality for building an index
     for text matching and querying it.
 
@@ -228,7 +225,6 @@ class SearchTrie(object):
 
 
 class AvalonTextSearch(object):
-
     """Methods for searching basic or track elements based on
     text matching.
     """
@@ -254,9 +250,9 @@ class AvalonTextSearch(object):
     def size(self):
         """Return the total number of nodes used by the search index."""
         return self._album_search.size() + \
-            self._artist_search.size() + \
-            self._genre_search.size() + \
-            self._track_search.size()
+               self._artist_search.size() + \
+               self._genre_search.size() + \
+               self._track_search.size()
 
     def reload(self):
         """Rebuild the search indexes for the collection."""
@@ -299,7 +295,7 @@ class AvalonTextSearch(object):
         trie.add(term, elm)
         for part in parts:
             trie.add(part, elm)
-        # Skipping the first and last elements since they are covered by
+            # Skipping the first and last elements since they are covered by
         # indexing the entire term and each part of the term (respectively)
         for i in range(1, len(parts) - 1):
             trie.add(' '.join(parts[i:]), elm)

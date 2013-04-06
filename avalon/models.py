@@ -23,7 +23,6 @@ Models representing types of metadata loaded from a music collection
 along with functionality to manage connections to the backing database.
 """
 
-
 import uuid
 
 from sqlalchemy import (
@@ -54,7 +53,7 @@ __all__ = [
     'SessionHandlerConfig',
     'Track',
     'UuidType'
-    ]
+]
 
 
 class UuidType(TypeDecorator):
@@ -86,7 +85,6 @@ class UuidType(TypeDecorator):
 
 
 class _Base(object):
-
     """A base for all models that defines name and id fields."""
 
     id = Column(UuidType, primary_key=True)
@@ -97,11 +95,10 @@ Base = declarative_base(cls=_Base)
 
 
 class Track(Base):
-    
     """Model representing metadata of a media file with
     relations to other entities (album, artist, genre).
     """
-    
+
     __tablename__ = 'tracks'
 
     length = Column(Integer)
@@ -118,21 +115,18 @@ class Track(Base):
 
 
 class Album(Base):
-    
     """Model that represents the album of a song."""
-    
+
     __tablename__ = 'albums'
 
 
 class Artist(Base):
-
     """Model that represents the artist of a song."""
 
     __tablename__ = 'artists'
 
 
 class Genre(Base):
-
     """Model that represents the genre of a song."""
 
     __tablename__ = 'genres'
@@ -159,7 +153,6 @@ def get_session_factory():
 
 
 class SessionHandlerConfig(object):
-
     """Configuration for the handler."""
 
     def __init__(self):
@@ -170,7 +163,6 @@ class SessionHandlerConfig(object):
 
 
 class SessionHandler(object):
-
     """Wrapper for connecting to a database and generating
     new sessions.
     """
@@ -213,7 +205,7 @@ class SessionHandler(object):
     def validate(self):
         """Ensure our database engine is valid by attempting a connection."""
         conn = None
-        
+
         try:
             conn = self._engine.connect()
         finally:
