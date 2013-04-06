@@ -3,4 +3,3 @@ python-daemon
 simplejson
 sqlalchemy
 mutagen
-argparse
