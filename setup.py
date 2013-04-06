@@ -24,6 +24,7 @@ from __future__ import print_function
 import os
 import re
 import subprocess
+import sys
 
 try:
     from setuptools import setup, Command
@@ -44,8 +45,7 @@ CLASSIFIERS = [
     "Operating System :: POSIX",
     "Topic :: Internet :: WWW/HTTP",
     "Topic :: Multimedia :: Sound/Audio"
-    ]
-
+]
 
 _VERSION_FILE = 'VERSION'
 
@@ -67,7 +67,6 @@ def get_contents(filename):
 
 
 class VersionGenerator(Command):
-
     """Command to generate the current release from git."""
 
     description = "Generate the release version from a git tag"
@@ -111,14 +110,13 @@ class VersionGenerator(Command):
 
 
 class StaticCompilation(Command):
-
     """Command to compress and concatenate CSS and JS"""
 
     description = "Build static assets for the status page"
 
     user_options = [
         ('static-base=', None, 'Base directory for CSS and JS directories'),
-        ('css-files=', None, 'List of CSS files to concatenate and compress (comma separated, relative to `static-base`)'),
+        ('css-files=', None,'List of CSS files to concatenate and compress (comma separated, relative to `static-base`)'),
         ('css-output=', None, 'Name of the final CSS output file (file only, no path)'),
         ('js-files=', None, 'List of JS files to concatenate and compress (comma separated, relative to `static-base`)'),
         ('js-output=', None, 'Name of the final JS output file (file only, no path)'),
@@ -176,16 +174,24 @@ class StaticCompilation(Command):
         self._compress_all(self.js_files, self.js_output)
 
 
-REQUIRES = get_requires('requires.txt')
+# If this is a version of Python prior to 2.7, argparse was
+# not included in the standard library and we must list it as
+# an installation dependency.
+_python_version = (sys.version_info[0], sys.version_info[1])
+_argparse_included = (2, 7)
+
+REQUIRES = get_requires('requirements.txt')
+
+if _python_version < _argparse_included:
+    REQUIRES.extend(get_requires('conditional-requirements.txt'))
+
 README = get_contents('README.rst')
 VERSION = None
-
 
 try:
     VERSION = get_contents(_VERSION_FILE)
 except IOError:
     pass
-
 
 setup(
     name='avalonms',
@@ -203,11 +209,11 @@ setup(
     install_requires=REQUIRES,
     packages=['avalon', 'avalon.app', 'avalon.tags', 'avalon.web'],
     package_data={'avalon.web': [
-            'data/status.html',
-            'data/config.ini',
-            'data/css/*.css',
-            'data/js/*.js',
-            'data/img/*.png'
-            ]},
+        'data/status.html',
+        'data/config.ini',
+        'data/css/*.css',
+        'data/js/*.js',
+        'data/img/*.png'
+    ]},
     scripts=[os.path.join('bin', 'avalonmsd')])
 
