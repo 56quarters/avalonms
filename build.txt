@@ -1,2 +1,0 @@
-git tag avalonms-0.2.6
-make release
