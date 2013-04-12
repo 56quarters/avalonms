@@ -1,5 +1,8 @@
-cherrypy>=3.2.2
-python-daemon
-simplejson
-sqlalchemy
-mutagen
+argparse==1.2.1
+CherryPy==3.2.2
+SQLAlchemy==0.7.9
+lockfile==0.9.1
+mutagen==1.20
+python-daemon==1.6
+simplejson==3.0.7
+

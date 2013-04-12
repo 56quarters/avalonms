@@ -22,7 +22,6 @@
 from __future__ import print_function
 
 import os
-import re
 import subprocess
 import sys
 
@@ -48,16 +47,6 @@ CLASSIFIERS = [
 ]
 
 _VERSION_FILE = 'VERSION'
-
-
-def get_requires(filename):
-    """Get the required packages from the pip file."""
-    out = []
-    with open(filename, 'rb') as handle:
-        for line in handle:
-            package, _ = re.split('[^\w\-]', line, 1)
-            out.append(package.strip())
-    return out
 
 
 def get_contents(filename):
@@ -186,10 +175,17 @@ class StaticCompilation(Command):
 _python_version = (sys.version_info[0], sys.version_info[1])
 _argparse_included = (2, 7)
 
-REQUIRES = get_requires('requirements.txt')
+REQUIRES = [
+    'cherrypy',
+    'lockfile',
+    'mutagen',
+    'python-daemon',
+    'simplejson',
+    'sqlalchemy'
+]
 
 if _python_version < _argparse_included:
-    REQUIRES.extend(get_requires('conditional-requirements.txt'))
+    REQUIRES.extend('argparse')
 
 README = get_contents('README.rst')
 VERSION = None
