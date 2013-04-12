@@ -9,11 +9,15 @@ import pytest
 import sqlalchemy.exc
 
 import avalon.cache
+import avalon.ids
 import avalon.models
 import avalon.tags.insert
 
 
 class DummySession(object):
+    """Allow tests to mock the needed methods from an
+    SQLAlchemy session object.
+    """
 
     def query(self, cls):
         pass
@@ -29,12 +33,18 @@ class DummySession(object):
 
 
 class DummyQuery(object):
+    """Allow tests to mock the needed methods from an
+    SQLAlchemy query object.
+    """
 
     def delete(self):
         pass
 
 
 class MockTag(object):
+    """Allow tests to mock the result of calling a audio tag
+    implementation.
+    """
 
     def __init__(self):
         self.path = None
@@ -45,10 +55,6 @@ class MockTag(object):
         self.track = None
         self.year = None
         self.length = None
-
-
-def id_gen_mock(val):
-    return None
 
 
 class TestCleaner(object):
@@ -119,11 +125,12 @@ class TestTrackFieldLoader(object):
 
         session_handler = self.mox.CreateMock(avalon.models.SessionHandler)
         model_cls = self.mox.CreateMockAnything(avalon.models.Album)
+        id_gen = self.mox.CreateMockAnything(avalon.ids.get_album_id)
 
         inserter = avalon.tags.insert.TrackFieldLoader(session_handler, [tag])
 
         with pytest.raises(AttributeError):
-            inserter.insert(model_cls, id_gen_mock, 'blah')
+            inserter.insert(model_cls, id_gen, 'blah')
         self.mox.VerifyAll()
 
     def test_insert_invalid_attribute_error_unicode_path(self):
@@ -143,11 +150,12 @@ class TestTrackFieldLoader(object):
 
         session_handler = self.mox.CreateMock(avalon.models.SessionHandler)
         model_cls = self.mox.CreateMockAnything(avalon.models.Album)
+        id_gen = self.mox.CreateMockAnything(avalon.ids.get_album_id)
 
         inserter = avalon.tags.insert.TrackFieldLoader(session_handler, [tag])
 
         with pytest.raises(AttributeError):
-            inserter.insert(model_cls, id_gen_mock, 'blah')
+            inserter.insert(model_cls, id_gen, 'blah')
         self.mox.VerifyAll()
 
     def test_insert_duplicate_ids_one_insert(self):
@@ -176,7 +184,7 @@ class TestTrackFieldLoader(object):
 
         session_handler = self.mox.CreateMock(avalon.models.SessionHandler)
         session = self.mox.CreateMock(DummySession)
-        id_gen = self.mox.CreateMockAnything(id_gen_mock)
+        id_gen = self.mox.CreateMockAnything(avalon.ids.get_album_id)
         model_cls = self.mox.CreateMockAnything(avalon.models.Album)
         model1 = self.mox.CreateMock(avalon.models.Album)
         model2 = self.mox.CreateMock(avalon.models.Album)
@@ -216,7 +224,7 @@ class TestTrackFieldLoader(object):
 
         session_handler = self.mox.CreateMock(avalon.models.SessionHandler)
         session = self.mox.CreateMock(DummySession)
-        id_gen = self.mox.CreateMockAnything(id_gen_mock)
+        id_gen = self.mox.CreateMockAnything(avalon.ids.get_album_id)
         model_cls = self.mox.CreateMockAnything(avalon.models.Album)
         model = self.mox.CreateMock(avalon.models.Album)
 
@@ -252,7 +260,7 @@ class TestTrackFieldLoader(object):
 
         session_handler = self.mox.CreateMock(avalon.models.SessionHandler)
         session = self.mox.CreateMock(DummySession)
-        id_gen = self.mox.CreateMockAnything(id_gen_mock)
+        id_gen = self.mox.CreateMockAnything(avalon.ids.get_album_id)
         model_cls = self.mox.CreateMockAnything(avalon.models.Album)
         model = self.mox.CreateMock(avalon.models.Album)
 
@@ -303,10 +311,10 @@ class TestTrackLoader(object):
         cache.get_genre_id(u'Hardcore').AndReturn(hardcore)
 
     def test_insert_commit_error_session_closed(self):
-            """Test that errors inserting tags do not results in leaking
-            database connections.
-            """
-            pass
+        """Test that errors inserting tags do not results in leaking
+        database connections.
+        """
+        pass
 
 
 
