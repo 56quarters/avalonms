@@ -24,8 +24,8 @@ init:
 	pip install -r requires.txt
 
 push:
-	git push origin
-	git push github
+	git push origin master
+	git push github master
 
 release: tags
 	python setup.py version
