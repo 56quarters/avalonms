@@ -295,7 +295,7 @@ class AvalonTextSearch(object):
         trie.add(term, elm)
         for part in parts:
             trie.add(part, elm)
-            # Skipping the first and last elements since they are covered by
+        # Skipping the first and last elements since they are covered by
         # indexing the entire term and each part of the term (respectively)
         for i in range(1, len(parts) - 1):
             trie.add(' '.join(parts[i:]), elm)
