@@ -225,14 +225,21 @@ class SearchTrie(object):
 
 
 class AvalonTextSearch(object):
-    """Methods for searching basic or track elements based on
-    text matching.
+    """Reloadable in-memory store of search structures for albums,
+    artists, genres, and songs.
+
+    Search indexes are constructed when instances of the store are
+    created and when the .reload() method is called subsequently.
+
+    Values used to build the indexes are normalized via the searchable()
+    function as well as any queries against the indexes.
     """
 
     def __init__(self, album_store, artist_store, genre_store,
                  track_store, trie_factory):
-        """Set the backing stores for searching and use them
-        to build a search index for the music collection.
+        """Set the backing stores and new search trie factory for
+        searching and use them to build a search index for the music
+        collection.
         """
         self._album_store = album_store
         self._artist_store = artist_store
@@ -248,11 +255,11 @@ class AvalonTextSearch(object):
         self.reload()
 
     def size(self):
-        """Return the total number of nodes used by the search index."""
+        """Return the total number of nodes used by the search indexes."""
         return self._album_search.size() + \
-               self._artist_search.size() + \
-               self._genre_search.size() + \
-               self._track_search.size()
+            self._artist_search.size() + \
+            self._genre_search.size() + \
+            self._track_search.size()
 
     def reload(self):
         """Rebuild the search indexes for the collection."""

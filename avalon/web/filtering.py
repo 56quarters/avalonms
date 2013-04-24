@@ -18,7 +18,7 @@
 #
 
 
-"""Callbacks for sorting and limiting the result set."""
+"""Callbacks for sorting and limiting result sets."""
 
 import avalon.err
 import avalon.exc
@@ -48,6 +48,10 @@ class _SortHelper(object):
     def __call__(self, obj1, obj2):
         """Return the results of cmp() on the field of
         the two given objects.
+
+        NOTE: We're not handling any potential AttributeError
+        exceptions here on purpose since we want the caller to
+        handle that as an invalid field.
         """
         val1 = getattr(obj1, self.field)
         val2 = getattr(obj2, self.field)

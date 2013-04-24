@@ -18,7 +18,7 @@
 #
 
 
-"""API endpoints for the in-memory stores."""
+"""API endpoints for the in-memory meta data stores."""
 
 import functools
 from datetime import datetime
@@ -147,7 +147,7 @@ class AvalonApiEndpoints(object):
         if sets:
             # Return the intersection of any non-None sets
             return intersection(sets)
-            # There were no parameters to filter songs by any criteria
+        # There were no parameters to filter songs by any criteria
         return self._tracks.all()
 
 

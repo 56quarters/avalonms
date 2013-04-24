@@ -19,7 +19,7 @@
 
 
 """Methods for converting results or errors to a serializable format
-and then rendering them as JSON.
+and rendering them as JSON.
 """
 
 import uuid

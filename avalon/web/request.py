@@ -18,7 +18,7 @@
 #
 
 
-"""Methods for accessing request parameters and altering the reponse code."""
+"""Methods for accessing request parameters."""
 
 import uuid
 
