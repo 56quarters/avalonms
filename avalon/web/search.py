@@ -225,8 +225,8 @@ class SearchTrie(object):
 
 
 class AvalonTextSearch(object):
-    """Reloadable in-memory store of search structures for albums,
-    artists, genres, and songs.
+    """Reloadable, thread-safe, in-memory store of search indexes for
+    albums, artists, genres, and songs.
 
     Search indexes are constructed when instances of the store are
     created and when the .reload() method is called subsequently.
