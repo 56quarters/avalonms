@@ -18,7 +18,7 @@
 #
 
 
-"""Plugins the provide the functionality of the music server as subscribers
+"""Plugins that provide the functionality of the music server as subscribers
 to a message bus.
 """
 
