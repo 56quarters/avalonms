@@ -194,7 +194,7 @@ _track_parser = MetadataTrackParser(re.match)
 _date_parser = MetadataDateParser(datetime.strptime)
 
 
-def _norm_list_str(val):
+def _get_str_val(val):
     """Convert a possibly-None single element list into a unicode
     string.
     """
@@ -203,7 +203,7 @@ def _norm_list_str(val):
     return unicode(val[0])
 
 
-def _norm_list_track(val):
+def _get_track_val(val):
     """Convert a possibly-None single element list into a track 
     number (integer).
     """
@@ -212,7 +212,7 @@ def _norm_list_track(val):
     return _track_parser.parse(val[0])
 
 
-def _norm_list_date(val):
+def _get_date_val(val):
     """Convert a possibly-None single element list into a year 
     (integer).
     """
@@ -243,11 +243,11 @@ def from_mutagen(path, meta):
     audio = meta.info
     return Metadata(
         path=path,
-        album=_norm_list_str(meta.get('album')),
-        artist=_norm_list_str(meta.get('artist')),
-        genre=_norm_list_str(meta.get('genre')),
+        album=_get_str_val(meta.get('album')),
+        artist=_get_str_val(meta.get('artist')),
+        genre=_get_str_val(meta.get('genre')),
         length=int(audio.length),
-        title=_norm_list_str(meta.get('title')),
-        track=_norm_list_track(meta.get('tracknumber')),
-        year=_norm_list_date(meta.get('date')))
+        title=_get_str_val(meta.get('title')),
+        track=_get_track_val(meta.get('tracknumber')),
+        year=_get_date_val(meta.get('date')))
 
