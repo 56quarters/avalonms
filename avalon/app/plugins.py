@@ -89,7 +89,7 @@ class PluginEngine(object):
 
     def enable_server(self):
         """Enable and configure the web server plugin (enabled by default)."""
-        h = avalon.app.plugins.ServerPlugin(
+        h = ServerPlugin(
             self._bus,
             httpserver=self._server,
             bind_addr=self._server.bind_addr)
@@ -97,7 +97,7 @@ class PluginEngine(object):
 
     def enable_logger(self):
         """Enable the logging plugin (enabled by default)."""
-        h = avalon.app.plugins.LogPlugin(self._bus, self._log)
+        h = LogPlugin(self._bus, self._log)
         h.subscribe()
 
     def enable_daemon(self, uid, gid, required_files):
@@ -105,7 +105,7 @@ class PluginEngine(object):
         mode (not enabled by default)."""
         # Daemon mode entails the actual daemonization process
         # which includes preserving any open file descriptors.
-        h = avalon.app.plugins.DaemonPlugin(
+        h = DaemonPlugin(
             self._bus,
             # File handles of files that the application has open
             # right now that need to be preserved as part of the
@@ -120,7 +120,7 @@ class PluginEngine(object):
         # Set the logs and database to be owned by the user we will
         # be switching to since we need write access as the non-super
         # user.
-        h = avalon.app.plugins.FilePermissionPlugin(
+        h = FilePermissionPlugin(
             self._bus,
             # Files that may not be open right now but need to be
             # writable by the server once we switch to a different
@@ -145,7 +145,7 @@ class PluginEngine(object):
         """Subscribe a listener on the bus to scan (or rescan) the music
         collection (not enabled by default).
         """
-        h = avalon.app.plugins.CollectionScanPlugin(
+        h = CollectionScanPlugin(
             self._bus,
             collection=root,
             db=self._db,
@@ -157,7 +157,7 @@ class PluginEngine(object):
         """Dummy scanner to force a cache reload if the music collection
         isn't already being scanned for real.
         """
-        h = avalon.app.plugins.DummyCollectionScanPlugin(
+        h = DummyCollectionScanPlugin(
             self._bus,
             log=self._log)
         h.subscribe()
