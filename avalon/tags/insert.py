@@ -85,13 +85,13 @@ class TrackLoader(object):
         given model class and ID generator along with associated
         IDs for albums, artists, and genres.
         """
-        queue = []
+        queued = []
         for tag in self._tags:
-            queue.append(self._get_new_obj(cls, id_gen, tag))
+            queued.append(self._get_new_obj(cls, id_gen, tag))
 
         session = self._session_handler.get_session()
         try:
-            session.add_all(queue)
+            session.add_all(queued)
             session.commit()
         finally:
             self._session_handler.close(session)

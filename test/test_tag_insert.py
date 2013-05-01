@@ -310,11 +310,69 @@ class TestTrackLoader(object):
         cache.get_artist_id(u'A Wilhelm Scream').AndReturn(a_wilhelm_scream)
         cache.get_genre_id(u'Hardcore').AndReturn(hardcore)
 
+        session_handler = self.mox.CreateMock(avalon.models.SessionHandler)
+        session = self.mox.CreateMock(DummySession)
+        id_gen = self.mox.CreateMockAnything(avalon.ids.get_track_id)
+        model_cls = self.mox.CreateMockAnything(avalon.models.Track)
+        model = self.mox.CreateMock(avalon.models.Track)
+
+        model_cls().AndReturn(model)
+        id_gen(mox.IsA(unicode)).AndReturn(uuid.UUID('450b3e88-01e0-537a-80cd-c8692c903c76'))
+
+        session_handler.get_session().AndReturn(session)
+        session.add_all([model])
+        session.commit()
+        session_handler.close(session)
+
+        self.mox.ReplayAll()
+
+        inserter = avalon.tags.insert.TrackLoader(session_handler, [tag], cache)
+        inserter.insert(model_cls, id_gen)
+        self.mox.VerifyAll()
+
     def test_insert_commit_error_session_closed(self):
         """Test that errors inserting tags do not results in leaking
         database connections.
         """
-        pass
+        ruiner = uuid.UUID('350c49d9-fa38-585a-a0d9-7343c8b910ed')
+        a_wilhelm_scream = uuid.UUID('aa143f55-65e3-59f3-a1d8-36eac7024e86')
+        hardcore = uuid.UUID('54cde78b-6d4b-5634-a666-cb7fa674c73f')
+
+        tag = MockTag()
+        tag.path = u'/home/something/music/song.flac'
+        tag.album = u'Ruiner'
+        tag.artist = u'A Wilhelm Scream'
+        tag.genre = u'Hardcore'
+        tag.length = 150
+        tag.title = u'The Soft Sell'
+        tag.track = 4
+        tag.year = 2005
+
+        cache = self.mox.CreateMock(avalon.cache.IdLookupCache)
+        cache.get_album_id(u'Ruiner').AndReturn(ruiner)
+        cache.get_artist_id(u'A Wilhelm Scream').AndReturn(a_wilhelm_scream)
+        cache.get_genre_id(u'Hardcore').AndReturn(hardcore)
+
+        session_handler = self.mox.CreateMock(avalon.models.SessionHandler)
+        session = self.mox.CreateMock(DummySession)
+        id_gen = self.mox.CreateMockAnything(avalon.ids.get_track_id)
+        model_cls = self.mox.CreateMockAnything(avalon.models.Track)
+        model = self.mox.CreateMock(avalon.models.Track)
+
+        model_cls().AndReturn(model)
+        id_gen(mox.IsA(unicode)).AndReturn(uuid.UUID('450b3e88-01e0-537a-80cd-c8692c903c76'))
+
+        session_handler.get_session().AndReturn(session)
+        session.add_all([model])
+        session.commit().AndRaise(sqlalchemy.exc.NoSuchColumnError)
+        session_handler.close(session)
+
+        self.mox.ReplayAll()
+
+        inserter = avalon.tags.insert.TrackLoader(session_handler, [tag], cache)
+        with pytest.raises(sqlalchemy.exc.NoSuchColumnError):
+            inserter.insert(model_cls, id_gen)
+        self.mox.VerifyAll()
 
 
 
