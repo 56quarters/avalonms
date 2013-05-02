@@ -20,6 +20,10 @@
 
 """Functionality for loading various audio tag metadata into the database."""
 
+import sqlalchemy.exc
+
+import avalon.exc
+
 __all__ = [
     'TrackFieldLoader',
     'TrackLoader',
@@ -51,6 +55,8 @@ class TrackFieldLoader(object):
         try:
             session.add_all(queued.values())
             session.commit()
+        except sqlalchemy.exc.OperationalError, e:
+            raise avalon.exc.DatabaseError(str(e))
         finally:
             self._session_handler.close(session)
 
@@ -93,6 +99,8 @@ class TrackLoader(object):
         try:
             session.add_all(queued)
             session.commit()
+        except sqlalchemy.exc.OperationalError, e:
+            raise avalon.exc.DatabaseError(str(e))
         finally:
             self._session_handler.close(session)
 
@@ -127,6 +135,8 @@ class Cleaner(object):
         try:
             session.query(cls).delete()
             session.commit()
+        except sqlalchemy.exc.OperationalError, e:
+            raise avalon.exc.DatabaseError(str(e))
         finally:
             self._session_handler.close(session)
 

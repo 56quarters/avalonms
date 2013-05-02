@@ -26,6 +26,7 @@ __all__ = [
     'ConnectionError',
     'DatabaseError',
     'InvalidParameterError',
+    'OperationalError',
     'PermissionError',
     'ServerNotReadyError'
 ]
@@ -59,6 +60,13 @@ class DatabaseError(AvalonError):
 
 class ConnectionError(DatabaseError):
     """There was an error connecting to the database."""
+    pass
+
+
+class OperationalError(DatabaseError):
+    """There was an error performing an operation on the database
+    due to some external factor, something out of our control.
+    """
     pass
 
 

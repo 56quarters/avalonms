@@ -202,23 +202,39 @@ class CollectionScanPlugin(cherrypy.process.plugins.SimplePlugin):
         database.
         """
         self._log.info('Scanning music collection...')
+
         tag_loader = avalon.tags.read.new_loader()
         tag_crawler = avalon.tags.scan.TagCrawler(tag_loader, self._log)
         tag_files = avalon.tags.scan.get_files(os.path.abspath(self._collection))
         tag_metas = tag_crawler.get_tags(tag_files)
 
-        cleaner = avalon.tags.insert.Cleaner(self._db)
-        for cls in (Album, Artist, Genre, Track):
-            cleaner.clean_type(cls)
+        try:
+            cleaner = avalon.tags.insert.Cleaner(self._db)
+            for cls in (Album, Artist, Genre, Track):
+                cleaner.clean_type(cls)
+        except avalon.exc.DatabaseError, e:
+            self._log.error(
+                "There was an error attempting to remove old values "
+                "from the database and it may be in an inconsistent "
+                "state. Please correct the issue and retry the scan. "
+                "The error is: %s", str(e))
+            return
 
-        field_loader = avalon.tags.insert.TrackFieldLoader(self._db, tag_metas)
-        field_loader.insert(Album, avalon.ids.get_album_id, 'album')
-        field_loader.insert(Artist, avalon.ids.get_artist_id, 'artist')
-        field_loader.insert(Genre, avalon.ids.get_genre_id, 'genre')
+        try:
+            field_loader = avalon.tags.insert.TrackFieldLoader(self._db, tag_metas)
+            field_loader.insert(Album, avalon.ids.get_album_id, 'album')
+            field_loader.insert(Artist, avalon.ids.get_artist_id, 'artist')
+            field_loader.insert(Genre, avalon.ids.get_genre_id, 'genre')
 
-        id_cache = avalon.cache.IdLookupCache(self._db)
-        track_loader = avalon.tags.insert.TrackLoader(self._db, tag_metas, id_cache)
-        track_loader.insert(Track, avalon.ids.get_track_id)
+            id_cache = avalon.cache.IdLookupCache(self._db)
+            track_loader = avalon.tags.insert.TrackLoader(self._db, tag_metas, id_cache)
+            track_loader.insert(Track, avalon.ids.get_track_id)
+        except avalon.exc.DatabaseError, e:
+            self._log.error(
+                "There was an error attempting to insert new values "
+                "into the database and it may be in an inconsistent "
+                "state. Please correct the issue and retry the scan. "
+                "The error is: %s", str(e))
 
     # Set the rescan done as part of a graceful to a higher priority
     # than the server reload done for a graceful so that the new db
