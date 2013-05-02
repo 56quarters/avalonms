@@ -20,7 +20,6 @@
 
 """Factory methods for the major components of the music server."""
 
-import pkgutil
 import threading
 from datetime import datetime
 
