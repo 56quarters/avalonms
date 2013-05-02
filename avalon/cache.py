@@ -48,26 +48,26 @@ class IdLookupCache(object):
         self.reload()
 
     def _get_id(self, field, val):
-        """Get the ID associated with the give field and name, blank string if
+        """Get the UUID object associated with the give field and name, None if
         no ID is found.
         """
         try:
             return self._cache[field][val.lower()]
         except AttributeError:
-            return ''
+            return None
         except KeyError:
-            return ''
+            return None
 
     def get_album_id(self, val):
-        """Get the ID associated with an album name, blank string if no ID is found."""
+        """Get the UUID object associated with an album name, None if no ID is found."""
         return self._get_id('album', val)
 
     def get_artist_id(self, val):
-        """Get the ID associated with an artist name, blank string if no ID is found."""
+        """Get the UUID object associated with an artist name, None if no ID is found."""
         return self._get_id('artist', val)
 
     def get_genre_id(self, val):
-        """Get the ID associated with an genre name, blank string if no ID is found."""
+        """Get the UUID object associated with a genre name, None if no ID is found."""
         return self._get_id('genre', val)
 
     def reload(self):
