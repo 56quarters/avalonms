@@ -56,7 +56,7 @@ class TrackFieldLoader(object):
             session.add_all(queued.values())
             session.commit()
         except sqlalchemy.exc.OperationalError, e:
-            raise avalon.exc.DatabaseError(str(e))
+            raise avalon.exc.OperationalError(str(e))
         finally:
             self._session_handler.close(session)
 
@@ -100,7 +100,7 @@ class TrackLoader(object):
             session.add_all(queued)
             session.commit()
         except sqlalchemy.exc.OperationalError, e:
-            raise avalon.exc.DatabaseError(str(e))
+            raise avalon.exc.OperationalError(str(e))
         finally:
             self._session_handler.close(session)
 
@@ -136,7 +136,7 @@ class Cleaner(object):
             session.query(cls).delete()
             session.commit()
         except sqlalchemy.exc.OperationalError, e:
-            raise avalon.exc.DatabaseError(str(e))
+            raise avalon.exc.OperationalError(str(e))
         finally:
             self._session_handler.close(session)
 

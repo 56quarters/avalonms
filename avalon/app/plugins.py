@@ -212,7 +212,7 @@ class CollectionScanPlugin(cherrypy.process.plugins.SimplePlugin):
             cleaner = avalon.tags.insert.Cleaner(self._db)
             for cls in (Album, Artist, Genre, Track):
                 cleaner.clean_type(cls)
-        except avalon.exc.DatabaseError, e:
+        except avalon.exc.OperationalError, e:
             self._log.error(
                 "There was an error attempting to remove old values "
                 "from the database and it may be in an inconsistent "
@@ -229,7 +229,7 @@ class CollectionScanPlugin(cherrypy.process.plugins.SimplePlugin):
             id_cache = avalon.cache.IdLookupCache(self._db)
             track_loader = avalon.tags.insert.TrackLoader(self._db, tag_metas, id_cache)
             track_loader.insert(Track, avalon.ids.get_track_id)
-        except avalon.exc.DatabaseError, e:
+        except avalon.exc.OperationalError, e:
             self._log.error(
                 "There was an error attempting to insert new values "
                 "into the database and it may be in an inconsistent "
