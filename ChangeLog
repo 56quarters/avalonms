@@ -1,5 +1,10 @@
 ChangeLog for Avalon Music Server
 
+2013-05-20 - v0.2.22
+   * Handle database errors durning rescan better
+   * Various code quality improvements
+   * Improved test coverage
+
 2013-02-18 - v0.2.21
    * Bug fixes for the /heartbeat endpoint
    * JSON responses now set the correct encoding (UTF-8)

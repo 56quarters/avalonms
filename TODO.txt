@@ -1,21 +1,3 @@
-Bugs:
-* Handle errors during rescan better
-
-Cleanup:
-* avalon.app - Need tests?
-* avalon.cli - Need tests
-* avalon.elms - Need tests
-* avalon.err - OK?
-* avalon.exc - OK?
-* avalon.ids - Need tests
-* avalon.log - Need IoC
-* avalon.models - Need tests
-* avalon.server - Need tests
-* avalon.services - Need tests
-* avalon.tags - Need tests
-* avalon.util - Need tests
-* avalon.web - Need tests
-
 For v3:
 * Tests
 * Echonest integration
