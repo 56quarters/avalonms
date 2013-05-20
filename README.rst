@@ -5,7 +5,7 @@ The Avalon Music Server is an HTTP server that scans metadata from a music
 collection and exposes it as a JSON web service.
 
 The server is able to read metadata from ogg, flac, and mp3 files. Clients
-can then query the server to pull information about songs, albums, artists, 
+can then query the server for information about songs, albums, artists,
 and genres in the collection.
 
 
