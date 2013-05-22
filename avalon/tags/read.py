@@ -18,37 +18,23 @@
 #
 
 
-"""Functionality for reading audio metadata from local files using
-either the TagPy or Mutagen libraries.
-"""
+"""Functionality for reading audio metadata from local files using Mutagen."""
 
 import collections
+import datetime
 import re
-from datetime import datetime
 
-try:
-    import mutagen
-except ImportError:
-    mutagen = None
-
-try:
-    import tagpy
-except ImportError:
-    tagpy = None
+import mutagen
 
 import avalon
 
 
 __all__ = [
+    'new_loader',
     'Metadata',
     'MetadataLoader',
     'MetadataDateParser',
-    'MetadataTrackParser',
-    'new_loader',
-    'read_tagpy',
-    'read_mutagen',
-    'from_tagpy',
-    'from_mutagen'
+    'MetadataTrackParser'
 ]
 
 
@@ -64,115 +50,144 @@ class Metadata(collections.namedtuple('_Metadata', [
     """Container for metadata of an audio file"""
 
 
+def new_loader():
+    """Return a new :class:`MetadataLoader` using the concrete
+    mutagen implementation, the default avalon encoding for paths,
+    a default track parser, and default date parser.
+    """
+    track_parser = MetadataTrackParser(re.match)
+    date_parser = MetadataDateParser(datetime.strptime)
+    return MetadataLoader(
+        mutagen,
+        avalon.DEFAULT_ENCODING,
+        track_parser,
+        date_parser)
+
+
 class MetadataLoader(object):
-    """Use a given reader and factory method to load
-    audio metadata based on the file path.
+    """Loader for audio metadata that uses the Mutagen library and
+    given parsers to convert the metadata into a somewhat normalized
+    form (:class:`Metadata`).
     """
 
-    def __init__(self, reader, factory):
-        """Set the reader and factory callables to use (TagPy
-        or Mutagen based).
+    def __init__(self, impl, path_encoding, track_parser, date_parser):
+        """Set the Mutagen implementation, encoding to use for file paths,
+        track number parser, and date parser.
         """
-        self._reader = reader
-        self._factory = factory
+        self._impl = impl
+        self._path_encoding = path_encoding
+        self._track_parser = track_parser
+        self._date_parser = date_parser
 
     def get_from_path(self, path):
-        """Get a Metadata object representing the audio file at
-        the given path. Raise an IOError if there is an error
-        reading the file or it is not a valid type. Raise a 
-        ValueError if the tag contains invalid data.
+        """Return audio meta data of the given file in a normalized form
+         (:class:`Metadata`).
+
+         Raise a `ValueError` if there are errors encoding the file path.
+         Raise an `IOError` if the file cannot be opened or if it is an
+         invalid file type. Raise a `ValueError` if the track number or
+         year of the audio tag cannot be parsed.
+         """
+        return self._get_metadata(path, self._read_from_path(path))
+
+    def _read_from_path(self, path):
+        """Read a mutagen native for tag from the given path."""
+        try:
+            file_ref = self._impl.File(path.encode(self._path_encoding), easy=True)
+        except UnicodeError:
+            raise ValueError("Could not encode audio path [%s] to %s" % (path, self._path_encoding))
+        except IOError, e:
+            raise IOError("Could not open [%s]: %s" % (path, e.message))
+        if file_ref is None:
+            raise IOError("Invalid or unsupported audio file [%s]" % path)
+        return file_ref
+
+    def _get_metadata(self, path, file_ref):
+        """Convert a Mutagen tag object into a Metadata object.
         """
-        return self._factory(path, self._reader(path))
+        audio = file_ref.info
+        return Metadata(
+            path=path,
+            album=_get_str_val(file_ref.get('album')),
+            artist=_get_str_val(file_ref.get('artist')),
+            genre=_get_str_val(file_ref.get('genre')),
+            length=int(audio.length),
+            title=_get_str_val(file_ref.get('title')),
+            track=_get_int_val(file_ref.get('tracknumber'), self._track_parser),
+            year=_get_int_val(file_ref.get('date'), self._date_parser))
 
 
-def new_loader():
-    """Construct a new metadata loader based on which audio 
-    tag libraries are available. Raise a NotImplementedError
-    if neither TagPy or Mutagen is installed.
-    """
-    if mutagen is not None:
-        return MetadataLoader(read_mutagen, from_mutagen)
-    elif tagpy is not None:
-        return MetadataLoader(read_tagpy, from_tagpy)
-    raise NotImplementedError("Did not find supported tag library")
+def _get_str_val(val):
+    """Get a possibly `None` single element list as a `unicode` string"""
+    if val is None:
+        return unicode('')
+    return unicode(val[0])
 
 
-def read_tagpy(path, impl=None):
-    """Get a TagPy native tag representation"""
-    if impl is None:
-        impl = tagpy
-    try:
-        file_ref = impl.FileRef(path.encode(avalon.DEFAULT_ENCODING))
-    except UnicodeError, e:
-        raise IOError("Could not encode audio path [%s]" % e.message)
-    except ValueError:
-        raise IOError("Invalid or unsupported audio file [%s]" % path)
-    if file_ref.tag() is None:
-        raise IOError("Invalid or unsupported audio file [%s]" % path)
-    return file_ref
-
-
-def read_mutagen(path, impl=None):
-    """Get a Mutagen native tag representation"""
-    if impl is None:
-        impl = mutagen
-    try:
-        file_ref = impl.File(path.encode(avalon.DEFAULT_ENCODING), easy=True)
-    except UnicodeError, e:
-        raise IOError("Could not encode audio path [%s]", e.message)
-    except IOError, e:
-        raise IOError("Could not open [%s]: %s" % (path, e.message))
-    if file_ref is None:
-        raise IOError("Invalid or unsupported audio file [%s]" % path)
-    return file_ref
+def _get_int_val(val, parser):
+    """Get a possibly `None` single element list as an `int` by using
+     the given parser on the element of the list
+     """
+    if val is None:
+        return 0
+    return parser.parse(val[0])
 
 
 class MetadataDateParser(object):
-    """Parser for extracing the year of a track
+    """Parser for extracing the year of a track.
 
     Some audio tags have entire timestamps for the date instead
-    of just a year.
+    of just a year. Attempt to simply cast the year to an integer
+    if possible. If not possible, attempt to parse it using several
+    common timestamp formats (see :instance_attribute:`formats`).
     """
 
-    fmt_iso = '%Y-%m-%dT%H:%M:%S'
+    formats = frozenset([
+        '%Y-%m-%d %H:%M:%S',
+        '%Y-%m-%dT%H:%M:%S',
+        '%Y-%m-%dT%H:%M:%S%z'])
 
     def __init__(self, parser_impl):
         """Set the date parser which is expected to behave like
-        datetime.strptime().
+        `datetime.strptime`.
         """
         self._parser = parser_impl
 
     def parse(self, val):
         """Attempt to parse the given date string for a year, raise a
-        ValueError if the year could not be parsed.
+        `ValueError` if the year could not be parsed using any known
+        format.
         """
         if val.isdigit():
             return int(val)
 
-        try:
-            ts = self._parser(val, self.fmt_iso)
-        except ValueError:
-            raise ValueError("Could not parse year from value [%s]" % val)
-        return ts.year
+        for fmt in self.formats:
+            try:
+                return self._parser(val, fmt).year
+            except ValueError:
+                pass
+        raise ValueError("Could not parse year from value [%s]" % val)
 
 
 class MetadataTrackParser(object):
     """Parser for extracting the number of a track.
     
     Some audio tags have less than perfect data for track numbers
-    like "1/5", "2/5", etc.
+    like "1/5", "2/5", etc. Attempt to simply cast the string to
+    an integer if possible. If not possible, attempt to parse it
+    as a fraction (see :instance_attribute:`fmt_fraction`).
     """
 
     fmt_fraction = '(\d+)/\d+'
 
     def __init__(self, parser_impl):
         """Set the regular expression parser which is expected
-        to behave like re.match().
+        to behave like `re.match`.
         """
         self._parser = parser_impl
 
     def parse(self, val):
-        """Attempt to parse the given track string, raise a ValueError
+        """Attempt to parse the given track string, raise a `ValueError`
         if the track string could not be parsed.
         """
         if val.isdigit():
@@ -182,72 +197,4 @@ class MetadataTrackParser(object):
         if match is not None:
             return int(match.group(1))
         raise ValueError("Could not parse track from value [%s]" % val)
-
-
-# Default parser to use for converting various formats
-# of track number into a plain integer.
-_track_parser = MetadataTrackParser(re.match)
-
-
-# Default parser to use for converting various types of
-# date like values into a plain old year.
-_date_parser = MetadataDateParser(datetime.strptime)
-
-
-def _get_str_val(val):
-    """Convert a possibly-None single element list into a unicode
-    string.
-    """
-    if val is None:
-        return unicode('')
-    return unicode(val[0])
-
-
-def _get_track_val(val):
-    """Convert a possibly-None single element list into a track 
-    number (integer).
-    """
-    if val is None:
-        return 0
-    return _track_parser.parse(val[0])
-
-
-def _get_date_val(val):
-    """Convert a possibly-None single element list into a year 
-    (integer).
-    """
-    if val is None:
-        return 0
-    return _date_parser.parse(val[0])
-
-
-def from_tagpy(path, meta):
-    """Convert a TagPy tag object into a Metadata object"""
-    # TagPy wraps Taglib which does all the data coercion
-    # for us so we don't have to do any parsing on our own
-    tag = meta.tag()
-    audio = meta.audioProperties()
-    return Metadata(
-        path=path,
-        album=tag.album,
-        artist=tag.artist,
-        genre=tag.genre,
-        length=int(audio.length),
-        title=tag.title,
-        track=int(tag.track),
-        year=int(tag.year))
-
-
-def from_mutagen(path, meta):
-    """Convert a Mutagen tag object into a Metadata object"""
-    audio = meta.info
-    return Metadata(
-        path=path,
-        album=_get_str_val(meta.get('album')),
-        artist=_get_str_val(meta.get('artist')),
-        genre=_get_str_val(meta.get('genre')),
-        length=int(audio.length),
-        title=_get_str_val(meta.get('title')),
-        track=_get_track_val(meta.get('tracknumber')),
-        year=_get_date_val(meta.get('date')))
 
