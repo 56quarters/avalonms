@@ -21,7 +21,7 @@
 """Functionality for reading audio metadata from local files using Mutagen."""
 
 import collections
-import datetime
+from datetime import datetime
 import re
 
 import mutagen
