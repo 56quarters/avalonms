@@ -18,7 +18,7 @@
 #
 
 
-"""Functionality for reading audio metadata from local files using Mutagen."""
+"""Functionality for reading audio meta data from local files using Mutagen."""
 
 import collections
 from datetime import datetime
@@ -52,7 +52,7 @@ class Metadata(collections.namedtuple('_Metadata', [
 
 def new_loader():
     """Return a new :class:`MetadataLoader` using the concrete
-    mutagen implementation, the default avalon encoding for paths,
+    Mutagen implementation, the default avalon encoding for paths,
     a default track parser, and default date parser.
     """
     track_parser = MetadataTrackParser(re.match)
@@ -88,7 +88,7 @@ class MetadataLoader(object):
          invalid file type. Raise a `ValueError` if the track number or
          year of the audio tag cannot be parsed.
          """
-        return self._get_metadata(path, self._read_from_path(path))
+        return self._to_metadata(path, self._read_from_path(path))
 
     def _read_from_path(self, path):
         """Read a mutagen native for tag from the given path."""
@@ -102,8 +102,8 @@ class MetadataLoader(object):
             raise IOError("Invalid or unsupported audio file [%s]" % path)
         return file_ref
 
-    def _get_metadata(self, path, file_ref):
-        """Convert a Mutagen tag object into a Metadata object.
+    def _to_metadata(self, path, file_ref):
+        """Convert a Mutagen tag object into a :class:`Metadata` object.
         """
         audio = file_ref.info
         return Metadata(
@@ -146,6 +146,7 @@ class MetadataDateParser(object):
         '%Y-%m-%d %H:%M:%S',
         '%Y-%m-%dT%H:%M:%S',
         '%Y-%m-%dT%H:%M:%S%z'])
+    """Common timestamp formats for parsing a track year"""
 
     def __init__(self, parser_impl):
         """Set the date parser which is expected to behave like
@@ -179,6 +180,7 @@ class MetadataTrackParser(object):
     """
 
     fmt_fraction = '(\d+)/\d+'
+    """Regular expression for parsing a track number"""
 
     def __init__(self, parser_impl):
         """Set the regular expression parser which is expected
