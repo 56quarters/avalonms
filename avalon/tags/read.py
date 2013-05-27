@@ -103,8 +103,7 @@ class MetadataLoader(object):
         return file_ref
 
     def _to_metadata(self, path, file_ref):
-        """Convert a Mutagen tag object into a :class:`Metadata` object.
-        """
+        """Convert a Mutagen tag object into a :class:`Metadata` object."""
         audio = file_ref.info
         return Metadata(
             path=path,
