@@ -143,8 +143,7 @@ class MetadataDateParser(object):
 
     formats = frozenset([
         '%Y-%m-%d %H:%M:%S',
-        '%Y-%m-%dT%H:%M:%S',
-        '%Y-%m-%dT%H:%M:%S%z'])
+        '%Y-%m-%dT%H:%M:%S'])
     """Common timestamp formats for parsing a track year"""
 
     def __init__(self, parser_impl):
