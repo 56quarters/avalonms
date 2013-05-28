@@ -59,19 +59,27 @@ class IdLookupCache(object):
             return None
 
     def get_album_id(self, val):
-        """Get the UUID object associated with an album name, None if no ID is found."""
+        """Get the UUID object associated with an album name, None if no ID
+        is found.
+        """
         return self._get_id('album', val)
 
     def get_artist_id(self, val):
-        """Get the UUID object associated with an artist name, None if no ID is found."""
+        """Get the UUID object associated with an artist name, None if no ID
+        is found.
+        """
         return self._get_id('artist', val)
 
     def get_genre_id(self, val):
-        """Get the UUID object associated with a genre name, None if no ID is found."""
+        """Get the UUID object associated with a genre name, None if no ID is
+        found.
+        """
         return self._get_id('genre', val)
 
     def reload(self):
-        """Atomically load all name to ID mappings from the database."""
+        """Atomically load all name to ID mappings of albums, artists, and genres
+        from the database.
+        """
         session = self._session_handler.get_session()
         cache = {}
 
@@ -84,17 +92,19 @@ class IdLookupCache(object):
         self._cache = cache
 
     def _get_name_id_map(self, session, cls):
-        """Get the name to ID mappings for a particular type of entity."""
-        field_cache = {}
+        """Get the name to ID mappings for a particular type of entity,
+        normalizing the case of the name value.
+        """
+        mapping = {}
         for entity in session.query(cls).all():
             elm = IdNameElm.from_model(entity)
-            field_cache[elm.name.lower()] = elm.id
-        return field_cache
+            mapping[elm.name.lower()] = elm.id
+        return mapping
 
 
 def get_frozen_mapping(table):
-    """Return a copy of a dictionary with mutable sets for values
-    replaced with frozensets for values.
+    """Return a copy of a default dictionary (assumed to have sets
+    for values) with frozen sets for values.
     """
     out = collections.defaultdict(frozenset)
 
@@ -151,26 +161,26 @@ class TrackStore(object):
         self._all = frozenset(all_tracks)
 
     def by_album(self, album_id):
-        """Get tracks by an album ID, empty set if there are no tracks
-        with that album ID.
+        """Get tracks by an album UUID, empty set if there are no tracks
+        with that album UUID.
         """
         return self._by_album[album_id]
 
     def by_artist(self, artist_id):
-        """Get tracks by an artist ID, empty set if there are no tracks
-        with that artist ID.
+        """Get tracks by an artist UUID, empty set if there are no tracks
+        with that artist UUID.
         """
         return self._by_artist[artist_id]
 
     def by_genre(self, genre_id):
-        """Get tracks by a genre ID, empty set if there are no tracks
-        with that genre ID.
+        """Get tracks by a genre UUID, empty set if there are no tracks
+        with that genre UUID.
         """
         return self._by_genre[genre_id]
 
     def by_id(self, track_id):
-        """Get tracks by a track ID, empty set if there are no tracks
-        with that ID.
+        """Get tracks by a track UUID, empty set if there are no tracks
+        with that UUID.
         """
         return self._by_id[track_id]
 
@@ -212,8 +222,8 @@ class _IdNameStore(object):
         self._all = frozenset(all_elms)
 
     def by_id(self, elm_id):
-        """Get elements by their ID, empty set if there are no elements
-        with that ID.
+        """Get elements by their UUID, empty set if there are no elements
+        with that UUID.
         """
         return self._by_id[elm_id]
 
