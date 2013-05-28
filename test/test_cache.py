@@ -1,9 +1,21 @@
 # -*- coding: utf-8 -*-
 #
 
+import mox
 import pytest
 
 import avalon.cache
+import avalon.models
+
+
+class MockSession(object):
+    def query(self, cls):
+        pass
+
+
+def MockQueryResult(object):
+    def all(self):
+        pass
 
 
 class TestFunctions(object):
@@ -20,4 +32,10 @@ class TestFunctions(object):
 
 
 class TestIdLookupCache(object):
-    pass
+    def setup_method(self, method):
+        self.mox = mox.Mox()
+
+    def teardown_method(self, method):
+        self.mox.UnsetStubs()
+
+

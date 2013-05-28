@@ -44,15 +44,18 @@ class IdLookupCache(object):
     def __init__(self, session_handler):
         """Set the session handler and initialize ID caches."""
         self._session_handler = session_handler
-        self._cache = {}
+        self._by_album = {}
+        self._by_artist = {}
+        self._by_genre = {}
         self.reload()
 
-    def _get_id(self, field, val):
-        """Get the UUID object associated with the give field and name, None if
-        no ID is found.
+    def _get_id(self, lookup, val):
+        """Get the UUID object associated with the given name from the
+        given lookup structure, None if no ID is found or the value isn't
+        a string.
         """
         try:
-            return self._cache[field][val.lower()]
+            return lookup[val.lower()]
         except AttributeError:
             return None
         except KeyError:
@@ -62,34 +65,39 @@ class IdLookupCache(object):
         """Get the UUID object associated with an album name, None if no ID
         is found.
         """
-        return self._get_id('album', val)
+        return self._get_id(self._by_album, val)
 
     def get_artist_id(self, val):
         """Get the UUID object associated with an artist name, None if no ID
         is found.
         """
-        return self._get_id('artist', val)
+        return self._get_id(self._by_artist, val)
 
     def get_genre_id(self, val):
         """Get the UUID object associated with a genre name, None if no ID is
         found.
         """
-        return self._get_id('genre', val)
+        return self._get_id(self._by_genre, val)
 
     def reload(self):
-        """Atomically load all name to ID mappings of albums, artists, and genres
-        from the database.
+        """Safely populate various structures used for name to ID
+        mappings of albums, artists, and genres from the database.
+
+        Note that if an exception occurs during the update the
+        structures may be of date. However, all structures will
+        correctly formed and valid.
         """
         session = self._session_handler.get_session()
-        cache = {}
 
         try:
-            cache['album'] = self._get_name_id_map(session, Album)
-            cache['artist'] = self._get_name_id_map(session, Artist)
-            cache['genre'] = self._get_name_id_map(session, Genre)
+            by_album = self._get_name_id_map(session, Album)
+            by_artist = self._get_name_id_map(session, Artist)
+            by_genre = self._get_name_id_map(session, Genre)
         finally:
             self._session_handler.close(session)
-        self._cache = cache
+        self._by_album = by_album
+        self._by_artist = by_artist
+        self._by_genre = by_genre
 
     def _get_name_id_map(self, session, cls):
         """Get the name to ID mappings for a particular type of entity,
@@ -130,8 +138,12 @@ class TrackStore(object):
         self.reload()
 
     def reload(self):
-        """Atomically populate the various structures for looking
+        """Safely populate the various structures for looking
         up track elements by their attributes.
+
+        Note that if an exception occurs during the update the
+        structures may be of date. However, all structures will
+        correctly formed and valid.
         """
         session = self._session_handler.get_session()
 
