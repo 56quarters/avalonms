@@ -85,7 +85,7 @@ class UuidType(TypeDecorator):
 
 
 class _Base(object):
-    """A base for all models that defines name and id fields."""
+    """A base for all models that defines name (string) and id (UUID) fields."""
 
     id = Column(UuidType, primary_key=True)
     name = Column(String)
@@ -95,8 +95,8 @@ Base = declarative_base(cls=_Base)
 
 
 class Track(Base):
-    """Model representing metadata of a media file with
-    relations to other entities (album, artist, genre).
+    """Model representing metadata of a media file with relations to other
+    entities (album, artist, genre).
     """
 
     __tablename__ = 'tracks'
@@ -168,13 +168,18 @@ class SessionHandler(object):
     """
 
     def __init__(self, config):
+        """Set the database engine, session factory, associated model metadata
+        and logger to use for this session handler.
+        """
         self._engine = config.engine
         self._session_factory = config.session_factory
         self._metadata = config.metadata
         self._log = config.log
 
     def close(self, session):
-        """Safely close a session."""
+        """Safely close a session, logging any :class:`SQLAlchemyError` based
+        exceptions encountered.
+        """
         if session is None:
             return
         try:
@@ -186,6 +191,12 @@ class SessionHandler(object):
         """Connect to the database and configure the session factory
         to use the connection, and create any needed tables (if they
         do not already exist).
+
+        Raise a :class:`ConnectionError` if there was an issue connecting
+        to the database or if the database type is invalid or unsupported.
+
+        Required tables for all models will be created if they do not already
+        exist. If they do exist, they will not be modified or altered.
         """
         try:
             # Attempt to connect to the engine to make sure it's valid and
@@ -203,7 +214,11 @@ class SessionHandler(object):
         self._metadata.create_all(self._engine)
 
     def validate(self):
-        """Ensure our database engine is valid by attempting a connection."""
+        """Ensure our database engine is valid by attempting a connection.
+
+        Exceptions raised here will be propagated after cleaning up any
+        resources associated with the connection.
+        """
         conn = None
 
         try:
@@ -212,6 +227,6 @@ class SessionHandler(object):
             self.close(conn)
 
     def get_session(self):
-        """Get a new session."""
+        """Get a new session from the session factory."""
         return self._session_factory()
 
