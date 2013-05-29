@@ -40,13 +40,11 @@ Example request
 Possible error responses
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-* ``InvalidParameterError``
-    
-  + Reason: An invalid value for query string parameter was passed.
+* ``InvalidParameterError`` will be returned if an invalid value for a query string parameter was passed. The HTTP
+  status code will be ``200`` in this case.
 
-* ``ServerNotReadyError``
-  
-  + Reason: A request was made before the server finished starting.
+* ``ServerNotReadyError`` will be returned if a request was made before the server finished starting. The HTTP
+  status code will be ``200`` in this case.
 
 
 Success output format
