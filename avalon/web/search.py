@@ -140,7 +140,7 @@ class SearchTrie(object):
     is expected to be done by the caller.
 
     The SearchTrie is not inheriently threadsafe. However, if none of the
-    mutator methods are called (.add) the read methods (.search, .size)
+    mutator methods are called [.add()] the read methods [.search(), .size()]
     are safe to be called by multiple threads.
     """
 
