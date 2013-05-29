@@ -36,6 +36,10 @@ __all__ = [
 ]
 
 
+# TODO: Introduce DAOs to wrap the session handler + queries
+# make the way the various caches much easier to mock out
+
+
 class IdLookupCache(object):
     """Cache for looking up the primary key of albums, artists,
     and genres based on their name.
