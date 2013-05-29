@@ -61,6 +61,8 @@ Example requests
 
 * http://api.tshlabs.org/avalon/songs?album_id=2d24515c-a459-552a-b022-e85d1621425a
 
+* http://api.tshlabs.org/avalon/songs?album_id=2d24515ca459552ab022e85d1621425a
+
 * http://api.tshlabs.org/avalon/songs?genre=Ska
 
 * http://api.tshlabs.org/avalon/songs?genre_id=8794d7b7-fff3-50bb-b1f1-438659e05fe5
