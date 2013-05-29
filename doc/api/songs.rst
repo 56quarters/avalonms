@@ -11,17 +11,32 @@ Filtering Parameters
 ============= ============= ============= ============= ===============================================================
 Name          Required?     Type          Mutiple?      Description
 ============= ============= ============= ============= ===============================================================
-``album``     No            ``string``    No            Select only songs belonging to this album (not case sensitive)
+``album``     No            ``string``    No            Select only songs belonging to this album, exact match, not
+                                                        case sensitive.
 ------------- ------------- ------------- ------------- ---------------------------------------------------------------
-``album_id``  No            ``string``    No            Select only songs belonging to this album by UUID.
+``album_id``  No            ``string``    No            Select only songs belonging to this album by UUID. The UUID is
+                                                        expected to be formatted using hexadecimal digits with
+                                                        hyphens (32 alphanumeric characters and four hyphens). If the
+                                                        UUID is not formatted correctly an ``InvalidParameterError``
+                                                        will be returned.
 ------------- ------------- ------------- ------------- ---------------------------------------------------------------
-``artist``    No            ``string``    No            Select only songs by this artist (not case sensitive).
+``artist``    No            ``string``    No            Select only songs by this artist, exact match, not case
+                                                        sensitive.
 ------------- ------------- ------------- ------------- ---------------------------------------------------------------
-``artist_id`` No            ``string``    No            Select only songs by this artist by UUID.
+``artist_id`` No            ``string``    No            Select only songs by this artist by UUID. The UUID is expected
+                                                        to be formatted using hexadecimal digits with hyphens (32
+                                                        alphanumeric characters and four hyphens). If the UUID is not
+                                                        formatted correct an ``InvalidParameterError`` will be
+                                                        returned.
 ------------- ------------- ------------- ------------- ---------------------------------------------------------------
-``genre``     No            ``string``    No            Select only songs belonging to this genre (not case sensitive).
+``genre``     No            ``string``    No            Select only songs belonging to this genre, exact match, not
+                                                        case sensitive.
 ------------- ------------- ------------- ------------- ---------------------------------------------------------------
-``genre_id``  No            ``string``    No            Select only songs belonging to this genre by UUID.
+``genre_id``  No            ``string``    No            Select only songs belonging to this genre by UUID. The UUID is
+                                                        expected to be formatted using hexadecimal digits with hyphens
+                                                        (32 alphanumeric characters and four hyphens). If the UUID is
+                                                        not formatted correct an ``InvalidParameterError`` will be
+                                                        returned.
 ------------- ------------- ------------- ------------- ---------------------------------------------------------------
 ``query``     No            ``string``    No            Select only songs whose album, artist, genre, or name contains
                                                         ``query``. The match is not case sensitive and unicode
