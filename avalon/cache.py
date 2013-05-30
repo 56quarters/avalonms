@@ -83,9 +83,10 @@ class IdLookupCache(object):
     def __init__(self, dao):
         """Set the DAO and use it to initialize ID caches."""
         self._dao = dao
-        self._by_album = {}
-        self._by_artist = {}
-        self._by_genre = {}
+        self._by_album = None
+        self._by_artist = None
+        self._by_genre = None
+
         self.reload()
 
     def _get_id(self, lookup, val):
@@ -96,8 +97,6 @@ class IdLookupCache(object):
         try:
             return lookup[val.lower()]
         except AttributeError:
-            return None
-        except KeyError:
             return None
 
     def get_album_id(self, val):
@@ -132,9 +131,10 @@ class IdLookupCache(object):
 
     def _get_name_id_map(self, all_models):
         """Get the name to ID mappings for a particular type of entity,
-        normalizing the case of the name value.
+        normalizing the case of the name value using a default dictionary
+        configured to return None for missing entries.
         """
-        mapping = {}
+        mapping = collections.defaultdict(_missing_entry)
         for model in all_models:
             elm = IdNameElm.from_model(model)
             mapping[elm.name.lower()] = elm.id
@@ -150,6 +150,11 @@ def get_frozen_mapping(table):
     for key in table:
         out[key] = frozenset(table[key])
     return out
+
+
+def _missing_entry():
+    """Factory to return None for missing entries in a default dictionary"""
+    return None
 
 
 class TrackStore(object):
