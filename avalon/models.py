@@ -109,6 +109,7 @@ class Track(Base):
     artist_id = Column(UuidType, ForeignKey('artists.id'), index=True)
     genre_id = Column(UuidType, ForeignKey('genres.id'), index=True)
 
+    # Join album, artist, and genre using an INNER JOIN whenever tracks are loaded
     album = relationship('Album', backref='tracks', lazy='joined', innerjoin=True, order_by='Track.id')
     artist = relationship('Artist', backref='tracks', lazy='joined', innerjoin=True, order_by='Track.id')
     genre = relationship('Genre', backref='tracks', lazy='joined', innerjoin=True, order_by='Track.id')
