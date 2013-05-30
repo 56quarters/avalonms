@@ -201,6 +201,9 @@ class CollectionScanPlugin(cherrypy.process.plugins.SimplePlugin):
         """Scan the music collection for metadata and insert it into a
         database.
         """
+        # TODO: There's way too much going on in this method
+        # TODO: Lots of objects getting created here instead of being injected
+
         self._log.info('Scanning music collection...')
 
         tag_loader = avalon.tags.read.new_loader()
