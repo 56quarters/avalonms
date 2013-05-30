@@ -45,7 +45,8 @@ class AvalonServerConfig(object):
 
 class AvalonServer(CherryPyWSGIServer):
     """Wrap the standard CherryPy server to use our own error
-    logging mechanism.
+    logging mechanism and support reloading any in-memory state
+    of the application handler.
     """
 
     def __init__(self, config):
@@ -56,7 +57,7 @@ class AvalonServer(CherryPyWSGIServer):
             numthreads=config.num_threads,
             request_queue_size=config.queue_size)
 
-        self._app = config.application.root
+        self._handler = config.application.root
         self._log = config.log
         self.socket = None
 
@@ -72,8 +73,8 @@ class AvalonServer(CherryPyWSGIServer):
 
     def reload(self):
         """Refresh application in-memory caches."""
-        self._app.reload()
-        self._app.ready = True
+        self._handler.reload()
+        self._handler.ready = True
         self._log.info("Handler caches reloaded")
 
     def start(self):
