@@ -26,6 +26,7 @@ init:
 push:
 	git push origin master
 	git push github master
+	git push bitbucket master
 
 release: tags
 	python setup.py version
@@ -34,6 +35,7 @@ release: tags
 tags: push
 	git push --tags origin
 	git push --tags github
+	git push --tags bitbucket
 
 site:
 	cd doc; make dirhtml
