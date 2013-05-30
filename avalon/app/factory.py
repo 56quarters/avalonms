@@ -40,6 +40,7 @@ import avalon.web.search
 __all__ = [
     'new_logger',
     'new_db_engine',
+    'new_dao',
     'new_handler',
     'new_server',
     'new_plugin_engine'
@@ -75,16 +76,19 @@ def new_db_engine(app_config, logger):
     return avalon.models.SessionHandler(db_config)
 
 
-def new_handler(db_engine):
-    """Construct a new web request handler using the given database
-    handler.
-    """
+def new_dao(db_engine):
+    """Construct a new read-only DAO from the given :class:`SessionHandler`"""
+    return avalon.cache.ReadOnlyDao(db_engine)
+
+
+def new_handler(dao):
+    """Construct a new web request handler using the given DAO"""
     api_config = avalon.web.api.AvalonApiEndpointsConfig()
-    api_config.track_store = avalon.cache.TrackStore(db_engine)
-    api_config.album_store = avalon.cache.AlbumStore(db_engine)
-    api_config.artist_store = avalon.cache.ArtistStore(db_engine)
-    api_config.genre_store = avalon.cache.GenreStore(db_engine)
-    api_config.id_cache = avalon.cache.IdLookupCache(db_engine)
+    api_config.track_store = avalon.cache.TrackStore(dao)
+    api_config.album_store = avalon.cache.AlbumStore(dao)
+    api_config.artist_store = avalon.cache.ArtistStore(dao)
+    api_config.genre_store = avalon.cache.GenreStore(dao)
+    api_config.id_cache = avalon.cache.IdLookupCache(dao)
 
     def trie_factory():
         return avalon.web.search.SearchTrie(avalon.web.search.TrieNode)

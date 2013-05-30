@@ -22,8 +22,8 @@
 
 import collections
 
-from avalon.models import Album, Artist, Genre, Track
 from avalon.elms import IdNameElm, TrackElm
+from avalon.models import Album, Artist, Genre, Track
 
 
 __all__ = [
@@ -31,13 +31,48 @@ __all__ = [
     'ArtistStore',
     'GenreStore',
     'IdLookupCache',
+    'ReadOnlyDao',
     'TrackStore',
     'get_frozen_mapping'
 ]
 
 
-# TODO: Introduce DAOs to wrap the session handler + queries
-# make the way the various caches much easier to mock out
+class ReadOnlyDao(object):
+    """Read-only DAO for loading each type of model object by
+    making use of the :class:`SessionHandler` and each associated
+    model class.
+
+    This class doesn't add a lot of functionality on top of the
+    :class:`SessionHandler`, it's just a facade to allow consumers
+    to be tested more easily."""
+
+    def __init__(self, session_handler):
+        """Set the session handler to use for fetching models."""
+        self._session_handler = session_handler
+
+    def get_all_albums(self):
+        """Get a list of all Album models in the database"""
+        return self._get_all_cls(Album)
+
+    def get_all_artists(self):
+        """Get a list of all Artist models in the database"""
+        return self._get_all_cls(Artist)
+
+    def get_all_genres(self):
+        """Get a list of all Genre models in the database"""
+        return self._get_all_cls(Genre)
+
+    def get_all_tracks(self):
+        """Get a list of all Track models in the database"""
+        return self._get_all_cls(Track)
+
+    def _get_all_cls(self, cls):
+        """Get a list of all models by the given class."""
+        session = self._session_handler.get_session()
+        try:
+            return session.query(cls).all()
+        finally:
+            self._session_handler.close(session)
 
 
 class IdLookupCache(object):
@@ -45,9 +80,9 @@ class IdLookupCache(object):
     and genres based on their name.
     """
 
-    def __init__(self, session_handler):
-        """Set the session handler and initialize ID caches."""
-        self._session_handler = session_handler
+    def __init__(self, dao):
+        """Set the DAO and use it to initialize ID caches."""
+        self._dao = dao
         self._by_album = {}
         self._by_artist = {}
         self._by_genre = {}
@@ -91,25 +126,17 @@ class IdLookupCache(object):
         structures may be of date. However, all structures will
         correctly formed and valid.
         """
-        session = self._session_handler.get_session()
+        self._by_album = self._get_name_id_map(self._dao.get_all_albums())
+        self._by_artist = self._get_name_id_map(self._dao.get_all_artists())
+        self._by_genre = self._get_name_id_map(self._dao.get_all_genres())
 
-        try:
-            by_album = self._get_name_id_map(session, Album)
-            by_artist = self._get_name_id_map(session, Artist)
-            by_genre = self._get_name_id_map(session, Genre)
-        finally:
-            self._session_handler.close(session)
-        self._by_album = by_album
-        self._by_artist = by_artist
-        self._by_genre = by_genre
-
-    def _get_name_id_map(self, session, cls):
+    def _get_name_id_map(self, all_models):
         """Get the name to ID mappings for a particular type of entity,
         normalizing the case of the name value.
         """
         mapping = {}
-        for entity in session.query(cls).all():
-            elm = IdNameElm.from_model(entity)
+        for model in all_models:
+            elm = IdNameElm.from_model(model)
             mapping[elm.name.lower()] = elm.id
         return mapping
 
@@ -130,9 +157,9 @@ class TrackStore(object):
     them by their attributes.
     """
 
-    def __init__(self, session_handler):
-        """Initialize lookup structures and populate them."""
-        self._session_handler = session_handler
+    def __init__(self, dao):
+        """Initialize lookup structures and populate them with the DAO."""
+        self._dao = dao
         self._by_album = None
         self._by_artist = None
         self._by_genre = None
@@ -149,20 +176,14 @@ class TrackStore(object):
         structures may be of date. However, all structures will
         correctly formed and valid.
         """
-        session = self._session_handler.get_session()
-
-        try:
-            res = session.query(Track).all()
-        finally:
-            self._session_handler.close(session)
-
+        all_models = self._dao.get_all_tracks()
         by_album = collections.defaultdict(set)
         by_artist = collections.defaultdict(set)
         by_genre = collections.defaultdict(set)
         by_id = collections.defaultdict(set)
         all_tracks = set()
 
-        for track in res:
+        for track in all_models:
             elm = TrackElm.from_model(track)
             by_album[elm.album_id].add(elm)
             by_artist[elm.artist_id].add(elm)
@@ -208,29 +229,24 @@ class TrackStore(object):
 class _IdNameStore(object):
     """Base store for any ID and name element."""
 
-    def __init__(self, session_handler, cls):
-        """Load all elements of the given type."""
-        self._session_handler = session_handler
-        self._cls = cls
+    def __init__(self, dao_method):
+        """Set the method of the DAO to use for populating the
+        ID-name store.
+        """
+        self._dao_method = dao_method
         self._by_id = None
         self._all = None
 
         self.reload()
 
     def reload(self):
-        """Atomically populate all elements of the given type."""
-        session = self._session_handler.get_session()
-
-        try:
-            res = session.query(self._cls).all()
-        finally:
-            self._session_handler.close(session)
-
+        """Populate all of the ID-name elements."""
+        all_models = self._dao_method()
         by_id = collections.defaultdict(set)
         all_elms = set()
 
-        for thing in res:
-            elm = IdNameElm.from_model(thing)
+        for model in all_models:
+            elm = IdNameElm.from_model(model)
             by_id[elm.id].add(elm)
             all_elms.add(elm)
 
@@ -251,20 +267,20 @@ class _IdNameStore(object):
 class AlbumStore(_IdNameStore):
     """In-memory store for Album models using IdNameElm."""
 
-    def __init__(self, session_handler):
-        super(AlbumStore, self).__init__(session_handler, Album)
+    def __init__(self, dao):
+        super(AlbumStore, self).__init__(dao.get_all_albums)
 
 
 class ArtistStore(_IdNameStore):
     """In-memory store for Artist models using IdNameElm."""
 
-    def __init__(self, session_handler):
-        super(ArtistStore, self).__init__(session_handler, Artist)
+    def __init__(self, dao):
+        super(ArtistStore, self).__init__(dao.get_all_artists)
 
 
 class GenreStore(_IdNameStore):
     """In-memory store for Genre models using IdNameElm."""
 
-    def __init__(self, session_handler):
-        super(GenreStore, self).__init__(session_handler, Genre)
+    def __init__(self, dao):
+        super(GenreStore, self).__init__(dao.get_all_genres)
 
