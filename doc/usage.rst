@@ -56,6 +56,28 @@ error log, and database file so that it will still be able to write to them.
         --access-log /tmp/access.log --daemon-user apache \
         --daemon-group apache ~/Music
 
+
+Running on a public interface
+=============================
+
+By default the Avalon Music Server will bind to a local address (typically 127.0.0.1) and
+will not be publicly accessible. If you want it to bind to a public address (and therefore
+allow other people to connect to the server) you must use the ``--server-address`` option
+to specify what address to use.
+
+IPv4
+
+  ::
+
+    avalonmsd --server-address 0.0.0.0 ~/Music
+
+IPv6
+
+  ::
+
+    avalonmsd --server-address :: ~/Music
+
+
 Running behind an Apache reverse proxy
 ======================================
 
@@ -90,27 +112,6 @@ And use an Apache virtual host configuration like the following:
         ProxyPass /avalon http://localhost:8080/avalon
         ProxyPassReverse /avalon http://localhost:8080/avalon
     </VirtualHost>
-
-
-Running on a public interface
-=============================
-
-By default the Avalon Music Server will bind to a local address (typically 127.0.0.1) and
-will not be publicly accessible. If you want it to bind to a public address (and therefore
-allow other people to connect to the server) you must use the ``--server-address`` option
-to specify what address to use.
-
-IPv4
-
-  ::
-
-    avalonmsd --server-address 0.0.0.0 ~/Music
-
-IPv6
-
-  ::
-
-    avalonmsd --server-address :: ~/Music
 
 
 In-place rescan
