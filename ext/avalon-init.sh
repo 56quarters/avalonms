@@ -38,7 +38,7 @@ TIMEOUT_STOP=15
 
 
 is_running() {
-    pgrep -x $AMS_EXEC > /dev/null
+    pgrep -x "${AMS_EXEC}" > /dev/null
     if [ 0 = $? ]; then
         echo 'yes'
     else
@@ -53,8 +53,8 @@ start() {
         return 1
     fi
 
-    $AMS_BIN --daemon --daemon-user $DAEMON_USER --daemon-group $DAEMON_GROUP \
-        --db-path $PATH_DB --access-log $PATH_LOG --error-log $PATH_ERR \
+    "${AMS_BIN}" --daemon --daemon-user "${DAEMON_USER}" --daemon-group "${DAEMON_GROUP}" \
+        --db-path "${PATH_DB}" --access-log "${PATH_LOG}" --error-log "${PATH_ERR}" \
         --no-scan /dev/null
 
     local i=0
@@ -77,7 +77,7 @@ stop() {
         return 1
     fi
 
-    pkill -TERM -x $AMS_EXEC >/dev/null
+    pkill -TERM -x "${AMS_EXEC}" >/dev/null
 
     local i=0
     while [ 'yes' = `is_running` ] && [ $i -lt $TIMEOUT_STOP ]; do
@@ -89,7 +89,7 @@ stop() {
         return 0
     fi
 
-    pkill -KILL -x $AMS_EXEC >/dev/null
+    pkill -KILL -x "${AMS_EXEC}" >/dev/null
     return 1    
 }
 
@@ -105,7 +105,7 @@ case "$1" in
         stop
         ;;
     reload)
-        pkill -USR1 -x $AMS_EXEC >/dev/null
+        pkill -USR1 -x "${AMS_EXEC}" >/dev/null
         ;;
     restart)
         stop
