@@ -95,9 +95,6 @@ stop() {
 
 
 case "$1" in
-    status)
-        status
-        ;;
     start)
         start
         ;;
