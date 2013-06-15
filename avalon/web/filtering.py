@@ -63,7 +63,7 @@ SORT_ASC = 'asc'
 
 
 def sort_filter(elms, params):
-    """Use query string parameters to sort the resutl set 
+    """Use query string parameters to sort the result set
     appropriately.
     """
     field = params.get('order')
