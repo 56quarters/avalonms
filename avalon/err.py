@@ -41,7 +41,7 @@ class _ErrorMessage(object):
         return self.tpt % args
 
 
-ERROR_DUPLICATE_FIELD_VALUE = _ErrorMessage("Dupliate value for field [%s]")
+ERROR_DUPLICATE_FIELD_VALUE = _ErrorMessage("Duplicate value for field [%s]")
 ERROR_INVALID_FIELD = _ErrorMessage("Invalid field [%s]")
 ERROR_INVALID_FIELD_VALUE = _ErrorMessage("Invalid value for field [%s]")
 ERROR_NEGATIVE_FIELD_VALUE = _ErrorMessage("Value for field [%s] must be non-negative")
