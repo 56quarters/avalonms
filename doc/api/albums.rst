@@ -40,12 +40,12 @@ Example request
 Possible error responses
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-* ``InvalidParameterError`` will be returned if an invalid value for a query string parameter was passed. The HTTP
-  status code will be ``200`` in this case.
+* ``INVALID_PARAMETER_ERROR`` will be returned if an invalid value for a query string parameter was passed. The HTTP
+  status code will be ``400`` in this case.
 
 
-* ``ServerNotReadyError`` will be returned if a request was made before the server finished starting. The HTTP
-  status code will be ``200`` in this case.
+* ``SERVER_NOT_READY_ERROR`` will be returned if a request was made before the server finished starting. The HTTP
+  status code will be ``503`` in this case.
 
 
 
@@ -79,7 +79,7 @@ Error output format
 
     {
       "is_error": true,
-      "error_name": "ServerNotReadyError",
+      "error_name": "SERVER_NOT_READY_ERROR",
       "error_msg": "Server has not finished start up",
       "result_count": 0,
       "results": []

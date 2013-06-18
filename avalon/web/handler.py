@@ -61,6 +61,7 @@ def render_results(func):
         try:
             return avalon.web.output.render(results=func(self, *args, **kwargs))
         except avalon.exc.ApiError, e:
+            avalon.web.output.set_http_status(e.http_code)
             return avalon.web.output.render(error=e)
     return wrapper
 

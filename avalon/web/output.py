@@ -34,6 +34,7 @@ import simplejson
 __all__ = [
     'json_handler',
     'render',
+    'set_http_status',
     'JsonEncoder',
     'JsonHandler',
     'RequestOutput'
@@ -98,7 +99,7 @@ class RequestOutput(object):
         }
         if self.error is not None:
             out['is_error'] = True
-            out['error_name'] = self.error.name
+            out['error_name'] = self.error.error_name
             out['error_msg'] = self.error.message
         return out
 
@@ -129,3 +130,9 @@ class RequestOutput(object):
             'results': res['results']
         }
 
+
+def set_http_status(code):
+    """Set the given HTTP status code for the reponse currently
+    being served.
+    """
+    cherrypy.response.status = code

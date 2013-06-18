@@ -77,15 +77,25 @@ class PermissionError(AvalonError):
 
 class ApiError(AvalonError):
     """Base for all errors relating to invalid API requests."""
-    pass
+
+    error_name = None
+    """Parsable name of the error that occurred."""
+
+    http_code = None
+    """HTTP status code that should be set when this error occurs."""
 
 
 class InvalidParameterError(ApiError):
     """An invalid parameter or parameter value was given."""
-    pass
+
+    error_name = "INVALID_PARAMETER_ERROR"
+
+    http_code = 400
 
 
 class ServerNotReadyError(ApiError):
     """The API server is not ready to handle requests."""
-    pass
 
+    error_name = "SERVER_NOT_READY_ERROR"
+
+    http_code = 503

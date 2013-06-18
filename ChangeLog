@@ -1,5 +1,11 @@
 ChangeLog for Avalon Music Server
 
+2013-06-17 - v0.2.23
+   * Changes to the names of API errors and setting HTTP statuses correctly
+   * Sample deploy and init scripts for the Avalon Music Server
+   * Testability improvements for the avalon.cache layer
+   * Documentation improvements
+
 2013-05-20 - v0.2.22
    * Handle database errors during rescan better
    * Various code quality improvements
