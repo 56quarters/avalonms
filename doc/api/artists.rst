@@ -60,11 +60,11 @@ Success output format
       "result_count": 2,
       "results": [
         {
-          "id": 123,
+          "id": "b048612e-1207-59f4-bbeb-ba0bc9a48cd1",
           "name": "Green Day"      
         },
         {
-          "id": 456,
+          "id": "5cede078-e88e-5929-b8e1-cfda7992b8fd",
           "name": "Bad Religion"
         }
       ]

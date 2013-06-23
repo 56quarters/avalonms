@@ -60,11 +60,11 @@ Success output format
       "result_count": 2,
       "results": [
         {
-          "id": 123,
+          "id": "8794d7b7-fff3-50bb-b1f1-438659e05fe5",
           "name": "Punk"      
         },
         {
-          "id": 456,
+          "id": "62d4db4c-160c-52e4-8c47-bf2e7b412ca2",
           "name": "Ska"
         }
       ]

@@ -61,11 +61,11 @@ Success output format
       "result_count": 2,
       "results": [
         {
-          "id": 123,
+          "id": "2d24515c-a459-552a-b022-e85d1621425a",
           "name": "Dookie"      
         },
         {
-          "id": 456,
+          "id": "b3c204e4-445d-5812-9366-28de6770c4e1",
           "name": "Insomniac"
         }
       ]
