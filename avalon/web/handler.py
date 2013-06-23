@@ -133,13 +133,6 @@ class AvalonHandler(object):
     @cherrypy.expose
     @cherrypy.tools.encode(text_only=False, encoding=avalon.DEFAULT_ENCODING)
     @cherrypy.tools.json_out(handler=avalon.web.output.json_handler)
-    def server(self, *args, **kwargs):
-        """Application status endpoint."""
-        return self._status.get_server_data(self._startup, self._api)
-
-    @cherrypy.expose
-    @cherrypy.tools.encode(text_only=False, encoding=avalon.DEFAULT_ENCODING)
-    @cherrypy.tools.json_out(handler=avalon.web.output.json_handler)
     @render_results
     @application_ready
     @convert_parameters

@@ -183,27 +183,6 @@ class AvalonStatusEndpoints(object):
         """No-op."""
         pass
 
-    def get_server_data(self, startup, api):
-        """Get a dictionary of various bits of data about the currently
-        running server.
-
-        Keys include: status, user, group, uptime, memory, threads,
-        albums, artists, genres, tracks, and trie_nodes.
-        """
-        return {
-            'status': 'ready' if self.ready else 'not-ready',
-            'user': avalon.util.get_current_uname(),
-            'group': avalon.util.get_current_gname(),
-            'uptime': str(datetime.utcnow() - startup),
-            'memory': avalon.util.get_mem_usage(),
-            'threads': avalon.util.get_thread_names(),
-            'albums': len(api.get_albums()),
-            'artists': len(api.get_artists()),
-            'genres': len(api.get_genres()),
-            'tracks': len(api.get_songs()),
-            'trie_nodes': api.get_search_size()
-        }
-
     def get_heartbeat(self):
         """Get the heartbeat to indicate if the server has started."""
         if self.ready:
