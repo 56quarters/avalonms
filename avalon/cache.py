@@ -203,31 +203,31 @@ class TrackStore(object):
         self._all = frozenset(all_tracks)
 
     def by_album(self, album_id):
-        """Get tracks by an album UUID, empty set if there are no tracks
-        with that album UUID.
+        """Get a :class:`frozenset` of tracks by an album UUID, empty frozenset
+        if there are no tracks with that album UUID.
         """
         return self._by_album[album_id]
 
     def by_artist(self, artist_id):
-        """Get tracks by an artist UUID, empty set if there are no tracks
-        with that artist UUID.
+        """Get a :class:`frozenset` of tracks by an artist UUID, empty frozenset
+        if there are no tracks with that artist UUID.
         """
         return self._by_artist[artist_id]
 
     def by_genre(self, genre_id):
-        """Get tracks by a genre UUID, empty set if there are no tracks
-        with that genre UUID.
+        """Get a :class:`frozenset` of tracks by a genre UUID, empty frozenset
+        if there are no tracks with that genre UUID.
         """
         return self._by_genre[genre_id]
 
     def by_id(self, track_id):
-        """Get tracks by a track UUID, empty set if there are no tracks
-        with that UUID.
+        """Get a :class:`frozenset` of tracks by a track UUID, empty frozenset
+        if there are no tracks with that UUID.
         """
         return self._by_id[track_id]
 
     def all(self):
-        """Get all tracks."""
+        """Get a :class:`frozenset` of all tracks."""
         return self._all
 
 
@@ -259,13 +259,13 @@ class _IdNameStore(object):
         self._all = frozenset(all_elms)
 
     def by_id(self, elm_id):
-        """Get elements by their UUID, empty set if there are no elements
-        with that UUID.
+        """Get a :class:`frozenset` of elements by their UUID, empty frozenset
+         if there are no elements with that UUID.
         """
         return self._by_id[elm_id]
 
     def all(self):
-        """Get all elements in the store."""
+        """Get a :class:`frozenset` of all elements in the store."""
         return self._all
 
 
