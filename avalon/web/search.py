@@ -268,10 +268,10 @@ class AvalonTextSearch(object):
         genre_search = self._trie_factory()
         track_search = self._trie_factory()
 
-        self._add_all_to_tree(self._album_store.all(), album_search)
-        self._add_all_to_tree(self._artist_store.all(), artist_search)
-        self._add_all_to_tree(self._genre_store.all(), genre_search)
-        self._add_all_to_tree(self._track_store.all(), track_search)
+        self._add_all_to_tree(self._album_store.get_all(), album_search)
+        self._add_all_to_tree(self._artist_store.get_all(), artist_search)
+        self._add_all_to_tree(self._genre_store.get_all(), genre_search)
+        self._add_all_to_tree(self._track_store.get_all(), track_search)
 
         self._album_search = album_search
         self._artist_search = artist_search
@@ -333,11 +333,11 @@ class AvalonTextSearch(object):
         out = set()
 
         for album in albums:
-            out.update(self._track_store.by_album(album.id))
+            out.update(self._track_store.get_by_album(album.id))
         for artist in artists:
-            out.update(self._track_store.by_artist(artist.id))
+            out.update(self._track_store.get_by_artist(artist.id))
         for genre in genres:
-            out.update(self._track_store.by_genre(genre.id))
+            out.update(self._track_store.get_by_genre(genre.id))
 
         return out.union(self._track_search.search(searchable(needle)))
 

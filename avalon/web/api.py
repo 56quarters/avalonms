@@ -21,9 +21,6 @@
 """API endpoints for the in-memory meta data stores."""
 
 import functools
-from datetime import datetime
-
-import avalon.util
 
 
 __all__ = [
@@ -86,7 +83,7 @@ class AvalonApiEndpoints(object):
         """Return album results based on the given query string
         parameters, all albums if there are no parameters.
         """
-        all_albums = self._albums.all()
+        all_albums = self._albums.get_all()
         if params is None or params.get('query') is None:
             return all_albums
         return self._search.search_albums(params.get('query'))
@@ -95,7 +92,7 @@ class AvalonApiEndpoints(object):
         """Return artist results based on the given query string
         parameters, all artists if there are no parameters.
         """
-        all_artists = self._artists.all()
+        all_artists = self._artists.get_all()
         if params is None or params.get('query') is None:
             return all_artists
         return self._search.search_artists(params.get('query'))
@@ -104,7 +101,7 @@ class AvalonApiEndpoints(object):
         """Return genre results based on the given query string
         parameters, all genres if there are no parameters.
         """
-        all_genres = self._genres.all()
+        all_genres = self._genres.get_all()
         if params is None or params.get('query') is None:
             return all_genres
         return self._search.search_genres(params.get('query'))
@@ -113,7 +110,7 @@ class AvalonApiEndpoints(object):
         """Return song results based on the given query string
         parameters, all songs if there are no parameters."""
         if params is None:
-            return self._tracks.all()
+            return self._tracks.get_all()
 
         sets = []
 
@@ -122,15 +119,15 @@ class AvalonApiEndpoints(object):
                 self._search.search_tracks(params.get('query')))
         if params.get('album') is not None:
             sets.append(
-                self._tracks.by_album(
+                self._tracks.get_by_album(
                     self._id_cache.get_album_id(params.get('album'))))
         if params.get('artist') is not None:
             sets.append(
-                self._tracks.by_artist(
+                self._tracks.get_by_artist(
                     self._id_cache.get_artist_id(params.get('artist'))))
         if params.get('genre') is not None:
             sets.append(
-                self._tracks.by_genre(
+                self._tracks.get_by_genre(
                     self._id_cache.get_genre_id(params.get('genre'))))
 
         album_id = params.get_uuid('album_id')
@@ -138,17 +135,18 @@ class AvalonApiEndpoints(object):
         genre_id = params.get_uuid('genre_id')
 
         if album_id is not None:
-            sets.append(self._tracks.by_album(album_id))
+            sets.append(self._tracks.get_by_album(album_id))
         if artist_id is not None:
-            sets.append(self._tracks.by_artist(artist_id))
+            sets.append(self._tracks.get_by_artist(artist_id))
         if genre_id is not None:
-            sets.append(self._tracks.by_genre(genre_id))
+            sets.append(self._tracks.get_by_genre(genre_id))
 
         if sets:
             # Return the intersection of any non-None sets
             return intersection(sets)
+
         # There were no parameters to filter songs by any criteria
-        return self._tracks.all()
+        return self._tracks.get_all()
 
 
 class AvalonStatusEndpointsConfig(object):

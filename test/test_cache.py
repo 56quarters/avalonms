@@ -222,7 +222,7 @@ class TestIdNameStore(object):
 
         cache = avalon.cache.AlbumStore(dao)
 
-        res = cache.by_id(uuid.UUID("2d24515c-a459-552a-b022-e85d1621425a"))
+        res = cache.get_by_id(uuid.UUID("2d24515c-a459-552a-b022-e85d1621425a"))
         assert 1 == len(res)
 
         for dookie in res:
@@ -246,7 +246,7 @@ class TestIdNameStore(object):
         names = set([u'Dookie', u'Insomniac'])
         cache = avalon.cache.AlbumStore(dao)
 
-        res = cache.all()
+        res = cache.get_all()
         assert 2 == len(res)
 
         for album in res:

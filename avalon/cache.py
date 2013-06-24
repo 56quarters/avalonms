@@ -202,31 +202,31 @@ class TrackStore(object):
         self._by_id = get_frozen_mapping(by_id)
         self._all = frozenset(all_tracks)
 
-    def by_album(self, album_id):
+    def get_by_album(self, album_id):
         """Get a :class:`frozenset` of tracks by an album UUID, empty frozenset
         if there are no tracks with that album UUID.
         """
         return self._by_album[album_id]
 
-    def by_artist(self, artist_id):
+    def get_by_artist(self, artist_id):
         """Get a :class:`frozenset` of tracks by an artist UUID, empty frozenset
         if there are no tracks with that artist UUID.
         """
         return self._by_artist[artist_id]
 
-    def by_genre(self, genre_id):
+    def get_by_genre(self, genre_id):
         """Get a :class:`frozenset` of tracks by a genre UUID, empty frozenset
         if there are no tracks with that genre UUID.
         """
         return self._by_genre[genre_id]
 
-    def by_id(self, track_id):
+    def get_by_id(self, track_id):
         """Get a :class:`frozenset` of tracks by a track UUID, empty frozenset
         if there are no tracks with that UUID.
         """
         return self._by_id[track_id]
 
-    def all(self):
+    def get_all(self):
         """Get a :class:`frozenset` of all tracks."""
         return self._all
 
@@ -258,13 +258,13 @@ class _IdNameStore(object):
         self._by_id = get_frozen_mapping(by_id)
         self._all = frozenset(all_elms)
 
-    def by_id(self, elm_id):
+    def get_by_id(self, elm_id):
         """Get a :class:`frozenset` of elements by their UUID, empty frozenset
          if there are no elements with that UUID.
         """
         return self._by_id[elm_id]
 
-    def all(self):
+    def get_all(self):
         """Get a :class:`frozenset` of all elements in the store."""
         return self._all
 
