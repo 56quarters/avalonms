@@ -229,7 +229,7 @@ class TestIdNameStore(object):
             assert u'Dookie' == dookie.name
         self.mox.VerifyAll()
 
-    def test_all(self):
+    def test_get_all(self):
         model1 = self.mox.CreateMock(avalon.models.Album)
         model1.id = uuid.UUID("2d24515c-a459-552a-b022-e85d1621425a")
         model1.name = u'Dookie'
@@ -252,4 +252,121 @@ class TestIdNameStore(object):
         for album in res:
             assert album.name in names
         self.mox.VerifyAll()
+
+
+class TestTrackStore(object):
+    def setup_method(self, method):
+        self.mox = mox.Mox()
+
+        album = self.mox.CreateMock(avalon.models.Album)
+        album.id = uuid.UUID("350c49d9-fa38-585a-a0d9-7343c8b910ed")
+        album.name = u'Ruiner'
+
+        artist = self.mox.CreateMock(avalon.models.Artist)
+        artist.id = uuid.UUID("aa143f55-65e3-59f3-a1d8-36eac7024e86")
+        artist.name = u'A Wilhelm Scream'
+
+        genre = self.mox.CreateMock(avalon.models.Genre)
+        genre.id = uuid.UUID("8794d7b7-fff3-50bb-b1f1-438659e05fe5")
+        genre.name = u'Punk'
+
+        song = self.mox.CreateMock(avalon.models.Track)
+        song.id = uuid.UUID("ca2e8303-69d7-53ec-907e-2f111103ba29")
+        song.name = u'The Pool'
+        song.length = 150
+        song.track = 3
+        song.year = 2005
+
+        song.album_id = album.id
+        song.artist_id = artist.id
+        song.genre_id = genre.id
+
+        song.album = album
+        song.artist = artist
+        song.genre = genre
+
+        self.song = song
+
+    def teardown_method(self, method):
+        self.mox.UnsetStubs()
+
+    def test_get_by_album(self):
+        dao = self.mox.CreateMock(avalon.cache.ReadOnlyDao)
+        dao.get_all_tracks().AndReturn([self.song])
+        self.mox.ReplayAll()
+
+        cache = avalon.cache.TrackStore(dao)
+        songs = cache.get_by_album(uuid.UUID("350c49d9-fa38-585a-a0d9-7343c8b910ed"))
+
+        for song in songs:
+            assert uuid.UUID("ca2e8303-69d7-53ec-907e-2f111103ba29") == song.id
+
+    def test_get_by_album_missing(self):
+        dao = self.mox.CreateMock(avalon.cache.ReadOnlyDao)
+        dao.get_all_tracks().AndReturn([self.song])
+        self.mox.ReplayAll()
+
+        cache = avalon.cache.TrackStore(dao)
+        songs = cache.get_by_album(uuid.UUID('daa612e8-daa8-49a0-8b14-6ee85720fb1c'))
+        assert 0 == len(songs)
+
+    def test_get_by_artist(self):
+        dao = self.mox.CreateMock(avalon.cache.ReadOnlyDao)
+        dao.get_all_tracks().AndReturn([self.song])
+        self.mox.ReplayAll()
+
+        cache = avalon.cache.TrackStore(dao)
+        songs = cache.get_by_artist(uuid.UUID("aa143f55-65e3-59f3-a1d8-36eac7024e86"))
+
+        for song in songs:
+            assert uuid.UUID("ca2e8303-69d7-53ec-907e-2f111103ba29") == song.id
+
+    def test_get_by_artist_missing(self):
+        dao = self.mox.CreateMock(avalon.cache.ReadOnlyDao)
+        dao.get_all_tracks().AndReturn([self.song])
+        self.mox.ReplayAll()
+
+        cache = avalon.cache.TrackStore(dao)
+        songs = cache.get_by_artist(uuid.UUID('a15dfab4-75e6-439f-b621-5a3a9cf905d2'))
+        assert 0 == len(songs)
+
+    def test_get_by_genre(self):
+        dao = self.mox.CreateMock(avalon.cache.ReadOnlyDao)
+        dao.get_all_tracks().AndReturn([self.song])
+        self.mox.ReplayAll()
+
+        cache = avalon.cache.TrackStore(dao)
+        songs = cache.get_by_genre(uuid.UUID("8794d7b7-fff3-50bb-b1f1-438659e05fe5"))
+
+        for song in songs:
+            assert uuid.UUID("ca2e8303-69d7-53ec-907e-2f111103ba29") == song.id
+
+    def test_get_by_genre_missing(self):
+        dao = self.mox.CreateMock(avalon.cache.ReadOnlyDao)
+        dao.get_all_tracks().AndReturn([self.song])
+        self.mox.ReplayAll()
+
+        cache = avalon.cache.TrackStore(dao)
+        songs = cache.get_by_genre(uuid.UUID('cf16d2d9-35da-4c2f-9f35-e52fb952864e'))
+        assert 0 == len(songs)
+
+    def test_get_by_id(self):
+        dao = self.mox.CreateMock(avalon.cache.ReadOnlyDao)
+        dao.get_all_tracks().AndReturn([self.song])
+        self.mox.ReplayAll()
+
+        cache = avalon.cache.TrackStore(dao)
+        songs = cache.get_by_id(uuid.UUID("ca2e8303-69d7-53ec-907e-2f111103ba29"))
+
+        for song in songs:
+            assert uuid.UUID("ca2e8303-69d7-53ec-907e-2f111103ba29") == song.id
+
+    def test_get_by_id_missing(self):
+        dao = self.mox.CreateMock(avalon.cache.ReadOnlyDao)
+        dao.get_all_tracks().AndReturn([self.song])
+        self.mox.ReplayAll()
+
+        cache = avalon.cache.TrackStore(dao)
+        songs = cache.get_by_id(uuid.UUID('72e2e340-fabc-4712-aa26-8a8f122999e8'))
+        assert 0 == len(songs)
 
