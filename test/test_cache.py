@@ -45,7 +45,8 @@ class TestIdLookupCache(object):
 
         cache = avalon.cache.IdLookupCache(dao)
 
-        assert uuid.UUID("2d24515c-a459-552a-b022-e85d1621425a") == cache.get_album_id(u'Dookie')
+        assert uuid.UUID("2d24515c-a459-552a-b022-e85d1621425a") == \
+               cache.get_album_id(u'Dookie')
         self.mox.VerifyAll()
 
     def test_get_album_id_does_not_exist(self):
@@ -77,7 +78,8 @@ class TestIdLookupCache(object):
 
         cache = avalon.cache.IdLookupCache(dao)
 
-        assert uuid.UUID("2d24515c-a459-552a-b022-e85d1621425a") == cache.get_album_id(u'DOOKIE')
+        assert uuid.UUID("2d24515c-a459-552a-b022-e85d1621425a") == \
+               cache.get_album_id(u'DOOKIE')
         self.mox.VerifyAll()
 
     def test_get_artist_id_exists(self):
@@ -95,7 +97,8 @@ class TestIdLookupCache(object):
 
         cache = avalon.cache.IdLookupCache(dao)
 
-        assert uuid.UUID("5cede078-e88e-5929-b8e1-cfda7992b8fd") == cache.get_artist_id(u'Bad Religion')
+        assert uuid.UUID("5cede078-e88e-5929-b8e1-cfda7992b8fd") == \
+               cache.get_artist_id(u'Bad Religion')
         self.mox.VerifyAll()
 
     def test_get_artist_id_does_not_exist(self):
@@ -127,7 +130,8 @@ class TestIdLookupCache(object):
 
         cache = avalon.cache.IdLookupCache(dao)
 
-        assert uuid.UUID("5cede078-e88e-5929-b8e1-cfda7992b8fd") == cache.get_artist_id(u'BaD RELIGION')
+        assert uuid.UUID("5cede078-e88e-5929-b8e1-cfda7992b8fd") == \
+               cache.get_artist_id(u'BaD RELIGION')
         self.mox.VerifyAll()
 
     def test_get_genre_id_exists(self):
@@ -145,7 +149,8 @@ class TestIdLookupCache(object):
 
         cache = avalon.cache.IdLookupCache(dao)
 
-        assert uuid.UUID("8794d7b7-fff3-50bb-b1f1-438659e05fe5") == cache.get_genre_id(u'Punk')
+        assert uuid.UUID("8794d7b7-fff3-50bb-b1f1-438659e05fe5") == \
+               cache.get_genre_id(u'Punk')
         self.mox.VerifyAll()
 
     def test_get_genre_id_does_not_exist(self):
@@ -177,7 +182,8 @@ class TestIdLookupCache(object):
 
         cache = avalon.cache.IdLookupCache(dao)
 
-        assert uuid.UUID("8794d7b7-fff3-50bb-b1f1-438659e05fe5") == cache.get_genre_id(u'PUNK')
+        assert uuid.UUID("8794d7b7-fff3-50bb-b1f1-438659e05fe5") == \
+               cache.get_genre_id(u'PUNK')
         self.mox.VerifyAll()
 
     def test_reload_calls_dao_methods(self):
