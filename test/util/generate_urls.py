@@ -8,7 +8,6 @@ Output valid requests with query string params to each of the
 metadata endpoints.
 """
 
-
 from __future__ import print_function
 
 import sys
@@ -37,7 +36,6 @@ except avalon.exc.ConnectionError, e:
     print(str(e), file=sys.stderr)
     sys.exit(1)
 
-
 song_base = 'http://localhost:8080/avalon/songs?'
 album_base = 'http://localhost:8080/avalon/albums?'
 artist_base = 'http://localhost:8080/avalon/artists?'
@@ -51,7 +49,7 @@ for album in session.query(avalon.models.Album).all():
     urls.add(song_base + 'album=' + urllib.quote_plus(album.name.lower().encode('utf-8')))
     urls.add(song_base + 'album=' + urllib.quote_plus(album.name.upper().encode('utf-8')))
     urls.add(song_base + 'album_id=' + urllib.quote_plus(str(album.id)))
-    urls.add(album_base + 'order=name' )
+    urls.add(album_base + 'order=name')
     for term in album.name.split():
         urls.add(album_base + 'query=' + urllib.quote_plus(term.encode('utf-8')))
         urls.add(song_base + 'query=' + urllib.quote_plus(term.encode('utf-8')))
