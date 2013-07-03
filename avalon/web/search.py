@@ -130,6 +130,10 @@ class TrieNode(object):
         return {}
 
 
+# TODO: Since .add() and .search() use recursion, we are limited to
+# terms of length `sys.getrecursionlimit()` (1000 on my system) in the
+# tree. Maybe not a limit we'll run into in practice, but no reason to
+# have a limit if it can be avoided at no cost.
 class SearchTrie(object):
     """Search trie structure with functionality for building an index
     for text matching and querying it.
