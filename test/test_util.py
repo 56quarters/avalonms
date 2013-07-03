@@ -18,7 +18,7 @@ class TestFunctions(object):
         assert False is avalon.util.is_perm_error(e)
 
     def test_is_perm_error_not_io_error(self):
-        """Test that non IOErrors are handle correctly."""
+        """Test that non-IOErrors are handled correctly."""
         e = Exception("Rut roh")
         assert False is avalon.util.is_perm_error(e)
 
