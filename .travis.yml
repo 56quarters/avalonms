@@ -6,8 +6,16 @@ python:
 
 # command to install dependencies
 install:
+  # Install basic dependencies required by the Avalon Music Server itself using
+  # packages pinned to a particular version (as opposed to the packages in setup.py)
+  - "pip install -r requirements.txt --use-mirrors"
+  # Install unit test specific requirements. NOTE that not all of the packages
+  # in this file are required for running on Travis, however, this requirement
+  # file is shared with setup for local development and testing.
   - "pip install -r requirements-test.txt --use-mirrors"
+  # Install the server itself, which should not trigger any more packages being
+  # installed if everything above worked alright.
   - "pip install . --use-mirrors"
 
-# command to run tests
+# command to run tests.
 script: py.test test
