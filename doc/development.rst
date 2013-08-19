@@ -55,8 +55,7 @@ environment where it and all dependencies are installed.
 
     source env/bin/activate
 
-Start the server with the path to your music collection as the sole argument. To stop
-the server hit ``CTRL-c`` or type ``killall avalonmsd`` in another console.
+Start the server with the path to your music collection as the sole argument.
 
   ::
 
@@ -64,6 +63,13 @@ the server hit ``CTRL-c`` or type ``killall avalonmsd`` in another console.
 
 You can find more detail documentation for running the server in the :doc:`usage`
 section.
+
+To stop the server hit ``CTRL-c`` or type ``killall avalonmsd`` in another console. After
+stopping the server leave the virtual environment.
+
+  ::
+
+    deactivate
 
 Running Tests
 ~~~~~~~~~~~~~
@@ -77,3 +83,4 @@ configuration file in the root directory of the git checkout.
 
     source env/bin/activate
     tox
+    deactivate
