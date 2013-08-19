@@ -49,7 +49,7 @@ Running The Server
 ~~~~~~~~~~~~~~~~~~
 
 To run your local developement copy of the server, you will need to enter the virtual
-environment where it (along with all dependencies are installed).
+environment where it and all dependencies are installed.
 
   ::
 
