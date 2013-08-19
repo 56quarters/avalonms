@@ -5,4 +5,4 @@ python:
 # command to install dependencies
 install: "pip install -r requirements-test.txt --use-mirrors"
 # command to run tests
-script: tox -c tox.ini
+script: py.test test
