@@ -2,10 +2,12 @@
 .#*
 _build
 dist/
+env
 .project
 .pydevproject
 .settings
 .idea
+.tox
 *.iml
 *.egg-info
 VERSION
