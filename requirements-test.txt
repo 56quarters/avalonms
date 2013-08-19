@@ -6,5 +6,6 @@ mutagen==1.20
 python-daemon==1.6
 simplejson==3.3.0
 
+tox==1.4.3
 mox==0.5.3
 pytest==2.3.5
