@@ -55,11 +55,12 @@ environment where it and all dependencies are installed.
 
     source env/bin/activate
 
-Start the server with the path to your music collection as the sole argument.
+Start the server with the path to your music collection as the sole argument. To stop
+the server hit ``CTRL-c`` or type ``killall avalonmsd`` in another console.
 
   ::
 
-    avalonms ~/Music
+    avalonmsd ~/Music
 
 You can find more detail documentation for running the server in the :doc:`usage`
 section.
