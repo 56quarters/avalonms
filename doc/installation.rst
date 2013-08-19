@@ -53,6 +53,6 @@ and ``virtualenv``).
     cd ~/avalon-src
     python setup.py version
     python setup.py static --yui-jar /path/to/yui.jar
-    pip install -r requires.txt
+    pip install -r requirements.txt
     pip install .
 
