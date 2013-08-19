@@ -33,4 +33,5 @@ The source is available at https://github.com/tshlabs/avalonms
 
 The ChangeLog is available at https://raw.github.com/tshlabs/avalonms/master/ChangeLog
 
-.. image:: https://travis-ci.org/tshlabs/avalonms.png?branch=master   :target: https://travis-ci.org/tshlabs/avalonms
+.. image:: https://travis-ci.org/tshlabs/avalonms.png?branch=master
+    :target: https://travis-ci.org/tshlabs/avalonms
