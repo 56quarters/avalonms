@@ -29,6 +29,7 @@ Contents
    usage
    api
    ids
+   development
 
 
 Indices and tables

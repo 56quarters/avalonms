@@ -35,8 +35,8 @@ Install required dependencies
   ::
 
     source env/bin/activate
-    pip install -r requirements.txt
-    pip install -r requirements-test.txt
+    pip install -r requirements.txt --use-mirrors
+    pip install -r requirements-test.txt --use-mirrors
 
 Install the checkout in "development mode" and leave the virtual environment
 
@@ -48,7 +48,7 @@ Install the checkout in "development mode" and leave the virtual environment
 Running The Server
 ~~~~~~~~~~~~~~~~~~
 
-To run your local developement copy of the server, you will need to enter the virtual
+To run your local development copy of the server, you will need to enter the virtual
 environment where it and all dependencies are installed.
 
   ::
@@ -84,3 +84,7 @@ configuration file in the root directory of the git checkout.
     source env/bin/activate
     tox
     deactivate
+
+NOTE: The first time you run ``tox`` may take a while to complete since it is building
+isolated virtual environment(s) in which to run the unit tests. Subsequent runs should
+be quicker.
