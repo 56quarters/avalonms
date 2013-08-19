@@ -35,8 +35,10 @@ __all__ = [
 def searchable(s):
     """Convert an input string to a consistent searchable form by
     removing accents, diaretics, and converting it to lowercase.
+
+    None input will be converted to an empty string.
     """
-    if not s:
+    if s is None:
         return ''
     return strip_accents(s).lower()
 
@@ -261,9 +263,9 @@ class AvalonTextSearch(object):
     def size(self):
         """Return the total number of nodes used by the search indexes."""
         return self._album_search.size() + \
-            self._artist_search.size() + \
-            self._genre_search.size() + \
-            self._track_search.size()
+               self._artist_search.size() + \
+               self._genre_search.size() + \
+               self._track_search.size()
 
     def reload(self):
         """Rebuild the search indexes for the collection."""
