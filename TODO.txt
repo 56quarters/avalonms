@@ -1,7 +1,5 @@
-For v3:
-* Tests
-* Echonest integration
-* Foreign ID mapping system
-* Testing with MySQL backend
-* LOD output
-
+# TODO : Make sense of requirements, setup.py, unit tests, travis config, dev setup
+# Should we generate a runtests.py file with py.test?
+# Should travis have its own config that just installs tox? tox delegates to requirements-test?
+# Should tests be run from `python setup.py test`?
+# tox -> `python setup.py test` -> py.test via runtests.py?
