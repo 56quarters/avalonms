@@ -32,12 +32,12 @@ release: tags
 	python setup.py version
 	python setup.py static register sdist upload
 
+site:
+	cd doc; make dirhtml
+
 tags: push
 	git push --tags origin
 	git push --tags github
 	git push --tags bitbucket
-
-site:
-	cd doc; make dirhtml
 
 
