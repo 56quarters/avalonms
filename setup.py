@@ -185,7 +185,7 @@ REQUIRES = [
 ]
 
 if _python_version < _argparse_included:
-    REQUIRES.extend('argparse')
+    REQUIRES.append('argparse')
 
 README = get_contents('README.rst')
 VERSION = None
