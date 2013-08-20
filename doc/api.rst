@@ -5,9 +5,7 @@ The Avalon Music Server handles requests on the specified interface and
 port at the path ``/avalon``.
 
 Informational endpoints return information about the current status of
-the server in text/html format.
-
-* ``/avalon/``
+the server.
 
 * ``/avalon/heartbeat``
 
@@ -33,7 +31,6 @@ Informational Endpoints
 .. toctree::
    :maxdepth: 1
 
-   api/status
    api/heartbeat
 
 Metadata Endpoints
