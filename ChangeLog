@@ -1,5 +1,12 @@
 ChangeLog for Avalon Music Server
 
+2013-08-19 - v0.2.24
+   * Fix bug in setup.py that prevented installation in Python 2.6
+   * Unit test coverage improvements
+   * Testing infrastructure improvements (Tox, Travis CI)
+   * Documentation for development environment setup
+   * Various typo and documentation updates
+
 2013-06-17 - v0.2.23
    * Changes to the names of API errors and setting HTTP statuses correctly
    * Sample deploy and init scripts for the Avalon Music Server
