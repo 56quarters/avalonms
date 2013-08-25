@@ -136,10 +136,7 @@ def new_server(app_config, logger, handler, path):
         app_config.server_port)
     server_config.num_threads = app_config.server_threads
     server_config.queue_size = app_config.server_queue
-    server_config.application = CherryPyApplication(
-        handler,
-        script_name=path,
-        config=avalon.web.CONF_FILE)
+    server_config.application = CherryPyApplication(handler, script_name=path)
     return avalon.server.AvalonServer(server_config)
 
 

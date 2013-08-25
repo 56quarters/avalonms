@@ -98,77 +98,6 @@ class VersionGenerator(Command):
         self._write_version(self.version_file)
 
 
-class StaticCompilation(Command):
-    """Command to compress and concatenate CSS and JS"""
-
-    description = "Build static assets for the status page"
-
-    user_options = [
-        ('static-base=', None,
-            'Base directory for CSS and JS directories'),
-        ('css-files=', None,
-            'List of CSS files to concatenate and compress (comma separated, relative to `static-base`)'),
-        ('css-output=', None,
-            'Name of the final CSS output file (file only, no path)'),
-        ('js-files=', None,
-            'List of JS files to concatenate and compress (comma separated, relative to `static-base`)'),
-        ('js-output=', None,
-            'Name of the final JS output file (file only, no path)'),
-        ('yui-jar=', None,
-            'Path to YUI compressor jar')]
-
-    _valid_exts = frozenset(['js', 'css'])
-
-    def initialize_options(self):
-        self.static_base = 'avalon/web/data'
-        self.css_files = ['css/bootstrap.css', 'css/bootstrap-responsive.css', 'css/avalon.css']
-        self.css_output = 'all.min.css'
-        self.js_files = ['js/jquery.js', 'js/bootstrap.js', 'js/mustache.js']
-        self.js_output = 'all.min.js'
-        self.yui_jar = '/opt/yui/current.jar'
-
-    def finalize_options(self):
-        self.ensure_dirname('static_base')
-        self.ensure_string_list('css_files')
-        self.ensure_string_list('js_files')
-        self.ensure_filename('yui_jar')
-
-    def _compress(self, contents, out_file):
-        """Compress the given contents and write it to the output file."""
-        ext = os.path.splitext(out_file)[1].lstrip('.')
-
-        if ext not in self._valid_exts:
-            raise DistutilsOptionError(
-                "Output file [%s] does not have a valid extension" % out_file)
-
-        full_out_file = os.path.join(self.static_base, ext, out_file)
-        proc = subprocess.Popen(
-            ['java', '-jar', self.yui_jar, '--type', ext, '-o', full_out_file],
-            stdin=subprocess.PIPE, stdout=None, stderr=subprocess.PIPE)
-
-        out, err = proc.communicate(input=contents)
-        if 0 != proc.wait():
-            raise OSError("Could not minimize %s: %s" % (out_file, err))
-
-    def _compress_all(self, all_files, out_file):
-        """Compress the collection of files and write the contents to the
-        given output file.
-        """
-        all_content = []
-        for a_file in all_files:
-            full_path = os.path.join(self.static_base, a_file)
-            with open(full_path, 'rb') as handle:
-                all_content.append(handle.read())
-        self._compress('\n\n'.join(all_content), out_file)
-
-    def run(self):
-        """Compress all CSS and JS files and write them to respective
-        single files.
-        """
-        self._compress_all(self.css_files, self.css_output)
-        self._compress_all(self.js_files, self.js_output)
-
-
 # If this is a version of Python prior to 2.7, argparse was
 # not included in the standard library and we must list it as
 # an installation dependency.
@@ -206,16 +135,8 @@ setup(
     license=LICENSE,
     url=URL,
     cmdclass={
-        'version': VersionGenerator,
-        'static': StaticCompilation},
+        'version': VersionGenerator},
     install_requires=REQUIRES,
     packages=['avalon', 'avalon.app', 'avalon.tags', 'avalon.web'],
-    package_data={'avalon.web': [
-        'data/status.html',
-        'data/config.ini',
-        'data/css/*.css',
-        'data/js/*.js',
-        'data/img/*.png'
-    ]},
     scripts=[os.path.join('bin', 'avalonmsd')])
 
