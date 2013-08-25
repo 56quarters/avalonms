@@ -74,17 +74,14 @@ stopping the server leave the virtual environment.
 Running Tests
 ~~~~~~~~~~~~~
 
-Running tests for the server locally makes use the of
-`Tox tool <https://tox.readthedocs.org/>`_. To run it, you must enter the virtual
-environment that you set up earlier. This command will use the default ``tox.ini``
-configuration file in the root directory of the git checkout.
+Running tests for the server locally makes use of `py.test <http://pytest.org/>`_. To run
+it, you must enter the virtual environment that you set up earlier. This command will run
+all tests contained in the ``test`` directory using a few predefined
+`rules <http://pytest.org/latest/goodpractises.html#test-discovery>`_.
 
   ::
 
     source env/bin/activate
-    tox
+    py.test test
     deactivate
 
-NOTE: The first time you run ``tox`` may take a while to complete since it is building
-isolated virtual environment(s) in which to run the unit tests. Subsequent runs should
-be quicker.

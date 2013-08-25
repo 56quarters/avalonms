@@ -36,7 +36,7 @@ doc:
 	cd doc; make dirhtml
 
 docpreview: doc
-	cd doc/_build/dirhtml; $(VIRT_ENV)/bin/python -m SimpleHTTPServer
+	cd doc/_build/dirhtml; python -m SimpleHTTPServer
 
 env:
 	virtualenv $(VIRT_ENV)
