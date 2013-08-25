@@ -1,6 +1,8 @@
 # Dev shortcuts
 #
 
+VIRT_ENV = env
+
 help:
 	@echo "Available targets:"
 	@echo "    clean: Remove build artifacts"
@@ -19,9 +21,13 @@ doc: site
 docpreview: doc
 	cd doc/_build/dirhtml; python -m SimpleHTTPServer
 
+
 init:
-	python setup.py develop
-	pip install -r requires.txt
+	rm -rf $(VIRT_ENV)
+	virtualenv $(VIRT_ENV)
+	$(VIRT_ENV)/bin/pip install -r requirements.txt --use-mirrors
+	$(VIRT_ENV)/bin/pip install -r requirements-test.txt --use-mirrors
+	$(VIRT_ENV)/bin/pip install -e .
 
 push:
 	git push origin master
@@ -30,7 +36,7 @@ push:
 
 release: tags
 	python setup.py version
-	python setup.py static register sdist upload
+	python setup.py register sdist upload
 
 site:
 	cd doc; make dirhtml
@@ -39,5 +45,8 @@ tags: push
 	git push --tags origin
 	git push --tags github
 	git push --tags bitbucket
+
+test:
+	$(VIRT_ENV)/bin/py.test test
 
 

@@ -7,7 +7,6 @@ env
 .pydevproject
 .settings
 .idea
-.tox
 *.iml
 *.egg-info
 VERSION
