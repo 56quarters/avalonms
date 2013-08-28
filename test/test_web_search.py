@@ -28,20 +28,52 @@ class TestStripAccents(object):
 
 
 class TestTrieNode(object):
-    def test_add_one_element(self):
-        pass
+    def test_elements_empty(self):
+        node = avalon.web.search.TrieNode()
+        assert 0 == len(node.get_elements())
 
-    def test_add_two_elements(self):
-        pass
+    def test_one_element(self):
+        node = avalon.web.search.TrieNode()
+        node.add_element(123)
 
-    def test_get_elements_empty(self):
-        pass
+        elms = node.get_elements()
+        assert 1 == len(elms)
+        assert 123 in elms
 
-    def test_get_elements_one_element(self):
-        pass
+    def test_two_elements(self):
+        node = avalon.web.search.TrieNode()
+        node.add_element(123)
+        node.add_element(456)
 
-    def test_get_elements_two_elements(self):
-        pass
+        elms = node.get_elements()
+        assert 2 == len(elms)
+        assert 123 in elms
+        assert 456 in elms
+
+    def test_children_empty(self):
+        node = avalon.web.search.TrieNode()
+        assert 0 == len(node.get_children())
+
+    def test_one_child(self):
+        node = avalon.web.search.TrieNode()
+        child = avalon.web.search.TrieNode()
+
+        node.add_child('a', child)
+        children = node.get_children()
+        assert 1 == len(children)
+        assert 'a' in children
+
+    def test_two_children(self):
+        node = avalon.web.search.TrieNode()
+        child1 = avalon.web.search.TrieNode()
+        child2 = avalon.web.search.TrieNode()
+
+        node.add_child('a', child1)
+        node.add_child('b', child2)
+        children = node.get_children()
+        assert 2 == len(children)
+        assert 'a' in children
+        assert 'b' in children
 
 
 class TestSearchTrie(object):
