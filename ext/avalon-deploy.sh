@@ -25,9 +25,7 @@ cd "${DEPLOY_ROOT}"
 
 echo "Installing avalonms in new virtualenv..."
 virtualenv $DEPLOY_VERSION >/dev/null
-source $DEPLOY_VERSION/bin/activate
-pip install --use-mirrors avalonms >/dev/null
-deactivate
+$DEPLOY_VERSION/bin/pip install --use-mirrors avalonms >/dev/null
 
 echo "Setting ${DEPLOY_VERSION} to 'current'..."
 ln -s "${DEPLOY_VERSION}" "${DEPLOY_TMP_VERSION}"
