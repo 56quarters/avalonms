@@ -43,7 +43,13 @@ def intersection(sets):
 
 
 class AvalonApiEndpointsConfig(object):
-    """Configuration for the metadata endpoints."""
+    """Configuration for the metadata endpoints.
+
+    Expected configuration values include in-memory stores for
+    all tracks, albums, artists, and genres, A structure that
+    supports text matching for each of those types, and a way
+    translate names to IDs and vice versa.
+    """
 
     def __init__(self):
         self.track_store = None
@@ -150,7 +156,11 @@ class AvalonApiEndpoints(object):
 
 
 class AvalonStatusEndpointsConfig(object):
-    """Configuration for the status endpoints."""
+    """Configuration for the status endpoints.
+
+    Expected configuration values include a threading.Event to
+    be used to mark the server as up or down.
+    """
 
     def __init__(self):
         self.ready = None

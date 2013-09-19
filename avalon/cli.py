@@ -18,7 +18,7 @@
 #
 
 
-"""Command line configuration parsing classes."""
+"""Command line configuration parsing classes and default values."""
 
 import argparse
 import os.path

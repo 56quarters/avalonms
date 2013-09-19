@@ -18,7 +18,7 @@
 #
 
 
-"""Various in-memory stores for metadata."""
+"""Various in-memory stores for music collection metadata."""
 
 import collections
 

@@ -63,8 +63,12 @@ SORT_ASC = 'asc'
 
 
 def sort_filter(elms, params):
-    """Use query string parameters to sort the result set
-    appropriately.
+    """Use query string parameters to sort the result set appropriately
+    based on the value of the 'order' and 'direction' parameters and return
+    the sorted list of elements.
+
+    Both are optional, however invalid values for either will result in
+    an :class:`InvalidParameterException` being raised.
     """
     field = params.get('order')
     direction = params.get('direction', 'asc')
@@ -88,8 +92,11 @@ def sort_filter(elms, params):
 
 
 def limit_filter(elms, params):
-    """Use query string parameters to only return a portion 
-    of the result set.
+    """Use query string parameters to only return a portion of the result
+    set based on the value of the'limit' and 'order' parameters.
+
+    Both are optional, however invalid values for either will results in
+    an :class:`InvalidParameterException` being raised.
     """
     limit = params.get_int('limit')
     offset = params.get_int('offset', 0)
