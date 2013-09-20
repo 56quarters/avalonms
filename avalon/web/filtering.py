@@ -95,7 +95,7 @@ def limit_filter(elms, params):
     """Use query string parameters to only return a portion of the result
     set based on the value of the'limit' and 'order' parameters.
 
-    Both are optional, however invalid values for either will results in
+    Both are optional, however invalid values for either will result in
     an :class:`InvalidParameterException` being raised.
     """
     limit = params.get_int('limit')
