@@ -31,7 +31,7 @@ __all__ = [
 ]
 
 
-class IdNameElm(collections.namedtuple('_IdNameElm', ['id', 'name'])):
+class IdNameElm(collections.namedtuple('IdNameElm', ['id', 'name'])):
     """Immutable, hashable representation of a model with ID
     and name attributes (everything besides Tracks).
     """
@@ -44,7 +44,7 @@ class IdNameElm(collections.namedtuple('_IdNameElm', ['id', 'name'])):
             name=model.name)
 
 
-class TrackElm(collections.namedtuple('_TrackElm', [
+class TrackElm(collections.namedtuple('TrackElm', [
     'id',
     'name',
     'length',
