@@ -18,7 +18,24 @@
 #
 
 
-"""Functionality for reading audio meta data from local files using Mutagen."""
+"""Functionality for reading audio meta data from local files using Mutagen.
+
+Typical usage will call the :function:`new_loader` method to create an instance
+of :class:`MetadataLoader` with default settings and parsers. This can then be
+used to read audio tags from a variety of types of files.
+
+>>> loader = avalon.tags.read.new_loader()
+>>> loader.get_from_path('/tmp/song.mp3')
+Metadata(
+    path='/tmp/song.mp3',
+    album=u'Greatest Hits',
+    artist=u'Famous Band',
+    genre=u'Rock',
+    title=u'Best Of Times',
+    track=1,
+    year=1994,
+    length=176)
+"""
 
 import collections
 from datetime import datetime
@@ -38,7 +55,7 @@ __all__ = [
 ]
 
 
-class Metadata(collections.namedtuple('_Metadata', [
+class Metadata(collections.namedtuple('Metadata', [
     'path',
     'album',
     'artist',
