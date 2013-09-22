@@ -5,12 +5,8 @@ Prerequisites
 ~~~~~~~~~~~~~
 
 Make sure you have the `pip Installer <http://www.pip-installer.org/>`_ and
-`virtualenv <http://www.virtualenv.org/>`_ available. The ``virtualenv`` tool
-is only needed if you do not have root permissions or don't wish to install
-the Avalon Music Server globally.
-
-You can install ``pip`` and ``virtualenv`` by running something like the
-following:
+`virtualenv <http://www.virtualenv.org/>`_ available. You can install ``pip``
+and ``virtualenv`` by running something like the following:
 
 Gentoo:
 
