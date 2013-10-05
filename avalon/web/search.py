@@ -50,8 +50,11 @@ def strip_accents(s):
 
     See http://stackoverflow.com/a/1410365
     """
-    return ''.join(
-        (c for c in normalize('NFD', unicode(s)) if category(c) != 'Mn'))
+    chars = []
+    for c in normalize('NFD', unicode(s)):
+        if category(c) != 'Mn':
+            chars.append(c)
+    return ''.join(chars)
 
 
 # Individual node in the search trie. This object is more complicated than
