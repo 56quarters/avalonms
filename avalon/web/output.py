@@ -79,6 +79,7 @@ def render(results=None, error=None):
         output.error = error
     return output.render()
 
+# TODO: Change output to errors: [], warnings: []
 
 class RequestOutput(object):
     """Format results or errors encountered using builtin
