@@ -18,7 +18,11 @@
 #
 
 
-"""Avalon web application for handling web requests."""
+"""Avalon web application for handling web requests.
+
+The :class:`AvalonHandler` class acts as the main interface between the
+web server and the rest of the application.
+"""
 
 import functools
 
