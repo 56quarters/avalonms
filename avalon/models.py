@@ -47,16 +47,14 @@ __all__ = [
     'get_session_factory',
     'Album',
     'Artist',
-    'Base',
     'Genre',
     'SessionHandler',
     'SessionHandlerConfig',
-    'Track',
-    'UuidType'
+    'Track'
 ]
 
 
-class UuidType(TypeDecorator):
+class _UuidType(TypeDecorator):
     """Platform-independent GUID type.
 
     See http://docs.sqlalchemy.org/en/rel_0_7/core/types.html
@@ -84,17 +82,19 @@ class UuidType(TypeDecorator):
         return uuid.UUID(value)
 
 
-class _Base(object):
+class _BaseFields(object):
     """A base for all models that defines name (string) and id (UUID) fields."""
-
-    id = Column(UuidType, primary_key=True)
+    id = Column(_UuidType, primary_key=True)
     name = Column(String)
 
 
-Base = declarative_base(cls=_Base)
+# Declarative base that also includes id and name fields
+# (common to all meta data types) that should be used as
+# the base for all models
+_Base = declarative_base(cls=_BaseFields)
 
 
-class Track(Base):
+class Track(_Base):
     """Model representing metadata of a media file with relations to other
     entities (album, artist, genre).
     """
@@ -105,9 +105,9 @@ class Track(Base):
     track = Column(Integer)
     year = Column(Integer)
 
-    album_id = Column(UuidType, ForeignKey('albums.id'), index=True)
-    artist_id = Column(UuidType, ForeignKey('artists.id'), index=True)
-    genre_id = Column(UuidType, ForeignKey('genres.id'), index=True)
+    album_id = Column(_UuidType, ForeignKey('albums.id'), index=True)
+    artist_id = Column(_UuidType, ForeignKey('artists.id'), index=True)
+    genre_id = Column(_UuidType, ForeignKey('genres.id'), index=True)
 
     # Join album, artist, and genre using an INNER JOIN whenever tracks are loaded
     album = relationship('Album', backref='tracks', lazy='joined', innerjoin=True, order_by='Track.id')
@@ -115,19 +115,19 @@ class Track(Base):
     genre = relationship('Genre', backref='tracks', lazy='joined', innerjoin=True, order_by='Track.id')
 
 
-class Album(Base):
+class Album(_Base):
     """Model that represents the album of a song."""
 
     __tablename__ = 'albums'
 
 
-class Artist(Base):
+class Artist(_Base):
     """Model that represents the artist of a song."""
 
     __tablename__ = 'artists'
 
 
-class Genre(Base):
+class Genre(_Base):
     """Model that represents the genre of a song."""
 
     __tablename__ = 'genres'
@@ -145,7 +145,7 @@ def get_engine(url):
 
 def get_metadata():
     """Accessor for metadata about the base for all models."""
-    return Base.metadata
+    return _Base.metadata
 
 
 def get_session_factory():
