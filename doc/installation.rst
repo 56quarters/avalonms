@@ -37,8 +37,7 @@ Installation from source
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 To checkout and build the Avalon Music Server you'll need
-`Git <http://git-scm.com/>`_ installed and a copy of the
-`YUI build tool <http://yuilibrary.com/download/>`_ (in addition to ``pip``
+`Git <http://git-scm.com/>`_ installed (in addition to ``pip``
 and ``virtualenv``).
 
   ::
@@ -48,7 +47,6 @@ and ``virtualenv``).
     git clone https://github.com/tshlabs/avalonms.git ~/avalon-src
     cd ~/avalon-src
     python setup.py version
-    python setup.py static --yui-jar /path/to/yui.jar
     pip install -r requirements.txt
     pip install .
 
