@@ -170,10 +170,6 @@ class SearchTrie(object):
         """ Return the number of nodes in this search trie."""
         return self._size
 
-    def size(self):
-        """Return the number of nodes in this search trie."""
-        return self._size
-
     def add(self, term, element):
         """Add a metadata element to the trie indexed using the given term.
 
