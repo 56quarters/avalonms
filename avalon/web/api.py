@@ -81,10 +81,6 @@ class AvalonApiEndpoints(object):
         self._search.reload()
         self._id_cache.reload()
 
-    def get_search_size(self):
-        """Get the number of nodes in the search index."""
-        return self._search.size()
-
     def get_albums(self, params=None):
         """Return album results based on the given query string
         parameters, all albums if there are no parameters.
