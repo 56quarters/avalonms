@@ -123,7 +123,6 @@ class TestSearchTrie(object):
         trie.add('ac', object())
 
         assert trie._size == 4
-
         first_level = trie._root.get_children()
         assert len(first_level) == 1
         assert 'a' in first_level

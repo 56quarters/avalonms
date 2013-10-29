@@ -87,6 +87,7 @@ class Parameters(object):
 
         value = self._query_params[field]
 
+        # TODO: Support multiple values for each param
         if isinstance(value, list):
             raise avalon.exc.InvalidParameterError(
                 avalon.err.ERROR_DUPLICATE_FIELD_VALUE(field))
