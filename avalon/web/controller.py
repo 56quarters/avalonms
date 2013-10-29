@@ -39,8 +39,8 @@ __all__ = [
     'application_ready',
     'render_results',
     'convert_parameters',
-    'AvalonHandler',
-    'AvalonHandlerConfig'
+    'AvalonController',
+    'AvalonControllerConfig'
 ]
 
 
@@ -80,7 +80,7 @@ def convert_parameters(func):
     return wrapper
 
 
-class AvalonHandlerConfig(object):
+class AvalonControllerConfig(object):
     """Configuration for the Avalon web application."""
 
     def __init__(self):
@@ -90,7 +90,7 @@ class AvalonHandlerConfig(object):
         self.startup = None
 
 
-class AvalonHandler(object):
+class AvalonController(object):
     """Avalon web application with status and metadata endpoints."""
 
     def __init__(self, config):

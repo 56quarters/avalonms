@@ -32,7 +32,7 @@ import avalon.models
 import avalon.server
 import avalon.util
 import avalon.web.api
-import avalon.web.handler
+import avalon.web.controller
 import avalon.web.filtering
 import avalon.web.search
 
@@ -113,13 +113,13 @@ def new_handler(dao):
 
     startup = datetime.utcnow()
 
-    handler_config = avalon.web.handler.AvalonHandlerConfig()
+    handler_config = avalon.web.controller.AvalonControllerConfig()
     handler_config.api_endpoints = api
     handler_config.status_endpoints = status
     handler_config.filters = filters
     handler_config.startup = startup
 
-    return avalon.web.handler.AvalonHandler(handler_config)
+    return avalon.web.controller.AvalonController(handler_config)
 
 
 def new_server(app_config, logger, handler, path):

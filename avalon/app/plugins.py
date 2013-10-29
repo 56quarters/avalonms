@@ -38,7 +38,7 @@ import avalon.tags.read
 import avalon.tags.scan
 import avalon.util
 import avalon.web.api
-import avalon.web.handler
+import avalon.web.controller
 import avalon.web.filtering
 import avalon.web.search
 from avalon.models import Album, Artist, Genre, Track

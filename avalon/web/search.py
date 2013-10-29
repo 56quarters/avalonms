@@ -166,6 +166,10 @@ class SearchTrie(object):
         self._size += 1
         return self._node_factory()
 
+    def __len__(self):
+        """ Return the number of nodes in this search trie."""
+        return self._size
+
     def size(self):
         """Return the number of nodes in this search trie."""
         return self._size
@@ -265,10 +269,10 @@ class AvalonTextSearch(object):
 
     def size(self):
         """Return the total number of nodes used by the search indexes."""
-        return self._album_search.size() + \
-               self._artist_search.size() + \
-               self._genre_search.size() + \
-               self._track_search.size()
+        return len(self._album_search) + \
+               len(self._artist_search) + \
+               len(self._genre_search) + \
+               len(self._track_search)
 
     def reload(self):
         """Rebuild the search indexes for the collection."""
