@@ -87,16 +87,34 @@ class TestTrieNode(object):
         assert 'b' in children
 
 
-def _node_factory():
-    return avalon.web.search.TrieNode()
+def _dummy_node_factory():
+    return _DummyNode()
+
+
+class _DummyNode(object):
+    def __init__(self):
+        self._elements = set()
+        self._children = {}
+
+    def add_element(self, elm):
+        self._elements.add(elm)
+
+    def get_elements(self):
+        return set(self._elements)
+
+    def add_child(self, char, node):
+        self._children[char] = node
+
+    def get_children(self):
+        return dict(self._children)
+
 
 class TestSearchTrie(object):
-
     def test_init_creates_root(self):
         """Ensure that the initial construction of the trie creates
         a root node and that the size of this empty trie is 1.
         """
-        trie = avalon.web.search.SearchTrie(_node_factory)
+        trie = avalon.web.search.SearchTrie(_dummy_node_factory)
         assert trie._root is not None
         assert trie._size == 1
 
@@ -104,7 +122,7 @@ class TestSearchTrie(object):
         """Ensure that adding a single term to the trie builds additional
         nodes off of the root node and that they are indexed as expected.
         """
-        trie = avalon.web.search.SearchTrie(_node_factory)
+        trie = avalon.web.search.SearchTrie(_dummy_node_factory)
         trie.add('foo', object())
 
         assert trie._size == 4
@@ -118,7 +136,7 @@ class TestSearchTrie(object):
         """Ensure that adding another node after adding the first one
         correctly navigates the existing nodes to append new ones.
         """
-        trie = avalon.web.search.SearchTrie(_node_factory)
+        trie = avalon.web.search.SearchTrie(_dummy_node_factory)
         trie.add('ab', object())
         trie.add('ac', object())
 
@@ -131,6 +149,94 @@ class TestSearchTrie(object):
         assert len(second_level) == 2
         assert 'b' in second_level
         assert 'c' in second_level
+
+    def test_search_no_term(self):
+        """Ensure that an empty or None search term results in
+        no results from a search.
+        """
+        trie = avalon.web.search.SearchTrie(_dummy_node_factory)
+        results1 = trie.search('')
+        assert 0 == len(results1)
+        results2 = trie.search(None)
+        assert 0 == len(results2)
+
+    def test_search_end_of_term(self):
+        """Ensure that when we get to the end of search term
+        all elements at the current node are considered matches.
+        """
+        trie = avalon.web.search.SearchTrie(_dummy_node_factory)
+        root = trie._root
+        first = _dummy_node_factory()
+        second = _dummy_node_factory()
+        third = _dummy_node_factory()
+
+        first.add_element('bit')
+        second.add_element('bit')
+        third.add_element('bit')
+
+        root.add_child('b', first)
+        first.add_child('i', second)
+        second.add_child('t', third)
+
+        results = trie.search('b')
+        assert 1 == len(results)
+        for elm in results:
+            assert 'bit' == elm
+
+    def test_search_no_match(self):
+        """Ensure that a term that does not entirely match the terms
+        stored in the trie results in no results.
+        """
+        trie = avalon.web.search.SearchTrie(_dummy_node_factory)
+        root = trie._root
+        first = _dummy_node_factory()
+        second = _dummy_node_factory()
+        third = _dummy_node_factory()
+
+        first.add_element('bit')
+        second.add_element('bit')
+        third.add_element('bit')
+
+        root.add_child('b', first)
+        first.add_child('i', second)
+        second.add_child('t', third)
+
+        results = trie.search('big')
+        assert 0 == len(results)
+
+    def test_search_multiple_matches(self):
+        """Ensure that we can query specific terms store in the
+        trie as well as use a common prefix for multiple terms.
+        """
+        trie = avalon.web.search.SearchTrie(_dummy_node_factory)
+        root = trie._root
+        first = _dummy_node_factory()
+        second = _dummy_node_factory()
+        third = _dummy_node_factory()
+        forth = _dummy_node_factory()
+
+        first.add_element('bit')
+        first.add_element('big')
+
+        second.add_element('bit')
+        second.add_element('big')
+
+        third.add_element('bit')
+        forth.add_element('big')
+
+        root.add_child('b', first)
+        first.add_child('i', second)
+        second.add_child('t', third)
+        second.add_child('g', forth)
+
+        results1 = trie.search('bit')
+        assert 1 == len(results1)
+
+        results2 = trie.search('big')
+        assert 1 == len(results2)
+
+        results3 = trie.search('bi')
+        assert 2 == len(results3)
 
 
 class TestAvalonTextSearch(object):
