@@ -104,6 +104,7 @@ def new_handler(dao):
 
     status_config = avalon.web.api.AvalonStatusEndpointsConfig()
     status_config.ready = threading.Event()
+    status_config.startup = datetime.utcnow()
     status = avalon.web.api.AvalonStatusEndpoints(status_config)
 
     filters = [
@@ -111,13 +112,10 @@ def new_handler(dao):
         avalon.web.filtering.sort_filter,
         avalon.web.filtering.limit_filter]
 
-    startup = datetime.utcnow()
-
     handler_config = avalon.web.controller.AvalonControllerConfig()
     handler_config.api_endpoints = api
     handler_config.status_endpoints = status
     handler_config.filters = filters
-    handler_config.startup = startup
 
     return avalon.web.controller.AvalonController(handler_config)
 

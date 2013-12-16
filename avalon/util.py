@@ -22,10 +22,11 @@
 
 import errno
 import grp
-import os
 import pwd
 import resource
 import threading
+
+import os
 
 
 __all__ = [

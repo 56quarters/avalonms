@@ -20,7 +20,10 @@
 
 """API endpoints for the in-memory meta data stores."""
 
+from datetime import datetime
 import functools
+
+import avalon.util
 
 
 __all__ = [
@@ -155,11 +158,13 @@ class AvalonStatusEndpointsConfig(object):
     """Configuration for the status endpoints.
 
     Expected configuration values include a threading.Event to
-    be used to mark the server as up or down.
+    be used to mark the server as up or down and the datetime of
+    server startup in UTC.
     """
 
     def __init__(self):
         self.ready = None
+        self.startup = None
 
 
 class AvalonStatusEndpoints(object):
@@ -168,6 +173,7 @@ class AvalonStatusEndpoints(object):
     def __init__(self, config):
         """Initialize the ready state of the server."""
         self._ready = config.ready
+        self._startup = config.startup
 
     def _get_ready(self):
         """Get the ready state of the application."""
@@ -186,6 +192,18 @@ class AvalonStatusEndpoints(object):
     def reload(self):
         """No-op."""
         pass
+
+    def get_uptime(self):
+        """Get a timedelta object for the uptime of the current server."""
+        return datetime.utcnow() - self._startup
+
+    def get_threads(self):
+        """Get a list of the names of each thread currently running."""
+        return avalon.util.get_thread_names()
+
+    def get_memory_usage(self):
+        """Get the current memory usage in MB"""
+        return avalon.util.get_mem_usage()
 
     def get_heartbeat(self):
         """Get the heartbeat to indicate if the server has started."""

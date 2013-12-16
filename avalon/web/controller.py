@@ -87,18 +87,16 @@ class AvalonControllerConfig(object):
         self.api_endpoints = None
         self.status_endpoints = None
         self.filters = []
-        self.startup = None
 
 
 class AvalonController(object):
     """Avalon web application with status and metadata endpoints."""
 
     def __init__(self, config):
-        """Set the endpoints, filters, and startup time for the handler."""
+        """Set the endpoints and filters for the controller."""
         self._api = config.api_endpoints
         self._status = config.status_endpoints
         self._filters = config.filters
-        self._startup = config.startup
 
     def _filter(self, results, params):
         """Apply each of the filter callbacks to the results."""
@@ -125,8 +123,25 @@ class AvalonController(object):
 
     @cherrypy.expose
     def heartbeat(self, *args, **kwargs):
-        """Application heartbeat endpoint."""
+        """Return the string 'OKOKOK' if startup is complete, 'NONONO' otherwise."""
         return self._status.get_heartbeat()
+
+    @cherrypy.expose
+    def uptime(self, *args, **kwargs):
+        """Return the number of seconds since server start up."""
+        return str(self._status.get_uptime().seconds)
+
+    @cherrypy.expose
+    def memory(self, *args, **kwargs):
+        """Return the amount of memory used in megabytes."""
+        return "%.2f" % self._status.get_memory_usage()
+
+    @cherrypy.expose
+    @cherrypy.tools.encode(text_only=False, encoding=avalon.DEFAULT_ENCODING)
+    @cherrypy.tools.json_out(handler=avalon.web.output.json_handler)
+    def threads(self, *args, **kwargs):
+        """Return a list of thread names as JSON."""
+        return self._status.get_threads()
 
     # NOTE: The text_only keyword argument is required to get the encoding
     # tool to set the ';charset=utf-8' portion of the Content-Type header,
