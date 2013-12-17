@@ -123,7 +123,7 @@ class AvalonController(object):
 
     @cherrypy.expose
     def heartbeat(self, *args, **kwargs):
-        """Return the string 'OKOKOK' if startup is complete, 'NONONO' otherwise."""
+        """Return the string 'OKOKOK' if start up is complete, 'NONONO' otherwise."""
         return self._status.get_heartbeat()
 
     @cherrypy.expose
