@@ -108,7 +108,7 @@ class MetadataLoader(object):
         return self._to_metadata(path, self._read_from_path(path))
 
     def _read_from_path(self, path):
-        """Read a mutagen native for tag from the given path."""
+        """Read a mutagen native tag from the given path."""
         try:
             file_ref = self._impl.File(path.encode(self._path_encoding), easy=True)
         except UnicodeError:
