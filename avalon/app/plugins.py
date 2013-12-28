@@ -280,6 +280,11 @@ class DummyCollectionScanPlugin(cherrypy.process.plugins.SimplePlugin):
 class DaemonPlugin(cherrypy.process.plugins.SimplePlugin):
     """Adapt the python-daemon lib to work as a CherryPy plugin."""
 
+    # TODO: python-daemon lib doesn't look like it's getting ported
+    # to Python 3 anytime soon. Look into using the default CherryPy
+    # daemon plugin to get Python 3 support for free. Might be issues
+    # with preserving open files? Some sort of start up order issues?
+
     def __init__(self, bus, files=None):
         """Store the bus and files that are open."""
         super(DaemonPlugin, self).__init__(bus)

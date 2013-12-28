@@ -41,7 +41,7 @@ __all__ = [
     'new_logger',
     'new_db_engine',
     'new_dao',
-    'new_handler',
+    'new_controller',
     'new_server',
     'new_plugin_engine'
 ]
@@ -81,7 +81,7 @@ def new_dao(db_engine):
     return avalon.cache.ReadOnlyDao(db_engine)
 
 
-def new_handler(dao):
+def new_controller(dao):
     """Construct a new web request handler using the given DAO"""
     api_config = avalon.web.api.AvalonApiEndpointsConfig()
     api_config.track_store = avalon.cache.TrackStore(dao)
@@ -112,15 +112,15 @@ def new_handler(dao):
         avalon.web.filtering.sort_filter,
         avalon.web.filtering.limit_filter]
 
-    handler_config = avalon.web.controller.AvalonControllerConfig()
-    handler_config.api_endpoints = api
-    handler_config.status_endpoints = status
-    handler_config.filters = filters
+    controller_config = avalon.web.controller.AvalonControllerConfig()
+    controller_config.api_endpoints = api
+    controller_config.status_endpoints = status
+    controller_config.filters = filters
 
-    return avalon.web.controller.AvalonController(handler_config)
+    return avalon.web.controller.AvalonController(controller_config)
 
 
-def new_server(app_config, logger, handler, path):
+def new_server(app_config, logger, controller, path):
     """Construct a new HTTP server using the given configuration,
     logger, request handler, and desired application path.
 
@@ -134,7 +134,7 @@ def new_server(app_config, logger, handler, path):
         app_config.server_port)
     server_config.num_threads = app_config.server_threads
     server_config.queue_size = app_config.server_queue
-    server_config.application = CherryPyApplication(handler, script_name=path)
+    server_config.application = CherryPyApplication(controller, script_name=path)
     return avalon.server.AvalonServer(server_config)
 
 

@@ -18,7 +18,7 @@
 #
 
 
-"""Text searching functionality."""
+"""Text searching functionality for music meta data."""
 
 from unicodedata import normalize, category
 

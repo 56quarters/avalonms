@@ -163,8 +163,8 @@ def main():
         return 1
 
     dao = avalon.app.factory.new_dao(db)
-    handler = avalon.app.factory.new_handler(dao)
-    server = avalon.app.factory.new_server(config, log, handler, APP_PATH)
+    controller = avalon.app.factory.new_controller(dao)
+    server = avalon.app.factory.new_server(config, log, controller, APP_PATH)
     bus = cherrypy.process.wspbus.Bus()
 
     engine = avalon.app.factory.new_plugin_engine(
