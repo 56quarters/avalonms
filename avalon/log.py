@@ -77,11 +77,6 @@ class AvalonLog(object):
 
         self.reload()
 
-    def get_open_fds(self):
-        """Get the file number of any open log files."""
-        return [
-            handler.stream.fileno() for handler in self._handlers if handler.stream]
-
     def reload(self):
         """ Configure logging and install our own handlers."""
         # Clear any existing handlers we've installed

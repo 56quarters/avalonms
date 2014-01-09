@@ -20,18 +20,15 @@
 
 
 from __future__ import print_function
-
-import os
 import subprocess
 import sys
+
+import os
 
 try:
     from setuptools import setup, Command
 except ImportError:
     from distutils.core import setup, Command
-
-from distutils.errors import DistutilsOptionError
-
 
 AUTHOR = 'TSH Labs'
 DESCRIPTION = 'Avalon Music Server'
@@ -108,7 +105,6 @@ REQUIRES = [
     'cherrypy',
     'lockfile',
     'mutagen',
-    'python-daemon',
     'simplejson',
     'sqlalchemy'
 ]

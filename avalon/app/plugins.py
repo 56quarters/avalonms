@@ -25,7 +25,6 @@ to a message bus.
 import os
 
 import cherrypy
-import daemon
 
 import avalon.cache
 import avalon.exc
@@ -47,7 +46,6 @@ from avalon.models import Album, Artist, Genre, Track
 __all__ = [
     'CollectionScanPlugin',
     'DummyCollectionScanPlugin',
-    'DaemonPlugin',
     'FilePermissionPlugin',
     'PluginEngine',
     'PluginEngineConfig ',
@@ -103,15 +101,12 @@ class PluginEngine(object):
     def enable_daemon(self, uid, gid, required_files):
         """Enable and configure any plugins needed to run in daemon
         mode (not enabled by default)."""
-        # Daemon mode entails the actual daemonization process
-        # which includes preserving any open file descriptors.
-        h = DaemonPlugin(
-            self._bus,
-            # File handles of files that the application has open
-            # right now that need to be preserved as part of the
-            # daemonization process. Only the logs should be open
-            # at this point.
-            files=self._log.get_open_fds())
+        # The priority of daemonization is 65, this puts it before we
+        # start the server (priority 75) so that we don't run into weird
+        # issues with threads and forking (they don't mix). Daemonization
+        # also runs before we change the permissions of log files and
+        # the drop privileges (priority 77).
+        h = cherrypy.process.plugins.Daemonizer(self._bus)
         h.subscribe()
 
         if not avalon.util.are_root():
@@ -275,34 +270,6 @@ class DummyCollectionScanPlugin(cherrypy.process.plugins.SimplePlugin):
         self.bus.graceful()
 
     start.priority = 100
-
-
-class DaemonPlugin(cherrypy.process.plugins.SimplePlugin):
-    """Adapt the python-daemon lib to work as a CherryPy plugin."""
-
-    # TODO: python-daemon lib doesn't look like it's getting ported
-    # to Python 3 anytime soon. Look into using the default CherryPy
-    # daemon plugin to get Python 3 support for free. Might be issues
-    # with preserving open files? Some sort of start up order issues?
-
-    def __init__(self, bus, files=None):
-        """Store the bus and files that are open."""
-        super(DaemonPlugin, self).__init__(bus)
-        self._context = daemon.DaemonContext()
-        self._context.files_preserve = files
-
-    def start(self):
-        """Double fork and become a daemon."""
-        self._context.open()
-
-    # Set the priority higher than server.start so that we have
-    # already forked when threads are created by the HTTP server
-    # start up process.
-    start.priority = 45
-
-    def stop(self):
-        """Prepare the daemon to end."""
-        self._context.close()
 
 
 class FilePermissionPlugin(cherrypy.process.plugins.SimplePlugin):
