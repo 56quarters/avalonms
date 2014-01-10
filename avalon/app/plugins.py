@@ -104,8 +104,7 @@ class PluginEngine(object):
         # The priority of daemonization is 65, this puts it before we
         # start the server (priority 75) so that we don't run into weird
         # issues with threads and forking (they don't mix). Daemonization
-        # also runs before we change the permissions of log files and
-        # the drop privileges (priority 77).
+        # also runs before we drop privileges (priority 77).
         h = cherrypy.process.plugins.Daemonizer(self._bus)
         h.subscribe()
 
