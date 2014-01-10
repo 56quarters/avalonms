@@ -103,7 +103,6 @@ _argparse_included = (2, 7)
 
 REQUIRES = [
     'cherrypy',
-    'lockfile',
     'mutagen',
     'simplejson',
     'sqlalchemy'
