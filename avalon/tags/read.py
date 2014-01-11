@@ -41,7 +41,11 @@ import collections
 from datetime import datetime
 import re
 
-import mutagen
+try:
+    import mutagen
+except ImportError:
+    # Use a fork with Python 3 support
+    import mutagenx as mutagen
 
 import avalon
 
