@@ -40,7 +40,9 @@ CLASSIFIERS = [
     "License :: OSI Approved :: Apache Software License",
     "Operating System :: POSIX",
     "Topic :: Internet :: WWW/HTTP",
-    "Topic :: Multimedia :: Sound/Audio"
+    "Topic :: Multimedia :: Sound/Audio",
+    "Programming Language :: Python :: 2.6",
+    "Programming Language :: Python :: 2.7"
 ]
 
 _VERSION_FILE = 'VERSION'
