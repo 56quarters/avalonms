@@ -12,4 +12,3 @@ Python requirements:
 * Mutagen >= 1.20
 * SimpleJSON >= 2.6.0
 * SQLAlchemy >= 0.7
-* Python-daemon >= 1.6

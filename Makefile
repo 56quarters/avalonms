@@ -42,8 +42,8 @@ env:
 	virtualenv $(VIRT_ENV)
 
 init: env
-	$(VIRT_ENV)/bin/pip install -r requirements.txt --use-mirrors
-	$(VIRT_ENV)/bin/pip install -r requirements-test.txt --use-mirrors
+	$(VIRT_ENV)/bin/pip install -r requirements2.txt --use-mirrors
+	$(VIRT_ENV)/bin/pip install -r requirements-test2.txt --use-mirrors
 	$(VIRT_ENV)/bin/pip install -e .
 
 push:

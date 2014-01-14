@@ -37,8 +37,8 @@ Install required dependencies
 
   ::
 
-    ./env/bin/pip install -r requirements.txt --use-mirrors
-    ./env/bin/pip install -r requirements-test.txt --use-mirrors
+    ./env/bin/pip install -r requirements2.txt --use-mirrors
+    ./env/bin/pip install -r requirements-test2.txt --use-mirrors
 
 Install the checkout in "development mode"
 
