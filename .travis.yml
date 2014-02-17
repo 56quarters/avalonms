@@ -8,7 +8,7 @@ python:
 install:
   # Install basic dependencies required by the Avalon Music Server itself using
   # packages pinned to a particular version (as opposed to the packages in setup.py)
-  - "pip install -r requirements2.txt"
+  - "pip install --allow-external argparse -r requirements2.txt"
   # Install unit test specific requirements. NOTE that not all of the packages
   # in this file are required for running on Travis, however, this requirement
   # file is shared with setup for local development and testing.
