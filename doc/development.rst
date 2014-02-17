@@ -37,8 +37,8 @@ Install required dependencies
 
   ::
 
-    ./env/bin/pip install -r requirements2.txt --use-mirrors
-    ./env/bin/pip install -r requirements-test2.txt --use-mirrors
+    ./env/bin/pip install --allow-external argparse -r requirements2.txt
+    ./env/bin/pip install -r requirements-test2.txt
 
 Install the checkout in "development mode"
 
@@ -55,7 +55,7 @@ Start the server with the path to your music collection as the sole argument.
 
     ./env/bin/avalonmsd ~/Music
 
-You can find more detail documentation for running the server in the :doc:`usage`
+You can find more detailed documentation for running the server in the :doc:`usage`
 section.
 
 To stop the server hit ``CTRL-c`` or type ``killall avalonmsd`` in another console.
