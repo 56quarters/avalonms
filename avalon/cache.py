@@ -125,9 +125,13 @@ class IdLookupCache(object):
         structures may be of date. However, all structures will
         correctly formed and valid.
         """
-        self._by_album = self._get_name_id_map(self._dao.get_all_albums())
-        self._by_artist = self._get_name_id_map(self._dao.get_all_artists())
-        self._by_genre = self._get_name_id_map(self._dao.get_all_genres())
+        by_album = self._get_name_id_map(self._dao.get_all_albums())
+        by_artist = self._get_name_id_map(self._dao.get_all_artists())
+        by_genre = self._get_name_id_map(self._dao.get_all_genres())
+
+        self._by_album = by_album
+        self._by_artist = by_artist
+        self._by_genre = by_genre
 
     def _get_name_id_map(self, all_models):
         """Get the name to ID mappings for a particular type of entity,
