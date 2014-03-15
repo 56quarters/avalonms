@@ -224,7 +224,7 @@ class CollectionScanPlugin(cherrypy.process.plugins.SimplePlugin):
             field_loader.insert(Genre, avalon.ids.get_genre_id, 'genre')
 
             dao = avalon.cache.ReadOnlyDao(self._db)
-            id_cache = avalon.cache.IdLookupCache(dao)
+            id_cache = avalon.cache.IdLookupCache(dao).reload()
             track_loader = avalon.tags.insert.TrackLoader(self._db, tag_metas, id_cache)
             track_loader.insert(Track, avalon.ids.get_track_id)
         except avalon.exc.OperationalError, e:

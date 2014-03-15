@@ -68,11 +68,8 @@ class ReadOnlyDao(object):
 
     def _get_all_cls(self, cls):
         """Get a list of all models by the given class."""
-        session = self._session_handler.get_session()
-        try:
+        with self._session_handler.get_scoped_session() as session:
             return session.query(cls).all()
-        finally:
-            self._session_handler.close(session)
 
 
 class IdLookupCache(object):
@@ -81,13 +78,13 @@ class IdLookupCache(object):
     """
 
     def __init__(self, dao):
-        """Set the DAO and use it to initialize ID caches."""
+        """Set the DAO to use for looking up albums, artist, and
+        genres but do not load anything yet.
+        """
         self._dao = dao
         self._by_album = None
         self._by_artist = None
         self._by_genre = None
-
-        self.reload()
 
     def _get_id(self, lookup, val):
         """Get the UUID object associated with the given name from the
@@ -119,7 +116,8 @@ class IdLookupCache(object):
 
     def reload(self):
         """Safely populate various structures used for name to ID
-        mappings of albums, artists, and genres from the database.
+        mappings of albums, artists, and genres from the database
+        and return this object.
 
         Note that if an exception occurs during the update the
         structures may be of date. However, all structures will
@@ -132,6 +130,7 @@ class IdLookupCache(object):
         self._by_album = by_album
         self._by_artist = by_artist
         self._by_genre = by_genre
+        return self
 
     def _get_name_id_map(self, all_models):
         """Get the name to ID mappings for a particular type of entity,
@@ -167,7 +166,9 @@ class TrackStore(object):
     """
 
     def __init__(self, dao):
-        """Initialize lookup structures and populate them with the DAO."""
+        """Set the DAO to use for populating various lookup structures
+        but to not load anything yet.
+        """
         self._dao = dao
         self._by_album = None
         self._by_artist = None
@@ -175,11 +176,10 @@ class TrackStore(object):
         self._by_id = None
         self._all = None
 
-        self.reload()
-
     def reload(self):
         """Safely populate the various structures for looking
-        up track elements by their attributes.
+        up track elements by their attributes and return this
+        object.
 
         Note that if an exception occurs during the update the
         structures may be of date. However, all structures will
@@ -205,6 +205,7 @@ class TrackStore(object):
         self._by_genre = get_frozen_mapping(by_genre)
         self._by_id = get_frozen_mapping(by_id)
         self._all = frozenset(all_tracks)
+        return self
 
     def get_by_album(self, album_id):
         """Get a :class:`frozenset` of tracks by an album UUID, empty frozenset
@@ -240,16 +241,16 @@ class _IdNameStore(object):
 
     def __init__(self, dao_method):
         """Set the method of the DAO to use for populating the
-        ID-name store.
+        ID-name store but do not load anything yet.
         """
         self._dao_method = dao_method
         self._by_id = None
         self._all = None
 
-        self.reload()
-
     def reload(self):
-        """Populate all of the ID-name elements."""
+        """Populate all of the ID-name elements and return this
+        object.
+        """
         all_models = self._dao_method()
         by_id = collections.defaultdict(set)
         all_elms = set()
@@ -261,6 +262,7 @@ class _IdNameStore(object):
 
         self._by_id = get_frozen_mapping(by_id)
         self._all = frozenset(all_elms)
+        return self
 
     def get_by_id(self, elm_id):
         """Get a :class:`frozenset` of elements by their UUID, empty frozenset

@@ -44,7 +44,7 @@ class TestIdLookupCache(object):
 
         self.mox.ReplayAll()
 
-        cache = avalon.cache.IdLookupCache(dao)
+        cache = avalon.cache.IdLookupCache(dao).reload()
 
         assert uuid.UUID("2d24515c-a459-552a-b022-e85d1621425a") == \
                cache.get_album_id(u'Dookie')
@@ -59,7 +59,7 @@ class TestIdLookupCache(object):
 
         self.mox.ReplayAll()
 
-        cache = avalon.cache.IdLookupCache(dao)
+        cache = avalon.cache.IdLookupCache(dao).reload()
 
         assert None is cache.get_album_id(u'Dookie')
         self.mox.VerifyAll()
@@ -77,7 +77,7 @@ class TestIdLookupCache(object):
 
         self.mox.ReplayAll()
 
-        cache = avalon.cache.IdLookupCache(dao)
+        cache = avalon.cache.IdLookupCache(dao).reload()
 
         assert uuid.UUID("2d24515c-a459-552a-b022-e85d1621425a") == \
                cache.get_album_id(u'DOOKIE')
@@ -96,7 +96,7 @@ class TestIdLookupCache(object):
 
         self.mox.ReplayAll()
 
-        cache = avalon.cache.IdLookupCache(dao)
+        cache = avalon.cache.IdLookupCache(dao).reload()
 
         assert uuid.UUID("5cede078-e88e-5929-b8e1-cfda7992b8fd") == \
                cache.get_artist_id(u'Bad Religion')
@@ -111,7 +111,7 @@ class TestIdLookupCache(object):
 
         self.mox.ReplayAll()
 
-        cache = avalon.cache.IdLookupCache(dao)
+        cache = avalon.cache.IdLookupCache(dao).reload()
 
         assert None is cache.get_album_id(u'Bad Religion')
         self.mox.VerifyAll()
@@ -129,7 +129,7 @@ class TestIdLookupCache(object):
 
         self.mox.ReplayAll()
 
-        cache = avalon.cache.IdLookupCache(dao)
+        cache = avalon.cache.IdLookupCache(dao).reload()
 
         assert uuid.UUID("5cede078-e88e-5929-b8e1-cfda7992b8fd") == \
                cache.get_artist_id(u'BaD RELIGION')
@@ -148,7 +148,7 @@ class TestIdLookupCache(object):
 
         self.mox.ReplayAll()
 
-        cache = avalon.cache.IdLookupCache(dao)
+        cache = avalon.cache.IdLookupCache(dao).reload()
 
         assert uuid.UUID("8794d7b7-fff3-50bb-b1f1-438659e05fe5") == \
                cache.get_genre_id(u'Punk')
@@ -163,7 +163,7 @@ class TestIdLookupCache(object):
 
         self.mox.ReplayAll()
 
-        cache = avalon.cache.IdLookupCache(dao)
+        cache = avalon.cache.IdLookupCache(dao).reload()
 
         assert None is cache.get_album_id(u'Punks')
         self.mox.VerifyAll()
@@ -181,7 +181,7 @@ class TestIdLookupCache(object):
 
         self.mox.ReplayAll()
 
-        cache = avalon.cache.IdLookupCache(dao)
+        cache = avalon.cache.IdLookupCache(dao).reload()
 
         assert uuid.UUID("8794d7b7-fff3-50bb-b1f1-438659e05fe5") == \
                cache.get_genre_id(u'PUNK')
@@ -194,14 +194,9 @@ class TestIdLookupCache(object):
         dao.get_all_artists().AndReturn([])
         dao.get_all_genres().AndReturn([])
 
-        dao.get_all_albums().AndReturn([])
-        dao.get_all_artists().AndReturn([])
-        dao.get_all_genres().AndReturn([])
-
         self.mox.ReplayAll()
 
-        cache = avalon.cache.IdLookupCache(dao)
-        cache.reload()
+        avalon.cache.IdLookupCache(dao).reload()
 
         self.mox.VerifyAll()
 
@@ -227,7 +222,7 @@ class TestIdNameStore(object):
 
         self.mox.ReplayAll()
 
-        cache = avalon.cache.AlbumStore(dao)
+        cache = avalon.cache.AlbumStore(dao).reload()
 
         res = cache.get_by_id(uuid.UUID("2d24515c-a459-552a-b022-e85d1621425a"))
         assert 1 == len(res)
@@ -251,7 +246,7 @@ class TestIdNameStore(object):
         self.mox.ReplayAll()
 
         names = set([u'Dookie', u'Insomniac'])
-        cache = avalon.cache.AlbumStore(dao)
+        cache = avalon.cache.AlbumStore(dao).reload()
 
         res = cache.get_all()
         assert 2 == len(res)
@@ -302,7 +297,7 @@ class TestTrackStore(object):
         dao.get_all_tracks().AndReturn([self.song])
         self.mox.ReplayAll()
 
-        cache = avalon.cache.TrackStore(dao)
+        cache = avalon.cache.TrackStore(dao).reload()
         songs = cache.get_by_album(uuid.UUID("350c49d9-fa38-585a-a0d9-7343c8b910ed"))
 
         for song in songs:
@@ -313,7 +308,7 @@ class TestTrackStore(object):
         dao.get_all_tracks().AndReturn([self.song])
         self.mox.ReplayAll()
 
-        cache = avalon.cache.TrackStore(dao)
+        cache = avalon.cache.TrackStore(dao).reload()
         songs = cache.get_by_album(uuid.UUID('daa612e8-daa8-49a0-8b14-6ee85720fb1c'))
         assert 0 == len(songs)
 
@@ -322,7 +317,7 @@ class TestTrackStore(object):
         dao.get_all_tracks().AndReturn([self.song])
         self.mox.ReplayAll()
 
-        cache = avalon.cache.TrackStore(dao)
+        cache = avalon.cache.TrackStore(dao).reload()
         songs = cache.get_by_artist(uuid.UUID("aa143f55-65e3-59f3-a1d8-36eac7024e86"))
 
         for song in songs:
@@ -333,7 +328,7 @@ class TestTrackStore(object):
         dao.get_all_tracks().AndReturn([self.song])
         self.mox.ReplayAll()
 
-        cache = avalon.cache.TrackStore(dao)
+        cache = avalon.cache.TrackStore(dao).reload()
         songs = cache.get_by_artist(uuid.UUID('a15dfab4-75e6-439f-b621-5a3a9cf905d2'))
         assert 0 == len(songs)
 
@@ -342,7 +337,7 @@ class TestTrackStore(object):
         dao.get_all_tracks().AndReturn([self.song])
         self.mox.ReplayAll()
 
-        cache = avalon.cache.TrackStore(dao)
+        cache = avalon.cache.TrackStore(dao).reload()
         songs = cache.get_by_genre(uuid.UUID("8794d7b7-fff3-50bb-b1f1-438659e05fe5"))
 
         for song in songs:
@@ -353,7 +348,7 @@ class TestTrackStore(object):
         dao.get_all_tracks().AndReturn([self.song])
         self.mox.ReplayAll()
 
-        cache = avalon.cache.TrackStore(dao)
+        cache = avalon.cache.TrackStore(dao).reload()
         songs = cache.get_by_genre(uuid.UUID('cf16d2d9-35da-4c2f-9f35-e52fb952864e'))
         assert 0 == len(songs)
 
@@ -362,7 +357,7 @@ class TestTrackStore(object):
         dao.get_all_tracks().AndReturn([self.song])
         self.mox.ReplayAll()
 
-        cache = avalon.cache.TrackStore(dao)
+        cache = avalon.cache.TrackStore(dao).reload()
         songs = cache.get_by_id(uuid.UUID("ca2e8303-69d7-53ec-907e-2f111103ba29"))
 
         for song in songs:
@@ -373,7 +368,7 @@ class TestTrackStore(object):
         dao.get_all_tracks().AndReturn([self.song])
         self.mox.ReplayAll()
 
-        cache = avalon.cache.TrackStore(dao)
+        cache = avalon.cache.TrackStore(dao).reload()
         songs = cache.get_by_id(uuid.UUID('72e2e340-fabc-4712-aa26-8a8f122999e8'))
         assert 0 == len(songs)
 

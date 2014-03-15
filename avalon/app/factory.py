@@ -84,11 +84,11 @@ def new_dao(db_engine):
 def new_controller(dao):
     """Construct a new web request handler using the given DAO"""
     api_config = avalon.web.api.AvalonApiEndpointsConfig()
-    api_config.track_store = avalon.cache.TrackStore(dao)
-    api_config.album_store = avalon.cache.AlbumStore(dao)
-    api_config.artist_store = avalon.cache.ArtistStore(dao)
-    api_config.genre_store = avalon.cache.GenreStore(dao)
-    api_config.id_cache = avalon.cache.IdLookupCache(dao)
+    api_config.track_store = avalon.cache.TrackStore(dao).reload()
+    api_config.album_store = avalon.cache.AlbumStore(dao).reload()
+    api_config.artist_store = avalon.cache.ArtistStore(dao).reload()
+    api_config.genre_store = avalon.cache.GenreStore(dao).reload()
+    api_config.id_cache = avalon.cache.IdLookupCache(dao).reload()
 
     def trie_factory():
         return avalon.web.search.SearchTrie(avalon.web.search.TrieNode)

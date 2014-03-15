@@ -24,6 +24,7 @@ along with functionality to manage connections to the backing database.
 """
 
 import uuid
+from contextlib import contextmanager
 
 from sqlalchemy import (
     create_engine,
@@ -110,9 +111,12 @@ class Track(_Base):
     genre_id = Column(_UuidType, ForeignKey('genres.id'), index=True)
 
     # Join album, artist, and genre using an INNER JOIN whenever tracks are loaded
-    album = relationship('Album', backref='tracks', lazy='joined', innerjoin=True, order_by='Track.id')
-    artist = relationship('Artist', backref='tracks', lazy='joined', innerjoin=True, order_by='Track.id')
-    genre = relationship('Genre', backref='tracks', lazy='joined', innerjoin=True, order_by='Track.id')
+    album = relationship(
+        'Album', backref='tracks', lazy='joined', innerjoin=True, order_by='Track.id')
+    artist = relationship(
+        'Artist', backref='tracks', lazy='joined', innerjoin=True, order_by='Track.id')
+    genre = relationship(
+        'Genre', backref='tracks', lazy='joined', innerjoin=True, order_by='Track.id')
 
 
 class Album(_Base):
@@ -230,4 +234,36 @@ class SessionHandler(object):
     def get_session(self):
         """Get a new session from the session factory."""
         return self._session_factory()
+
+    @contextmanager
+    def get_scoped_session(self, read_only=True):
+        """Get a new session from the session factory that acts as a context
+        manager and is automatically cleaned up after use.
+
+        The session will be automatically commited on success if read_only is
+        set to False, automatically rolled back if read_only is set to False
+        and any exceptions are raised, and automatically cleaned up no matter
+        what.
+
+        Note that any objects associated with the returned session will be
+        detached (and hence invalid) if read_only is set to False and the
+        session is commited.
+        """
+        conn = None
+
+        try:
+            conn = self.get_session()
+            yield conn
+            # Don't commit if this is a read_only session since that will
+            # invalidate the fetched objects (even non-relation properties)
+            # which are probably going to be used for something after the
+            # session is closed (like populating some in-memory store).
+            if not read_only:
+                conn.commit()
+        except:
+            if not read_only and conn is not None:
+                conn.rollback()
+            raise
+        finally:
+            self.close(conn)
 
