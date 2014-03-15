@@ -27,9 +27,12 @@
 """Supporting library for the Avalon Music Server."""
 
 __all__ = [
-    'DEFAULT_ENCODING',
+    '__version__',
+    'DEFAULT_ENCODING'
 ]
 
+__version__ = '0.2.24'
 
 # Character sets are hard, let's go shopping!
 DEFAULT_ENCODING = 'utf-8'
+

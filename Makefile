@@ -52,8 +52,7 @@ push:
 	git push bitbucket master
 
 release: tags
-	$(VIRT_ENV)/bin/python setup.py version
-	$(VIRt_ENV)/bin/python setup.py register sdist upload
+	$(VIRT_ENV)/bin/python setup.py register sdist upload
 
 tags: push
 	git push --tags origin

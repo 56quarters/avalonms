@@ -46,7 +46,6 @@ and ``virtualenv``).
     source ~/avalon/bin/activate
     git clone https://github.com/tshlabs/avalonms.git ~/avalon-src
     cd ~/avalon-src
-    python setup.py version
     pip install -r requirements2.txt
     pip install .
 
