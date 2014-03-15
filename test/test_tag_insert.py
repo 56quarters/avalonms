@@ -122,7 +122,7 @@ class TestTrackFieldLoader(object):
         tag.length = 115
         tag.title = u'True North'
         tag.track = 1
-        tag.year = 2013
+        tag.year = 2014
 
         session_handler = self.mox.CreateMock(avalon.models.SessionHandler)
         model_cls = self.mox.CreateMockAnything(avalon.models.Album)
@@ -181,7 +181,7 @@ class TestTrackFieldLoader(object):
         tag2.length = 115
         tag2.title = u'True North'
         tag2.track = 1
-        tag2.year = 2013
+        tag2.year = 2014
 
         session_handler = self.mox.CreateMock(avalon.models.SessionHandler)
         session = self.mox.CreateMock(DummySession)
@@ -221,7 +221,7 @@ class TestTrackFieldLoader(object):
         tag.length = 115
         tag.title = u'True North'
         tag.track = 1
-        tag.year = 2013
+        tag.year = 2014
 
         session_handler = self.mox.CreateMock(avalon.models.SessionHandler)
         session = self.mox.CreateMock(DummySession)
