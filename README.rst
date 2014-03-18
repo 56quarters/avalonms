@@ -28,6 +28,11 @@ Features include:
 * Running as a daemon (including dropping super user permissions)
 * IPv6 support
 
+To install it simply run
+
+  pip install avalonms
+
+
 The latest documentation is available at https://avalonms.readthedocs.org/en/latest/
 
 The source is available at https://github.com/tshlabs/avalonms
