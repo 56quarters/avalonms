@@ -35,7 +35,7 @@ import avalon.util
 __all__ = [
     'intersection',
     'AvalonApiEndpoints',
-    'AvalonApiEndpointsConfig'
+    'AvalonApiEndpointsConfig',
     'AvalonStatusEndpoints',
     'AvalonStatusEndpointsConfig'
 ]

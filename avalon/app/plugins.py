@@ -54,7 +54,7 @@ __all__ = [
     'DummyCollectionScanPlugin',
     'FilePermissionPlugin',
     'PluginEngine',
-    'PluginEngineConfig ',
+    'PluginEngineConfig',
     'ServerPlugin',
     'LogPlugin'
 ]
