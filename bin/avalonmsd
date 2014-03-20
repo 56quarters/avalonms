@@ -26,20 +26,20 @@
 
 
 """
-AvalonMS: Scan a music collection for metadata and expose it as an HTTP
-service using JSON.
+Avalon Music Server: Scan a music collection for metadata and expose it as
+an HTTP service using JSON.
 """
 
 from __future__ import print_function
-
 import argparse
-import os
-import re
 import signal
 import sys
 
+import os
+import re
 import cherrypy
 
+import avalon
 import avalon.app.factory
 import avalon.cli
 import avalon.exc
@@ -113,6 +113,11 @@ def get_parser(prog, defaults):
         metavar='NUM',
         help='Number of threads to use for handling requests '
              '(default is %s)' % defaults.server_threads)
+    parser.add_argument(
+        '-V', '--version',
+        action='version',
+        version=avalon.__version__,
+        help='Show version information about the server and exit')
 
     return parser
 

@@ -35,13 +35,13 @@ try:
 except ImportError:
     from distutils.core import setup
 
-from avalon import __version__ as VERSION
+from avalon import __version__
 
-AUTHOR = 'TSH Labs'
 DESCRIPTION = 'Avalon Music Server'
+AUTHOR = 'TSH Labs'
 EMAIL = 'projects@tshlabs.org'
 URL = 'http://www.tshlabs.org/'
-LICENSE = 'Apache'
+LICENSE = 'MIT'
 CLASSIFIERS = [
     "Development Status :: 3 - Alpha",
     "License :: OSI Approved :: MIT License",
@@ -80,7 +80,7 @@ README = get_contents('README.rst')
 
 setup(
     name='avalonms',
-    version=VERSION,
+    version=__version__,
     author=AUTHOR,
     description=DESCRIPTION,
     long_description=README,
