@@ -26,8 +26,8 @@ PATH_ERR=/var/tmp/avalon/avalon.err
 PATH_LOG=/var/tmp/avalon/avalon.log
 
 # User and group to switch to
-DAEMON_USER=apache
-DAEMON_GROUP=apache
+DAEMON_USER=www-data
+DAEMON_GROUP=www-data
 
 # How long we'll wait for the server to start before exiting with non-zero status
 TIMEOUT_START=10
