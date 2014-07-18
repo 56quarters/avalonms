@@ -13,3 +13,5 @@ VERSION
 MANIFEST
 *.min.js
 *.min.css
+wheelhouse
+doc/build

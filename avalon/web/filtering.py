@@ -4,29 +4,13 @@
 #
 # Copyright 2012-2014 TSH Labs <projects@tshlabs.org>
 #
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-# THE SOFTWARE.
+# Available under the MIT license. See LICENSE for details.
 #
 
 
 """Callbacks for sorting and limiting result sets."""
 
-import avalon.err
+from __future__ import unicode_literals
 import avalon.exc
 
 
@@ -36,33 +20,6 @@ __all__ = [
     'limit_filter',
     'sort_filter'
 ]
-
-
-class _SortHelper(object):
-    """Object meant to be used as a comparison function
-    for objects based on their attributes.
-
-    Doing sorting this way allows more flexibility than
-    implementing the __cmp__ method for each object since
-    that limits sorting to a single field.
-    """
-
-    def __init__(self, field):
-        """Set the field to be used for sorting."""
-        self.field = field
-
-    def __call__(self, obj1, obj2):
-        """Return the results of cmp() on the field of
-        the two given objects.
-
-        NOTE: We're not handling any potential AttributeError
-        exceptions here on purpose since we want the caller to
-        handle that as an invalid field.
-        """
-        val1 = getattr(obj1, self.field)
-        val2 = getattr(obj2, self.field)
-        return cmp(val1, val2)
-
 
 SORT_DESC = 'desc'
 SORT_ASC = 'asc'
@@ -74,35 +31,52 @@ def sort_filter(elms, params):
     the sorted list of elements.
 
     Both are optional, however invalid values for either will result in
-    an :class:`InvalidParameterException` being raised.
+    exceptions being raised.
+
+    :param list elms: Elements to sort
+    :param avalon.request.Parameters params: Caller request parameters
+    :return: Elements sorted by requested parameters
+    :rtype: list
+    :raises avalon.exc.InvalidParameterValueError: If sort direction is
+        present and invalid
+    :raises avalon.exc.InvalidParameterNameError: If order is present and
+        does not correspond to a field in the results
     """
     field = params.get('order')
-    direction = params.get('direction', 'asc')
-    sort_helper = _SortHelper(field)
+    direction = params.get('direction', SORT_ASC)
 
     if field is None:
         return elms
 
     if direction not in (SORT_ASC, SORT_DESC):
-        raise avalon.exc.InvalidParameterError(
-            avalon.err.ERROR_INVALID_FIELD_VALUE('direction'))
+        raise avalon.exc.InvalidParameterValueError(
+            "Invalid sort direction '{direction}'",
+            direction=direction)
 
+    sort_key = lambda elm: getattr(elm, field)
     reverse = SORT_DESC == direction
 
     try:
-        elms.sort(cmp=sort_helper, reverse=reverse)
+        elms.sort(key=sort_key, reverse=reverse)
     except AttributeError:
-        raise avalon.exc.InvalidParameterError(
-            avalon.err.ERROR_INVALID_FIELD_VALUE('order'))
+        raise avalon.exc.InvalidParameterNameError(
+            "Invalid order-by field '{field}'", field=field)
     return elms
 
 
 def limit_filter(elms, params):
     """Use query string parameters to only return a portion of the result
-    set based on the value of the'limit' and 'order' parameters.
+    set based on the value of the 'limit' and 'order' parameters.
 
     Both are optional, however invalid values for either will result in
-    an :class:`InvalidParameterException` being raised.
+    exceptions being raised.
+
+    :param list elms: Elements to limit
+    :param avalon.request.Parameters params: Caller request parameters
+    :return: Limited and offset results
+    :rtype: list
+    :raises avalon.exc.InvalidParameterValueError: If either limit or offset
+        is present and not an integer or negative
     """
     limit = params.get_int('limit')
     offset = params.get_int('offset', 0)
@@ -111,13 +85,14 @@ def limit_filter(elms, params):
         return elms
 
     if limit < 0:
-        raise avalon.exc.InvalidParameterError(
-            avalon.err.ERROR_NEGATIVE_FIELD_VALUE('limit'))
+        raise avalon.exc.InvalidParameterValueError(
+            "The value of limit may not be negative",
+            field='limit', value=limit)
     if offset < 0:
-        raise avalon.exc.InvalidParameterError(
-            avalon.err.ERROR_NEGATIVE_FIELD_VALUE('offset'))
+        raise avalon.exc.InvalidParameterValueError(
+            "The value of offset may not be negative",
+            field='offset', value=offset)
 
     start = offset
     end = offset + limit
     return elms[start:end]
-

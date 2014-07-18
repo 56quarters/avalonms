@@ -4,68 +4,26 @@
 #
 # Copyright 2012-2014 TSH Labs <projects@tshlabs.org>
 #
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-# THE SOFTWARE.
+# Available under the MIT license. See LICENSE for details.
 #
 
 
-"""Functionality for reading audio meta data from local files using Mutagen.
+"""Functionality for reading audio meta data from local files using Mutagen."""
 
-Typical usage will call the :function:`new_loader` method to create an instance
-of :class:`MetadataLoader` with default settings and parsers. This can then be
-used to read audio tags from a variety of types of files.
-
->>> loader = avalon.tags.read.new_loader()
->>> loader.get_from_path('/tmp/song.mp3')
-Metadata(
-    path='/tmp/song.mp3',
-    album=u'Greatest Hits',
-    artist=u'Famous Band',
-    genre=u'Rock',
-    title=u'Best Of Times',
-    track=1,
-    year=1994,
-    length=176)
-"""
-
+from __future__ import unicode_literals
 import collections
-from datetime import datetime
-import re
 
-try:
-    import mutagen
-except ImportError:
-    # Use a fork with Python 3 support
-    import mutagenx as mutagen
-
-import avalon
+import avalon.compat
 
 
 __all__ = [
-    'new_loader',
     'Metadata',
     'MetadataLoader',
     'MetadataDateParser',
     'MetadataTrackParser'
 ]
 
-
-class Metadata(collections.namedtuple('Metadata', [
+Metadata = collections.namedtuple('Metadata', [
     'path',
     'album',
     'artist',
@@ -73,22 +31,7 @@ class Metadata(collections.namedtuple('Metadata', [
     'title',
     'track',
     'year',
-    'length'])):
-    """Container for metadata of an audio file"""
-
-
-def new_loader():
-    """Return a new :class:`MetadataLoader` using the concrete
-    Mutagen implementation, the default avalon encoding for paths,
-    a default track parser, and default date parser.
-    """
-    track_parser = MetadataTrackParser(re.match)
-    date_parser = MetadataDateParser(datetime.strptime)
-    return MetadataLoader(
-        mutagen,
-        avalon.DEFAULT_ENCODING,
-        track_parser,
-        date_parser)
+    'length'])
 
 
 class MetadataLoader(object):
@@ -97,12 +40,17 @@ class MetadataLoader(object):
     form (:class:`Metadata`).
     """
 
-    def __init__(self, impl, path_encoding, track_parser, date_parser):
+    def __init__(self, impl, track_parser, date_parser):
         """Set the Mutagen implementation, encoding to use for file paths,
         track number parser, and date parser.
+
+        :param impl: Mutagen module implementation (easier testing)
+        :param MetadataTrackParser track_parser: Parser for audio file track
+            numbers
+        :param MetadataDateParser date_parser: Parser for audio file recording
+            years
         """
         self._impl = impl
-        self._path_encoding = path_encoding
         self._track_parser = track_parser
         self._date_parser = date_parser
 
@@ -110,21 +58,23 @@ class MetadataLoader(object):
         """Return audio meta data of the given file in a normalized form
          (:class:`Metadata`).
 
-         Raise a `ValueError` if there are errors encoding the file path.
-         Raise an `IOError` if the file cannot be opened or if it is an
-         invalid file type. Raise a `ValueError` if the track number or
-         year of the audio tag cannot be parsed.
+         :param unicode path: Path to a media file to read meta data from
+         :returns: Meta data for the given file it is a supported type
+         :rtype: Metadata
+         :raises ValueError: If there are errors encoding the file path,
+            the track number of the audio tag cannot be parsed, or the
+            year of the audio tag cannot be parsed.
+         :raises IOError: If the file cannot be opened or if it is an
+            invalid file type.
          """
         return self._to_metadata(path, self._read_from_path(path))
 
     def _read_from_path(self, path):
         """Read a mutagen native tag from the given path."""
         try:
-            file_ref = self._impl.File(path.encode(self._path_encoding), easy=True)
-        except UnicodeError:
-            raise ValueError("Could not encode audio path [%s] to %s" % (path, self._path_encoding))
-        except IOError, e:
-            raise IOError("Could not open [%s]: %s" % (path, e.message))
+            file_ref = self._impl.File(path, easy=True)
+        except IOError as e:
+            raise IOError("Could not open [%s]: %s" % (path, e))
         if file_ref is None:
             raise IOError("Invalid or unsupported audio file [%s]" % path)
         return file_ref
@@ -144,15 +94,15 @@ class MetadataLoader(object):
 
 
 def _get_str_val(val):
-    """Get a possibly `None` single element list as a `unicode` string"""
+    """Get a possibly `None` single element list as a `unicode` string."""
     if val is None:
-        return unicode('')
-    return unicode(val[0])
+        return avalon.compat.to_text(None)
+    return avalon.compat.to_text(val[0])
 
 
 def _get_int_val(val, parser):
     """Get a possibly `None` single element list as an `int` by using
-     the given parser on the element of the list
+     the given parser on the element of the list.
      """
     if val is None:
         return 0
@@ -160,29 +110,39 @@ def _get_int_val(val, parser):
 
 
 class MetadataDateParser(object):
-    """Parser for extracing the year of a track.
+    """Parser for extracting the year of a track.
 
     Some audio tags have entire timestamps for the date instead
     of just a year. Attempt to simply cast the year to an integer
     if possible. If not possible, attempt to parse it using several
     common timestamp formats (see :instance_attribute:`formats`).
+
+    :cvar frozenset formats: Common timestamp formats for parsing a
+        track year.
     """
 
     formats = frozenset([
         '%Y-%m-%d %H:%M:%S',
         '%Y-%m-%dT%H:%M:%S'])
-    """Common timestamp formats for parsing a track year"""
 
     def __init__(self, parser_impl):
         """Set the date parser which is expected to behave like
-        `datetime.strptime`.
+        :func:`datetime.strptime`.
+
+        :param function parser_impl: Datetime parser
         """
         self._parser = parser_impl
 
     def parse(self, val):
         """Attempt to parse the given date string for a year, raise a
-        `ValueError` if the year could not be parsed using any known
-        format.
+        :class:`ValueError` if the year could not be parsed using any
+        known format.
+
+        :param str val: Track year meta data to parse a year out of
+        :return: The parsed year of the audio file meta data
+        :rtype: int
+        :raises ValueError: If the year could not be parsed from the
+            given date string
         """
         if val.isdigit():
             return int(val)
@@ -202,20 +162,31 @@ class MetadataTrackParser(object):
     like "1/5", "2/5", etc. Attempt to simply cast the string to
     an integer if possible. If not possible, attempt to parse it
     as a fraction (see :instance_attribute:`fmt_fraction`).
+
+    :cvar str fmt_fraction: Regular expression for parsing a track
+        number
     """
 
     fmt_fraction = '(\d+)/\d+'
-    """Regular expression for parsing a track number"""
 
     def __init__(self, parser_impl):
         """Set the regular expression parser which is expected
-        to behave like `re.match`.
+        to behave like :func:`re.match`.
+
+        :param function parser_impl: Regular expression matcher
         """
         self._parser = parser_impl
 
     def parse(self, val):
-        """Attempt to parse the given track string, raise a `ValueError`
-        if the track string could not be parsed.
+        """Attempt to parse the given track string, raise a
+        :class:`ValueError` if the track string could not be parsed.
+
+        :param str val: Track number meta data string to parse a track
+            number out of
+        :return: The parsed track number of the audio file meta data
+        :rtype: int
+        :raises ValueError: If the track number could not be parsed from
+            the given track number string.
         """
         if val.isdigit():
             return int(val)
@@ -224,4 +195,3 @@ class MetadataTrackParser(object):
         if match is not None:
             return int(match.group(1))
         raise ValueError("Could not parse track from value [%s]" % val)
-

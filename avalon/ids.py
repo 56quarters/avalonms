@@ -4,31 +4,16 @@
 #
 # Copyright 2012-2014 TSH Labs <projects@tshlabs.org>
 #
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-# THE SOFTWARE.
+# Available under the MIT license. See LICENSE for details.
 #
 
 
 """Methods for generating stable IDs for albums, artists, genres, and tracks."""
 
+from __future__ import unicode_literals
 import uuid
 
-import avalon
+from avalon.compat import to_uuid_input
 
 
 __all__ = [
@@ -49,31 +34,48 @@ NS_TRACKS = uuid.UUID('4151ace3-6a98-41cd-a3de-8c242654cb67')
 
 
 def _normalize_no_case(value):
-    """Return a normalized case insensitive version of the input."""
-    return _normalize(value.lower())
-
-
-def _normalize(value):
-    """Return a normalized version of the input."""
-    return value.encode(avalon.DEFAULT_ENCODING)
+    """Normalize a text type by converting it to lower case and
+    then converting to the correct type to be used as UUID input
+    (varies depending on the version of Python running).
+    """
+    return to_uuid_input(value.lower())
 
 
 def get_album_id(name):
-    """Generate a UUID based on the album name (case insensitive)."""
+    """Generate a UUID based on the album name (case insensitive).
+
+    :param unicode name: Name of the album
+    :return: UUID based on the name of the album
+    :rtype: uuid.UUID
+    """
     return uuid.uuid5(NS_ALBUMS, _normalize_no_case(name))
 
 
 def get_artist_id(name):
-    """Generate a UUID based on the artist name (case insensitive)."""
+    """Generate a UUID based on the artist name (case insensitive).
+
+    :param unicode name: Name of the artist
+    :return: UUID based on the name of the artist
+    :rtype: uuid.UUID
+    """
     return uuid.uuid5(NS_ARTISTS, _normalize_no_case(name))
 
 
 def get_genre_id(name):
-    """Generate a UUID based on the genre name (case insensitive)."""
+    """Generate a UUID based on the genre name (case insensitive).
+
+    :param unicode name: Name of the genre
+    :return: UUID based on the name of the genre
+    :rtype: uuid.UUID
+    """
     return uuid.uuid5(NS_GENRES, _normalize_no_case(name))
 
 
 def get_track_id(path):
-    """Generate a UUID based on the path of a track (case sensitive)."""
-    return uuid.uuid5(NS_TRACKS, _normalize(path))
+    """Generate a UUID based on the path of a track (case sensitive).
 
+    :param unicode path: Absolute path to a track
+    :return: UUID based on the path of the track
+    :rtype: uuid.UUID
+    """
+    return uuid.uuid5(NS_TRACKS, to_uuid_input(path))

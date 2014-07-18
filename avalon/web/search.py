@@ -4,29 +4,16 @@
 #
 # Copyright 2012-2014 TSH Labs <projects@tshlabs.org>
 #
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-# THE SOFTWARE.
+# Available under the MIT license. See LICENSE for details.
 #
 
 
 """Text searching functionality for music meta data."""
 
+from __future__ import unicode_literals
 from unicodedata import normalize, category
+
+import avalon.compat
 
 
 __all__ = [
@@ -43,6 +30,10 @@ def searchable(s):
     removing accents, diaretics, and converting it to lowercase.
 
     None input will be converted to an empty string.
+
+    :param unicode s: Unicode string to convert to a searchable form
+    :return: Normalized searchable unicode string
+    :rtype: unicode
     """
     if s is None:
         return ''
@@ -55,9 +46,13 @@ def strip_accents(s):
     accents and such into account.
 
     See http://stackoverflow.com/a/1410365
+
+    :param unicode s: Lowercase unicode string to remove accents from
+    :return: String with only base characters, no access and umlauts
+    :rtype: unicode
     """
     chars = []
-    for c in normalize('NFD', unicode(s)):
+    for c in normalize('NFD', avalon.compat.to_text(s)):
         if category(c) != 'Mn':
             chars.append(c)
     return ''.join(chars)
@@ -141,10 +136,6 @@ class TrieNode(object):
         return {}
 
 
-# TODO: Since .add() and .search() use recursion, we are limited to
-# terms of length `sys.getrecursionlimit()` (1000 on my system) in the
-# tree. Maybe not a limit we'll run into in practice, but no reason to
-# have a limit if it can be avoided at no cost.
 class SearchTrie(object):
     """Search trie structure with functionality for building an index
     for text matching and querying it.
@@ -154,7 +145,7 @@ class SearchTrie(object):
     when terms are added to the trie or when the trie is queried, this
     is expected to be done by the caller.
 
-    The SearchTrie is not inheriently threadsafe. However, if none of the
+    The SearchTrie is not inherently threadsafe. However, if none of the
     mutator methods are called [.add()] the read methods [.search(), .size()]
     are safe to be called by multiple threads.
     """
@@ -276,8 +267,6 @@ class AvalonTextSearch(object):
         self._genre_search = None
         self._track_search = None
 
-        self.reload()
-
     def size(self):
         """Return the total number of nodes used by the search indexes."""
         return len(self._album_search) + \
@@ -286,7 +275,7 @@ class AvalonTextSearch(object):
                len(self._track_search)
 
     def reload(self):
-        """Rebuild the search indexes for the collection."""
+        """Rebuild the search indexes for the collection and return this object."""
         album_search = self._trie_factory()
         artist_search = self._trie_factory()
         genre_search = self._trie_factory()
@@ -301,6 +290,7 @@ class AvalonTextSearch(object):
         self._artist_search = artist_search
         self._genre_search = genre_search
         self._track_search = track_search
+        return self
 
     def _add_all_to_tree(self, elms, trie):
         """Add a normalized version of the name of each of the given
@@ -309,7 +299,8 @@ class AvalonTextSearch(object):
         for elm in elms:
             self._add_to_trie(elm, trie)
 
-    def _add_to_trie(self, elm, trie):
+    @staticmethod
+    def _add_to_trie(elm, trie):
         """Add an element to the trie, indexed under the entire name of
         the element, each individual portion of the name (delineated via
         whitespace), and possible combinations of the trailing portion of
@@ -326,26 +317,47 @@ class AvalonTextSearch(object):
         trie.add(term, elm)
         for part in parts:
             trie.add(part, elm)
+
         # Skipping the first and last elements since they are covered by
         # indexing the entire term and each part of the term (respectively)
         for i in range(1, len(parts) - 1):
             trie.add(' '.join(parts[i:]), elm)
 
     def search_albums(self, needle):
-        """Search albums by name (case insensitive)."""
+        """Search albums by name (case insensitive).
+
+        :param unicode needle: Needle to search album names for
+        :return: Set of albums :class:`avalon.elms.IdNameElm` that match
+        :rtype: set
+        """
         return self._album_search.search(searchable(needle))
 
     def search_artists(self, needle):
-        """Search artists by name (case insensitive)."""
+        """Search artists by name (case insensitive).
+
+        :param unicode needle: Needle to search album names for
+        :return: Set of artist :class:`avalon.elms.IdNameElm` that match
+        :rtype: set
+        """
         return self._artist_search.search(searchable(needle))
 
     def search_genres(self, needle):
-        """Search genres by name (case insensitive)."""
+        """Search genres by name (case insensitive).
+
+        :param unicode needle: Needle to search genre names for
+        :return: Set of genre :class:`avalon.elms.IdNameElm` that match
+        :rtype: set
+        """
         return self._genre_search.search(searchable(needle))
 
     def search_tracks(self, needle):
         """Search for tracks that have an album, artist, genre,
         or name or containing the given needle (case insensitive).
+
+        :param unicode needle: Needle to search for in track names,
+            album names, artist names, and genre names
+        :return: Set of track :class:`avalon.elms.TrackElm` that match
+        :rtype: set
         """
         # Search for the needle in albums, artists, and genres separately
         # so that we only check the name of an element for matches no matter
@@ -364,4 +376,3 @@ class AvalonTextSearch(object):
             out.update(self._track_store.get_by_genre(genre.id))
 
         return out.union(self._track_search.search(searchable(needle)))
-

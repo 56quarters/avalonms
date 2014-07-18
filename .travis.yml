@@ -3,6 +3,9 @@ language: python
 python:
   - "2.6"
   - "2.7"
+  - "3.3"
+  - "3.4"
+  - "pypy"
 
 # Only build master, don't want noise from experimental stuff
 branches:
@@ -13,14 +16,14 @@ branches:
 install:
   # Install basic dependencies required by the Avalon Music Server itself using
   # packages pinned to a particular version (as opposed to the packages in setup.py)
-  - "pip install --allow-external argparse -r requirements2.txt"
+  - "pip install --allow-external argparse -r requirements.txt"
   # Install unit test specific requirements. NOTE that not all of the packages
   # in this file are required for running on Travis, however, this requirement
   # file is shared with setup for local development and testing.
-  - "pip install -r requirements-test2.txt"
+  - "pip install -r requirements-dev.txt"
   # Install the server itself, which should not trigger any more packages being
   # installed if everything above worked alright.
   - "pip install ."
 
 # command to run tests.
-script: py.test test
+script: nosetests test

@@ -4,28 +4,13 @@
 #
 # Copyright 2012-2014 TSH Labs <projects@tshlabs.org>
 #
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-# THE SOFTWARE.
+# Available under the MIT license. See LICENSE for details.
 #
 
 
 """Functionality for loading various audio tag metadata into the database."""
 
+from __future__ import unicode_literals
 import sqlalchemy.exc
 
 import avalon.exc
@@ -37,36 +22,55 @@ __all__ = [
 ]
 
 
+def _flush_session(session):
+    """Issue any pending changes in the session to the database.
+
+    We do this to attempt to uncover potential transient errors (such
+    as not having write access) with the database as soon as possible
+    when writing new entries.
+    """
+    try:
+        session.flush()
+    except sqlalchemy.exc.OperationalError as e:
+        raise avalon.exc.OperationalError('%s' % e)
+
+
 class TrackFieldLoader(object):
-    """Create and insert entries for the associated data for each
-    tag (albums, artists, genres).
+    """Create and insert entries for the associated data for each tag
+    (albums, artists, genres).
     """
 
-    def __init__(self, session_handler, tags):
-        """Set the session handler and tags."""
-        self._session_handler = session_handler
+    def __init__(self, session, tags):
+        """Set the database session and tags."""
+        self._session = session
         self._tags = tags
 
     def insert(self, cls, id_gen, field):
-        """Insert entries for the associated data for each tag
-        using the given model class, ID generator, and field of
-        the metadata tag.
+        """Insert entries for the associated data for each tag using the
+        given model class, ID generator, and field of the metadata tag.
+
+        Note that this method will attempt to flush newly created entries
+        to the database. If the current session is in the context of a
+        transaction, the state of the transaction will not be affected.
+
+        :param type cls: Model class to create instances of to insert
+        :param function id_gen: Unique, stable ID generator
+        :param unicode field: Name of the tag field to get values from
+        :raises avalon.exc.OperationalError: If there are issues flushing
+            newly create objects to the database.
         """
         queued = {}
         for tag in self._tags:
+            # Create new models from each bit of tag meta data
+            # and remove duplicates by unique ID
             obj = self._get_new_obj(cls, id_gen, field, tag)
             queued[obj.id] = obj
 
-        session = self._session_handler.get_session()
-        try:
-            session.add_all(queued.values())
-            session.commit()
-        except sqlalchemy.exc.OperationalError, e:
-            raise avalon.exc.OperationalError(str(e))
-        finally:
-            self._session_handler.close(session)
+        self._session.add_all(list(queued.values()))
+        _flush_session(self._session)
 
-    def _get_new_obj(self, cls, id_gen, field, tag):
+    @staticmethod
+    def _get_new_obj(cls, id_gen, field, tag):
         """Generate a new model object for associated data for
         an audio tag.
         """
@@ -86,33 +90,36 @@ class TrackFieldLoader(object):
 class TrackLoader(object):
     """Create and insert entries for each tag and associated IDs."""
 
-    def __init__(self, session_handler, tags, id_cache):
-        """Set the session handler, tags, and ID lookup cache."""
-        self._session_handler = session_handler
+    def __init__(self, session, tags, id_cache):
+        """Set the database session, tags, and ID lookup cache."""
+        self._session = session
         self._tags = tags
         self._id_cache = id_cache
 
     def insert(self, cls, id_gen):
-        """Insert entries for each audio metadata tag using the
-        given model class and ID generator along with associated
-        IDs for albums, artists, and genres.
+        """Insert entries for each audio metadata tag using the given model
+        class and ID generator along with associated IDs for albums, artists,
+        and genres.
+
+        Note that this method will attempt to flush newly created entries
+        to the database. If the current session is in the context of a
+        transaction, the state of the transaction will not be affected.
+
+        :param type cls: Model class to create instances of to insert.
+        :param function id_gen: Unique, stable ID generator
+        :raises avalon.exc.OperationalError: If there are issues flushing
+            newly create objects to the database.
         """
         queued = []
         for tag in self._tags:
             queued.append(self._get_new_obj(cls, id_gen, tag))
 
-        session = self._session_handler.get_session()
-        try:
-            session.add_all(queued)
-            session.commit()
-        except sqlalchemy.exc.OperationalError, e:
-            raise avalon.exc.OperationalError(str(e))
-        finally:
-            self._session_handler.close(session)
+        self._session.add_all(queued)
+        _flush_session(self._session)
 
     def _get_new_obj(self, cls, id_gen, tag):
-        """Generate a new model object for an audio tag and set
-        the associated IDs for albums, artists, and genres.
+        """Generate a new model object for an audio tag and set the associated
+        IDs for albums, artists, and genres.
         """
         obj = cls()
         obj.id = id_gen(tag.path)
@@ -131,18 +138,13 @@ class TrackLoader(object):
 class Cleaner(object):
     """Cleaner for removing already inserted entities."""
 
-    def __init__(self, session_handler):
-        """Set the session handler."""
-        self._session_handler = session_handler
+    def __init__(self, session):
+        """Set the database session."""
+        self._session = session
 
     def clean_type(self, cls):
         """Delete all entities of the given class."""
-        session = self._session_handler.get_session()
         try:
-            session.query(cls).delete()
-            session.commit()
-        except sqlalchemy.exc.OperationalError, e:
-            raise avalon.exc.OperationalError(str(e))
-        finally:
-            self._session_handler.close(session)
-
+            self._session.query(cls).delete()
+        except sqlalchemy.exc.OperationalError as e:
+            raise avalon.exc.OperationalError('%s' % e)

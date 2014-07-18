@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 #
 
+from __future__ import unicode_literals
 import uuid
 
-import pytest
-
+from nose.tools import raises
 import avalon.elms
 
 
@@ -30,102 +30,76 @@ class DummyIdNameModel(object):
 
 
 class TestIdNameElm(object):
+    def __init__(self):
+        self.artist_model = None
+
+    def setup(self):
+        self.artist_model = DummyIdNameModel()
+        self.artist_model.id = uuid.uuid4()
+        self.artist_model.name = 'Bad Religion'
+
     def test_from_model_same_values(self):
-        artist_model = DummyIdNameModel()
-        artist_model.id = uuid.uuid4()
-        artist_model.name = u'Bad Religion'
+        artist_elm = avalon.elms.id_name_elm_from_model(self.artist_model)
 
-        artist_elm = avalon.elms.IdNameElm.from_model(artist_model)
+        assert artist_elm.id == self.artist_model.id
+        assert artist_elm.name == self.artist_model.name
 
-        assert artist_elm.id == artist_model.id
-        assert artist_elm.name == artist_model.name
-
+    @raises(AttributeError)
     def test_from_model_immutable(self):
-        artist_model = DummyIdNameModel()
-        artist_model.id = uuid.uuid4()
-        artist_model.name = u'Bad Religion'
-
-        artist_elm = avalon.elms.IdNameElm.from_model(artist_model)
-
-        with pytest.raises(AttributeError):
-            artist_elm.id = uuid.uuid4()
-
-        with pytest.raises(AttributeError):
-            artist_elm.name = u'Something'
+        artist_elm = avalon.elms.id_name_elm_from_model(self.artist_model)
+        artist_elm.name = 'Something'
 
 
 class TestTrackElm(object):
+    def __init__(self):
+        self.artist_model = None
+        self.album_model = None
+        self.genre_model = None
+        self.track_model = None
+
+    def setup(self):
+        self.artist_model = DummyIdNameModel()
+        self.artist_model.id = uuid.uuid4()
+        self.artist_model.name = 'Bad Religion'
+
+        self.album_model = DummyIdNameModel()
+        self.album_model.id = uuid.uuid4()
+        self.album_model.name = 'Against The Grain'
+
+        self.genre_model = DummyIdNameModel()
+        self.genre_model.id = uuid.uuid4()
+        self.genre_model.name = 'Punk'
+
+        self.track_model = DummyTrackModel()
+        self.track_model.id = uuid.uuid4()
+        self.track_model.name = 'Walk Away'
+        self.track_model.length = 112
+        self.track_model.track = 17
+        self.track_model.year = 1991
+        self.track_model.album = self.album_model
+        self.track_model.album_id = self.album_model.id
+        self.track_model.artist = self.artist_model
+        self.track_model.artist_id = self.artist_model.id
+        self.track_model.genre = self.genre_model
+        self.track_model.genre_id = self.genre_model.id
+
     def test_from_model_same_values(self):
-        artist_model = DummyIdNameModel()
-        artist_model.id = uuid.uuid4()
-        artist_model.name = u'Bad Religion'
+        track_elm = avalon.elms.track_elm_from_model(self.track_model)
 
-        album_model = DummyIdNameModel()
-        album_model.id = uuid.uuid4()
-        album_model.name = u'Against The Grain'
+        assert track_elm.id == self.track_model.id
+        assert track_elm.name == self.track_model.name
+        assert track_elm.length == self.track_model.length
+        assert track_elm.track == self.track_model.track
+        assert track_elm.year == self.track_model.year
 
-        genre_model = DummyIdNameModel()
-        genre_model.id = uuid.uuid4()
-        genre_model.name = u'Punk'
+        assert track_elm.album == self.album_model.name
+        assert track_elm.album_id == self.track_model.album_id
+        assert track_elm.artist == self.artist_model.name
+        assert track_elm.artist_id == self.track_model.artist_id
+        assert track_elm.genre == self.genre_model.name
+        assert track_elm.genre_id == self.track_model.genre_id
 
-        track_model = DummyTrackModel()
-        track_model.id = uuid.uuid4()
-        track_model.name = u'Walk Away'
-        track_model.length = 112
-        track_model.track = 17
-        track_model.year = 1991
-        track_model.album = album_model
-        track_model.album_id = album_model.id
-        track_model.artist = artist_model
-        track_model.artist_id = artist_model.id
-        track_model.genre = genre_model
-        track_model.genre_id = genre_model.id
-
-        track_elm = avalon.elms.TrackElm.from_model(track_model)
-
-        assert track_elm.id == track_model.id
-        assert track_elm.name == track_model.name
-        assert track_elm.length == track_model.length
-        assert track_elm.track == track_model.track
-        assert track_elm.year == track_model.year
-
-        assert track_elm.album == album_model.name
-        assert track_elm.album_id == track_model.album_id
-        assert track_elm.artist == artist_model.name
-        assert track_elm.artist_id == track_model.artist_id
-        assert track_elm.genre == genre_model.name
-        assert track_elm.genre_id == track_elm.genre_id
-
+    @raises(AttributeError)
     def test_from_model_immutable(self):
-        artist_model = DummyIdNameModel()
-        artist_model.id = uuid.uuid4()
-        artist_model.name = u'Bad Religion'
-
-        album_model = DummyIdNameModel()
-        album_model.id = uuid.uuid4()
-        album_model.name = u'Against The Grain'
-
-        genre_model = DummyIdNameModel()
-        genre_model.id = uuid.uuid4()
-        genre_model.name = u'Punk'
-
-        track_model = DummyTrackModel()
-        track_model.id = uuid.uuid4()
-        track_model.name = u'Walk Away'
-        track_model.length = 112
-        track_model.track = 17
-        track_model.year = 1991
-        track_model.album = album_model
-        track_model.album_id = album_model.id
-        track_model.artist = artist_model
-        track_model.artist_id = artist_model.id
-        track_model.genre = genre_model
-        track_model.genre_id = genre_model.id
-
-        track_elm = avalon.elms.TrackElm.from_model(track_model)
-
-        with pytest.raises(AttributeError):
-            track_elm.length = 1
-
-        with pytest.raises(AttributeError):
-            track_elm.id = uuid.uuid4()
+        track_elm = avalon.elms.track_elm_from_model(self.track_model)
+        track_elm.id = uuid.uuid4()

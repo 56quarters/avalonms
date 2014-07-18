@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 #
 
-import re
+from __future__ import unicode_literals
 from datetime import datetime
 
-# TOOD: Replace mox with mock lib, pypi for python 2 - 3.2, stdlib for python 3.3
-import mox
-import pytest
-
+import re
+import mock
+from nose.tools import raises
 import avalon.tags.read
 
 
@@ -32,109 +31,84 @@ class MutagenAudioMock(object):
 class TestMetadataDateParser(object):
     def test_is_digit(self):
         parser = avalon.tags.read.MetadataDateParser(datetime.strptime)
-        assert 2001 == parser.parse(u'2001')
+        assert 2001 == parser.parse('2001')
 
     def test_is_timestamp_1(self):
         parser = avalon.tags.read.MetadataDateParser(datetime.strptime)
-        assert 2001 == parser.parse(u'2001-01-01 14:01:59')
+        assert 2001 == parser.parse('2001-01-01 14:01:59')
 
     def test_is_timestamp_2(self):
         parser = avalon.tags.read.MetadataDateParser(datetime.strptime)
-        assert 2003 == parser.parse(u'2003-01-01T14:01:59')
+        assert 2003 == parser.parse('2003-01-01T14:01:59')
 
+    @raises(ValueError)
     def test_is_invalid(self):
         parser = avalon.tags.read.MetadataDateParser(datetime.strptime)
-
-        with pytest.raises(ValueError):
-            parser.parse('Something')
+        parser.parse('Something')
 
 
 class TestMetadataTrackParser(object):
     def test_is_digit(self):
         parser = avalon.tags.read.MetadataTrackParser(re.match)
-        assert 1 == parser.parse(u'1')
+        assert 1 == parser.parse('1')
 
     def test_is_fraction(self):
         parser = avalon.tags.read.MetadataTrackParser(re.match)
-        assert 2 == parser.parse(u'2/5')
+        assert 2 == parser.parse('2/5')
 
+    @raises(ValueError)
     def test_is_invalid(self):
         parser = avalon.tags.read.MetadataTrackParser(re.match)
-
-        with pytest.raises(ValueError):
-            parser.parse(u'Blah')
+        parser.parse('Blah')
 
 
 class TestMetadataLoader(object):
-    def setup_method(self, method):
-        self.mox = mox.Mox()
+    @raises(ValueError)
+    def test_get_from_path_unicode_error(self):
+        impl = mock.Mock(spec=MutagenMock)
+        track_parser = mock.Mock(spec=avalon.tags.read.MetadataTrackParser)
+        date_parser = mock.Mock(spec=avalon.tags.read.MetadataDateParser)
 
-    def teardown_method(self, method):
-        self.mox.UnsetStubs()
+        impl.File.side_effect = UnicodeError("Bah!")
 
-    def test_get_from_path_unicodeerror(self):
-        encoding = 'utf-8'
-        impl = self.mox.CreateMock(MutagenMock)
-        track_parser = self.mox.CreateMock(avalon.tags.read.MetadataTrackParser)
-        date_parser = self.mox.CreateMock(avalon.tags.read.MetadataDateParser)
+        loader = avalon.tags.read.MetadataLoader(impl, track_parser, date_parser)
+        loader.get_from_path('/blah/some.ogg')
 
-        impl.File(mox.IsA(basestring), easy=True).AndRaise(UnicodeError)
-        self.mox.ReplayAll()
+    @raises(IOError)
+    def test_get_from_path_io_error(self):
+        impl = mock.Mock(spec=MutagenMock)
+        track_parser = mock.Mock(spec=avalon.tags.read.MetadataTrackParser)
+        date_parser = mock.Mock(spec=avalon.tags.read.MetadataDateParser)
 
-        loader = avalon.tags.read.MetadataLoader(impl, encoding, track_parser, date_parser)
+        impl.File.side_effect = IOError("Bah!")
 
-        with pytest.raises(ValueError):
-            loader.get_from_path(u'/blah/some.ogg')
+        loader = avalon.tags.read.MetadataLoader(impl, track_parser, date_parser)
+        loader.get_from_path('/blah/thing.ogg')
 
-    def test_get_from_path_ioerror(self):
-        encoding = 'utf-8'
-        impl = self.mox.CreateMock(MutagenMock)
-        track_parser = self.mox.CreateMock(avalon.tags.read.MetadataTrackParser)
-        date_parser = self.mox.CreateMock(avalon.tags.read.MetadataDateParser)
-
-        impl.File(mox.IsA(basestring), easy=True).AndRaise(IOError)
-        self.mox.ReplayAll()
-
-        loader = avalon.tags.read.MetadataLoader(impl, encoding, track_parser, date_parser)
-
-        with pytest.raises(IOError):
-            loader.get_from_path(u'/blah/thing.ogg')
-
+    @raises(IOError)
     def test_get_from_path_none_return(self):
-        encoding = 'utf-8'
-        impl = self.mox.CreateMock(MutagenMock)
-        track_parser = self.mox.CreateMock(avalon.tags.read.MetadataTrackParser)
-        date_parser = self.mox.CreateMock(avalon.tags.read.MetadataDateParser)
+        impl = mock.Mock(spec=MutagenMock)
+        track_parser = mock.Mock(spec=avalon.tags.read.MetadataTrackParser)
+        date_parser = mock.Mock(spec=avalon.tags.read.MetadataDateParser)
 
-        impl.File(mox.IsA(basestring), easy=True).AndReturn(None)
-        self.mox.ReplayAll()
+        impl.File.return_value = None
 
-        loader = avalon.tags.read.MetadataLoader(impl, encoding, track_parser, date_parser)
+        loader = avalon.tags.read.MetadataLoader(impl, track_parser, date_parser)
+        loader.get_from_path('/blah/bad.ogg')
 
-        with pytest.raises(IOError):
-            loader.get_from_path(u'/blah/bad.ogg')
-
+    @raises(ValueError)
     def test_get_from_path_to_metadata_parse_error(self):
-        encoding = 'utf-8'
-        impl = self.mox.CreateMock(MutagenMock)
-        tag = self.mox.CreateMock(MutagenFileMock)
-        track_parser = self.mox.CreateMock(avalon.tags.read.MetadataTrackParser)
-        date_parser = self.mox.CreateMock(avalon.tags.read.MetadataDateParser)
+        impl = mock.Mock(spec=MutagenMock)
+        tag = mock.Mock(spec=MutagenFileMock)
+        track_parser = mock.Mock(spec=avalon.tags.read.MetadataTrackParser)
+        date_parser = mock.Mock(spec=avalon.tags.read.MetadataDateParser)
 
-        impl.File(mox.IsA(basestring), easy=True).AndReturn(tag)
-        tag.info = MutagenAudioMock()
+        impl.File.return_value = tag
+        tag.info = mock.Mock(spec=MutagenAudioMock)
         tag.info.length = 123
-        tag.get('album').AndReturn([u''])
-        tag.get('artist').AndReturn([u''])
-        tag.get('genre').AndReturn([u''])
-        tag.get('title').AndReturn([u''])
-        tag.get('tracknumber').AndReturn([u''])
-        tag.get('date').AndReturn([u''])
+        tag.get.return_value = ['']
 
-        track_parser.parse(mox.IsA(basestring)).AndRaise(ValueError)
-        self.mox.ReplayAll()
+        track_parser.parse.side_effect = ValueError("Bah!")
 
-        loader = avalon.tags.read.MetadataLoader(impl, encoding, track_parser, date_parser)
-
-        with pytest.raises(ValueError):
-            loader.get_from_path(u'/blah/blah.ogg')
+        loader = avalon.tags.read.MetadataLoader(impl, track_parser, date_parser)
+        loader.get_from_path('/blah/blah.ogg')

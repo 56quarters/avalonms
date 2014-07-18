@@ -4,32 +4,16 @@
 #
 # Copyright 2012-2014 TSH Labs <projects@tshlabs.org>
 #
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-# THE SOFTWARE.
+# Available under the MIT license. See LICENSE for details.
 #
 
 
 """Various in-memory stores for music collection metadata."""
 
+from __future__ import unicode_literals
 import collections
 
-from avalon.elms import IdNameElm, TrackElm
-from avalon.models import Album, Artist, Genre, Track
+from avalon.elms import id_name_elm_from_model, track_elm_from_model
 
 
 __all__ = [
@@ -37,45 +21,9 @@ __all__ = [
     'ArtistStore',
     'GenreStore',
     'IdLookupCache',
-    'ReadOnlyDao',
     'TrackStore',
     'get_frozen_mapping'
 ]
-
-
-class ReadOnlyDao(object):
-    """Read-only DAO for loading each type of model object by
-    making use of the :class:`SessionHandler` and each associated
-    model class.
-
-    This class doesn't add a lot of functionality on top of the
-    :class:`SessionHandler`, it's just a facade to allow consumers
-    to be tested more easily."""
-
-    def __init__(self, session_handler):
-        """Set the session handler to use for fetching models."""
-        self._session_handler = session_handler
-
-    def get_all_albums(self):
-        """Get a list of all Album models in the database"""
-        return self._get_all_cls(Album)
-
-    def get_all_artists(self):
-        """Get a list of all Artist models in the database"""
-        return self._get_all_cls(Artist)
-
-    def get_all_genres(self):
-        """Get a list of all Genre models in the database"""
-        return self._get_all_cls(Genre)
-
-    def get_all_tracks(self):
-        """Get a list of all Track models in the database"""
-        return self._get_all_cls(Track)
-
-    def _get_all_cls(self, cls):
-        """Get a list of all models by the given class."""
-        with self._session_handler.get_scoped_session() as session:
-            return session.query(cls).all()
 
 
 class IdLookupCache(object):
@@ -86,13 +34,17 @@ class IdLookupCache(object):
     def __init__(self, dao):
         """Set the DAO to use for looking up albums, artist, and
         genres but do not load anything yet.
+
+        :param avalon.models.ReadOnlyDao dao: DAO for reading from
+            the database
         """
         self._dao = dao
         self._by_album = None
         self._by_artist = None
         self._by_genre = None
 
-    def _get_id(self, lookup, val):
+    @staticmethod
+    def _get_id(lookup, val):
         """Get the UUID object associated with the given name from the
         given lookup structure, None if no ID is found or the value isn't
         a string.
@@ -105,47 +57,73 @@ class IdLookupCache(object):
     def get_album_id(self, val):
         """Get the UUID object associated with an album name, None if no ID
         is found.
+
+        :param str val: Value to lookup an album ID by
+        :return: The ID associated with the value or None
+        :rtype: uuid.UUID
         """
         return self._get_id(self._by_album, val)
 
     def get_artist_id(self, val):
         """Get the UUID object associated with an artist name, None if no ID
         is found.
+
+         :param str val: Value to lookup an artist ID by
+        :return: The ID associated with the value or None
+        :rtype: uuid.UUID
         """
         return self._get_id(self._by_artist, val)
 
     def get_genre_id(self, val):
         """Get the UUID object associated with a genre name, None if no ID is
         found.
+
+        :param str val: Value to lookup an genre ID by
+        :return: The ID associated with the value or None
+        :rtype: uuid.UUID
         """
         return self._get_id(self._by_genre, val)
 
-    def reload(self):
+    def reload(self, session=None):
         """Safely populate various structures used for name to ID
         mappings of albums, artists, and genres from the database
         and return this object.
 
-        Note that if an exception occurs during the update the
-        structures may be of date. However, all structures will
-        correctly formed and valid.
+        .. note::
+
+            If an exception occurs during the update the structures
+            may be out of date. However, all structures will correctly
+            formed and valid.
+
+        :param sqlalchemy.orm.Session session: Optional database
+            session that can be used when loading meta data instead
+            of loading meta data on a newly created session. This
+            should only used when inserting newly scanned meta data
+            into a music collection (when we're inside of a transaction
+            that has not yet been committed).
+        :return: This object
+        :rtype: IdLookupCache
         """
-        by_album = self._get_name_id_map(self._dao.get_all_albums())
-        by_artist = self._get_name_id_map(self._dao.get_all_artists())
-        by_genre = self._get_name_id_map(self._dao.get_all_genres())
+        # Pass the session (might be None) to the DAO, let it decide
+        # to either use it, or create a new session to use.
+        by_album = self._get_name_id_map(self._dao.get_all_albums(session=session))
+        by_artist = self._get_name_id_map(self._dao.get_all_artists(session=session))
+        by_genre = self._get_name_id_map(self._dao.get_all_genres(session=session))
 
         self._by_album = by_album
         self._by_artist = by_artist
         self._by_genre = by_genre
         return self
 
-    def _get_name_id_map(self, all_models):
+    @staticmethod
+    def _get_name_id_map(all_models):
         """Get the name to ID mappings for a particular type of entity,
         normalizing the case of the name value using a default dictionary
         configured to return None for missing entries.
         """
         mapping = collections.defaultdict(_missing_entry)
         for model in all_models:
-            elm = IdNameElm.from_model(model)
+            elm = id_name_elm_from_model(model)
             mapping[elm.name.lower()] = elm.id
         return mapping
 
@@ -174,6 +152,9 @@ class TrackStore(object):
     def __init__(self, dao):
         """Set the DAO to use for populating various lookup structures
         but to not load anything yet.
+
+        :param avalon.models.ReadOnlyDao dao: DAO for reading from
+            the database
         """
         self._dao = dao
         self._by_album = None
@@ -188,8 +169,8 @@ class TrackStore(object):
         object.
 
         Note that if an exception occurs during the update the
-        structures may be of date. However, all structures will
-        correctly formed and valid.
+        structures may be out of date. However, all structures
+        will correctly formed and valid.
         """
         all_models = self._dao.get_all_tracks()
         by_album = collections.defaultdict(set)
@@ -199,7 +180,7 @@ class TrackStore(object):
         all_tracks = set()
 
         for track in all_models:
-            elm = TrackElm.from_model(track)
+            elm = track_elm_from_model(track)
             by_album[elm.album_id].add(elm)
             by_artist[elm.artist_id].add(elm)
             by_genre[elm.genre_id].add(elm)
@@ -216,29 +197,51 @@ class TrackStore(object):
     def get_by_album(self, album_id):
         """Get a :class:`frozenset` of tracks by an album UUID, empty frozenset
         if there are no tracks with that album UUID.
+
+        :param uuid.UUID album_id: Album ID to look up tracks by
+        :return: All tracks on the given album
+        :rtype: frozenset
         """
         return self._by_album[album_id]
 
     def get_by_artist(self, artist_id):
         """Get a :class:`frozenset` of tracks by an artist UUID, empty frozenset
         if there are no tracks with that artist UUID.
+
+        :param uuid.UUID artist_id: Artist ID to look up tracks by
+        :return: All tracks by the given artist
+        :rtype: frozenset
         """
         return self._by_artist[artist_id]
 
     def get_by_genre(self, genre_id):
         """Get a :class:`frozenset` of tracks by a genre UUID, empty frozenset
         if there are no tracks with that genre UUID.
+
+        :param uuid.UUID genre_id: Genre ID to look up tracks by
+        :return: All tracks in the given genre
+        :rtype: frozenset
         """
         return self._by_genre[genre_id]
 
     def get_by_id(self, track_id):
         """Get a :class:`frozenset` of tracks by a track UUID, empty frozenset
-        if there are no tracks with that UUID.
+        if there are no tracks with that UUID. This should only ever return a
+        single track but we return a set anyway to consistency with the other
+        methods in this class.
+
+        :param uuid.UUID track_id: Track ID to fetch tracks by
+        :return: All tracks with the given ID
+        :rtype: frozenset
         """
         return self._by_id[track_id]
 
     def get_all(self):
-        """Get a :class:`frozenset` of all tracks."""
+        """Get a :class:`frozenset` of all tracks.
+
+        :return: All tracks
+        :rtype: frozenset
+        """
         return self._all
 
 
@@ -262,7 +265,7 @@ class _IdNameStore(object):
         all_elms = set()
 
         for model in all_models:
-            elm = IdNameElm.from_model(model)
+            elm = id_name_elm_from_model(model)
             by_id[elm.id].add(elm)
             all_elms.add(elm)
 
@@ -273,11 +276,18 @@ class _IdNameStore(object):
     def get_by_id(self, elm_id):
         """Get a :class:`frozenset` of elements by their UUID, empty frozenset
          if there are no elements with that UUID.
+
+        :return Elements by their ID
+        :rtype: frozenset
         """
         return self._by_id[elm_id]
 
     def get_all(self):
-        """Get a :class:`frozenset` of all elements in the store."""
+        """Get a :class:`frozenset` of all elements in the store.
+
+        :return: All elements in the store
+        :rtype: frozenset
+        """
         return self._all
 
 
@@ -300,4 +310,3 @@ class GenreStore(_IdNameStore):
 
     def __init__(self, dao):
         super(GenreStore, self).__init__(dao.get_all_genres)
-

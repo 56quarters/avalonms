@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 
+from __future__ import unicode_literals
 import avalon.web.search
 
 
@@ -11,24 +12,24 @@ class TestSearchable(object):
 
     def test_searchable_umlaut_mixed_case(self):
         """Ensure that umlauts are removed and case is converted."""
-        word = u'Düsseldorf'
+        word = 'Düsseldorf'
         assert 'dusseldorf' == avalon.web.search.searchable(word)
 
     def test_searchable_accent_mixed_case(self):
         """Ensure that accents are removed and case is converted."""
-        word = u'Verás'
+        word = 'Verás'
         assert 'veras' == avalon.web.search.searchable(word)
 
 
 class TestStripAccents(object):
     def test_strip_accents_umlaut(self):
         """Ensure that umlauts are removed and case is preserved."""
-        word = u'Düsseldorf'
+        word = 'Düsseldorf'
         assert 'Dusseldorf' == avalon.web.search.strip_accents(word)
 
     def test_strip_accents_accent(self):
         """Ensure that accents are removed and case is preserved."""
-        word = u'Verás'
+        word = 'Verás'
         assert 'Veras' == avalon.web.search.strip_accents(word)
 
 

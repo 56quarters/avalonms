@@ -4,37 +4,24 @@
 #
 # Copyright 2012-2014 TSH Labs <projects@tshlabs.org>
 #
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
+# Available under the MIT license. See LICENSE for details.
 #
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-# THE SOFTWARE.
-#
+
 
 """Factory methods for the major components of the music server."""
 
-import threading
+from __future__ import unicode_literals
+
 from datetime import datetime
 
-from cherrypy._cptree import Application as CherryPyApplication
-
-import avalon.app.plugins
+import re
+import mutagenx
 import avalon.cache
 import avalon.log
 import avalon.models
-import avalon.server
+import avalon.tags.insert
+import avalon.tags.read
+import avalon.tags.crawl
 import avalon.util
 import avalon.web.api
 import avalon.web.controller
@@ -43,57 +30,112 @@ import avalon.web.search
 
 
 __all__ = [
-    'new_logger',
-    'new_db_engine',
-    'new_dao',
+    'configure_logger',
     'new_controller',
-    'new_server',
-    'new_plugin_engine'
+    'new_dao',
+    'new_db_engine',
+    'new_crawler',
+    'new_id_cache'
 ]
 
 
-def new_logger(app_config, logger_root):
-    """Construct a new logger based on the given configuration
-    and root logger.
+def configure_logger(logger, config):
+    """Configure the server-wide logger for the Avalon Music Server based
+    on the given configuration, making sure to only add handlers to the logger,
+    not removing any existing ones.
 
-    Expected configuration properties are: access_log and
-    error_log.
+    :param logging.Logger logger: Logger instance to configure
+    :param flask.Config config: Application level configuration
+    :return: Global logger for the Avalon Music Server
+    :rtype: logging.Logger
     """
     log_config = avalon.log.AvalonLogConfig()
-    log_config.log_root = logger_root
-    log_config.access_path = app_config.access_log
-    log_config.error_path = app_config.error_log
-    return avalon.log.AvalonLog(log_config)
+    log_config.path = config.get('LOG_PATH')
+    log_config.level = config.get('LOG_LEVEL')
+    log_config.fmt = config.get('LOG_FORMAT')
+    log_config.date_fmt = config.get('LOG_DATE_FORMAT')
+    avalon.log.initialize(logger, log_config)
+    return avalon.log.get_error_log()
 
 
-def new_db_engine(app_config, logger):
-    """Construct a new database handler with an SQLite backend
-    based on the given configuration and logger.
+def new_db_engine(config):
+    """Construct a new database handler with an SQLite backend based on the
+    given configuration and logger.
 
     Expected configuration properties are: db_path.
+
+    :param flask.Config config: Application level configuration
+    :return: Handler for managing database sessions
+    :rtype: avalon.models.SessionHandler
     """
-    url = 'sqlite:///%s' % app_config.db_path
+    url = config.get('DATABASE_URL')
     db_config = avalon.models.SessionHandlerConfig()
     db_config.engine = avalon.models.get_engine(url)
     db_config.session_factory = avalon.models.get_session_factory()
     db_config.metadata = avalon.models.get_metadata()
-    db_config.log = logger
+
     return avalon.models.SessionHandler(db_config)
 
 
+def new_crawler(path):
+    """Construct a new tag crawler capable finding all audio files
+    under a given path and reading their audio meta data.
+
+    Files that to not have valid audio meta data will be ignored and
+    the error will be logged.
+
+    :param str path: Root path of the music collection to crawl
+    :return: New tag crawler to read all audio meta data under the root
+    :rtype: avalon.tags.crawl.TagCrawler
+    """
+    track_parser = avalon.tags.read.MetadataTrackParser(re.match)
+    date_parser = avalon.tags.read.MetadataDateParser(datetime.strptime)
+    loader = avalon.tags.read.MetadataLoader(
+        mutagenx,
+        track_parser,
+        date_parser)
+
+    return avalon.tags.crawl.TagCrawler(loader, path)
+
+
 def new_dao(db_engine):
-    """Construct a new read-only DAO from the given :class:`SessionHandler`"""
-    return avalon.cache.ReadOnlyDao(db_engine)
+    """Construct a new read-only DAO from the given :class:`SessionHandler`.
+
+    :param avalon.models.SessionHandler db_engine: Database session manager
+    :return: Simple facade over the database session manager
+    :rtype: avalon.models.ReadOnlyDao
+    """
+    return avalon.models.ReadOnlyDao(db_engine)
 
 
-def new_controller(dao):
-    """Construct a new web request handler using the given DAO"""
+def new_id_cache(dao):
+    """Construct a new ID-to-name store based on the given read-only DAO.
+
+    :param avalon.cache.ReadOnlyDao dao: Read-only DAO for loading ID-name
+        mappings
+    :return: ID-name lookup cache
+    :rtype: avalon.cache.IdLookupCache
+    """
+    return avalon.cache.IdLookupCache(dao)
+
+
+def new_controller(dao, id_cache):
+    """Construct a new web request handler using the given DAO.
+
+    :param avalon.cache.ReadOnlyDao dao: Read-only DAO for various
+        music meta data stores that will be loaded
+    :param avalon.cache.IdLookupCache id_cache: ID-name cache used
+        by the request handler for translating by-name requests into
+        ID based lookups
+    :return: Service to be use as web endpoints or a controller
+    :rtype: avalon.web.controller.AvalonController
+    """
     api_config = avalon.web.api.AvalonApiEndpointsConfig()
-    api_config.track_store = avalon.cache.TrackStore(dao).reload()
-    api_config.album_store = avalon.cache.AlbumStore(dao).reload()
-    api_config.artist_store = avalon.cache.ArtistStore(dao).reload()
-    api_config.genre_store = avalon.cache.GenreStore(dao).reload()
-    api_config.id_cache = avalon.cache.IdLookupCache(dao).reload()
+    api_config.track_store = avalon.cache.TrackStore(dao)
+    api_config.album_store = avalon.cache.AlbumStore(dao)
+    api_config.artist_store = avalon.cache.ArtistStore(dao)
+    api_config.genre_store = avalon.cache.GenreStore(dao)
+    api_config.id_cache = id_cache
 
     def trie_factory():
         return avalon.web.search.SearchTrie(avalon.web.search.TrieNode)
@@ -107,11 +149,6 @@ def new_controller(dao):
 
     api = avalon.web.api.AvalonApiEndpoints(api_config)
 
-    status_config = avalon.web.api.AvalonStatusEndpointsConfig()
-    status_config.ready = threading.Event()
-    status_config.startup = datetime.utcnow()
-    status = avalon.web.api.AvalonStatusEndpoints(status_config)
-
     filters = [
         # NOTE: Sort needs to come before limit
         avalon.web.filtering.sort_filter,
@@ -119,56 +156,6 @@ def new_controller(dao):
 
     controller_config = avalon.web.controller.AvalonControllerConfig()
     controller_config.api_endpoints = api
-    controller_config.status_endpoints = status
     controller_config.filters = filters
 
     return avalon.web.controller.AvalonController(controller_config)
-
-
-def new_server(app_config, logger, controller, path):
-    """Construct a new HTTP server using the given configuration,
-    logger, request handler, and desired application path.
-
-    Expected configuration properties are: server_address,
-    server_port, server_threads, and server_queue.
-    """
-    server_config = avalon.server.AvalonServerConfig()
-    server_config.log = logger
-    server_config.bind_addr = (
-        app_config.server_address,
-        app_config.server_port)
-    server_config.num_threads = app_config.server_threads
-    server_config.queue_size = app_config.server_queue
-    server_config.application = CherryPyApplication(controller, script_name=path)
-    return avalon.server.AvalonServer(server_config)
-
-
-def new_plugin_engine(app_config, logger, db_engine, server, bus):
-    """Construct a new plugin engine/manager from the given logger,
-    database handler, HTTP server, and message bus.
-
-    Expected configuration properties are: daemon, daemon_user,
-    daemon_group, access_log, error_log, db_path, collection.
-    """
-    engine_config = avalon.app.plugins.PluginEngineConfig()
-    engine_config.log = logger
-    engine_config.db = db_engine
-    engine_config.server = server
-    engine_config.bus = bus
-
-    engine = avalon.app.plugins.PluginEngine(engine_config)
-
-    if app_config.daemon:
-        engine.enable_daemon(
-            avalon.util.get_uid(app_config.daemon_user),
-            avalon.util.get_gid(app_config.daemon_group),
-            set([
-                app_config.access_log,
-                app_config.error_log,
-                app_config.db_path]))
-
-    if not app_config.no_scan:
-        engine.enable_scan(app_config.collection)
-
-    return engine
-

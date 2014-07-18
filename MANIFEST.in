@@ -1,6 +1,9 @@
-include ChangeLog MANIFEST.in README.rst requirements2.txt requirements-test2.txt
-include bin/*
-recursive-include doc *
+include ChangeLog MANIFEST.in README.rst requirements.txt requirements-dev.txt requirements-prod.txt
+recursive-include ext *
+recursive-include doc/source *
+recursive-exclude dist *
+recursive-exclude build *
+recursive-exclude avalonms.egg-info *
 global-exclude *~
 global-exclude *.tmp
 global-exclude *.bak

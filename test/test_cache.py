@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 #
 
+from __future__ import unicode_literals
 import uuid
 
-# TOOD: Replace mox with mock lib, pypi for python 2 - 3.2, stdlib for python 3.3
-import mox
-import pytest
-
+import mock
+from nose.tools import raises
 import avalon.cache
 import avalon.models
 
 
 class TestFunctions(object):
+    @raises(AttributeError)
     def test_get_frozen_mapping(self):
         mapping = {'foo': set(['zing', 'zam', 'zowey'])}
         frozen = avalon.cache.get_frozen_mapping(mapping)
@@ -20,207 +20,160 @@ class TestFunctions(object):
         assert frozen['foo'] == frozenset(['zing', 'zam', 'zowey'])
         assert isinstance(frozen['foo'], frozenset)
 
-        with pytest.raises(AttributeError):
-            frozen['foo'].add('blah')
+        frozen['foo'].add('blah')
 
 
 class TestIdLookupCache(object):
-    def setup_method(self, method):
-        self.mox = mox.Mox()
-
-    def teardown_method(self, method):
-        self.mox.UnsetStubs()
-
     def test_get_album_id_exists(self):
         """Test that we can translate an album name to ID"""
-        model1 = self.mox.CreateMock(avalon.models.Album)
+        model1 = avalon.models.Album()
         model1.id = uuid.UUID("2d24515c-a459-552a-b022-e85d1621425a")
-        model1.name = u'Dookie'
+        model1.name = 'Dookie'
 
-        dao = self.mox.CreateMock(avalon.cache.ReadOnlyDao)
-        dao.get_all_albums().AndReturn([model1])
-        dao.get_all_artists().AndReturn([])
-        dao.get_all_genres().AndReturn([])
-
-        self.mox.ReplayAll()
+        dao = mock.Mock(spec=avalon.models.ReadOnlyDao)
+        dao.get_all_albums.return_value = [model1]
+        dao.get_all_artists.return_value = []
+        dao.get_all_genres.return_value = []
 
         cache = avalon.cache.IdLookupCache(dao).reload()
 
         assert uuid.UUID("2d24515c-a459-552a-b022-e85d1621425a") == \
-               cache.get_album_id(u'Dookie')
-        self.mox.VerifyAll()
+               cache.get_album_id('Dookie')
 
     def test_get_album_id_does_not_exist(self):
         """Test that an album that does not exist returns None"""
-        dao = self.mox.CreateMock(avalon.cache.ReadOnlyDao)
-        dao.get_all_albums().AndReturn([])
-        dao.get_all_artists().AndReturn([])
-        dao.get_all_genres().AndReturn([])
-
-        self.mox.ReplayAll()
+        dao = mock.Mock(spec=avalon.models.ReadOnlyDao)
+        dao.get_all_albums.return_value = []
+        dao.get_all_artists.return_value = []
+        dao.get_all_genres.return_value = []
 
         cache = avalon.cache.IdLookupCache(dao).reload()
-
-        assert None is cache.get_album_id(u'Dookie')
-        self.mox.VerifyAll()
+        assert None is cache.get_album_id('Dookie')
 
     def test_get_album_id_case_insensitive(self):
         """Test that we can translate an album name to ID in a case insensitive fasion"""
-        model1 = self.mox.CreateMock(avalon.models.Album)
+        model1 = avalon.models.Album()
         model1.id = uuid.UUID("2d24515c-a459-552a-b022-e85d1621425a")
-        model1.name = u'Dookie'
+        model1.name = 'Dookie'
 
-        dao = self.mox.CreateMock(avalon.cache.ReadOnlyDao)
-        dao.get_all_albums().AndReturn([model1])
-        dao.get_all_artists().AndReturn([])
-        dao.get_all_genres().AndReturn([])
-
-        self.mox.ReplayAll()
+        dao = mock.Mock(spec=avalon.models.ReadOnlyDao)
+        dao.get_all_albums.return_value = [model1]
+        dao.get_all_artists.return_value = []
+        dao.get_all_genres.return_value = []
 
         cache = avalon.cache.IdLookupCache(dao).reload()
 
         assert uuid.UUID("2d24515c-a459-552a-b022-e85d1621425a") == \
-               cache.get_album_id(u'DOOKIE')
-        self.mox.VerifyAll()
+               cache.get_album_id('DOOKIE')
 
     def test_get_artist_id_exists(self):
         """Test that we can translate an artist name to ID"""
-        model1 = self.mox.CreateMock(avalon.models.Album)
+        model1 = avalon.models.Album()
         model1.id = uuid.UUID("5cede078-e88e-5929-b8e1-cfda7992b8fd")
-        model1.name = u'Bad Religion'
+        model1.name = 'Bad Religion'
 
-        dao = self.mox.CreateMock(avalon.cache.ReadOnlyDao)
-        dao.get_all_albums().AndReturn([])
-        dao.get_all_artists().AndReturn([model1])
-        dao.get_all_genres().AndReturn([])
-
-        self.mox.ReplayAll()
+        dao = mock.Mock(spec=avalon.models.ReadOnlyDao)
+        dao.get_all_albums.return_value = []
+        dao.get_all_artists.return_value = [model1]
+        dao.get_all_genres.return_value = []
 
         cache = avalon.cache.IdLookupCache(dao).reload()
 
         assert uuid.UUID("5cede078-e88e-5929-b8e1-cfda7992b8fd") == \
-               cache.get_artist_id(u'Bad Religion')
-        self.mox.VerifyAll()
+               cache.get_artist_id('Bad Religion')
 
     def test_get_artist_id_does_not_exist(self):
         """Test that an artist that does not exist returns None"""
-        dao = self.mox.CreateMock(avalon.cache.ReadOnlyDao)
-        dao.get_all_albums().AndReturn([])
-        dao.get_all_artists().AndReturn([])
-        dao.get_all_genres().AndReturn([])
-
-        self.mox.ReplayAll()
+        dao = mock.Mock(spec=avalon.models.ReadOnlyDao)
+        dao.get_all_albums.return_value = []
+        dao.get_all_artists.return_value = []
+        dao.get_all_genres.return_value = []
 
         cache = avalon.cache.IdLookupCache(dao).reload()
 
-        assert None is cache.get_album_id(u'Bad Religion')
-        self.mox.VerifyAll()
+        assert None is cache.get_album_id('Bad Religion')
 
     def test_get_artist_id_case_insensitive(self):
-        """Test that we can translate an artist name to ID in a case insensitive fasion"""
-        model1 = self.mox.CreateMock(avalon.models.Artist)
+        """Test that we can translate an artist name to ID in a case insensitive fashion"""
+        model1 = avalon.models.Artist()
         model1.id = uuid.UUID("5cede078-e88e-5929-b8e1-cfda7992b8fd")
-        model1.name = u'Bad Religion'
+        model1.name = 'Bad Religion'
 
-        dao = self.mox.CreateMock(avalon.cache.ReadOnlyDao)
-        dao.get_all_albums().AndReturn([])
-        dao.get_all_artists().AndReturn([model1])
-        dao.get_all_genres().AndReturn([])
-
-        self.mox.ReplayAll()
+        dao = mock.Mock(spec=avalon.models.ReadOnlyDao)
+        dao.get_all_albums.return_value = []
+        dao.get_all_artists.return_value = [model1]
+        dao.get_all_genres.return_value = []
 
         cache = avalon.cache.IdLookupCache(dao).reload()
 
         assert uuid.UUID("5cede078-e88e-5929-b8e1-cfda7992b8fd") == \
-               cache.get_artist_id(u'BaD RELIGION')
-        self.mox.VerifyAll()
+               cache.get_artist_id('BaD RELIGION')
 
     def test_get_genre_id_exists(self):
         """Test that we can translate an genre name to ID"""
-        model1 = self.mox.CreateMock(avalon.models.Genre)
+        model1 = avalon.models.Genre()
         model1.id = uuid.UUID("8794d7b7-fff3-50bb-b1f1-438659e05fe5")
-        model1.name = u'Punk'
+        model1.name = 'Punk'
 
-        dao = self.mox.CreateMock(avalon.cache.ReadOnlyDao)
-        dao.get_all_albums().AndReturn([])
-        dao.get_all_artists().AndReturn([])
-        dao.get_all_genres().AndReturn([model1])
-
-        self.mox.ReplayAll()
+        dao = mock.Mock(spec=avalon.models.ReadOnlyDao)
+        dao.get_all_albums.return_value = []
+        dao.get_all_artists.return_value = []
+        dao.get_all_genres.return_value = [model1]
 
         cache = avalon.cache.IdLookupCache(dao).reload()
 
         assert uuid.UUID("8794d7b7-fff3-50bb-b1f1-438659e05fe5") == \
-               cache.get_genre_id(u'Punk')
-        self.mox.VerifyAll()
+               cache.get_genre_id('Punk')
 
     def test_get_genre_id_does_not_exist(self):
         """Test that an genre that does not exist returns None"""
-        dao = self.mox.CreateMock(avalon.cache.ReadOnlyDao)
-        dao.get_all_albums().AndReturn([])
-        dao.get_all_artists().AndReturn([])
-        dao.get_all_genres().AndReturn([])
-
-        self.mox.ReplayAll()
+        dao = mock.Mock(spec=avalon.models.ReadOnlyDao)
+        dao.get_all_albums.return_value = []
+        dao.get_all_artists.return_value = []
+        dao.get_all_genres.return_value = []
 
         cache = avalon.cache.IdLookupCache(dao).reload()
 
-        assert None is cache.get_album_id(u'Punks')
-        self.mox.VerifyAll()
+        assert None is cache.get_album_id('Punks')
 
     def test_get_genre_id_case_insensitive(self):
-        """Test that we can translate an genre name to ID in a case insensitive fasion"""
-        model1 = self.mox.CreateMock(avalon.models.Genre)
+        """Test that we can translate an genre name to ID in a case insensitive fashion"""
+        model1 = avalon.models.Genre()
         model1.id = uuid.UUID("8794d7b7-fff3-50bb-b1f1-438659e05fe5")
-        model1.name = u'Punk'
+        model1.name = 'Punk'
 
-        dao = self.mox.CreateMock(avalon.cache.ReadOnlyDao)
-        dao.get_all_albums().AndReturn([])
-        dao.get_all_artists().AndReturn([])
-        dao.get_all_genres().AndReturn([model1])
-
-        self.mox.ReplayAll()
+        dao = mock.Mock(spec=avalon.models.ReadOnlyDao)
+        dao.get_all_albums.return_value = []
+        dao.get_all_artists.return_value = []
+        dao.get_all_genres.return_value = [model1]
 
         cache = avalon.cache.IdLookupCache(dao).reload()
 
         assert uuid.UUID("8794d7b7-fff3-50bb-b1f1-438659e05fe5") == \
-               cache.get_genre_id(u'PUNK')
-        self.mox.VerifyAll()
+               cache.get_genre_id('PUNK')
 
     def test_reload_calls_dao_methods(self):
         """Ensure that the .reload() method calls the DAO methods again"""
-        dao = self.mox.CreateMock(avalon.cache.ReadOnlyDao)
-        dao.get_all_albums().AndReturn([])
-        dao.get_all_artists().AndReturn([])
-        dao.get_all_genres().AndReturn([])
-
-        self.mox.ReplayAll()
+        dao = mock.Mock(spec=avalon.models.ReadOnlyDao)
+        dao.get_all_albums.return_value = []
+        dao.get_all_artists.return_value = []
+        dao.get_all_genres.return_value = []
 
         avalon.cache.IdLookupCache(dao).reload()
 
-        self.mox.VerifyAll()
-
 
 class TestIdNameStore(object):
-    def setup_method(self, method):
-        self.mox = mox.Mox()
-
-    def teardown_method(self, method):
-        self.mox.UnsetStubs()
-
     def test_get_by_id(self):
-        model1 = self.mox.CreateMock(avalon.models.Album)
+        model1 = avalon.models.Album()
         model1.id = uuid.UUID("2d24515c-a459-552a-b022-e85d1621425a")
-        model1.name = u'Dookie'
+        model1.name = 'Dookie'
 
-        model2 = self.mox.CreateMock(avalon.models.Album)
+        model2 = avalon.models.Album()
         model2.id = uuid.UUID("b3c204e4-445d-5812-9366-28de6770c4e1")
-        model2.name = u'Insomniac'
+        model2.name = 'Insomniac'
 
-        dao = self.mox.CreateMock(avalon.cache.ReadOnlyDao)
-        dao.get_all_albums().AndReturn([model1, model2])
-
-        self.mox.ReplayAll()
+        dao = mock.Mock(spec=avalon.models.ReadOnlyDao)
+        dao.get_all_albums.return_value = [model1, model2]
 
         cache = avalon.cache.AlbumStore(dao).reload()
 
@@ -228,24 +181,22 @@ class TestIdNameStore(object):
         assert 1 == len(res)
 
         for dookie in res:
-            assert u'Dookie' == dookie.name
-        self.mox.VerifyAll()
+            assert 'Dookie' == dookie.name
+
 
     def test_get_all(self):
-        model1 = self.mox.CreateMock(avalon.models.Album)
+        model1 = avalon.models.Album()
         model1.id = uuid.UUID("2d24515c-a459-552a-b022-e85d1621425a")
-        model1.name = u'Dookie'
+        model1.name = 'Dookie'
 
-        model2 = self.mox.CreateMock(avalon.models.Album)
+        model2 = avalon.models.Album()
         model2.id = uuid.UUID("b3c204e4-445d-5812-9366-28de6770c4e1")
-        model2.name = u'Insomniac'
+        model2.name = 'Insomniac'
 
-        dao = self.mox.CreateMock(avalon.cache.ReadOnlyDao)
-        dao.get_all_albums().AndReturn([model1, model2])
+        dao = mock.Mock(spec=avalon.models.ReadOnlyDao)
+        dao.get_all_albums.return_value = [model1, model2]
 
-        self.mox.ReplayAll()
-
-        names = set([u'Dookie', u'Insomniac'])
+        names = set(['Dookie', 'Insomniac'])
         cache = avalon.cache.AlbumStore(dao).reload()
 
         res = cache.get_all()
@@ -253,28 +204,28 @@ class TestIdNameStore(object):
 
         for album in res:
             assert album.name in names
-        self.mox.VerifyAll()
 
 
 class TestTrackStore(object):
-    def setup_method(self, method):
-        self.mox = mox.Mox()
+    def __init__(self):
+        self.song = None
 
-        album = self.mox.CreateMock(avalon.models.Album)
+    def setup(self):
+        album = avalon.models.Album()
         album.id = uuid.UUID("350c49d9-fa38-585a-a0d9-7343c8b910ed")
-        album.name = u'Ruiner'
+        album.name = 'Ruiner'
 
-        artist = self.mox.CreateMock(avalon.models.Artist)
+        artist = avalon.models.Artist()
         artist.id = uuid.UUID("aa143f55-65e3-59f3-a1d8-36eac7024e86")
-        artist.name = u'A Wilhelm Scream'
+        artist.name = 'A Wilhelm Scream'
 
-        genre = self.mox.CreateMock(avalon.models.Genre)
+        genre = avalon.models.Genre()
         genre.id = uuid.UUID("8794d7b7-fff3-50bb-b1f1-438659e05fe5")
-        genre.name = u'Punk'
+        genre.name = 'Punk'
 
-        song = self.mox.CreateMock(avalon.models.Track)
+        song = avalon.models.Track()
         song.id = uuid.UUID("ca2e8303-69d7-53ec-907e-2f111103ba29")
-        song.name = u'The Pool'
+        song.name = 'The Pool'
         song.length = 150
         song.track = 3
         song.year = 2005
@@ -289,13 +240,9 @@ class TestTrackStore(object):
 
         self.song = song
 
-    def teardown_method(self, method):
-        self.mox.UnsetStubs()
-
     def test_get_by_album(self):
-        dao = self.mox.CreateMock(avalon.cache.ReadOnlyDao)
-        dao.get_all_tracks().AndReturn([self.song])
-        self.mox.ReplayAll()
+        dao = mock.Mock(spec=avalon.models.ReadOnlyDao)
+        dao.get_all_tracks.return_value = [self.song]
 
         cache = avalon.cache.TrackStore(dao).reload()
         songs = cache.get_by_album(uuid.UUID("350c49d9-fa38-585a-a0d9-7343c8b910ed"))
@@ -304,18 +251,16 @@ class TestTrackStore(object):
             assert uuid.UUID("ca2e8303-69d7-53ec-907e-2f111103ba29") == song.id
 
     def test_get_by_album_missing(self):
-        dao = self.mox.CreateMock(avalon.cache.ReadOnlyDao)
-        dao.get_all_tracks().AndReturn([self.song])
-        self.mox.ReplayAll()
+        dao = mock.Mock(spec=avalon.models.ReadOnlyDao)
+        dao.get_all_tracks.return_value = [self.song]
 
         cache = avalon.cache.TrackStore(dao).reload()
         songs = cache.get_by_album(uuid.UUID('daa612e8-daa8-49a0-8b14-6ee85720fb1c'))
         assert 0 == len(songs)
 
     def test_get_by_artist(self):
-        dao = self.mox.CreateMock(avalon.cache.ReadOnlyDao)
-        dao.get_all_tracks().AndReturn([self.song])
-        self.mox.ReplayAll()
+        dao = mock.Mock(spec=avalon.models.ReadOnlyDao)
+        dao.get_all_tracks.return_value = [self.song]
 
         cache = avalon.cache.TrackStore(dao).reload()
         songs = cache.get_by_artist(uuid.UUID("aa143f55-65e3-59f3-a1d8-36eac7024e86"))
@@ -324,18 +269,16 @@ class TestTrackStore(object):
             assert uuid.UUID("ca2e8303-69d7-53ec-907e-2f111103ba29") == song.id
 
     def test_get_by_artist_missing(self):
-        dao = self.mox.CreateMock(avalon.cache.ReadOnlyDao)
-        dao.get_all_tracks().AndReturn([self.song])
-        self.mox.ReplayAll()
+        dao = mock.Mock(spec=avalon.models.ReadOnlyDao)
+        dao.get_all_tracks.return_value = [self.song]
 
         cache = avalon.cache.TrackStore(dao).reload()
         songs = cache.get_by_artist(uuid.UUID('a15dfab4-75e6-439f-b621-5a3a9cf905d2'))
         assert 0 == len(songs)
 
     def test_get_by_genre(self):
-        dao = self.mox.CreateMock(avalon.cache.ReadOnlyDao)
-        dao.get_all_tracks().AndReturn([self.song])
-        self.mox.ReplayAll()
+        dao = mock.Mock(spec=avalon.models.ReadOnlyDao)
+        dao.get_all_tracks.return_value = [self.song]
 
         cache = avalon.cache.TrackStore(dao).reload()
         songs = cache.get_by_genre(uuid.UUID("8794d7b7-fff3-50bb-b1f1-438659e05fe5"))
@@ -344,18 +287,16 @@ class TestTrackStore(object):
             assert uuid.UUID("ca2e8303-69d7-53ec-907e-2f111103ba29") == song.id
 
     def test_get_by_genre_missing(self):
-        dao = self.mox.CreateMock(avalon.cache.ReadOnlyDao)
-        dao.get_all_tracks().AndReturn([self.song])
-        self.mox.ReplayAll()
+        dao = mock.Mock(spec=avalon.models.ReadOnlyDao)
+        dao.get_all_tracks.return_value = [self.song]
 
         cache = avalon.cache.TrackStore(dao).reload()
         songs = cache.get_by_genre(uuid.UUID('cf16d2d9-35da-4c2f-9f35-e52fb952864e'))
         assert 0 == len(songs)
 
     def test_get_by_id(self):
-        dao = self.mox.CreateMock(avalon.cache.ReadOnlyDao)
-        dao.get_all_tracks().AndReturn([self.song])
-        self.mox.ReplayAll()
+        dao = mock.Mock(spec=avalon.models.ReadOnlyDao)
+        dao.get_all_tracks.return_value = [self.song]
 
         cache = avalon.cache.TrackStore(dao).reload()
         songs = cache.get_by_id(uuid.UUID("ca2e8303-69d7-53ec-907e-2f111103ba29"))
@@ -364,11 +305,9 @@ class TestTrackStore(object):
             assert uuid.UUID("ca2e8303-69d7-53ec-907e-2f111103ba29") == song.id
 
     def test_get_by_id_missing(self):
-        dao = self.mox.CreateMock(avalon.cache.ReadOnlyDao)
-        dao.get_all_tracks().AndReturn([self.song])
-        self.mox.ReplayAll()
+        dao = mock.Mock(spec=avalon.models.ReadOnlyDao)
+        dao.get_all_tracks.return_value = [self.song]
 
         cache = avalon.cache.TrackStore(dao).reload()
         songs = cache.get_by_id(uuid.UUID('72e2e340-fabc-4712-aa26-8a8f122999e8'))
         assert 0 == len(songs)
-
