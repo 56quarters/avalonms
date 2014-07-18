@@ -23,7 +23,7 @@ Name          Required?     Type          Mutiple?      Description
 ``album_id``  No            ``string``    No            Select only songs belonging to this album by UUID. The UUID is
                                                         expected to be formatted using hexadecimal digits or
                                                         hexadecimal digits with hyphens. If the UUID is not formatted
-                                                        correctly an ``INVALID_PARAMETER_ERROR`` will be returned.
+                                                        correctly an ``InvalidParameterTypeError`` will be returned.
 ------------- ------------- ------------- ------------- ---------------------------------------------------------------
 ``artist``    No            ``string``    No            Select only songs by this artist, exact match, not case
                                                         sensitive.
@@ -31,7 +31,7 @@ Name          Required?     Type          Mutiple?      Description
 ``artist_id`` No            ``string``    No            Select only songs by this artist by UUID. The UUID is expected
                                                         to be formatted using hexadecimal digits or hexadecimal digits
                                                         with hyphens. If the UUID is not formatted correctly an
-                                                        ``INVALID_PARAMETER_ERROR`` will be returned.
+                                                        ``InvalidParameterTypeError`` will be returned.
 ------------- ------------- ------------- ------------- ---------------------------------------------------------------
 ``genre``     No            ``string``    No            Select only songs belonging to this genre, exact match, not
                                                         case sensitive.
@@ -39,7 +39,7 @@ Name          Required?     Type          Mutiple?      Description
 ``genre_id``  No            ``string``    No            Select only songs belonging to this genre by UUID. The UUID is
                                                         expected to be formatted using hexadecimal digits or
                                                         hexadecimal digits with hyphens. If the UUID is not formatted
-                                                        correctly an ``INVALID_PARAMETER_ERROR`` will be
+                                                        correctly an ``InvalidParameterTypeError`` will be
                                                         returned.
 ------------- ------------- ------------- ------------- ---------------------------------------------------------------
 ``query``     No            ``string``    No            Select only songs whose album, artist, genre, or name contains
