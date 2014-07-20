@@ -7,9 +7,9 @@ very similar to how the reference installation of the Avalon Music Server
 (http://api.tshlabs.org/avalon/version) is set up.
 
 This particular installation uses Gunicorn_, Supervisord_, and Nginx_. We'll
-set it up so that it can be deployed to using the included Fabric_ files and
-configuration in the future. We'll also make use of the bundled Gunicorn and
-Supervisor configurations.
+set it up so that it can be deployed to using the included Fabric_ files in
+the future. We'll also make use of the bundled Gunicorn and Supervisor
+configurations.
 
 These instructions are based on a machine running Debian Linux, but they
 should be applicable to any UNIX-like operating system.
@@ -117,7 +117,8 @@ Configure Nginx Web Server
 
 Though Gunicorn can run as an HTTP server, you should consider using a dedicated web server
 in front of it as a reverse proxy if you plan on exposing it on the public Internet. If so,
-Nginx is a solid, lightweight, easy to configure choice.
+Nginx is a solid, lightweight, easy to configure choice. In the instructions below, replace
+``api.example.com`` with the domain that you wish to run the Avalon Music Server at.
 
 When you installed Nginx earlier it created a directory that server configurations can be
 placed into: ``/etc/nginx/sites-available/`` (if you're on Debian). If you're not on Debian
