@@ -183,7 +183,6 @@ class TestIdNameStore(object):
         for dookie in res:
             assert 'Dookie' == dookie.name
 
-
     def test_get_all(self):
         model1 = avalon.models.Album()
         model1.id = uuid.UUID("2d24515c-a459-552a-b022-e85d1621425a")
