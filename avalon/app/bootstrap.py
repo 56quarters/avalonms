@@ -88,8 +88,9 @@ def bootstrap(config_env=None):
     app.register_error_handler(Exception, controller.handle_unknown_error)
 
     log.info(
-        "Avalon Music Server %s running as %s:%s", avalon.__version__,
-        avalon.util.get_current_uname(), avalon.util.get_current_gname())
+        "Avalon Music Server %s running as %s:%s using %s MB memory",
+        avalon.__version__, avalon.util.get_current_uname(),
+        avalon.util.get_current_gname(), avalon.util.get_mem_usage())
 
     return app
 
@@ -150,11 +151,4 @@ def _load_application(config_env):
     """
     app = Flask('avalon')
     _load_configuration(app.config, config_env)
-
-    # Note that we reference the Flask logger here so that it will
-    # be initialized before we configure our logging handler. We do
-    # this because the Flask logger will remove all existing handlers
-    # when it initializes. See the following issue for more details.
-    # https://github.com/mitsuhiko/flask/issues/641
-    app.logger.debug("Eagerly initializing Flask logger...")
     return app
