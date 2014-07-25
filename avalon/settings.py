@@ -62,3 +62,11 @@ LOG_PATH = None
 # portion of the application is using the same logging as the rest of
 # the server.
 LOGGER_NAME = DEFAULT_LOGGER_NAME
+
+
+# Configuration for logging unexpected errors to a centralized
+# third-party error aggregation service. Enabling this logging
+# requires supplying a Sentry DSN configuration string below and
+# installing the Raven Sentry client (`pip install raven`).
+# See https://www.getsentry.com/docs/ for more information.
+SENTRY_DSN = None

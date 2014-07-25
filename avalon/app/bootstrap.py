@@ -54,6 +54,7 @@ def bootstrap(config_env=None):
     # when initializing it. https://github.com/mitsuhiko/flask/issues/641
     log = app.logger
     avalon.app.factory.configure_logger(log, app.config)
+    avalon.app.factory.configure_sentry_logger(log, app.config)
 
     if config_env is not None:
         log.info(

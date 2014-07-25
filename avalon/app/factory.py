@@ -12,6 +12,7 @@
 
 from __future__ import unicode_literals
 
+import logging
 from datetime import datetime
 
 import re
@@ -31,6 +32,7 @@ import avalon.web.search
 
 __all__ = [
     'configure_logger',
+    'configure_sentry_logger',
     'new_controller',
     'new_dao',
     'new_db_engine',
@@ -46,8 +48,6 @@ def configure_logger(logger, config):
 
     :param logging.Logger logger: Logger instance to configure
     :param flask.Config config: Application level configuration
-    :return: Global logger for the Avalon Music Server
-    :rtype: logging.Logger
     """
     log_config = avalon.log.AvalonLogConfig()
     log_config.path = config.get('LOG_PATH')
@@ -55,7 +55,31 @@ def configure_logger(logger, config):
     log_config.fmt = config.get('LOG_FORMAT')
     log_config.date_fmt = config.get('LOG_DATE_FORMAT')
     avalon.log.initialize(logger, log_config)
-    return avalon.log.get_error_log()
+
+
+def configure_sentry_logger(logger, config):
+    """Configure a Sentry client for messages logged at ERROR and higher.
+
+    If a Sentry client is not installed or has not been configured, a handler
+    will not be installed. See the Sentry_ docs for more information.
+
+    .. _Sentry https://www.getsentry.com/docs/
+
+    :param logging.Logger logger: Flask application logger
+    :param flask.Config config: Application configuration
+    """
+    try:
+        from raven.handlers.logging import SentryHandler
+        from raven.conf import setup_logging
+
+        handler = SentryHandler(config['SENTRY_DSN'], level=logging.ERROR)
+        setup_logging(handler)
+    except ImportError:
+        logger.info("Sentry client not installed, skipping setup...")
+    except (ValueError, KeyError):
+        logger.info("Sentry not configured, skipping setup...")
+    else:
+        logger.info("Sentry client configured for ERROR messages")
 
 
 def new_db_engine(config):
