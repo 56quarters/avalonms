@@ -12,7 +12,8 @@ the future. We'll also make use of the bundled Gunicorn and Supervisor
 configurations.
 
 These instructions are based on a machine running Debian Linux, but they
-should be applicable to any UNIX-like operating system.
+should be applicable to any UNIX-like operating system (with a few
+modifications).
 
 Installing Dependencies
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -127,7 +128,7 @@ file: ``/etc/nginx/nginx.conf``.
 
 If you have a directory for configurations, create a new file named ``api_example_com.conf``
 with the contents below. If you only have a single configuration file, add the contents below
-under the ``http`` section. ::
+inside the ``http`` section. ::
 
     server {
        listen 80;
