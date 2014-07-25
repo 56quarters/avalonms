@@ -27,7 +27,8 @@ LICENSE = 'MIT'
 CLASSIFIERS = [
     "Development Status :: 3 - Alpha",
     "License :: OSI Approved :: MIT License",
-    "Operating System :: POSIX",
+    "Operating System :: POSIX :: BSD",
+    "Operating System :: POSIX :: Linux",
     "Topic :: Internet :: WWW/HTTP",
     "Topic :: Multimedia :: Sound/Audio",
     "Programming Language :: Python",
