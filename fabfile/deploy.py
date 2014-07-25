@@ -76,7 +76,7 @@ def cleanup(keep=5):
     # also aren't the release being pointed to by the 'current'
     # symlink
     current_version = get_current_version()
-    to_delete = filter(lambda version: version != current_version, releases[keep:])
+    to_delete = [version for version in releases[keep:] if version != current_version]
 
     for release in to_delete:
         run("rm -rf %s/%s" % (env.remote_deploy_releases, release))
@@ -161,12 +161,14 @@ def install_from_wheels(release_id):
 
 def set_version_as_current(version):
     """Update the 'current' symlink to point at the given release ID."""
-    tmp_name = str(uuid.uuid4())
-    tmp_path = join(env.remote_deploy_base, tmp_name)
+    tmp_path = join(env.remote_deploy_base, str(uuid.uuid4()))
+
+    target = join(env.remote_deploy_releases, version)
+    final_path = env.remote_deploy_current
 
     # First create a link with a random name to point to the
     # newly created release, then rename it to 'current' such
     # that the symlink is updated atomically [1].
     # [1] - http://rcrowley.org/2010/01/06/things-unix-can-do-atomically
-    run("ln -s %s %s" % (join(env.remote_deploy_releases, version), tmp_path))
-    run("mv -T %s %s" % (tmp_path, env.remote_deploy_current))
+    run("ln -s %s %s" % (target, tmp_path))
+    run("mv -T %s %s" % (tmp_path, final_path))
