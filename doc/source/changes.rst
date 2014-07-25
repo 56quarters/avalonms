@@ -1,7 +1,7 @@
 Change Log for Avalon Music Server
 ==================================
 
-2014-07-18 - v0.3.0
+2014-XX-XX - v0.3.0
 -------------------
 * **Breaking change**: Avalon Music Server is now a WSGI application and CLI
   scripts, not a stand-alone server.
