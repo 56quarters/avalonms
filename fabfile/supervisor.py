@@ -8,6 +8,9 @@
 #
 
 from __future__ import unicode_literals
+import uuid
+
+from os.path import join
 from fabric.api import env, run, sudo, task, quiet
 
 
@@ -27,12 +30,18 @@ def user():
 
 @task
 def config():
-    """Remove existing Avalon supervisor config and link to the current config."""
-    target = env.remote_deploy_current_share + "/avalon-supervisor-gunicorn.conf"
-    final_path = env.remote_supervisor_config + "/avalon-supervisor-gunicorn.conf"
+    """Ensure that there's a link to the Avalon supervisord config."""
+    tmp_path = join(env.remote_supervisor_config, str(uuid.uuid4()))
 
-    sudo("rm -f %s" % final_path)
-    sudo("ln -s %s %s" % (target, final_path))
+    target = join(env.remote_deploy_current_share, "avalon-supervisor-gunicorn.conf")
+    final_path = join(env.remote_supervisor_config, "avalon-supervisor-gunicorn.conf")
+
+    # First create a link with a random name to point to the 'current'
+    # Avalon Supervisor config, then rename it to the final file name
+    # such that the symlink is updated atomically [1].
+    # [1] - http://rcrowley.org/2010/01/06/things-unix-can-do-atomically
+    sudo("ln -s %s %s" % (target, tmp_path))
+    sudo("mv -T %s %s" % (tmp_path, final_path))
 
 
 @task
