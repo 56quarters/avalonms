@@ -109,9 +109,9 @@ directory to the bundled Supervisor configuration file. ::
 Configure Nginx Web Server
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Though Gunicorn can run as an HTTP server, you should consider using a dedicated web server
-in front of it as a reverse proxy if you plan on exposing it on the public Internet. If so,
-Nginx is a solid, lightweight, easy to configure choice. In the instructions below, replace
+Though Gunicorn can run as an HTTP server, you should_ use a dedicated web server in front
+of it as a reverse proxy if you plan on exposing it on the public Internet. If so, Nginx is
+a solid, lightweight, easy to configure choice. In the instructions below, replace
 ``api.example.com`` with the domain that you wish to run the Avalon Music Server at.
 
 When you installed Nginx earlier it created a directory that server configurations can be
@@ -151,6 +151,7 @@ If everything was installed correctly, the ``curl`` command should return the st
 ``OKOKOK``.
 
 .. _Gunicorn: http://www.gunicorn.org/
+.. _should: http://docs.gunicorn.org/en/latest/deploy.html
 .. _Supervisord: http://www.supervisord.org/
 .. _Nginx: http://nginx.org/
 .. _Fabric: http://www.fabfile.org/
