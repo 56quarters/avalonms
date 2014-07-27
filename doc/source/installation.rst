@@ -84,7 +84,7 @@ Configure Gunicorn WSGI HTTP Server
 
 The installed Avalon Music Server comes with a simple Gunicorn configuration file
 that is available at ``/var/www/avalon/current/share/avalonms/avalon-gunicorn.py``
-(or ``ext/avalon-gunicorn.py in the codebase``). This file configures Gunicorn to:
+(or ``ext/avalon-gunicorn.py`` in the codebase). This file configures Gunicorn to:
 
 * Bind the server to only the local interface, port ``8000``.
 * Spawn three worker processes that will handle requests.
