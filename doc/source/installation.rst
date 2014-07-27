@@ -75,24 +75,16 @@ to that, we'll create our own copy of that configuration that we can customize. 
 Configure the Avalon WSGI Application
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-TODO
-
-.. Installation? Deploy?
-.. Setting up local configuration
-.. Setting up env var for local configuration
-
-.. DB setup?
-
-.. Resource usage?
-
-.. Logging?
+We won't configure the Avalon WSGI application here, as part of installation. For
+more information about the available configuration settings for it, see the :doc:`usage`
+section.
 
 Configure Gunicorn WSGI HTTP Server
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The installed Avalon Music Server comes with a simple Gunicorn configuration file
-that is available at ``/var/www/avalon/current/share/avalonms/avalon-gunicorn.py``.
-This file configures Gunicorn to:
+that is available at ``/var/www/avalon/current/share/avalonms/avalon-gunicorn.py``
+(or ``ext/avalon-gunicorn.py in the codebase``). This file configures Gunicorn to:
 
 * Bind the server to only the local interface, port ``8000``.
 * Spawn three worker processes that will handle requests.
@@ -105,7 +97,8 @@ Configure Supervisor Process Manager
 The installed Avalon Music server also comes with a simple Supervisord configuration
 file. This file runs the Avalon Music Server as an unprivileged user, uses the Gunicorn
 HTTP WSGI server, restarts it if it crashes, and pipes all output to a log file. This
-is available at ``/var/www/avalon/current/share/avalonms/avalon-supervisor-gunicorn.conf``.
+is available at ``/var/www/avalon/current/share/avalonms/avalon-supervisor-gunicorn.conf``
+(or ``ext/avalon-supervisor-gunicorn.conf`` in the codebase).
 
 When you installed Supervisor earlier (if you're on Debian) it created a directory that
 configurations can be placed into: ``/etc/supervisor/conf.d``. Create a symlink in this
