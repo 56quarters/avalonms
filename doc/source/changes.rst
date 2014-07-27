@@ -1,5 +1,5 @@
-Change Log for Avalon Music Server
-==================================
+Change Log
+==========
 
 0.3.0 - Future Release
 ----------------------
