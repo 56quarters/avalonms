@@ -138,7 +138,6 @@ def setup_virtual_env():
     """Generate a release ID and create a new virtualenv."""
     release_id = datetime.utcnow().strftime(env.release_id_fmt)
     release_path = join(env.remote_deploy_releases, release_id)
-    run('rm -rf %s' % release_path)
     run('virtualenv %s' % release_path)
     return release_id
 
