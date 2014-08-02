@@ -7,6 +7,9 @@ avalon-echo-config
 Prints the contents of the default configuration for the Avalon Music Server
 WSGI application to ``STDOUT``.
 
+Useful for creating a configuration file for the server that can be customized
+as described below.
+
 Synopsis
 ^^^^^^^^
 
