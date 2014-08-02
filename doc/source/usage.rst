@@ -176,9 +176,10 @@ describes the settings and how they are used.
                     of the file.
 
 ``SENTRY_DSN``      URL that describes how to log errors to a centralized 3rd party
-                    error-logging service, Sentry_. Enabling this logging requires
-                    supplying a Sentry DSN configuration string and installing the
-                    Raven Sentry client_.
+                    error-logging service, Sentry_. This functionality is disabled
+                    by default. Enabling this logging requires supplying a Sentry
+                    DSN configuration string and installing the Raven Sentry
+                    client_.
 =================== ===============================================================
 
 Database
