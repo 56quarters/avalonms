@@ -17,10 +17,10 @@ Synopsis
 Options
 ^^^^^^^
 
-    -h --help
+    ``-h`` ``--help``
         Prints how to invoke the command and supported options and exits.
 
-    -V --version
+    ``-V`` ``--version``
         Prints the installed version of the Avalon Music Server and exits.
 
 Examples
@@ -45,18 +45,18 @@ Synopsis
 Options
 ^^^^^^^
 
-    -h --help
+    ``-h`` ``--help``
         Prints how to invoke the command and supported options and exits.
 
-    -V --version
+    ``-V`` ``--version``
         Prints the installed version of the Avalon Music Server and exits.
 
-    -d <URL> --database <URL>
+    ``-d <URL>`` ``--database <URL>``
         Database URL connection string for the database to write music collection
         meta data to. If not specified the value from the configuration file will
         be used. The URL must be one supported by SQLAlchemy_.
 
-    -q --quiet
+    ``-q`` ``--quiet``
         Be less verbose, only emit ERROR level messages to the console.
 
 Examples
