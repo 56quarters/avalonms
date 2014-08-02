@@ -72,15 +72,15 @@ to that, we'll create our own copy of that configuration that we can customize. 
 
     /var/www/avalon/current/bin/avalon-echo-config > /var/www/avalon/local-settings.py
 
-Configure the Avalon WSGI Application
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Avalon WSGI Application
+~~~~~~~~~~~~~~~~~~~~~~~
 
 We won't configure the Avalon WSGI application here, as part of installation. For
 more information about the available configuration settings for it, see the :doc:`usage`
 section.
 
-Configure Gunicorn WSGI HTTP Server
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Gunicorn
+~~~~~~~~
 
 The installed Avalon Music Server comes with a simple Gunicorn configuration file
 that is available at ``/var/www/avalon/current/share/avalonms/avalon-gunicorn.py``
@@ -91,8 +91,8 @@ that is available at ``/var/www/avalon/current/share/avalonms/avalon-gunicorn.py
 * Use preload mode so that the workers will be able to take advantage of copy-on-write_
   optimizations done by the operating system to save RAM.
 
-Configure Supervisor Process Manager
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Supervisor
+~~~~~~~~~~
 
 The installed Avalon Music server also comes with a simple Supervisord configuration
 file. This file runs the Avalon Music Server as an unprivileged user, uses the Gunicorn
@@ -106,8 +106,8 @@ directory to the bundled Supervisor configuration file. ::
 
     ln -s /var/www/avalon/current/share/avalonms/avalon-supervisor-gunicorn.conf /etc/supervisor/conf.d/
 
-Configure Nginx Web Server
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+Nginx
+~~~~~
 
 Though Gunicorn can run as an HTTP server, you should_ use a dedicated web server in front
 of it as a reverse proxy if you plan on exposing it on the public Internet. If so, Nginx is
