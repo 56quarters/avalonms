@@ -117,8 +117,8 @@ generated as below (assuming the Avalon Music Server has already been installed)
 
 The file at ``/var/www/avalon/local-settings.py`` will be an exact copy of the default
 configuration file. You can change the settings in this new copy and they will
-override the default settings. Any settings you do not change (or remove from the
-file) will use their default values.
+override the default settings. Any settings you do not change (or settings removed from
+the file) will use their default values.
 
 After you have customized this file, you need to tell the Avalon WSGI application
 to use this file. This is done by setting the value of the ``AVALON_CONFIG``
