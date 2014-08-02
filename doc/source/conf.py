@@ -44,8 +44,9 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
+from datetime import datetime
 project = u'Avalon Music Server'
-copyright = u'2014, TSH Labs'
+copyright = u'%s, TSH Labs' % datetime.utcnow().strftime('%Y')
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
