@@ -80,8 +80,8 @@ in the directory '/home/files/music'. ::
 
     avalon-scan --database 'sqlite:////var/db/avalon.sqlite' /home/files/music
 
-Avalon WSGI App
-~~~~~~~~~~~~~~~
+Avalon WSGI Application
+~~~~~~~~~~~~~~~~~~~~~~~
 
 The Avalon WSGI application is meant to be run with a Python WSGI server such as
 Gunicorn_.
@@ -136,8 +136,6 @@ the Avalon WSGI application. Note that some settings available in the configurat
 are not meant to be changed by end users and are hence omitted. The table below
 describes the settings and how they are used.
 
-
-
 .. tabularcolumns:: |l|l|
 
 =================== ===============================================================
@@ -185,11 +183,58 @@ describes the settings and how they are used.
 Database
 ^^^^^^^^
 
+The Avalon Music Server writes music meta data to a database when it scans a music
+collection and reads the meta back when the WSGI application starts.
+
+In each case, when connecting to a database for the first time, the CLI script and
+the WSGI application will attempt to create the required database schema if it does
+not already exist.
+
+Provided that you attempt to scan your music collection before running the WSGI
+application, the scanning portion must have read/write access to the database and
+the WSGI application must have read access. Otherwise, if you are running the WSGI
+application, connecting to a database before inserting anything into it via scanning,
+the WSGI application must have read/write access (to create the required schema).
+
 Architecture
 ^^^^^^^^^^^^
 
+Workers
+=======
+
+The Avalon WSGI Application is, for the most part, CPU bound and immutable after start
+up. Therefore it is a good fit for multiprocess workers and (if your Python implementation
+doesn't have a Global-Interpreter-Lock_) threaded workers.
+
+Logging
+=======
+
+By default, the Avalon WSGI Application sends logging messages the ``STDERR``. This means
+that if you want to send these messages to a file or a Syslog, you have to configure the
+logging of the WSGI HTTP server that you are using to run it (or the process manager that
+runs the WSGI HTTP server).
+
+The Avalon WSGI Application can also be configured to send log messages directly to a log
+file. In this case, the file must be writable by the user that the application is being
+run as.
+
+Sentry
+======
+
+Sentry_ is a centralized, 3rd-party, error-logging service. It is available as a
+paid, hosted, service. However, both the client and server are Free_ Software and
+can be run by anyone.
+
+The Avalon WSGI Application will optionally log unhandled exceptions to a Sentry
+instance provided things are true (otherwise logging to Sentry will not be used).
+
+#. The Sentry client_ is installed and can be imported.
+#. There is a ``SENTRY_DSN`` configuration setting available and correctly configured.
+
 Deployment
 ^^^^^^^^^^
+
+
 
 
 .. _SQLAlchemy: http://docs.sqlalchemy.org/en/latest/core/engines.html#database-urls
@@ -199,3 +244,5 @@ Deployment
 .. _logging: http://docs.python.org/2/library/logging.html#logrecord-attributes
 .. _Sentry: https://getsentry.com/welcome/
 .. _client: https://pypi.python.org/pypi/raven
+.. _Global-Interpreter-Lock: https://wiki.python.org/moin/GlobalInterpreterLock
+.. _Free: https://github.com/getsentry/sentry
