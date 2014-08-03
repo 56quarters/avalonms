@@ -201,19 +201,19 @@ application, connecting to a database before inserting anything into it via scan
 Workers
 =======
 
-The Avalon WSGI Application is, for the most part, CPU bound and immutable after start
+The Avalon WSGI application is, for the most part, CPU bound and immutable after start
 up. Therefore it is a good fit for multiprocess workers and (if your Python implementation
 doesn't have a Global-Interpreter-Lock_) threaded workers.
 
 Logging
 =======
 
-By default, the Avalon WSGI Application sends logging messages the ``STDERR``. This means
+By default, the Avalon WSGI application sends logging messages the ``STDERR``. This means
 that if you want to send these messages to a file or a Syslog, you have to configure the
 logging of the WSGI HTTP server that you are using to run it (or the process manager that
 runs the WSGI HTTP server).
 
-The Avalon WSGI Application can also be configured to send log messages directly to a log
+The Avalon WSGI application can also be configured to send log messages directly to a log
 file. In this case, the file must be writable by the user that the application is being
 run as.
 
@@ -224,7 +224,7 @@ Sentry_ is a centralized, 3rd-party, error-logging service. It is available as a
 paid, hosted, service. However, both the client and server are Free_ Software and
 can be run by anyone.
 
-The Avalon WSGI Application will optionally log unhandled exceptions to a Sentry
+The Avalon WSGI application will optionally log unhandled exceptions to a Sentry
 instance provided these things are true (otherwise logging to Sentry will not be
 used).
 
@@ -235,7 +235,7 @@ Deployment
 ^^^^^^^^^^
 
 If you followed the steps in :doc:`installation` you should be able to use the
-bundled Fabric_ deploy scripts to manage your Avalon WSGI Application installation.
+bundled Fabric_ deploy scripts to manage your Avalon WSGI application installation.
 
 Some assumptions made by the Fabric deploy scripts:
 
@@ -245,7 +245,7 @@ Some assumptions made by the Fabric deploy scripts:
 * You have the ability to ``sudo`` on the server you are deploying to.
 
 If all these things are true, you should be able to deploy a new version of the
-Avalon WSGI Application with a few simple steps.
+Avalon WSGI application with a few simple steps.
 
 First, make sure the build environment is clean and then generate packages to install. ::
 
@@ -255,11 +255,11 @@ Next, upload the generated packages, and install them. ::
 
     fab -H api.example.com deploy
 
-Restart the Avalon WSGI Application if it's already running. ::
+Restart the Avalon WSGI application if it's already running. ::
 
     fab -H api.example.com app.restart
 
-That's it! The Avalon WSGI Application should now be running on your server.
+That's it! The Avalon WSGI application should now be running on your server.
 
 .. _SQLAlchemy: http://docs.sqlalchemy.org/en/latest/core/engines.html#database-urls
 .. _Gunicorn: http://gunicorn.org
