@@ -180,8 +180,11 @@ describes the settings and how they are used.
                     client_.
 =================== ===============================================================
 
+Architecture
+^^^^^^^^^^^^
+
 Database
-^^^^^^^^
+========
 
 The Avalon Music Server writes music meta data to a database when it scans a music
 collection and reads the meta back when the WSGI application starts.
@@ -196,14 +199,14 @@ the WSGI application must have read access. Otherwise, if you are running the WS
 application, connecting to a database before inserting anything into it via scanning,
 
 Workers
-^^^^^^^
+=======
 
 The Avalon WSGI Application is, for the most part, CPU bound and immutable after start
 up. Therefore it is a good fit for multiprocess workers and (if your Python implementation
 doesn't have a Global-Interpreter-Lock_) threaded workers.
 
 Logging
-^^^^^^^
+=======
 
 By default, the Avalon WSGI Application sends logging messages the ``STDERR``. This means
 that if you want to send these messages to a file or a Syslog, you have to configure the
@@ -215,7 +218,7 @@ file. In this case, the file must be writable by the user that the application i
 run as.
 
 Sentry
-^^^^^^
+======
 
 Sentry_ is a centralized, 3rd-party, error-logging service. It is available as a
 paid, hosted, service. However, both the client and server are Free_ Software and
