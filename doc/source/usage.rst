@@ -141,16 +141,11 @@ describes the settings and how they are used.
 =================== ===============================================================
 ``DATABASE_URL``    URL that describes the type of database to connect to and the
                     credentials for connecting to it. The URL must be one
-                    supported by SQLAlchemy_. Some example URLs are given below.
-
-                    Connecting to a remote PostgreSQL server:
-
+                    supported by SQLAlchemy_. For example, to connect to a local
+                    SQLite database: ``sqlite:////var/db/avalon.sqlite``, or to
+                    connect to a remote PostgreSQL database:
                     ``postgresql+psycopg2://user:password@server/database``
 
-                    Connecting to a local SQLite database:
-
-                    ``sqlite:////var/db/avalon.sqlite``
-                    
 ``LOG_DATE_FORMAT`` Date format for timestamps in logging messages. The supported
                     tokens for this setting are described in the Python
                     documentation_.
