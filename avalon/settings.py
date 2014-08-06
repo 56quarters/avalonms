@@ -24,7 +24,7 @@ DATABASE_URL = 'sqlite:///' + join(gettempdir(), 'avalon.sqlite')
 
 
 # Flask will "pretty print" JSON output by default, we would rather it
-# didn't do that.
+# didn't do that. You probably don't really want to change this.
 JSONIFY_PRETTYPRINT_REGULAR = False
 
 
