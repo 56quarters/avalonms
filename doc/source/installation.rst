@@ -116,8 +116,8 @@ a solid, lightweight, easy to configure choice. In the instructions below, repla
 
 When you installed Nginx earlier it created a directory that server configurations can be
 placed into: ``/etc/nginx/sites-available/`` (if you're on Debian). If you're not on Debian
-the directory may be in a different location or you may have a single configuration
-file: ``/etc/nginx/nginx.conf``.
+the directory may be in a different location such as ``/etc/nginx/conf.d`` or you may have
+a single configuration file: ``/etc/nginx/nginx.conf``.
 
 If you have a directory for configurations, create a new file named ``api_example_com.conf``
 with the contents below. If you only have a single configuration file, add the contents below
@@ -128,8 +128,9 @@ inside the ``http`` section. ::
        server_name api.example.com;
 
        location /avalon {
-                proxy_pass             http://127.0.0.1:8000;
-                proxy_set_header       Host $host;
+                proxy_pass http://localhost:8000;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
        }
     }
 
