@@ -48,8 +48,9 @@ def get_opts(prog):
         metavar='URL',
         help='Database URL connection string for the database to '
              'write music collection meta data to. If not specified '
-             'the value from the configuration file will be used. The '
-             'URL must be one supported by SQLAlchemy. See documentation '
+             'the value from the default configuration file and '
+             'configuration file override will be used. The URL must '
+             'be one supported by SQLAlchemy. See documentation '
              'here: http://docs.sqlalchemy.org/en/latest/core/engines.html#database-urls')
 
     parser.add_argument(

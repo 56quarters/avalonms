@@ -4,7 +4,7 @@ Usage
 avalon-echo-config
 ~~~~~~~~~~~~~~~~~~
 
-Prints the contents of the default configuration for the Avalon Music Server
+Print the contents of the default configuration for the Avalon Music Server
 WSGI application to ``STDOUT``.
 
 Useful for creating a configuration file for the server that can be customized
@@ -38,6 +38,11 @@ avalon-scan
 
 Scan a music collection for meta data and insert it into a database.
 
+Database connection information is loaded from the default configuration file
+and optionally a configuration override file (whose location is specified by
+the ``AVALON_CONFIG`` environmental variable). This can also be overridden using
+the ``--database`` option.
+
 Synopsis
 ^^^^^^^^
 
@@ -56,8 +61,9 @@ Options
 
     ``-d <URL>`` ``--database <URL>``
         Database URL connection string for the database to write music collection
-        meta data to. If not specified the value from the configuration file will
-        be used. The URL must be one supported by SQLAlchemy_.
+        meta data to. If not specified the value from the default configuration file
+        and configuration file override will be used. The URL must be one supported
+        by SQLAlchemy_.
 
     ``-q`` ``--quiet``
         Be less verbose, only emit ERROR level messages to the console.
@@ -65,10 +71,16 @@ Options
 Examples
 ^^^^^^^^
 
-Use the default database type (SQLite) and location (usually /tmp/avalon.sqlite)
-and scan the music collection in the directory 'music'. ::
+Use the database type and location specified by the default configuration
+file (usually SQLite and ``/tmp/avalon.sqlite``) and scan the music collection
+in the directory 'music'. ::
 
     avalon-scan ~/music
+
+Use the database type and location specified by a custom configuration file
+and scan the music collection in the 'media' directory. ::
+
+    AVALON_CONFIG=/home/user/avalon/local-settings.py avalon-scan /home/media
 
 Use a PostgreSQL database type and connect to a remote database server and
 scan the music collection in the directory 'music'. ::
