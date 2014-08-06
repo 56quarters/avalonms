@@ -132,9 +132,13 @@ Settings
 ^^^^^^^^
 
 The following configuration settings are available to customize the behavior of
-the Avalon WSGI application. Note that some settings available in the configuration
-are not meant to be changed by end users and are hence omitted. The table below
-describes the settings and how they are used.
+the Avalon WSGI application. The table below describes the settings and how they
+are used.
+
+.. note::
+
+    Note that some settings available in the configuration are not meant to be changed
+    by end users and are hence omitted below.
 
 .. tabularcolumns:: |l|l|
 
