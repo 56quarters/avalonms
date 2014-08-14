@@ -208,6 +208,8 @@ Provided that you attempt to scan your music collection before running the WSGI
 application, the scanning portion must have read/write access to the database and
 the WSGI application must have read access. Otherwise, if you are running the WSGI
 application, connecting to a database before inserting anything into it via scanning,
+the WSGI application will attempt create the required schema and will require read/write
+access.
 
 Workers
 =======
