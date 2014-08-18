@@ -66,9 +66,8 @@ Or, run with Gunicorn: ::
 Running Tests
 ~~~~~~~~~~~~~
 
-The Avalon Music Server uses `nose <http://nose.rtfd.org>`_ to run tests. You can run
-the tests using the command below. Make sure that you have entered the virtualenv you
-created earlier. ::
+The Avalon Music Server uses `tox <https://testrun.org/tox/latest/>`_ to run tests
+in isolated virtualenvs. You can run the tests using the command below. Make sure
+that you have entered the virtualenv you created earlier. ::
 
-    nosetests test
-
+    tox test
