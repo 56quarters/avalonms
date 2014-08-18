@@ -1,3 +1,6 @@
+# Our Travis CI config that delegates most of the logistics
+# of running our unit tests for multiple interpreters to the
+# tox tool.
 language: python
 
 env:
