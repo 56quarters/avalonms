@@ -1,11 +1,11 @@
 language: python
 
-python:
-  - "2.6"
-  - "2.7"
-  - "3.3"
-  - "3.4"
-  - "pypy"
+env:
+  - TOXENV=py26
+  - TOXENV=py27
+  - TOXENV=py33
+  - TOXENV=py34
+  - TOXENV=pypy
 
 # Only build master, don't want noise from experimental stuff
 branches:
@@ -14,16 +14,10 @@ branches:
 
 # command to install dependencies
 install:
-  # Install basic dependencies required by the Avalon Music Server itself using
-  # packages pinned to a particular version (as opposed to the packages in setup.py)
-  - "pip install --allow-external argparse -r requirements.txt"
-  # Install unit test specific requirements. NOTE that not all of the packages
-  # in this file are required for running on Travis, however, this requirement
-  # file is shared with setup for local development and testing.
-  - "pip install -r requirements-dev.txt"
-  # Install the server itself, which should not trigger any more packages being
-  # installed if everything above worked alright.
-  - "pip install ."
+  # Just install tox here and let it manage all our dependencies and
+  # environment set up (via tox.ini). Note that we override the default
+  # list of environments for tox run in via the TOXENV variable above.
+  - "pip install tox"
 
 # command to run tests.
-script: nosetests test
+script: tox test

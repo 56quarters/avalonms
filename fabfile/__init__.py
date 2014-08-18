@@ -102,12 +102,3 @@ def setup(env_name='env'):
         "--requirement requirements-prod.txt" % env_name)
     local('%s/bin/pip install --no-deps -e .' % env_name)
 
-
-@task
-def test():
-    """Run the unit tests.
-
-    Note this task is meant to be run from inside the virtualenv.
-    """
-    local('nosetests test')
-
