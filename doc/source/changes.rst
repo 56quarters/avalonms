@@ -1,8 +1,8 @@
 Change Log
 ==========
 
-0.3.0 - Future Release
-----------------------
+0.3.0 - 2014-08-17
+------------------
 * **Breaking change**: Avalon Music Server is now a WSGI application and CLI
   scripts, not a stand-alone server.
 * **Breaking change**: Response format changed to include ``errors``, ``warnings``,
