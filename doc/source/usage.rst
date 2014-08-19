@@ -255,6 +255,10 @@ Deployment
 If you followed the steps in :doc:`installation` you should be able to use the
 bundled Fabric_ deploy scripts to manage your Avalon WSGI application installation.
 
+Note that the Fabric deploy scripts will also install the Gunicorn_ HTTP server and
+a client for the Sentry_ service (however, Sentry won't be used unless you have
+explicitly configured it).
+
 Some assumptions made by the Fabric deploy scripts:
 
 * You have already created and set the permissions of the directory that will be
