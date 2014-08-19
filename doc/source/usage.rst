@@ -244,6 +244,11 @@ used).
 #. The Sentry client_ is installed and can be imported.
 #. There is a ``SENTRY_DSN`` configuration setting available and correctly configured.
 
+To install the client run the following command from within the virtualenv that
+the Avalon WSGI application is installed in. ::
+
+    pip install raven
+
 Deployment
 ^^^^^^^^^^
 

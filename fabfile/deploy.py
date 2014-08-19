@@ -151,9 +151,10 @@ def patch_virtual_env(release_id):
 
 
 def install_from_wheels(release_id):
-    """Install the Avalon Music Server and Gunicorn into the virtualenv."""
+    """Install the Avalon Music Server, Gunicorn, and a Sentry client into the virtualenv."""
     virtual_env_path = join(env.remote_deploy_releases, release_id)
     install_tpt = "%s/bin/pip install --no-index --find-links %s/wheelhouse %s"
+    run(install_tpt % (virtual_env_path, env.remote_build_path, "raven"))
     run(install_tpt % (virtual_env_path, env.remote_build_path, "gunicorn"))
     run(install_tpt % (virtual_env_path, env.remote_build_path, "avalonms"))
 
