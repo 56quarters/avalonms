@@ -92,7 +92,10 @@ class TrieNode(object):
         self._elements = None
 
     def add_element(self, elm):
-        """Add an element to the set of elements at this node."""
+        """Add an element to the set of elements at this node.
+
+        :param elm: Element that is considered to match this node
+        """
         # Most nodes only have a single element stored at them so we
         # cheat and just store that element locally instead of in a set
         # until we have more than one element since sets are quite large.
@@ -105,7 +108,11 @@ class TrieNode(object):
             self._elements.add(elm)
 
     def get_elements(self):
-        """Get the set of all elements at this node."""
+        """Get the set of all elements at this node.
+
+        :return: All elements that are considered to match this node
+        :rtype: set
+        """
         if self._element is not None:
             return set([self._element])
         if self._elements is not None:
@@ -113,7 +120,13 @@ class TrieNode(object):
         return set()
 
     def add_child(self, char, node):
-        """Add a child node to this node indexed by the given character."""
+        """Add a child node to this node indexed by the given character.
+
+        :param unicode char: Character that represents the path to the child
+            of this node.
+        :param TrieNode node: Child node of this node that represents the next
+            step in this trie.
+        """
         # Since most nodes only have a single child, we cheat and just store
         # the character and child node locally instead of using a dictionary
         # since dictionaries are quite large. We only use a dictionary for
@@ -128,7 +141,12 @@ class TrieNode(object):
             self._children[char] = node
 
     def get_children(self):
-        """Get a dictionary of the child nodes indexed by a character."""
+        """Get a dictionary of the child nodes indexed by a character.
+
+        :return: Child nodes indexed by the character that indicates a
+            path through the trie to that child.
+        :rtype: dict
+        """
         if self._child_val is not None:
             return {self._child_key: self._child_val}
         if self._children is not None:
@@ -172,6 +190,9 @@ class SearchTrie(object):
 
         The term is expected to be normalized using the same method that will
         be used for searches against the trie.
+
+        :param unicode term: Search term to index the given element under.
+        :param element: Element to add to the trie under the given term.
         """
         self._add(self._root, term, 0, element)
 
@@ -202,6 +223,10 @@ class SearchTrie(object):
 
         The term is expected to be normalized using the same method that was
         used to build the trie.
+
+        :param unicode term: Search term to use to find matching elements.
+        :return: Set of all elements in the trie matching the term.
+        :rtype: set
         """
         return self._search(self._root, term, 0)
 
