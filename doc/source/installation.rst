@@ -67,7 +67,7 @@ we just created. ::
 
     /var/www/avalon/current/bin/pip install avalonms gunicorn
 
-The Avalon Music Server has a embedded default configuration file. In addition
+The Avalon Music Server has an embedded default configuration file. In addition
 to that, we'll create our own copy of that configuration that we can customize. ::
 
     /var/www/avalon/current/bin/avalon-echo-config > /var/www/avalon/local-settings.py
