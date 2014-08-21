@@ -62,10 +62,10 @@ Next, we'll set up the environment on our server:
 Installing from PyPI
 ~~~~~~~~~~~~~~~~~~~~
 
-Now, let's install the Avalon Music Server and Gunicorn into the virtualenv
-we just created. ::
+Now, let's install the Avalon Music Server, Gunicorn, and a Sentry client into
+the virtualenv we just created. ::
 
-    /var/www/avalon/current/bin/pip install avalonms gunicorn
+    /var/www/avalon/current/bin/pip install avalonms gunicorn raven
 
 The Avalon Music Server has an embedded default configuration file. In addition
 to that, we'll create our own copy of that configuration that we can customize. ::
