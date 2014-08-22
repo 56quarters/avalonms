@@ -7,6 +7,8 @@
 # Available under the MIT license. See LICENSE for details.
 #
 
+"""Scan a music collection and insert meta data into a database."""
+
 from __future__ import unicode_literals
 
 import avalon.log
