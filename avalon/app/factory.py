@@ -161,6 +161,7 @@ def new_controller(dao, id_cache):
     api_config.genre_store = avalon.cache.GenreStore(dao)
     api_config.id_cache = id_cache
 
+    # pylint: disable=missing-docstring
     def trie_factory():
         return avalon.web.search.SearchTrie(avalon.web.search.TrieNode)
 

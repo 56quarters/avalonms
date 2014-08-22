@@ -20,6 +20,8 @@ __all__ = [
     'AvalonApiEndpointsConfig'
 ]
 
+# Disable warning about constant that's really a function
+# pylint: disable=invalid-name
 _set_intersection = lambda x, y: x.intersection(y)
 
 

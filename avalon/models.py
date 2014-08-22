@@ -83,7 +83,9 @@ class _BaseFields(object):
 
 # Declarative base that also includes id and name fields
 # (common to all meta data types) that should be used as
-# the base for all models
+# the base for all models. Ignore pylint warning about invalid
+# name since this is a class, not a constant.
+# pylint: disable=invalid-name
 _Base = declarative_base(cls=_BaseFields)
 
 

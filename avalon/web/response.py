@@ -37,6 +37,8 @@ AvalonJsonDecoder = simplejson.JSONDecoder
 class AvalonJsonEncoder(simplejson.JSONEncoder):
     """Avalon specific JSON encoder."""
 
+    # Disable warning about hidden method since it's overridden on purpose
+    # pylint: disable=method-hidden
     def default(self, o):
         if isinstance(o, uuid.UUID):
             return six.text_type(o)

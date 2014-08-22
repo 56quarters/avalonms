@@ -13,7 +13,7 @@
 from __future__ import unicode_literals
 import os.path
 
-from fabric.api import env, lcd, task, local
+from fabric.api import env, lcd, task, local, warn_only
 
 from . import app
 from . import build
@@ -60,6 +60,13 @@ def docs():
     """
     with lcd('doc'):
         local('make html')
+
+
+@task
+def lint():
+    """Run pylint on the project using our configuration."""
+    with warn_only():
+        local('pylint --rcfile .pylintrc avalon')
 
 
 @task

@@ -70,7 +70,7 @@ class TrackFieldLoader(object):
         _flush_session(self._session)
 
     @staticmethod
-    def _get_new_obj(cls, id_gen, field, tag):
+    def _get_new_obj(model_cls, id_gen, field, tag):
         """Generate a new model object for associated data for
         an audio tag.
         """
@@ -81,7 +81,7 @@ class TrackFieldLoader(object):
             # find invalid audio tags.
             raise AttributeError(
                 "Invalid tag field [%s] for [%s]" % (field, tag.path))
-        obj = cls()
+        obj = model_cls()
         obj.id = id_gen(val)
         obj.name = val
         return obj

@@ -53,7 +53,7 @@ class TagCrawler(object):
         # same as we treat tag values. It will usually be the case
         # that the path has already been converted to a unicode
         # object but it doesn't hurt to make sure.
-        for root, dirs, files in self._walk(avalon.compat.to_text(self._root)):
+        for root, _, files in self._walk(avalon.compat.to_text(self._root)):
             for entry in files:
                 out.append(os.path.normpath(os.path.join(root, entry)))
         return out

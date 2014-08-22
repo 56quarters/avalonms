@@ -25,36 +25,36 @@ __all__ = [
 ]
 
 
-def searchable(s):
+def searchable(query):
     """Convert an input string to a consistent searchable form by
     removing accents, diaretics, and converting it to lowercase.
 
     None input will be converted to an empty string.
 
-    :param unicode s: Unicode string to convert to a searchable form
+    :param unicode query: Unicode string to convert to a searchable form
     :return: Normalized searchable unicode string
     :rtype: unicode
     """
-    if s is None:
+    if query is None:
         return ''
-    return strip_accents(s).lower()
+    return strip_accents(query).lower()
 
 
-def strip_accents(s):
+def strip_accents(query):
     """Decompose unicode characters into their base characters so
     that we can return more meaningful search results by not taking
     accents and such into account.
 
     See http://stackoverflow.com/a/1410365
 
-    :param unicode s: Lowercase unicode string to remove accents from
+    :param unicode query: Lowercase unicode string to remove accents from
     :return: String with only base characters, no access and umlauts
     :rtype: unicode
     """
     chars = []
-    for c in normalize('NFD', avalon.compat.to_text(s)):
-        if category(c) != 'Mn':
-            chars.append(c)
+    for char in normalize('NFD', avalon.compat.to_text(query)):
+        if category(char) != 'Mn':
+            chars.append(char)
     return ''.join(chars)
 
 

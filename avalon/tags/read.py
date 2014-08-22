@@ -167,7 +167,7 @@ class MetadataTrackParser(object):
         number
     """
 
-    fmt_fraction = '(\d+)/\d+'
+    fmt_fraction = r'(\d+)/\d+'
 
     def __init__(self, parser_impl):
         """Set the regular expression parser which is expected
