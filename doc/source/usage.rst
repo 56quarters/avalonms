@@ -221,7 +221,7 @@ doesn't have a Global-Interpreter-Lock_) threaded workers.
 Logging
 =======
 
-By default, the Avalon WSGI application sends logging messages the ``STDERR``. This means
+By default, the Avalon WSGI application sends logging messages to ``STDERR``. This means
 that if you want to send these messages to a file or a Syslog, you have to configure the
 logging of the WSGI HTTP server that you are using to run it (or the process manager that
 runs the WSGI HTTP server).
