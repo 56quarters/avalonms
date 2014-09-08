@@ -4,8 +4,8 @@
 from __future__ import unicode_literals
 import uuid
 
+import pytest
 import mock
-from nose.tools import raises
 import avalon.cache
 import avalon.ids
 import avalon.models
@@ -92,7 +92,6 @@ class TestCleaner(object):
 
 
 class TestTrackFieldLoader(object):
-    @raises(AttributeError)
     def test_insert_invalid_attribute_raises_error(self):
         """Test that a call to insert a bogus tag field results in
         the expected attribute error.
@@ -112,9 +111,10 @@ class TestTrackFieldLoader(object):
         id_gen = mock.Mock()
 
         inserter = avalon.tags.insert.TrackFieldLoader(session, [tag])
-        inserter.insert(model_cls, id_gen, 'blah')
 
-    @raises(AttributeError)
+        with pytest.raises(AttributeError):
+            inserter.insert(model_cls, id_gen, 'blah')
+
     def test_insert_invalid_attribute_error_unicode_path(self):
         """Test that we don't encounter unicode related errors when
         trying to handle expected errors during insert for tracks with
@@ -135,7 +135,9 @@ class TestTrackFieldLoader(object):
         id_gen = mock.Mock()
 
         inserter = avalon.tags.insert.TrackFieldLoader(session, [tag])
-        inserter.insert(model_cls, id_gen, 'blah')
+
+        with pytest.raises(AttributeError):
+            inserter.insert(model_cls, id_gen, 'blah')
 
     def test_insert_duplicate_ids_one_insert(self):
         """Test that fields are deduplicated based on their UUIDs

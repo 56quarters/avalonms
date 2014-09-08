@@ -4,14 +4,13 @@
 from __future__ import unicode_literals
 import uuid
 
+import pytest
 import mock
-from nose.tools import raises
 import avalon.cache
 import avalon.models
 
 
 class TestFunctions(object):
-    @raises(AttributeError)
     def test_get_frozen_mapping(self):
         mapping = {'foo': set(['zing', 'zam', 'zowey'])}
         frozen = avalon.cache.get_frozen_mapping(mapping)
@@ -20,7 +19,8 @@ class TestFunctions(object):
         assert frozen['foo'] == frozenset(['zing', 'zam', 'zowey'])
         assert isinstance(frozen['foo'], frozenset)
 
-        frozen['foo'].add('blah')
+        with pytest.raises(AttributeError):
+            frozen['foo'].add('blah')
 
 
 class TestIdLookupCache(object):

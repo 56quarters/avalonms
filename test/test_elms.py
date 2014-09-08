@@ -4,7 +4,7 @@
 from __future__ import unicode_literals
 import uuid
 
-from nose.tools import raises
+import pytest
 import avalon.elms
 
 
@@ -44,10 +44,11 @@ class TestIdNameElm(object):
         assert artist_elm.id == self.artist_model.id
         assert artist_elm.name == self.artist_model.name
 
-    @raises(AttributeError)
     def test_from_model_immutable(self):
         artist_elm = avalon.elms.id_name_elm_from_model(self.artist_model)
-        artist_elm.name = 'Something'
+
+        with pytest.raises(AttributeError):
+            artist_elm.name = 'Something'
 
 
 class TestTrackElm(object):
@@ -99,7 +100,8 @@ class TestTrackElm(object):
         assert track_elm.genre == self.genre_model.name
         assert track_elm.genre_id == self.track_model.genre_id
 
-    @raises(AttributeError)
     def test_from_model_immutable(self):
         track_elm = avalon.elms.track_elm_from_model(self.track_model)
-        track_elm.id = uuid.uuid4()
+
+        with pytest.raises(AttributeError):
+            track_elm.id = uuid.uuid4()

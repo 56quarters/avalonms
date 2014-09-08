@@ -4,7 +4,7 @@
 from __future__ import unicode_literals
 import uuid
 
-from nose.tools import raises
+import pytest
 import avalon.exc
 import avalon.web.request
 
@@ -21,12 +21,13 @@ class TestParameters(object):
     def setup(self):
         self.request = DummyRequest()
 
-    @raises(KeyError)
     def test_get_invalid(self):
         """Ensure a bogus named parameter causes an exception."""
         self.request.args = {}
         r = avalon.web.request.Parameters(self.request)
-        r.get("asdf")
+
+        with pytest.raises(KeyError):
+            r.get("asdf")
 
     def test_get_missing(self):
         """Ensure a missing valid parameter results in a default
@@ -37,14 +38,15 @@ class TestParameters(object):
         val = r.get('artist', default=None)
         assert val is None
 
-    @raises(avalon.exc.InvalidParameterTypeError)
     def test_get_list_val(self):
         """Ensure a parameter with a list value causes an
         exception.
         """
         self.request.args = {'artist': ['a', 'b']}
         r = avalon.web.request.Parameters(self.request)
-        r.get('artist')
+
+        with pytest.raises(avalon.exc.InvalidParameterTypeError):
+            r.get('artist')
 
     def test_get_success(self):
         """Test the success case of getting a valid non-list value \
@@ -62,12 +64,13 @@ class TestParameters(object):
         val = r.get_int('limit')
         assert None is val
 
-    @raises(avalon.exc.InvalidParameterTypeError)
     def test_get_int_invalid(self):
         """Ensure an invalid value results in an exception."""
         self.request.args = {'limit': 'asdf'}
         r = avalon.web.request.Parameters(self.request)
-        r.get_int('limit')
+
+        with pytest.raises(avalon.exc.InvalidParameterTypeError):
+            r.get_int('limit')
 
     def test_get_int_success(self):
         """Ensure that a valid value gets converted to an int."""
@@ -83,13 +86,14 @@ class TestParameters(object):
         val = r.get_uuid('artist_id')
         assert None is val
 
-    @raises(avalon.exc.InvalidParameterTypeError)
     def test_get_uuid_invalid(self):
         """Ensure that an invalid value for a UUID field results in an \
         exception."""
         self.request.args = {'artist_id': 'asdf'}
         r = avalon.web.request.Parameters(self.request)
-        r.get_uuid('artist_id')
+
+        with pytest.raises(avalon.exc.InvalidParameterTypeError):
+            r.get_uuid('artist_id')
 
     def test_get_uuid_success(self):
         """Ensure that a valid UUID value is converted to a UUID."""

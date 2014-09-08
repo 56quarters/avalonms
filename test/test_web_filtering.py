@@ -5,7 +5,7 @@ from __future__ import unicode_literals
 
 import collections
 
-from nose.tools import raises
+import pytest
 import avalon.exc
 import avalon.web.filtering
 import avalon.web.request
@@ -42,21 +42,23 @@ class TestSortFilter(object):
 
         assert sorted_elms == self.elms, "Expected elements the same order"
 
-    @raises(avalon.exc.InvalidParameterValueError)
     def test_sort_filter_invalid_direction(self):
         """Ensure invalid sort directions result in an error."""
         request = DummyRequest({
             'order': 'name',
             'direction': 'foo'})
         params = avalon.web.request.Parameters(request)
-        avalon.web.filtering.sort_filter(self.elms, params)
 
-    @raises(avalon.exc.InvalidParameterNameError)
+        with pytest.raises(avalon.exc.InvalidParameterValueError):
+            avalon.web.filtering.sort_filter(self.elms, params)
+
     def test_sort_filter_invalid_field(self):
         """Ensure invalid sort fields result in an error."""
         request = DummyRequest({'order': 'foo'})
         params = avalon.web.request.Parameters(request)
-        avalon.web.filtering.sort_filter(self.elms, params)
+
+        with pytest.raises(avalon.exc.InvalidParameterValueError):
+            avalon.web.filtering.sort_filter(self.elms, params)
 
     def test_sort_filter_normal_direction(self):
         """Ensure we can sort elements in ascending order."""
@@ -96,22 +98,24 @@ class TestLimitFilter(object):
         assert 3 == len(limited), "Did not get expected number of results"
         assert limited == self.elms, "Did not get expected results"
 
-    @raises(avalon.exc.InvalidParameterValueError)
     def test_limit_filter_negative_limit(self):
         """Ensure negative limits are treated as invalid."""
         request = DummyRequest({
             'limit': '-1'})
         params = avalon.web.request.Parameters(request)
-        avalon.web.filtering.limit_filter(self.elms, params)
 
-    @raises(avalon.exc.InvalidParameterValueError)
+        with pytest.raises(avalon.exc.InvalidParameterValueError):
+            avalon.web.filtering.limit_filter(self.elms, params)
+
     def test_limit_filter_negative_offset(self):
         """Ensure negative offsets are treated as invalid."""
         request = DummyRequest({
             'limit': '1',
             'offset': '-1'})
         params = avalon.web.request.Parameters(request)
-        avalon.web.filtering.limit_filter(self.elms, params)
+
+        with pytest.raises(avalon.exc.InvalidParameterValueError):
+            avalon.web.filtering.limit_filter(self.elms, params)
 
     def test_limit_filter_success(self):
         """Ensure we can apply limits and offsets to results."""
