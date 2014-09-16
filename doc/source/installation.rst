@@ -1,6 +1,56 @@
 Installation
 ------------
 
+Two possible ways to install the Avalon Music Server are described below.
+One is very simple and designed to get you up and running as quickly as
+possible. The other is more involved and designed to run the Avalon Music
+Server in a production environment.
+
+All of these instructions are based on a machine running Debian Linux, but
+they should be applicable to any UNIX-like operating system (with a few
+modifications).
+
+Quick Start Installation
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+This section will describe an extremely simple installation of the Avalon
+Music Server. If you just want to play around with the Avalon Music Server
+and don't have plans to run it in production, this guide is for you.
+
+First, we'll install the virtualenv tool. ::
+
+    apt-get install python-virtualenv
+
+* Next, create a virtual environment that we'll install the Avalon Music Server into. ::
+
+    virtualenv ~/avalon
+
+* "Activate" the virtual environment. ::
+
+    source ~/avalon/bin/activate
+
+* Install the Avalon Music Server and Gunicorn_. ::
+
+    pip install avalonms gunicorn
+
+* Scan your music collection and build a database with the meta data from it. ::
+
+    avalon-scan ~/path/to/music
+
+* Start the server. ::
+
+    gunicorn --preload avalon.app.wsgi:application
+
+* Then, in a different terminal, test it out! ::
+
+    curl http://localhost:8000/avalon/heartbeat
+
+You should see the result ``OKOKOK`` if the server started correctly. To stop
+the server, just hit ``CTRL-C`` in the terminal that it is running in.
+
+Production Installation
+~~~~~~~~~~~~~~~~~~~~~~~
+
 This section will describe one potential way to install, configure, and
 run the Avalon Music Server in production. The configuration described is
 very similar to how the reference installation of the Avalon Music Server
@@ -11,12 +61,9 @@ set it up so that it can be deployed to using the included Fabric_ files in
 the future. We'll also make use of the bundled Gunicorn and Supervisor
 configurations.
 
-These instructions are based on a machine running Debian Linux, but they
-should be applicable to any UNIX-like operating system (with a few
-modifications).
 
 Installing Dependencies
-~~~~~~~~~~~~~~~~~~~~~~~
+=======================
 
 First, we'll install the virtualenv tool, Supervisor and Nginx using the package
 manager. ::
@@ -24,7 +71,7 @@ manager. ::
     apt-get install python-virtualenv supervisor nginx
 
 Setting Up The Environment
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+==========================
 
 Next, we'll set up the environment on our server:
 
@@ -50,20 +97,20 @@ Next, we'll set up the environment on our server:
 
     sudo useradd --shell /bin/false --home /var/www/avalon --user-group avalon
 
-* Create a virtualenv that we'll install the Avalon Music Server into. ::
+* Create a virtual environment that we'll install the Avalon Music Server into. ::
 
     virtualenv /var/www/avalon/releases/20140717214022
 
-* Set the "current" symlink to the virtualenv we just created. This is the
-  path that we'll we pointing our Supervisor and Gunicorn configurations at. ::
+* Set the "current" symlink to the virtual environment we just created. This is
+  the path that we'll we pointing our Supervisor and Gunicorn configurations at. ::
 
     ln -s /var/www/avalon/releases/20140717214022 /var/www/avalon/current
 
 Installing from PyPI
-~~~~~~~~~~~~~~~~~~~~
+====================
 
 Now, let's install the Avalon Music Server, Gunicorn, and a Sentry client into
-the virtualenv we just created. ::
+the virtual environment we just created. ::
 
     /var/www/avalon/current/bin/pip install avalonms gunicorn raven
 
@@ -73,14 +120,14 @@ to that, we'll create our own copy of that configuration that we can customize. 
     /var/www/avalon/current/bin/avalon-echo-config > /var/www/avalon/local-settings.py
 
 Avalon WSGI Application
-~~~~~~~~~~~~~~~~~~~~~~~
+=======================
 
 We won't configure the Avalon WSGI application here, as part of installation. For
 more information about the available configuration settings for it, see the :doc:`usage`
 section.
 
 Gunicorn
-~~~~~~~~
+========
 
 The installed Avalon Music Server comes with a simple Gunicorn configuration file
 that is available at ``/var/www/avalon/current/share/avalonms/avalon-gunicorn.py``
@@ -92,7 +139,7 @@ that is available at ``/var/www/avalon/current/share/avalonms/avalon-gunicorn.py
   optimizations done by the operating system to save RAM.
 
 Supervisor
-~~~~~~~~~~
+==========
 
 The installed Avalon Music server also comes with a simple Supervisord configuration
 file. This file runs the Avalon Music Server as an unprivileged user, uses the Gunicorn
@@ -107,7 +154,7 @@ directory to the bundled Supervisor configuration file. ::
     ln -s /var/www/avalon/current/share/avalonms/avalon-supervisor-gunicorn.conf /etc/supervisor/conf.d/
 
 Nginx
-~~~~~
+=====
 
 Though Gunicorn can run as an HTTP server, you should_ use a dedicated web server in front
 of it as a reverse proxy if you plan on exposing it on the public Internet. If so, Nginx is
@@ -139,7 +186,7 @@ If you're on Debian, enable the configuration like so: ::
     sudo ln -s /etc/nginx/sites-available/api_example_com.conf /etc/nginx/sites-enabled/
 
 Start the Server
-~~~~~~~~~~~~~~~~
+================
 
 Now that everything is configured, let's try starting Nginx and Supervisor (which will, in turn,
 start the Avalon Music Server) and testing it out. ::

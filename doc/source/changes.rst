@@ -5,6 +5,8 @@ Change Log
 0.3.1 - Future release
 ----------------------
 * Include installation of a Sentry client in Fabric deploy task
+* Use Py.test and Tox for running tests.
+* Added a "Quick Start" section to the installation docs.
 
 0.3.0 - 2014-08-17
 ------------------
