@@ -20,11 +20,6 @@ DummyElm = collections.namedtuple('DummyElm', ['id', 'name'])
 
 
 class TestSortFilter(object):
-    def __init__(self):
-        self.elms = None
-        self.asc_sorted = None
-        self.desc_sorted = None
-
     def setup(self):
         elm1 = DummyElm(id=123, name='bcd')
         elm2 = DummyElm(id=456, name='xyz')
@@ -57,7 +52,7 @@ class TestSortFilter(object):
         request = DummyRequest({'order': 'foo'})
         params = avalon.web.request.Parameters(request)
 
-        with pytest.raises(avalon.exc.InvalidParameterValueError):
+        with pytest.raises(avalon.exc.InvalidParameterNameError):
             avalon.web.filtering.sort_filter(self.elms, params)
 
     def test_sort_filter_normal_direction(self):
@@ -80,9 +75,6 @@ class TestSortFilter(object):
 
 
 class TestLimitFilter(object):
-    def __init__(self):
-        self.elms = None
-
     def setup(self):
         elm1 = DummyElm(id=123, name='bcd')
         elm2 = DummyElm(id=456, name='xyz')

@@ -30,9 +30,6 @@ class DummyIdNameModel(object):
 
 
 class TestIdNameElm(object):
-    def __init__(self):
-        self.artist_model = None
-
     def setup(self):
         self.artist_model = DummyIdNameModel()
         self.artist_model.id = uuid.uuid4()
@@ -52,12 +49,6 @@ class TestIdNameElm(object):
 
 
 class TestTrackElm(object):
-    def __init__(self):
-        self.artist_model = None
-        self.album_model = None
-        self.genre_model = None
-        self.track_model = None
-
     def setup(self):
         self.artist_model = DummyIdNameModel()
         self.artist_model.id = uuid.uuid4()

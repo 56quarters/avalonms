@@ -206,8 +206,6 @@ class TestIdNameStore(object):
 
 
 class TestTrackStore(object):
-    def __init__(self):
-        self.song = None
 
     def setup(self):
         album = avalon.models.Album()

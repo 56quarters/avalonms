@@ -15,9 +15,6 @@ class DummyRequest(object):
 
 
 class TestParameters(object):
-    def __init__(self):
-        self.request = None
-
     def setup(self):
         self.request = DummyRequest()
 
