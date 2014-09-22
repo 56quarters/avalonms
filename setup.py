@@ -14,8 +14,7 @@ import sys
 from glob import glob
 
 from os.path import join
-from setuptools import setup
-
+from setuptools import setup, find_packages
 import avalon
 
 
@@ -25,7 +24,7 @@ EMAIL = 'projects@tshlabs.org'
 URL = 'http://www.tshlabs.org/'
 LICENSE = 'MIT'
 CLASSIFIERS = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "License :: OSI Approved :: MIT License",
     "Operating System :: POSIX :: BSD",
     "Operating System :: POSIX :: Linux",
@@ -74,8 +73,7 @@ setup(
     zip_safe=False,
     install_requires=REQUIRES,
     data_files=[(join('share', 'avalonms'), glob(join('ext', '*')))],
-    packages=[
-        'avalon', 'avalon.app', 'avalon.cli', 'avalon.tags', 'avalon.web'],
+    packages=find_packages(),
     entry_points={
         'console_scripts': [
             'avalon-echo-config = avalon.cli.config:main',
