@@ -10,10 +10,10 @@
 
 """Fabric commands for Avalon development tasks and deploys."""
 
-from __future__ import unicode_literals
 import os.path
 
 from fabric.api import env, lcd, task, local, warn_only
+from tunic.api import get_releases_path, get_current_path
 
 from . import app
 from . import build
@@ -26,17 +26,13 @@ env.remote_deploy_base = '/var/www/avalon'
 
 env.remote_deploy_owner = 'root:dev'
 
-env.remote_deploy_perms = 'u+rw,g+rw,o+r'
+env.remote_deploy_releases = get_releases_path(env.remote_deploy_base)
 
-env.remote_deploy_releases = env.remote_deploy_base + '/releases'
-
-env.remote_deploy_current = env.remote_deploy_base + '/current'
+env.remote_deploy_current = get_current_path(env.remote_deploy_base)
 
 env.remote_deploy_current_share = env.remote_deploy_current + '/share/avalonms'
 
 env.remote_supervisor_config = '/etc/supervisor/conf.d'
-
-env.release_id_fmt = '%Y%m%d%H%M%S'
 
 env.app_user = 'avalon'
 
