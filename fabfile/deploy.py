@@ -29,13 +29,18 @@ def deploy():
     setup = ProjectSetup(env.remote_deploy_base)
     setup.setup_directories(use_sudo=False)
 
+    run('mkdir %s' % env.remote_build_path)
+    put('wheelhouse', env.remote_build_path)
+
     rm = ReleaseManager(env.remote_deploy_base)
-
-    upload()
     install(rm)
-    cleanup(rm)
 
-    setup.set_permissions(env.remote_deploy_owner)
+    rm.cleanup()
+    run("rm -rf %s" % env.remote_build_path)
+
+    setup.set_permissions(
+        env.remote_deploy_owner,
+        use_sudo=False)
 
 
 @task
@@ -51,12 +56,6 @@ def rollback():
     rm.set_current_release(previous)
 
 
-def upload():
-    """Upload the build artifacts to the server."""
-    run('mkdir %s' % env.remote_build_path)
-    put('wheelhouse', env.remote_build_path)
-
-
 def install(release_manager):
     """Install into a virtualenv and mark it 'current'."""
 
@@ -65,12 +64,6 @@ def install(release_manager):
         patch_virtual_env(release_id)
         install_from_wheels(release_id)
         release_manager.set_current_release(release_id)
-
-
-def cleanup(release_manager):
-    """Remove build artifacts and all but a few of the most recent releases."""
-    release_manager.cleanup()
-    run("rm -rf %s" % env.remote_build_path)
 
 
 def setup_virtual_env():
