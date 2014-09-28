@@ -20,7 +20,8 @@ from fabric.api import (
 from tunic.api import (
     get_release_id,
     ReleaseManager,
-    ProjectSetup)
+    ProjectSetup,
+    VirtualEnvInstallation)
 
 
 @task(default=True)
@@ -29,7 +30,7 @@ def deploy():
     setup = ProjectSetup(env.remote_deploy_base)
     setup.setup_directories(use_sudo=False)
 
-    run('mkdir %s' % env.remote_build_path)
+    run('mkdir -p %s' % env.remote_build_path)
     put('wheelhouse', env.remote_build_path)
 
     rm = ReleaseManager(env.remote_deploy_base)
@@ -38,9 +39,7 @@ def deploy():
     rm.cleanup()
     run("rm -rf %s" % env.remote_build_path)
 
-    setup.set_permissions(
-        env.remote_deploy_owner,
-        use_sudo=False)
+    setup.set_permissions(env.remote_deploy_owner)
 
 
 @task
@@ -58,34 +57,22 @@ def rollback():
 
 def install(release_manager):
     """Install into a virtualenv and mark it 'current'."""
+    release_id = get_release_id()
+
+    # We upgrade setuptools and pip as separate installs
+    # since we run into issues when upgrading them both
+    # at the same time.
+    patches = [
+        VirtualEnvInstallation(env.remote_deploy_base, ['setuptools']),
+        VirtualEnvInstallation(env.remote_deploy_base, ['pip'])]
+
+    project = VirtualEnvInstallation(
+        env.remote_deploy_base,
+        ['avalonms', 'gunicorn', 'raven'],
+        [join(env.remote_build_path, 'wheelhouse')])
 
     with hide('stdout'):
-        release_id = setup_virtual_env()
-        patch_virtual_env(release_id)
-        install_from_wheels(release_id)
+        for patch in patches:
+            patch.install(release_id, upgrade=True)
+        project.install(release_id)
         release_manager.set_current_release(release_id)
-
-
-def setup_virtual_env():
-    """Generate a release ID and create a new virtualenv."""
-    release_id = get_release_id()
-    release_path = join(env.remote_deploy_releases, release_id)
-    run('virtualenv %s' % release_path)
-    return release_id
-
-
-def patch_virtual_env(release_id):
-    """Virtualenv on Debian Wheezy is too old."""
-    virtual_env_path = join(env.remote_deploy_releases, release_id)
-    install_tpt = "%s/bin/pip install --upgrade %s"
-    for package in ('setuptools', 'pip'):
-        run(install_tpt % (virtual_env_path, package))
-
-
-def install_from_wheels(release_id):
-    """Install the Avalon Music Server, Gunicorn, and a Sentry client into the virtualenv."""
-    virtual_env_path = join(env.remote_deploy_releases, release_id)
-    install_tpt = "%s/bin/pip install --no-index --find-links %s/wheelhouse %s"
-    run(install_tpt % (virtual_env_path, env.remote_build_path, "raven"))
-    run(install_tpt % (virtual_env_path, env.remote_build_path, "gunicorn"))
-    run(install_tpt % (virtual_env_path, env.remote_build_path, "avalonms"))
