@@ -34,7 +34,8 @@ def deploy():
     put('wheelhouse', env.remote_build_path)
 
     rm = ReleaseManager(env.remote_deploy_base)
-    install(rm)
+    release_id = install()
+    rm.set_current_release(release_id)
 
     rm.cleanup()
     run("rm -rf %s" % env.remote_build_path)
@@ -55,8 +56,8 @@ def rollback():
     rm.set_current_release(previous)
 
 
-def install(release_manager):
-    """Install into a virtualenv and mark it 'current'."""
+def install():
+    """Install AvalonMS into a virtualenv."""
     release_id = get_release_id()
 
     # We upgrade setuptools and pip as separate installs
@@ -75,4 +76,4 @@ def install(release_manager):
         for patch in patches:
             patch.install(release_id, upgrade=True)
         project.install(release_id)
-        release_manager.set_current_release(release_id)
+    return release_id
