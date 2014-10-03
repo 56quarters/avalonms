@@ -13,12 +13,11 @@ from os.path import join
 from fabric.api import (
     env,
     hide,
-    put,
-    run,
     task,
     warn)
 from tunic.api import (
     get_release_id,
+    LocalArtifactTransfer,
     ReleaseManager,
     ProjectSetup,
     VirtualEnvInstallation)
@@ -30,15 +29,13 @@ def deploy():
     setup = ProjectSetup(env.remote_deploy_base)
     setup.setup_directories(use_sudo=False)
 
-    run('mkdir -p %s' % env.remote_build_path)
-    put('wheelhouse', env.remote_build_path)
+    transfer = LocalArtifactTransfer('wheelhouse', env.remote_build_path)
+    with transfer:
+        release_id = install()
 
     rm = ReleaseManager(env.remote_deploy_base)
-    release_id = install()
     rm.set_current_release(release_id)
-
     rm.cleanup()
-    run("rm -rf %s" % env.remote_build_path)
 
     setup.set_permissions(env.remote_deploy_owner)
 
