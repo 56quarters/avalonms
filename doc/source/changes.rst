@@ -7,6 +7,7 @@ Change Log
 * Include installation of a Sentry client in Fabric deploy task
 * Use Py.test and Tox for running tests.
 * Added a "Quick Start" section to the installation docs.
+* Use `Tunic <http://tunic.rtfd.org>`_ library in Fabric deploy scripts.
 
 0.3.0 - 2014-08-17
 ------------------
