@@ -13,9 +13,8 @@
 import os.path
 
 from fabric.api import env, lcd, task, local, warn_only
-from tunic.api import get_releases_path, get_current_path
+from tunic.api import get_current_path
 
-from . import app
 from . import build
 from . import deploy
 from . import supervisor
@@ -25,8 +24,6 @@ env.remote_build_path = '/tmp/build'
 env.remote_deploy_base = '/var/www/avalon'
 
 env.remote_deploy_owner = 'root:dev'
-
-env.remote_deploy_releases = get_releases_path(env.remote_deploy_base)
 
 env.remote_deploy_current = get_current_path(env.remote_deploy_base)
 
@@ -104,4 +101,5 @@ def setup(env_name='env'):
         "--requirement requirements-dev.txt "
         "--requirement requirements-prod.txt" % env_name)
     local('%s/bin/pip install --no-deps -e .' % env_name)
+    
 

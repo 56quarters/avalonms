@@ -275,11 +275,11 @@ First, make sure the build environment is clean and then generate packages to in
 
 Next, upload the generated packages, and install them. ::
 
-    fab -H api.example.com deploy
+    fab -H api.example.com deploy.install
 
 Restart the Avalon WSGI application if it's already running. ::
 
-    fab -H api.example.com app.restart
+    fab -H api.example.com deploy.restart
 
 That's it! The Avalon WSGI application should now be running on your server.
 

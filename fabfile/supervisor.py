@@ -11,10 +11,12 @@ from __future__ import unicode_literals
 import uuid
 
 from os.path import join
-from fabric.api import env, run, sudo, task, quiet
-
-
-# NOTE: Tasks in this module typically require sudo on the remote host
+from fabric.api import (
+    env,
+    run,
+    sudo,
+    task,
+    quiet)
 
 
 @task

@@ -13,6 +13,7 @@ from os.path import join
 from fabric.api import (
     env,
     hide,
+    sudo,
     task,
     warn)
 from tunic.api import (
@@ -23,15 +24,31 @@ from tunic.api import (
     VirtualEnvInstallation)
 
 
-@task(default=True)
-def deploy():
+@task()
+def install():
     """Upload and install artifacts and mark a new release as 'current'."""
     setup = ProjectSetup(env.remote_deploy_base)
     setup.setup_directories(use_sudo=False)
+    release_id = get_release_id()
+
+    # We upgrade setuptools and pip as separate installs
+    # since we run into issues when upgrading them both
+    # at the same time.
+    patches = [
+        VirtualEnvInstallation(env.remote_deploy_base, ['setuptools']),
+        VirtualEnvInstallation(env.remote_deploy_base, ['pip'])]
+
+    project = VirtualEnvInstallation(
+        env.remote_deploy_base,
+        ['avalonms', 'gunicorn', 'raven'],
+        [join(env.remote_build_path, 'wheelhouse')])
 
     transfer = LocalArtifactTransfer('wheelhouse', env.remote_build_path)
-    with transfer:
-        release_id = install()
+
+    with hide('stdout'), transfer:
+        for patch in patches:
+            patch.install(release_id, upgrade=True)
+        project.install(release_id)
 
     rm = ReleaseManager(env.remote_deploy_base)
     rm.set_current_release(release_id)
@@ -53,24 +70,7 @@ def rollback():
     rm.set_current_release(previous)
 
 
-def install():
-    """Install AvalonMS into a virtualenv."""
-    release_id = get_release_id()
-
-    # We upgrade setuptools and pip as separate installs
-    # since we run into issues when upgrading them both
-    # at the same time.
-    patches = [
-        VirtualEnvInstallation(env.remote_deploy_base, ['setuptools']),
-        VirtualEnvInstallation(env.remote_deploy_base, ['pip'])]
-
-    project = VirtualEnvInstallation(
-        env.remote_deploy_base,
-        ['avalonms', 'gunicorn', 'raven'],
-        [join(env.remote_build_path, 'wheelhouse')])
-
-    with hide('stdout'):
-        for patch in patches:
-            patch.install(release_id, upgrade=True)
-        project.install(release_id)
-    return release_id
+@task
+def restart():
+    """Restart the Avalon app under supervisor."""
+    sudo("supervisorctl restart avalon")
