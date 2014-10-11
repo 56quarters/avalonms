@@ -16,17 +16,23 @@ Features include:
 * Simple JSON interface including fast prefix matching
 * Unicode output support
 
-To install it simply run ::
+To install it simply run
 
-  pip install avalonms
+.. code-block:: bash
 
-Then, to scan your music collection ::
+    $ pip install avalonms
 
-  avalon-scan ~/Music
+Then, to scan your music collection
 
-Then, start the application using a WSGI server like `Gunicorn <http://gunicorn.org/>`_ ::
+.. code-block:: bash
 
-  gunicorn --preload avalon.app.wsgi:application
+    $ avalon-scan ~/Music
+
+Then, start the application using a WSGI server like `Gunicorn <http://gunicorn.org/>`_
+
+.. code-block:: bash
+
+    $ gunicorn --preload avalon.app.wsgi:application
 
 The latest documentation is available at https://avalonms.readthedocs.org/en/latest/
 
