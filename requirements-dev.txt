@@ -3,7 +3,7 @@ mock==1.0.1
 pylint==1.3.0
 pytest==2.6.2
 tox==1.7.2
-tunic==0.2.0
+tunic==0.5.0
 wheel==0.23.0
 Sphinx==1.2.3
 sphinx-rtd-theme==0.1.6
