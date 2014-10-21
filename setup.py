@@ -52,7 +52,7 @@ _argparse_included = (2, 7)
 
 REQUIRES = [
     'flask',
-    'mutagenx',
+    'mutagen',
     'simplejson',
     'sqlalchemy'
 ]

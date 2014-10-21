@@ -16,7 +16,7 @@ import logging
 from datetime import datetime
 
 import re
-import mutagenx
+import mutagen
 import avalon.cache
 import avalon.log
 import avalon.models
@@ -115,7 +115,7 @@ def new_crawler(path):
     track_parser = avalon.tags.read.MetadataTrackParser(re.match)
     date_parser = avalon.tags.read.MetadataDateParser(datetime.strptime)
     loader = avalon.tags.read.MetadataLoader(
-        mutagenx,
+        mutagen,
         track_parser,
         date_parser)
 
