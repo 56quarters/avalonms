@@ -25,6 +25,7 @@ Features include:
 * Support for multiple database backends
 * Simple JSON interface including fast prefix matching
 * Unicode output support
+* Python 2.6 -- 3.4
 
 To install it simply run
 

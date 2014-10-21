@@ -6,8 +6,8 @@ these requirements should be installed for you.
 
 Python requirements:
 
-* Python >= 2.6
-* Argparse >= 1.2.1 (Or Python 2.7)
+* Python 2 >= 2.6 or Python 3 >= 3.3
+* Argparse >= 1.2.1 (Or >= Python 2.7)
 * Flask >= 0.10.1
 * Mutagen >= 1.25.1
 * SimpleJSON >= 3.5.2
