@@ -101,5 +101,3 @@ def setup(env_name='env'):
         "--requirement requirements-dev.txt "
         "--requirement requirements-prod.txt" % env_name)
     local('%s/bin/pip install --no-deps -e .' % env_name)
-    
-
