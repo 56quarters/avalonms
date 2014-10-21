@@ -42,6 +42,7 @@ try:
     # just exiting. This has the added benefit of handling uWSGI
     # trying to shutdown while the application is still starting
     # up since it uses SIGINT for stopping the server.
+    # pylint: disable=invalid-name
     application = bootstrap(config_env=CONFIG_ENV_VAR)
 except KeyboardInterrupt:
     print("Caught SIGINT during bootstrap, exiting", file=sys.stderr)
