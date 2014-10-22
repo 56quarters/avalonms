@@ -76,7 +76,7 @@ class _UuidType(TypeDecorator):
 
 
 class _BaseFields(object):
-    """A base for all models that defines name (string) and id (UUID) fields."""
+    """A base for all models that define name (string) and id (UUID) fields."""
     id = Column(_UuidType, primary_key=True)
     name = Column(String)
 
