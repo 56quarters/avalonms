@@ -17,7 +17,7 @@ __all__ = [
     'DEFAULT_ENCODING'
 ]
 
-__version__ = '0.3.1'
+__version__ = '0.4.0'
 
 # Character sets are hard, let's go shopping!
 DEFAULT_ENCODING = 'utf-8'
