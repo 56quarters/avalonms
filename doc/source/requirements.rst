@@ -23,15 +23,17 @@ meta data. If you wish to use another database type supported_ by SQLAlchemy
 (e.g. MySQL, PostgreSQL) you'll need to install an appropriate library for
 it.
 
-For example, to install a PostgreSQL driver: ::
+For example, to install a PostgreSQL driver.
 
-    pip install psycopg2
+.. code-block:: bash
 
-Or a MySQL driver: ::
+    $ pip install psycopg2
 
-    pip install mysql-python
+Or a MySQL driver.
 
+.. code-block:: bash
 
+    $ pip install mysql-python
 
 .. _Gunicorn: http://gunicorn.org
 .. _uWSGI: http://uwsgi-docs.readthedocs.org/en/latest/

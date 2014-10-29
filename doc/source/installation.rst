@@ -10,6 +10,12 @@ All of these instructions are based on a machine running Debian Linux, but
 they should be applicable to any UNIX-like operating system (with a few
 modifications).
 
+.. note::
+
+    The ``$`` character at the beginning of each of the commands listed below
+    just indicates the start of the command prompt, don't actually enter this
+    in your terminal!
+
 Quick Start Installation
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -17,33 +23,47 @@ This section will describe an extremely simple installation of the Avalon
 Music Server. If you just want to play around with the Avalon Music Server
 and don't have plans to run it in production, this guide is for you.
 
-First, we'll install the virtualenv tool. ::
+First, we'll install the virtualenv tool.
 
-    apt-get install python-virtualenv
+.. code-block:: bash
 
-* Next, create a virtual environment that we'll install the Avalon Music Server into. ::
+    $ apt-get install python-virtualenv
 
-    virtualenv ~/avalon
+Next, create a virtual environment that we'll install the Avalon Music Server into.
 
-* "Activate" the virtual environment. ::
+.. code-block:: bash
 
-    source ~/avalon/bin/activate
+    $ virtualenv ~/avalon
 
-* Install the Avalon Music Server and Gunicorn_. ::
+"Activate" the virtual environment.
 
-    pip install avalonms gunicorn
+.. code-block:: bash
 
-* Scan your music collection and build a database with the meta data from it. ::
+    $ source ~/avalon/bin/activate
 
-    avalon-scan ~/path/to/music
+Install the Avalon Music Server and Gunicorn_.
 
-* Start the server. ::
+.. code-block:: bash
 
-    gunicorn --preload avalon.app.wsgi:application
+    $ pip install avalonms gunicorn
 
-* Then, in a different terminal, test it out! ::
+Scan your music collection and build a database with the meta data from it.
 
-    curl http://localhost:8000/avalon/heartbeat
+.. code-block:: bash
+
+    $ avalon-scan ~/path/to/music
+
+Start the server.
+
+.. code-block:: bash
+
+    $ gunicorn --preload avalon.app.wsgi:application
+
+Then, in a different terminal, test it out!
+
+.. code-block:: bash
+
+    $ curl http://localhost:8000/avalon/heartbeat
 
 You should see the result ``OKOKOK`` if the server started correctly. To stop
 the server, just hit ``CTRL-C`` in the terminal that it is running in.
@@ -66,58 +86,78 @@ Installing Dependencies
 =======================
 
 First, we'll install the virtualenv tool, Supervisor and Nginx using the package
-manager. ::
+manager.
 
-    apt-get install python-virtualenv supervisor nginx
+.. code-block:: bash
+
+    $ apt-get install python-virtualenv supervisor nginx
 
 Setting Up The Environment
 ==========================
 
 Next, we'll set up the environment on our server:
 
-* Create the group that will own the deployed code. ::
+Create the group that will own the deployed code.
 
-    sudo groupadd dev
+.. code-block:: bash
 
-* Add our user to it so that we can perform deploys without using sudo. ::
+    $ sudo groupadd dev
 
-    sudo usermod -g dev `whoami`
+Add our user to it so that we can perform deploys without using sudo.
 
-* Create the directories that the server will be deployed into. ::
+.. code-block:: bash
 
-    sudo mkdir -p /var/www/avalon/releases
+    $ sudo usermod -g dev `whoami`
 
-* Set the ownership and permissions of the directories. ::
+Create the directories that the server will be deployed into.
 
-    sudo chown -R root:dev /var/www/avalon
-    sudo chmod -R u+rw,g+rw,o+r /var/www/avalon
-    sudo chmod g+s /var/www/avalon /var/www/avalon/releases
+.. code-block:: bash
 
-* Add a new unprivileged user that the Avalon Music Server will run as. ::
+    $ sudo mkdir -p /var/www/avalon/releases
 
-    sudo useradd --shell /bin/false --home /var/www/avalon --user-group avalon
+Set the ownership and permissions of the directories.
 
-* Create a virtual environment that we'll install the Avalon Music Server into. ::
+.. code-block:: bash
 
-    virtualenv /var/www/avalon/releases/20140717214022
+    $ sudo chown -R root:dev /var/www/avalon
+    $ sudo chmod -R u+rw,g+rw,o+r /var/www/avalon
+    $ sudo chmod g+s /var/www/avalon /var/www/avalon/releases
 
-* Set the "current" symlink to the virtual environment we just created. This is
-  the path that we'll we pointing our Supervisor and Gunicorn configurations at. ::
+Add a new unprivileged user that the Avalon Music Server will run as.
 
-    ln -s /var/www/avalon/releases/20140717214022 /var/www/avalon/current
+.. code-block:: bash
+
+    $ sudo useradd --shell /bin/false --home /var/www/avalon --user-group avalon
+
+Create a virtual environment that we'll install the Avalon Music Server into.
+
+.. code-block:: bash
+
+    $ virtualenv /var/www/avalon/releases/20140717214022
+
+Set the "current" symlink to the virtual environment we just created. This is
+the path that we'll we pointing our Supervisor and Gunicorn configurations at.
+
+.. code-block:: bash
+
+    $ ln -s /var/www/avalon/releases/20140717214022 /var/www/avalon/current
 
 Installing from PyPI
 ====================
 
 Now, let's install the Avalon Music Server, Gunicorn, and a Sentry client into
-the virtual environment we just created. ::
+the virtual environment we just created.
 
-    /var/www/avalon/current/bin/pip install avalonms gunicorn raven
+.. code-block:: bash
+
+    $ /var/www/avalon/current/bin/pip install avalonms gunicorn raven
 
 The Avalon Music Server has an embedded default configuration file. In addition
-to that, we'll create our own copy of that configuration that we can customize. ::
+to that, we'll create our own copy of that configuration that we can customize.
 
-    /var/www/avalon/current/bin/avalon-echo-config > /var/www/avalon/local-settings.py
+.. code-block:: bash
+
+    $ /var/www/avalon/current/bin/avalon-echo-config > /var/www/avalon/local-settings.py
 
 Avalon WSGI Application
 =======================
@@ -181,19 +221,23 @@ inside the ``http`` section. ::
        }
     }
 
-If you're on Debian, enable the configuration like so: ::
+If you're on Debian, enable the configuration like so.
 
-    sudo ln -s /etc/nginx/sites-available/api_example_com.conf /etc/nginx/sites-enabled/
+.. code-block:: bash
+
+    $ sudo ln -s /etc/nginx/sites-available/api_example_com.conf /etc/nginx/sites-enabled/
 
 Start the Server
 ================
 
 Now that everything is configured, let's try starting Nginx and Supervisor (which will, in turn,
-start the Avalon Music Server) and testing it out. ::
+start the Avalon Music Server) and testing it out.
 
-    sudo service supervisor start
-    sudo service nginx start
-    curl http://api.example.com/avalon/heartbeat
+.. code-block:: bash
+
+    $ sudo service supervisor start
+    $ sudo service nginx start
+    $ curl http://api.example.com/avalon/heartbeat
 
 If everything was installed correctly, the ``curl`` command should return the string
 ``OKOKOK``.

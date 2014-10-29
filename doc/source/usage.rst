@@ -13,9 +13,9 @@ as described below.
 Synopsis
 ^^^^^^^^
 
-::
+.. code-block:: bash
 
-    avalon-echo-config [options]
+    $ avalon-echo-config [options]
 
 Options
 ^^^^^^^
@@ -29,9 +29,9 @@ Options
 Examples
 ^^^^^^^^
 
-::
+.. code-block:: bash
 
-    avalon-echo-config > /var/www/avalon/local-settings.py
+    $ avalon-echo-config > /var/www/avalon/local-settings.py
 
 avalon-scan
 ~~~~~~~~~~~
@@ -46,9 +46,9 @@ the ``--database`` option.
 Synopsis
 ^^^^^^^^
 
-::
+.. code-block:: bash
 
-    avalon-scan [options] {music collection path}
+    $ avalon-scan [options] {music collection path}
 
 Options
 ^^^^^^^
@@ -73,24 +73,32 @@ Examples
 
 Use the database type and location specified by the default configuration
 file (usually SQLite and ``/tmp/avalon.sqlite``) and scan the music collection
-in the directory 'music'. ::
+in the directory 'music'.
 
-    avalon-scan ~/music
+.. code-block:: bash
+
+    $ avalon-scan ~/music
 
 Use the database type and location specified by a custom configuration file
-and scan the music collection in the 'media' directory. ::
+and scan the music collection in the 'media' directory.
 
-    AVALON_CONFIG=/home/user/avalon/local-settings.py avalon-scan /home/media
+.. code-block:: bash
+
+    $ AVALON_CONFIG=/home/user/avalon/local-settings.py avalon-scan /home/media
 
 Use a PostgreSQL database type and connect to a remote database server and
-scan the music collection in the directory 'music'. ::
+scan the music collection in the directory 'music'.
 
-    avalon-scan --database 'postgresql+psycopg2://user:password@server/database' ~/music
+.. code-block:: bash
+
+    $ avalon-scan --database 'postgresql+psycopg2://user:password@server/database' ~/music
 
 Use a SQLite database type in a non-default location and scan the music collection
-in the directory '/home/files/music'. ::
+in the directory '/home/files/music'.
 
-    avalon-scan --database 'sqlite:////var/db/avalon.sqlite' /home/files/music
+.. code-block:: bash
+
+    $ avalon-scan --database 'sqlite:////var/db/avalon.sqlite' /home/files/music
 
 Avalon WSGI Application
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -111,9 +119,11 @@ Running
 The main entry point for the Avalon Music Server WSGI application is the module
 ``avalon.app.wsgi`` -- the WSGI callable is the attribute ``application`` within
 the module. An example of how to use this module and callable with Gunicorn (with
-three worker processes) is below. ::
+three worker processes) is below.
 
-    gunicorn --preload --workers 3 avalon.app.wsgi:application
+.. code-block:: bash
+
+    $ gunicorn --preload --workers 3 avalon.app.wsgi:application
 
 Note that we're using the ``--preload`` mode which will save us memory when using
 multiple worker processes.
@@ -123,9 +133,11 @@ Configuration
 
 The Avalon WSGI application uses an embedded default configuration file. Settings
 in that file (described below) can be overridden with a custom configuration file
-generated as below (assuming the Avalon Music Server has already been installed). ::
+generated as below (assuming the Avalon Music Server has already been installed).
 
-    avalon-echo-config > /var/www/avalon/local-settings.py
+.. code-block:: bash
+
+    $ avalon-echo-config > /var/www/avalon/local-settings.py
 
 The file at ``/var/www/avalon/local-settings.py`` will be an exact copy of the default
 configuration file. You can change the settings in this new copy and they will
@@ -135,9 +147,11 @@ the file) will use their default values.
 After you have customized this file, you need to tell the Avalon WSGI application
 to use this file. This is done by setting the value of the ``AVALON_CONFIG``
 environmental variable to the path of this configuration file. An example (once
-again, using Gunicorn) is below. ::
+again, using Gunicorn) is below.
 
-    gunicorn --env AVALON_CONFIG=/var/www/avalon/local-settings.py \
+.. code-block:: bash
+
+    $ gunicorn --env AVALON_CONFIG=/var/www/avalon/local-settings.py \
         --preload --workers 3 avalon.app.wsgi:application
 
 Settings
@@ -245,9 +259,11 @@ used).
 #. There is a ``SENTRY_DSN`` configuration setting available and correctly configured.
 
 To install the client run the following command from within the virtualenv that
-the Avalon WSGI application is installed in. ::
+the Avalon WSGI application is installed in.
 
-    pip install raven
+.. code-block:: bash
+
+    $ pip install raven
 
 Deployment
 ^^^^^^^^^^
@@ -269,17 +285,23 @@ Some assumptions made by the Fabric deploy scripts:
 If all these things are true, you should be able to deploy a new version of the
 Avalon WSGI application with a few simple steps.
 
-First, make sure the build environment is clean and then generate packages to install. ::
+First, make sure the build environment is clean and then generate packages to install.
 
-    fab clean build.released
+.. code-block:: bash
 
-Next, upload the generated packages, and install them. ::
+    $ fab clean build.released
 
-    fab -H api.example.com deploy.install
+Next, upload the generated packages, and install them.
 
-Restart the Avalon WSGI application if it's already running. ::
+.. code-block:: bash
 
-    fab -H api.example.com deploy.restart
+    $ fab -H api.example.com deploy.install
+
+Restart the Avalon WSGI application if it's already running.
+
+.. code-block:: bash
+
+    $ fab -H api.example.com deploy.restart
 
 That's it! The Avalon WSGI application should now be running on your server.
 
