@@ -4,9 +4,8 @@ Development
 Prerequisites
 ~~~~~~~~~~~~~
 
-Make sure you have the `virtualenv <http://www.virtualenv.org/>`_ tool available.
-You can find further instructions in the :doc:`installation` section or at the
-virtualenv website.
+Make sure you have the virtualenv_ tool available. You can find further instructions
+in the :doc:`installation` section or at the virtualenv website.
 
 All steps below assume you are using a virtual environment named ``env`` inside
 the root directory of the git checkout. It's not important what name you use, this
@@ -18,34 +17,43 @@ environment where we've set up the Avalon Music Server.
 Environment Setup
 ~~~~~~~~~~~~~~~~~
 
-First, `fork <https://help.github.com/articles/fork-a-repo>`_ the Avalon Music
-Server on GitHub.
+First, fork_ the Avalon Music Server on GitHub.
 
-Check out your fork of the source code. ::
+Check out your fork of the source code.
 
-    git clone https://github.com/you/avalonms.git
+.. code-block:: bash
 
-Create and set up a branch for your awesome new feature or bug fix. ::
+    $ git clone https://github.com/you/avalonms.git
 
-    cd avalonms
-    git checkout -b feature-xyz
-    git push origin feature-xyz:feature-xyz
-    git branch -u origin/feature-xyz
+Create and set up a branch for your awesome new feature or bug fix.
 
-Set up a virtual environment ::
+.. code-block:: bash
 
-    virtualenv env
+    $ cd avalonms
+    $ git checkout -b feature-xyz
+    $ git push origin feature-xyz:feature-xyz
+    $ git branch -u origin/feature-xyz
 
-Enter the virtualenv install required dependencies ::
+Set up a virtual environment.
 
-    source env/bin/activate
-    pip install --allow-external argparse -r requirements.txt
-    pip install -r requirements-dev.txt
-    pip install -r requirements-prod.txt
+.. code-block:: bash
 
-Install the checkout in "development mode" ::
+    $ virtualenv env
 
-    pip install -e .
+Enter the virtualenv install required dependencies.
+
+.. code-block:: bash
+
+    $ source env/bin/activate
+    $ pip install --allow-external argparse -r requirements.txt
+    $ pip install -r requirements-dev.txt
+    $ pip install -r requirements-prod.txt
+
+Install the checkout in "development mode".
+
+.. code-block:: bash
+
+    $ pip install -e .
 
 Running The Server
 ~~~~~~~~~~~~~~~~~~
@@ -55,19 +63,50 @@ development server or it can be run with Gunicorn (which was installed above
 from the ``requirements-prod.txt`` file). Make sure that you have entered the
 virtualenv you created earlier.
 
-Running with the development server: ::
+Running with the development server:
 
-    python -m avalon.app.wsgi
+.. code-block:: bash
 
-Or, run with Gunicorn: ::
+    $ python -m avalon.app.wsgi
 
-    gunicorn --preload avalon.app.wsgi:application
+Or, run with Gunicorn:
 
-Running Tests
-~~~~~~~~~~~~~
+.. code-block:: bash
 
-The Avalon Music Server uses `tox <https://testrun.org/tox/latest/>`_ to run tests
-in isolated virtualenvs. You can run the tests using the command below. Make sure
-that you have entered the virtualenv you created earlier. ::
+    $ gunicorn --preload avalon.app.wsgi:application
 
-    tox test
+Contributing
+~~~~~~~~~~~~
+
+Next, code up your feature or bug fix and create a `pull request`_. If you're new to Git or
+GitHub, take a look at the `GitHub help`_ site.
+
+Useful Commands
+~~~~~~~~~~~~~~~
+
+The Avalon Music Server uses tox_ to run tests in isolated virtualenvs. You can run the tests
+using the command below. Make sure that you have entered the virtualenv you created earlier.
+
+.. code-block:: bash
+
+    $ tox test
+
+You can also run the unit tests for a specific Python version.
+
+.. code-block:: bash
+
+    $ TOXENV=py33 tox test
+
+If you're making changes to the documentation, the command below will build the
+documentation for you. To view it, open up ``doc/build/html/index.html`` in your
+web browser.
+
+.. code-block:: bash
+
+    $ fab clean docs
+
+.. _virtualenv: https://virtualenv.pypa.io/en/latest/
+.. _fork: https://help.github.com/articles/fork-a-repo
+.. _pull request: https://help.github.com/articles/be-social/#pull-requests
+.. _GitHub help: https://help.github.com/
+.. _tox: https://testrun.org/tox/latest/
