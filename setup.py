@@ -82,3 +82,4 @@ setup(
             'avalon-scan = avalon.cli.scan:main'
         ]
     })
+
