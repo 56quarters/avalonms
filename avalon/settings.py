@@ -31,7 +31,7 @@ JSONIFY_PRETTYPRINT_REGULAR = False
 # Format to use for dates or timestamps in log messages. If you wish to
 # change this format see http://docs.python.org/2/library/time.html#time.strftime
 # for an explanation of the format and more information
-LOG_DATE_FORMAT = '%Y-%m-%dT%H:%M:%S%z'
+LOG_DATE_FORMAT = '%Y-%m-%dT%H:%M:%S'
 
 
 # Format for messages logged by the Avalon Music Server. For all available
