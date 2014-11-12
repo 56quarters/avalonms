@@ -259,8 +259,7 @@ class AvalonTextSearch(object):
     """Reloadable, thread-safe, in-memory store of search indexes for
     albums, artists, genres, and songs.
 
-    Search indexes are constructed when instances of the store are
-    created and when the .reload() method is called subsequently.
+    Search indexes are constructed whenthe .reload() method is called.
 
     Values used to build the indexes are normalized via the searchable()
     function as well as any queries against the indexes.
