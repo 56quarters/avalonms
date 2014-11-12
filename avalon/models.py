@@ -337,60 +337,64 @@ class ReadOnlyDao(object):
     This class doesn't add a lot of functionality on top of the
     :class:`SessionHandler`, it's just a facade to allow consumers
     to be tested more easily.
+
+    :cvar int read_batch_size: Number of results to yield at a time
+        when loading albums, artists, genres, or tracks.
     """
+    read_batch_size = 100
 
     def __init__(self, session_handler):
         """Set the session handler to use for fetching models."""
         self._session_handler = session_handler
 
     def get_all_albums(self, session=None):
-        """Get a list of all Album models in the database.
+        """Get a generator that yields all Album models in the database.
 
         :param sqlalchemy.orm.Session session: Optional existing
             session to use for fetching rows instead of using
             a new connection
-        :return: All albums in the database
-        :rtype: list
+        :return: Generator to get all albums in batches
+        :rtype: sqlalchemy.orm.Query
         """
         return self._get_all_cls(Album, session=session)
 
     def get_all_artists(self, session=None):
-        """Get a list of all Artist models in the database.
+        """Get a generator that yields all Artist models in the database.
 
         :param sqlalchemy.orm.Session session: Optional existing
             session to use for fetching rows instead of using
             a new connection
-        :return: All artists in the database
-        :rtype: list
+        :return: Generator to get all artists in batches
+        :rtype: sqlalchemy.orm.Query
         """
         return self._get_all_cls(Artist, session=session)
 
     def get_all_genres(self, session=None):
-        """Get a list of all Genre models in the database.
+        """Get a generator that yields all Genre models in the database.
 
         :param sqlalchemy.orm.Session session: Optional existing
             session to use for fetching rows instead of using
             a new connection
-        :return: All genres in the database
-        :rtype: list
+        :return: Generator to get all genres in batches
+        :rtype: sqlalchemy.orm.Query
         """
         return self._get_all_cls(Genre, session=session)
 
     def get_all_tracks(self, session=None):
-        """Get a list of all Track models in the database
+        """Get  a generator that yields all Track models in the database.
 
         :param sqlalchemy.orm.Session session: Optional existing
             session to use for fetching rows instead of using
             a new connection
-        :return: All tracks in the database
-        :rtype: list
+        :return: Generator to get all tracks in batches
+        :rtype: sqlalchemy.orm.Query
         """
         return self._get_all_cls(Track, session=session)
 
     def _get_all_cls(self, cls, session=None):
-        """Get a list of all models by the given class."""
+        """Get a generator to yield models of the given class in batches."""
         if session is not None:
-            return session.query(cls).all()
+            return session.query(cls).yield_per(self.read_batch_size)
 
         with self._session_handler.scoped_session() as session:
-            return session.query(cls).all()
+            return session.query(cls).yield_per(self.read_batch_size)

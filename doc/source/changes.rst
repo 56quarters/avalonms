@@ -4,7 +4,8 @@ Change Log
 0.4.0 - Future Release
 ----------------------
 * Change to Mutagen for reading audio tags now that it supports Python 3.
-* Support for Python 3.3 and 3.4
+* Support for Python 3.3 and 3.4.
+* Reduce memory usage by streaming metadata in batches on bootstrap.
 
 0.3.1 - 2014-10-12
 ------------------
