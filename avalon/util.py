@@ -11,6 +11,14 @@
 """Miscellaneous utility functions and classes."""
 
 from __future__ import unicode_literals
+
+try:
+    from pympler.asizeof import asizeof
+except ImportError:
+    # pylint: disable=unused-argument,missing-docstring
+    def asizeof(*args, **kwargs):
+        return 0
+
 import errno
 import grp
 import pwd
@@ -20,6 +28,7 @@ import os
 
 
 __all__ = [
+    'get_size_in_mb',
     'get_mem_usage',
     'is_perm_error',
     'get_current_gname',
@@ -27,6 +36,16 @@ __all__ = [
     'get_gname',
     'get_uname'
 ]
+
+
+def get_size_in_mb(obj):
+    """Get the size of a given object in MB.
+
+    :param obj: Object to get memory usage of
+    :return: Memory used by the given object
+    :rtype: float
+    """
+    return asizeof(obj) / (1024.0 * 1024.0)
 
 
 def get_mem_usage():

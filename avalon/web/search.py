@@ -12,8 +12,11 @@
 
 from __future__ import unicode_literals
 from unicodedata import normalize, category
+import logging
 
 import avalon.compat
+import avalon.log
+import avalon.util
 
 
 __all__ = [
@@ -264,6 +267,7 @@ class AvalonTextSearch(object):
     Values used to build the indexes are normalized via the searchable()
     function as well as any queries against the indexes.
     """
+    _logger = avalon.log.get_error_log()
 
     def __init__(self, album_store, artist_store, genre_store,
                  track_store, trie_factory):
@@ -314,6 +318,17 @@ class AvalonTextSearch(object):
         self._artist_search = artist_search
         self._genre_search = genre_search
         self._track_search = track_search
+
+        if self._logger.isEnabledFor(logging.DEBUG):
+            self._logger.debug(
+                'Albums search trie using %s mb', avalon.util.get_size_in_mb(self._album_search))
+            self._logger.debug(
+                'Artist search trie using %s mb', avalon.util.get_size_in_mb(self._artist_search))
+            self._logger.debug(
+                'Genre search trie using %s mb', avalon.util.get_size_in_mb(self._genre_search))
+            self._logger.debug(
+                'Track search trie using %s mb', avalon.util.get_size_in_mb(self._track_search))
+
         return self
 
     def _add_all_to_tree(self, elms, trie):

@@ -12,7 +12,10 @@
 
 from __future__ import unicode_literals
 import collections
+import logging
 
+import avalon.log
+import avalon.util
 from avalon.elms import id_name_elm_from_model, track_elm_from_model
 
 
@@ -30,6 +33,7 @@ class IdLookupCache(object):
     """Cache for looking up the primary key of albums, artists,
     and genres based on their name.
     """
+    _logger = avalon.log.get_error_log()
 
     def __init__(self, dao):
         """Set the DAO to use for looking up albums, artist, and
@@ -113,6 +117,15 @@ class IdLookupCache(object):
         self._by_album = by_album
         self._by_artist = by_artist
         self._by_genre = by_genre
+
+        if self._logger.isEnabledFor(logging.DEBUG):
+            self._logger.debug(
+                'IDs by album using %s mb', avalon.util.get_size_in_mb(self._by_album))
+            self._logger.debug(
+                'IDs by artist using %s mb', avalon.util.get_size_in_mb(self._by_artist))
+            self._logger.debug(
+                'IDs by genre using %s mb', avalon.util.get_size_in_mb(self._by_genre))
+
         return self
 
     @staticmethod
@@ -148,6 +161,7 @@ class TrackStore(object):
     """ In-memory store for TrackElm objects and methods to fetch
     them by their attributes.
     """
+    _logger = avalon.log.get_error_log()
 
     def __init__(self, dao):
         """Set the DAO to use for populating various lookup structures
@@ -192,6 +206,24 @@ class TrackStore(object):
         self._by_genre = get_frozen_mapping(by_genre)
         self._by_id = get_frozen_mapping(by_id)
         self._all = frozenset(all_tracks)
+
+        if self._logger.isEnabledFor(logging.DEBUG):
+            self._logger.debug(
+                '%s by album using %s mb', self.__class__.__name__,
+                avalon.util.get_size_in_mb(self._by_album))
+            self._logger.debug(
+                '%s by artist using %s mb', self.__class__.__name__,
+                avalon.util.get_size_in_mb(self._by_artist))
+            self._logger.debug(
+                '%s by genre using %s mb', self.__class__.__name__,
+                avalon.util.get_size_in_mb(self._by_genre))
+            self._logger.debug(
+                '%s by ID using %s mb', self.__class__.__name__,
+                avalon.util.get_size_in_mb(self._by_id))
+            self._logger.debug(
+                '%s all elements using %s mb', self.__class__.__name__,
+                avalon.util.get_size_in_mb(self._all))
+
         return self
 
     def get_by_album(self, album_id):
@@ -247,6 +279,7 @@ class TrackStore(object):
 
 class _IdNameStore(object):
     """Base store for any ID and name element."""
+    _logger = avalon.log.get_error_log()
 
     def __init__(self, dao_method):
         """Set the method of the DAO to use for populating the
@@ -271,6 +304,15 @@ class _IdNameStore(object):
 
         self._by_id = get_frozen_mapping(by_id)
         self._all = frozenset(all_elms)
+
+        if self._logger.isEnabledFor(logging.DEBUG):
+            self._logger.debug(
+                '%s by ID using %s mb', self.__class__.__name__,
+                avalon.util.get_size_in_mb(self._by_id))
+            self._logger.debug(
+                '%s all elements using %s mb', self.__class__.__name__,
+                avalon.util.get_size_in_mb(self._all))
+
         return self
 
     def get_by_id(self, elm_id):
