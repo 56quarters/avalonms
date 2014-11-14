@@ -328,9 +328,11 @@ class SessionHandler(object):
             # which are probably going to be used for something after the
             # session is closed (like populating some in-memory store).
             if not read_only:
+                self._logger.debug('Non-read only transaction, committing')
                 conn.transaction.commit()
         except:
             if not read_only and conn is not None:
+                self._logger.debug('Error during non-read only transaction, rollback')
                 conn.transaction.rollback()
             raise
         finally:
