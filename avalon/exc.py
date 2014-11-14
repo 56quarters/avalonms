@@ -37,6 +37,7 @@ class AvalonError(Exception):
 
     def __init__(self, msg):
         """Set the error message."""
+        super(AvalonError, self).__init__()
         self.message = msg
 
     def __str__(self):

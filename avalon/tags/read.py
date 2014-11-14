@@ -157,7 +157,7 @@ class MetadataDateParser(object):
 
 class MetadataTrackParser(object):
     """Parser for extracting the number of a track.
-    
+
     Some audio tags have less than perfect data for track numbers
     like "1/5", "2/5", etc. Attempt to simply cast the string to
     an integer if possible. If not possible, attempt to parse it

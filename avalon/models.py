@@ -47,10 +47,13 @@ __all__ = [
 ]
 
 
+# Ignore pylint warning about abstract method since overriding it
+# is optional and SQLAlchemy will do the right thing if it is missing.
+# pylint: disable=abstract-method,too-many-public-methods
 class _UuidType(TypeDecorator):
     """Platform-independent GUID type.
 
-    See http://docs.sqlalchemy.org/en/rel_0_7/core/types.html
+    See http://docs.sqlalchemy.org/en/rel_0_9/core/types.html
     """
 
     impl = CHAR
@@ -77,6 +80,7 @@ class _UuidType(TypeDecorator):
 
 class _BaseFields(object):
     """A base for all models that define name (string) and id (UUID) fields."""
+    # pylint: disable=invalid-name
     id = Column(_UuidType, primary_key=True)
     name = Column(String)
 
@@ -89,6 +93,7 @@ class _BaseFields(object):
 _Base = declarative_base(cls=_BaseFields)
 
 
+# pylint: disable=no-init
 class Track(_Base):
     """Model representing metadata of a media file with relations to other
     entities (album, artist, genre).
@@ -125,6 +130,7 @@ class Track(_Base):
         'Genre', backref='tracks', lazy='joined', innerjoin=True, order_by='Track.id')
 
 
+# pylint: disable=no-init
 class Album(_Base):
     """Model that represents the album of a song.
 
@@ -135,6 +141,7 @@ class Album(_Base):
     __tablename__ = 'albums'
 
 
+# pylint: disable=no-init
 class Artist(_Base):
     """Model that represents the artist of a song.
 
@@ -145,6 +152,7 @@ class Artist(_Base):
     __tablename__ = 'artists'
 
 
+# pylint: disable=no-init
 class Genre(_Base):
     """Model that represents the genre of a song.
 
