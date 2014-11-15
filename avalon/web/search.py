@@ -295,8 +295,7 @@ class AvalonTextSearch(object):
         self._genre_search = None
         self._track_search = None
 
-    def size(self):
-        """Return the total number of nodes used by the search indexes."""
+    def __len__(self):
         return len(self._album_search) + \
                len(self._artist_search) + \
                len(self._genre_search) + \
@@ -319,15 +318,16 @@ class AvalonTextSearch(object):
         self._genre_search = genre_search
         self._track_search = track_search
 
+        # Check if DEBUG is enabled since getting memory usage is slow
         if self._logger.isEnabledFor(logging.DEBUG):
             self._logger.debug(
-                'Albums search trie using %s mb', avalon.util.get_size_in_mb(self._album_search))
+                'Albums search trie using %s mb', avalon.util.get_size_in_mb(album_search))
             self._logger.debug(
-                'Artist search trie using %s mb', avalon.util.get_size_in_mb(self._artist_search))
+                'Artist search trie using %s mb', avalon.util.get_size_in_mb(artist_search))
             self._logger.debug(
-                'Genre search trie using %s mb', avalon.util.get_size_in_mb(self._genre_search))
+                'Genre search trie using %s mb', avalon.util.get_size_in_mb(genre_search))
             self._logger.debug(
-                'Track search trie using %s mb', avalon.util.get_size_in_mb(self._track_search))
+                'Track search trie using %s mb', avalon.util.get_size_in_mb(track_search))
 
         return self
 

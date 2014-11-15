@@ -13,6 +13,8 @@
 from __future__ import unicode_literals
 import functools
 
+import avalon.log
+
 
 __all__ = [
     'intersection',
@@ -66,6 +68,8 @@ class AvalonApiEndpointsConfig(object):
 class AvalonApiEndpoints(object):
     """Endpoints for querying in-memory stores of audio metadata."""
 
+    _logger = avalon.log.get_error_log()
+
     def __init__(self, config):
         """Set each of the in-memory stores to be used."""
         self._tracks = config.track_store
@@ -87,6 +91,13 @@ class AvalonApiEndpoints(object):
         self._genres.reload()
         self._search.reload()
         self._id_cache.reload()
+
+        self._logger.info('Loaded %s tracks', len(self._tracks))
+        self._logger.info('Loaded %s albums', len(self._albums))
+        self._logger.info('Loaded %s artists', len(self._artists))
+        self._logger.info('Loaded %s genres', len(self._genres))
+        self._logger.info('Using %s trie nodes', len(self._search))
+
         return self
 
     def get_albums(self, params=None):

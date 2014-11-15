@@ -171,11 +171,14 @@ class TrackStore(object):
             the database
         """
         self._dao = dao
-        self._by_album = None
-        self._by_artist = None
-        self._by_genre = None
-        self._by_id = None
-        self._all = None
+        self._by_album = {}
+        self._by_artist = {}
+        self._by_genre = {}
+        self._by_id = {}
+        self._all = frozenset()
+
+    def __len__(self):
+        return len(self._all)
 
     def reload(self):
         """Safely populate the various structures for looking
@@ -207,6 +210,7 @@ class TrackStore(object):
         self._by_id = get_frozen_mapping(by_id)
         self._all = frozenset(all_tracks)
 
+        # Check if DEBUG is enabled since getting memory usage is slow
         if self._logger.isEnabledFor(logging.DEBUG):
             self._logger.debug(
                 '%s by album using %s mb', self.__class__.__name__,
@@ -286,8 +290,11 @@ class _IdNameStore(object):
         ID-name store but do not load anything yet.
         """
         self._dao_method = dao_method
-        self._by_id = None
-        self._all = None
+        self._by_id = {}
+        self._all = frozenset()
+
+    def __len__(self):
+        return len(self._all)
 
     def reload(self):
         """Populate all of the ID-name elements and return this
@@ -305,6 +312,7 @@ class _IdNameStore(object):
         self._by_id = get_frozen_mapping(by_id)
         self._all = frozenset(all_elms)
 
+        # Check if DEBUG is enabled since getting memory usage is slow
         if self._logger.isEnabledFor(logging.DEBUG):
             self._logger.debug(
                 '%s by ID using %s mb', self.__class__.__name__,
