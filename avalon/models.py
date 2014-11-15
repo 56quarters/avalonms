@@ -351,7 +351,7 @@ class ReadOnlyDao(object):
     :cvar int read_batch_size: Number of results to yield at a time
         when loading albums, artists, genres, or tracks.
     """
-    read_batch_size = 100
+    read_batch_size = 1000
 
     def __init__(self, session_handler):
         """Set the session handler to use for fetching models."""

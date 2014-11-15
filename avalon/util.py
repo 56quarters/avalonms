@@ -34,7 +34,8 @@ __all__ = [
     'get_current_gname',
     'get_current_uname',
     'get_gname',
-    'get_uname'
+    'get_uname',
+    'partition'
 ]
 
 
@@ -94,3 +95,13 @@ def get_current_uname():
 def get_current_gname():
     """Get the name of the current processes effective group."""
     return get_gname(os.getegid())
+
+
+def partition(input, size):
+    """Yield sections of the input in sized chunks.
+
+    :param list input: List to split into portions
+    :param int size: Size of each portion of the input list to yield
+    """
+    for i in range(0, len(input), size):
+        yield input[i:i + size]

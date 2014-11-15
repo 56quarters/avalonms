@@ -14,6 +14,7 @@ from __future__ import unicode_literals
 import sqlalchemy.exc
 
 import avalon.exc
+import avalon.util
 
 __all__ = [
     'TrackFieldLoader',
@@ -88,7 +89,12 @@ class TrackFieldLoader(object):
 
 
 class TrackLoader(object):
-    """Create and insert entries for each tag and associated IDs."""
+    """Create and insert entries for each tag and associated IDs.
+
+    :cvar int write_batch_size: How many tracks to insert into a session
+        at a time (between calls to flush the session).
+    """
+    write_batch_size = 1000
 
     def __init__(self, session, tags, id_cache):
         """Set the database session, tags, and ID lookup cache."""
@@ -101,19 +107,26 @@ class TrackLoader(object):
         class and ID generator along with associated IDs for albums, artists,
         and genres.
 
-        Note that this method will attempt to flush newly created entries
-        to the database. If the current session is in the context of a
-        transaction, the state of the transaction will not be affected.
+        Note that this method will attempt to flush newly created entries to
+        the database in batches as determined by ``write_batch_size``. If the
+        current session is in the context of a transaction, the state of the
+        transaction will not be affected.
 
         :param type cls: Model class to create instances of to insert.
         :param function id_gen: Unique, stable ID generator
         :raises avalon.exc.OperationalError: If there are issues flushing
             newly create objects to the database.
         """
-        queued = []
-        for tag in self._tags:
-            queued.append(self._get_new_obj(cls, id_gen, tag))
+        for batch in avalon.util.partition(self._tags, self.write_batch_size):
+            self._insert_batch(cls, id_gen, batch)
 
+    def _insert_batch(self, cls, id_gen, batch):
+        """Insert new instances of the given class using the tag meta data
+        contained in the given batch, flushing the session afterwards.
+        """
+        queued = []
+        for tag in batch:
+            queued.append(self._get_new_obj(cls, id_gen, tag))
         self._session.add_all(queued)
         _flush_session(self._session)
 
