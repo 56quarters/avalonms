@@ -20,7 +20,7 @@ bind = 'localhost:8000'
 workers = 3
 
 # Make sure to load the application only in the main process before
-# spawning the worker processes. Necessary when the server is scanning
-# a music collection on start up to prevent multiple workers from
-# stomping all over the database at the same time.
+# spawning the worker processes. This will save us memory when using
+# multiple worker processes since the OS will be be able to take advantage
+# of copy-on-write optimizations.
 preload_app = True
