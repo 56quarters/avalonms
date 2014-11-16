@@ -11,8 +11,10 @@
 """Functionality for loading various audio tag metadata into the database."""
 
 from __future__ import unicode_literals
+import sys
 import sqlalchemy.exc
 
+from avalon import six
 import avalon.exc
 import avalon.util
 
@@ -33,7 +35,10 @@ def _flush_session(session):
     try:
         session.flush()
     except sqlalchemy.exc.OperationalError as e:
-        raise avalon.exc.OperationalError('%s' % e)
+        six.reraise(
+            avalon.exc.OperationalError,
+            avalon.exc.OperationalError('%s' % e),
+            sys.exc_info()[2])
 
 
 class TrackFieldLoader(object):
