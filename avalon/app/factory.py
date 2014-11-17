@@ -24,7 +24,7 @@ import avalon.tags.insert
 import avalon.tags.read
 import avalon.tags.crawl
 import avalon.util
-import avalon.web.api
+import avalon.web.services
 import avalon.web.controller
 import avalon.web.filtering
 import avalon.web.search
@@ -151,28 +151,28 @@ def new_controller(dao, id_cache):
     :param avalon.cache.IdLookupCache id_cache: ID-name cache used
         by the request handler for translating by-name requests into
         ID based lookups
-    :return: Service to be use as web endpoints or a controller
+    :return: Controller to be used as web API endpoints
     :rtype: avalon.web.controller.AvalonController
     """
-    api_config = avalon.web.api.AvalonApiEndpointsConfig()
-    api_config.track_store = avalon.cache.TrackStore(dao)
-    api_config.album_store = avalon.cache.AlbumStore(dao)
-    api_config.artist_store = avalon.cache.ArtistStore(dao)
-    api_config.genre_store = avalon.cache.GenreStore(dao)
-    api_config.id_cache = id_cache
+    service_config = avalon.web.services.AvalonMetadataServiceConfig()
+    service_config.track_store = avalon.cache.TrackStore(dao)
+    service_config.album_store = avalon.cache.AlbumStore(dao)
+    service_config.artist_store = avalon.cache.ArtistStore(dao)
+    service_config.genre_store = avalon.cache.GenreStore(dao)
+    service_config.id_cache = id_cache
 
     # pylint: disable=missing-docstring
     def trie_factory():
         return avalon.web.search.SearchTrie(avalon.web.search.TrieNode)
 
-    api_config.search = avalon.web.search.AvalonTextSearch(
-        api_config.album_store,
-        api_config.artist_store,
-        api_config.genre_store,
-        api_config.track_store,
+    service_config.search = avalon.web.search.AvalonTextSearch(
+        service_config.album_store,
+        service_config.artist_store,
+        service_config.genre_store,
+        service_config.track_store,
         trie_factory)
 
-    api = avalon.web.api.AvalonApiEndpoints(api_config)
+    service = avalon.web.services.AvalonMetadataService(service_config)
 
     filters = [
         # NOTE: Sort needs to come before limit
@@ -180,7 +180,7 @@ def new_controller(dao, id_cache):
         avalon.web.filtering.limit_filter]
 
     controller_config = avalon.web.controller.AvalonControllerConfig()
-    controller_config.api_endpoints = api
+    controller_config.api_endpoints = service
     controller_config.filters = filters
 
     return avalon.web.controller.AvalonController(controller_config)

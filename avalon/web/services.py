@@ -18,8 +18,8 @@ import avalon.log
 
 __all__ = [
     'intersection',
-    'AvalonApiEndpoints',
-    'AvalonApiEndpointsConfig'
+    'AvalonMetadataService',
+    'AvalonMetadataServiceConfig'
 ]
 
 # Disable warning about constant that's really a function
@@ -37,7 +37,7 @@ def intersection(sets):
         [res_set for res_set in sets if res_set is not None])
 
 
-class AvalonApiEndpointsConfig(object):
+class AvalonMetadataServiceConfig(object):
     """Configuration for the metadata endpoints.
 
     :ivar avalon.cache.TrackStore track_store: In-memory store for
@@ -65,8 +65,8 @@ class AvalonApiEndpointsConfig(object):
         self.id_cache = None
 
 
-class AvalonApiEndpoints(object):
-    """Endpoints for querying in-memory stores of audio metadata."""
+class AvalonMetadataService(object):
+    """Methods for querying in-memory stores of audio metadata."""
 
     _logger = avalon.log.get_error_log()
 
