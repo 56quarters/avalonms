@@ -5,7 +5,8 @@ Change Log
 ----------------------
 * Change to Mutagen for reading audio tags now that it supports Python 3.
 * Support for Python 3.3 and 3.4.
-* Reduce memory usage by streaming metadata in batches on bootstrap.
+* Reduce memory usage during bootstrap by reading metadata in batches.
+* Reduce memory usage during collection scanning by inserting tracks in batches.
 
 0.3.1 - 2014-10-12
 ------------------
