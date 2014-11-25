@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""
-
-"""
+"""Insert fake music metadata into an Avalon Music Server SQLite database"""
 
 from __future__ import unicode_literals, print_function
 import sys
