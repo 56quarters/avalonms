@@ -70,3 +70,25 @@ LOGGER_NAME = DEFAULT_LOGGER_NAME
 # installing the Raven Sentry client (`pip install raven`).
 # See https://www.getsentry.com/docs/ for more information.
 SENTRY_DSN = None
+
+
+# Hostname to write Statsd timers and counters to if there is a
+# client installed. The expected client will discard any errors
+# encountered when trying to write metrics so setting this value
+# to a host not running the Statsd daemon is equivalent to
+# disabling it.
+STATSD_HOST = 'localhost'
+
+
+# Port to write Statsd timers and counters to. Port 8125 is the
+# port that the Etsy Statsd implementation runs on by default.
+STATSD_PORT = 8125
+
+
+# Prefix all metrics emitted with this string. Useful to make
+# sure metrics from the Avalon Music Server don't pollute the
+# top-level namespace. You may want further split metrics by
+# the environment you are running in (dev vs staging vs prod).
+# This can be done by adding a dot-separated string to the
+# existing prefix, e.g. 'avalon.prd' or 'avalon.dev'.
+STATSD_PREFIX = 'avalon'
