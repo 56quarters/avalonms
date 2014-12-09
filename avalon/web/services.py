@@ -174,27 +174,29 @@ class AvalonMetadataService(object):
             return self._tracks.get_all()
 
         sets = []
-
-        if params.get('query') is not None:
-            sets.append(
-                self._search.search_tracks(params.get('query')))
-        if params.get('album') is not None:
-            sets.append(
-                self._tracks.get_by_album(
-                    self._id_cache.get_album_id(params.get('album'))))
-        if params.get('artist') is not None:
-            sets.append(
-                self._tracks.get_by_artist(
-                    self._id_cache.get_artist_id(params.get('artist'))))
-        if params.get('genre') is not None:
-            sets.append(
-                self._tracks.get_by_genre(
-                    self._id_cache.get_genre_id(params.get('genre'))))
-
+        query = params.get('query')
+        album = params.get('album')
+        artist = params.get('artist')
+        genre = params.get('genre')
         album_id = params.get_uuid('album_id')
         artist_id = params.get_uuid('artist_id')
         genre_id = params.get_uuid('genre_id')
 
+        if query is not None:
+            sets.append(
+                self._search.search_tracks(query))
+        if album is not None:
+            sets.append(
+                self._tracks.get_by_album(
+                    self._id_cache.get_album_id(album)))
+        if artist is not None:
+            sets.append(
+                self._tracks.get_by_artist(
+                    self._id_cache.get_artist_id(artist)))
+        if genre is not None:
+            sets.append(
+                self._tracks.get_by_genre(
+                    self._id_cache.get_genre_id(genre)))
         if album_id is not None:
             sets.append(self._tracks.get_by_album(album_id))
         if artist_id is not None:
