@@ -23,27 +23,37 @@ class DummyRequest(object):
 
 @pytest.fixture
 def albums():
-    return mock.Mock(spec=avalon.cache.AlbumStore)
+    store = mock.Mock(spec=avalon.cache.AlbumStore)
+    store.__len__ = lambda self: 0
+    return store
 
 
 @pytest.fixture
 def artists():
-    return mock.Mock(spec=avalon.cache.ArtistStore)
+    store = mock.Mock(spec=avalon.cache.ArtistStore)
+    store.__len__ = lambda self: 0
+    return store
 
 
 @pytest.fixture
 def genres():
-    return mock.Mock(spec=avalon.cache.GenreStore)
+    store = mock.Mock(spec=avalon.cache.GenreStore)
+    store.__len__ = lambda self: 0
+    return store
 
 
 @pytest.fixture
 def tracks():
-    return mock.Mock(spec=avalon.cache.TrackStore)
+    store = mock.Mock(spec=avalon.cache.TrackStore)
+    store.__len__ = lambda self: 0
+    return store
 
 
 @pytest.fixture
 def search():
-    return mock.Mock(spec=avalon.web.search.AvalonTextSearch)
+    store = mock.Mock(spec=avalon.web.search.AvalonTextSearch)
+    store.__len__ = lambda self: 0
+    return store
 
 
 @pytest.fixture
@@ -123,6 +133,29 @@ def test_intersection_with_overlap():
 
 
 class TestAvalonMetadataService(object):
+    def test_reload(self, service_config):
+        """Ensure that reloading the service reloads each contained store."""
+        service = avalon.web.services.AvalonMetadataService(service_config)
+        service.reload()
+
+        assert service_config.track_store.reload.called, \
+            'Expected track store reload to be called'
+
+        assert service_config.album_store.reload.called, \
+            'Expected album store reload to be called'
+
+        assert service_config.artist_store.reload.called, \
+            'Expected artist store reload to be called'
+
+        assert service_config.genre_store.reload.called, \
+            'Expected genre store reload to be called'
+
+        assert service_config.search.reload.called, \
+            'Expected search trie reload to be called'
+
+        assert service_config.id_cache.reload.called, \
+            'Expected ID cache reload to be called'
+
     def test_get_albums_no_params(self, id_name_elms, service_config, request):
         """Test that we can fetch all albums available."""
         service_config.album_store.get_all.return_value = id_name_elms
@@ -187,12 +220,21 @@ class TestAvalonMetadataService(object):
         assert results == id_name_elms, 'Expected matching genres returned'
 
     def test_get_songs_no_params(self, track_elms, service_config, request):
-        """Test that we can fetch all tracks."""
+        """Test that we can fetch all tracks when the params are empty."""
         service_config.track_store.get_all.return_value = track_elms
         params = avalon.web.request.Parameters(request)
 
         service = avalon.web.services.AvalonMetadataService(service_config)
         results = service.get_songs(params)
+
+        assert results == track_elms, 'Expected all tracks returned'
+
+
+    def test_get_songs_none_params(self, track_elms, service_config):
+        """Test that we can fetch all tracks when the params are omitted."""
+        service_config.track_store.get_all.return_value = track_elms
+        service = avalon.web.services.AvalonMetadataService(service_config)
+        results = service.get_songs(None)
 
         assert results == track_elms, 'Expected all tracks returned'
 
