@@ -97,11 +97,11 @@ def get_current_gname():
     return get_gname(os.getegid())
 
 
-def partition(input, size):
+def partition(input_list, size):
     """Yield sections of the input in sized chunks.
 
-    :param list input: List to split into portions
+    :param list input_list: List to split into portions
     :param int size: Size of each portion of the input list to yield
     """
-    for i in range(0, len(input), size):
-        yield input[i:i + size]
+    for i in range(0, len(input_list), size):
+        yield input_list[i:i + size]
