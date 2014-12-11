@@ -20,6 +20,7 @@ from flask import Flask, Config
 import avalon
 import avalon.exc
 import avalon.ids
+import avalon.metrics
 import avalon.web.response
 import avalon.app.factory
 import avalon.tags.insert
@@ -54,21 +55,31 @@ def bootstrap(config_env=None):
     # when initializing it. https://github.com/mitsuhiko/flask/issues/641
     log = app.logger
     avalon.app.factory.configure_logger(log, app.config)
-    avalon.app.factory.configure_sentry_logger(log, app.config)
 
     if config_env is not None:
         log.info(
             "Attempted to load config from var %s (%s)",
             config_env, os.getenv(config_env))
 
-    log.info("Connecting to database...")
+    # Register a Sentry client for log messages at ERROR or higher
+    # if the client is installed and configured, otherwise this has
+    # no effect.
+    avalon.app.factory.configure_sentry_logger(log, app.config)
+
+    # Get a StatsClient instance if installed and update the singleton
+    # metrics bridge instance with it. This allows decorators executed
+    # before the client is bootstrapped to talk to it once it's ready.
+    stats_client = avalon.app.factory.new_stats_client(log, app.config)
+    avalon.metrics.bridge.client = stats_client
+
+    log.info("Connecting to database")
     database = avalon.app.factory.new_db_engine(app.config)
     database.connect()
 
     dao = avalon.app.factory.new_dao(database)
     id_cache = avalon.app.factory.new_id_cache(dao)
 
-    log.info("Building in-memory stores...")
+    log.info("Building in-memory stores")
     controller = avalon.app.factory.new_controller(dao, id_cache)
     controller.reload()
 

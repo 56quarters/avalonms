@@ -75,11 +75,40 @@ def configure_sentry_logger(logger, config):
         handler = SentryHandler(config['SENTRY_DSN'], level=logging.ERROR)
         setup_logging(handler)
     except ImportError:
-        logger.info("Sentry client not installed, skipping setup...")
+        logger.info("Sentry client not installed, skipping setup")
     except (ValueError, KeyError):
-        logger.info("Sentry not configured, skipping setup...")
+        logger.info("Sentry not configured, skipping setup")
     else:
         logger.info("Sentry client configured for ERROR messages")
+
+
+def new_stats_client(logger, config):
+    """Configure a stats client for recording metric counts or timings.
+
+    If a stats client is not installed ``None`` will be returned. By
+    default the stats client will write metrics to localhost on port
+    8125. Since it uses UDP, if there is no server running these will
+    just be ignored.
+
+    See https://github.com/etsy/statsd/ or https://github.com/jsocol/pystatsd
+    for more information.
+
+    :param logging.Logger logger: Flask application logger
+    :param flask.Config config: Application configuration
+    :return: Configured stats client or None
+    :rtype: statsd.StatsClient
+    """
+    try:
+        import statsd
+    except ImportError:
+        logger.info("Statsd client not installed, skipping setup")
+        return None
+
+    logger.info("Statsd client configured for request timing")
+    return statsd.StatsClient(
+        host=config['STATSD_HOST'],
+        port=config['STATSD_PORT'],
+        prefix=config['STATSD_PREFIX'])
 
 
 def new_db_engine(config):

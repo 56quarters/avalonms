@@ -21,6 +21,7 @@ from flask import request
 import avalon
 import avalon.exc
 import avalon.log
+import avalon.metrics
 import avalon.web.response
 import avalon.web.request
 
@@ -108,24 +109,28 @@ class AvalonController(object):
         """Return the version of the currently running server."""
         return avalon.__version__
 
+    @avalon.metrics.timed('request.albums')
     @render_results
     @convert_parameters
     def albums(self, params):
         """Albums metadata endpoint."""
         return self._filter(self._api.get_albums(params), params)
 
+    @avalon.metrics.timed('request.artists')
     @render_results
     @convert_parameters
     def artists(self, params):
         """Artists metadata endpoint."""
         return self._filter(self._api.get_artists(params), params)
 
+    @avalon.metrics.timed('request.genres')
     @render_results
     @convert_parameters
     def genres(self, params):
         """Genres metadata endpoint."""
         return self._filter(self._api.get_genres(params), params)
 
+    @avalon.metrics.timed('request.songs')
     @render_results
     @convert_parameters
     def songs(self, params):
