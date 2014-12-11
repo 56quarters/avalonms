@@ -68,7 +68,7 @@ class MetricsTimer(object):
     def __call__(self, *args, **kwargs):
         """Return the results wrapped method and time its execution.
 
-        If there is not stats client available, return the results of
+        If there is no stats client available, return the results of
         the wrapped method without timing its execution.
         """
         client = self._bridge.client
