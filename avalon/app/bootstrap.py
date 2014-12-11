@@ -86,13 +86,13 @@ def bootstrap(config_env=None):
     app.json_decoder = avalon.web.response.AvalonJsonDecoder
     app.json_encoder = avalon.web.response.AvalonJsonEncoder
 
-    app.add_url_rule('/avalon/heartbeat', view_func=controller.heartbeat)
-    app.add_url_rule('/avalon/version', view_func=controller.version)
+    app.add_url_rule('/avalon/heartbeat', view_func=controller.get_heartbeat)
+    app.add_url_rule('/avalon/version', view_func=controller.get_version)
 
-    app.add_url_rule('/avalon/albums', view_func=controller.albums)
-    app.add_url_rule('/avalon/artists', view_func=controller.artists)
-    app.add_url_rule('/avalon/genres', view_func=controller.genres)
-    app.add_url_rule('/avalon/songs', view_func=controller.songs)
+    app.add_url_rule('/avalon/albums', view_func=controller.get_albums)
+    app.add_url_rule('/avalon/artists', view_func=controller.get_artists)
+    app.add_url_rule('/avalon/genres', view_func=controller.get_genres)
+    app.add_url_rule('/avalon/songs', view_func=controller.get_songs)
 
     # Catch-all for any unexpected errors that ensures we still render
     # a JSON payload in the same format the client is expecting while

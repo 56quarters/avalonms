@@ -96,7 +96,7 @@ class AvalonController(object):
         """Reload any cache values for the API and status handlers."""
         self._api.reload()
 
-    def heartbeat(self):
+    def get_heartbeat(self):
         """Return the string 'OKOKOK' if start up is complete.
 
         Note that there is no real logic behind this, it only acts as a known
@@ -105,35 +105,35 @@ class AvalonController(object):
         """
         return 'OKOKOK'
 
-    def version(self):
+    def get_version(self):
         """Return the version of the currently running server."""
         return avalon.__version__
 
     @avalon.metrics.timed('request.albums')
     @render_results
     @convert_parameters
-    def albums(self, params):
+    def get_albums(self, params):
         """Albums metadata endpoint."""
         return self._filter(self._api.get_albums(params), params)
 
     @avalon.metrics.timed('request.artists')
     @render_results
     @convert_parameters
-    def artists(self, params):
+    def get_artists(self, params):
         """Artists metadata endpoint."""
         return self._filter(self._api.get_artists(params), params)
 
     @avalon.metrics.timed('request.genres')
     @render_results
     @convert_parameters
-    def genres(self, params):
+    def get_genres(self, params):
         """Genres metadata endpoint."""
         return self._filter(self._api.get_genres(params), params)
 
     @avalon.metrics.timed('request.songs')
     @render_results
     @convert_parameters
-    def songs(self, params):
+    def get_songs(self, params):
         """Songs metadata endpoint."""
         return self._filter(self._api.get_songs(params), params)
 
