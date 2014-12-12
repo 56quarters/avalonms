@@ -58,7 +58,7 @@ class MetricsTimer(object):
 
         :param MetricsBridge metrics_bridge: Bridge for access to a stats
             client to be loaded in the future.
-        :param str key: Key to record the timing under in Statsd
+        :param basestring key: Key to record the timing under in Statsd
         :param callable func: Method to invoke and time
         """
         self._bridge = metrics_bridge
@@ -87,7 +87,10 @@ def timed(key):
     `bridge` instance is updated with a correctly configured
     stats client.
 
-    :param str key: Key to record timing results under
+    Note that although the type of the key is `basestring` it must
+    be a str or unicode type that contains only ASCII characters
+
+    :param basestring key: Key to record timing results under
     :return: decorator for recording method execution time
     :rtype: callable
     """
