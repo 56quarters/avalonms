@@ -9,7 +9,7 @@
 
 """Compatibility methods for running under Python 2 and Python 3."""
 
-from __future__ import unicode_literals
+from __future__ import absolute_import, unicode_literals
 import avalon
 from avalon import six
 

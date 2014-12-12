@@ -10,7 +10,7 @@
 
 """Functionality for loading various audio tag metadata into the database."""
 
-from __future__ import unicode_literals
+from __future__ import absolute_import, unicode_literals
 import sys
 import sqlalchemy.exc
 

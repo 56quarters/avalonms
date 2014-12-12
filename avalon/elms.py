@@ -11,7 +11,7 @@
 """Immutable wrappers for model objects suitable for being rendered as JSON.
 """
 
-from __future__ import unicode_literals
+from __future__ import absolute_import, unicode_literals
 import collections
 
 

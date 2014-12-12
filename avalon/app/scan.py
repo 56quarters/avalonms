@@ -9,7 +9,7 @@
 
 """Scan a music collection and insert meta data into a database."""
 
-from __future__ import unicode_literals
+from __future__ import absolute_import, unicode_literals
 
 import avalon.log
 import avalon.ids

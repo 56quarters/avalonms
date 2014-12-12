@@ -10,7 +10,7 @@
 
 """Methods for generating stable IDs for albums, artists, genres, and tracks."""
 
-from __future__ import unicode_literals
+from __future__ import absolute_import, unicode_literals
 import uuid
 
 from avalon.compat import to_uuid_input

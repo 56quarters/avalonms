@@ -10,7 +10,7 @@
 
 """Functionality for reading audio meta data from local files using Mutagen."""
 
-from __future__ import unicode_literals
+from __future__ import absolute_import, unicode_literals
 import collections
 
 import avalon.compat

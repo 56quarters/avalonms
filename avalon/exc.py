@@ -10,7 +10,7 @@
 
 """Errors thrown by the Avalon music server."""
 
-from __future__ import unicode_literals
+from __future__ import absolute_import, unicode_literals
 
 __all__ = [
     'ApiError',

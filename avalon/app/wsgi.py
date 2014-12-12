@@ -27,7 +27,7 @@ mode when invoked as :data:`__main__`. Note that running the Avalon Music Server
 like this should NOT BE DONE IN PRODUCTION.
 """
 
-from __future__ import print_function, unicode_literals
+from __future__ import absolute_import, print_function, unicode_literals
 import sys
 
 from avalon.app.bootstrap import bootstrap, CONFIG_ENV_VAR

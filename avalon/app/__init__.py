@@ -10,4 +10,4 @@
 
 """Package for the main entry point of the application and bootstrapping logic."""
 
-from __future__ import unicode_literals
+from __future__ import absolute_import, unicode_literals

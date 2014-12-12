@@ -13,7 +13,7 @@ Models representing types of metadata loaded from a music collection
 along with functionality to manage connections to the backing database.
 """
 
-from __future__ import unicode_literals
+from __future__ import absolute_import, unicode_literals
 import uuid
 from contextlib import contextmanager
 

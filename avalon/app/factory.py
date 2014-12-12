@@ -10,7 +10,7 @@
 
 """Factory methods for the major components of the music server."""
 
-from __future__ import unicode_literals
+from __future__ import absolute_import, unicode_literals
 
 import logging
 from datetime import datetime

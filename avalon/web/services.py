@@ -10,7 +10,7 @@
 
 """API endpoints for the in-memory meta data stores."""
 
-from __future__ import unicode_literals
+from __future__ import absolute_import, unicode_literals
 import functools
 
 import avalon.log

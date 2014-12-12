@@ -10,7 +10,7 @@
 
 """Text searching functionality for music meta data."""
 
-from __future__ import unicode_literals
+from __future__ import absolute_import, unicode_literals
 from unicodedata import normalize, category
 import logging
 

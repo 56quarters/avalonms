@@ -10,7 +10,8 @@
 
 """Scan the music collection and insert meta data into the database."""
 
-from __future__ import print_function, division, unicode_literals
+from __future__ import absolute_import, unicode_literals
+
 import argparse
 import logging
 import sys

@@ -14,7 +14,7 @@ The :class:`AvalonController` class acts as the main interface between the
 web server and the rest of the application.
 """
 
-from __future__ import unicode_literals
+from __future__ import absolute_import, unicode_literals
 import functools
 
 from flask import request

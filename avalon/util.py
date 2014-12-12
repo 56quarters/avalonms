@@ -10,7 +10,7 @@
 
 """Miscellaneous utility functions and classes."""
 
-from __future__ import unicode_literals
+from __future__ import absolute_import, unicode_literals
 
 try:
     from pympler.asizeof import asizeof
