@@ -1,6 +1,8 @@
 Usage
 -----
 
+.. TODO: Split CLI and WSGI docs
+
 avalon-echo-config
 ~~~~~~~~~~~~~~~~~~
 
@@ -201,8 +203,23 @@ are used.
 ``SENTRY_DSN``      URL that describes how to log errors to a centralized 3rd party
                     error-logging service, Sentry_. This functionality is disabled
                     by default. Enabling this logging requires supplying a Sentry
-                    DSN configuration string and installing the Raven Sentry
-                    client_.
+                    DSN configuration string and installing the Raven `Sentry client`_.
+
+``STATSD_HOST``     Hostname to write Statsd timers and counters to if there is a
+                    client installed. The expected client will discard any errors
+                    encountered when trying to write metrics so setting this value
+                    to a host not running the Statsd daemon is equivalent to
+                    disabling it.
+
+``STATSD_PORT``     Port to write Statsd timers and counters to. Port 8125 is the
+                    port that the Etsy Statsd implementation runs on by default.
+
+``STATSD_PREFIX``   Prefix all metrics emitted with this string. Useful to make
+                    sure metrics from the Avalon Music Server don't pollute the
+                    top-level namespace. You may want further split metrics by
+                    the environment you are running in (dev vs staging vs prod).
+                    This can be done by adding a dot-separated string to the
+                    existing prefix, e.g. 'avalon.prd' or 'avalon.dev'.
 =================== ===============================================================
 
 Architecture
@@ -248,14 +265,14 @@ Sentry
 ======
 
 Sentry_ is a centralized, 3rd-party, error-logging service. It is available as a
-paid, hosted, service. However, both the client and server are Free_ Software and
+paid, hosted, service. However, both the client and server are `Free Software`_ and
 can be run by anyone.
 
 The Avalon WSGI application will optionally log unhandled exceptions to a Sentry
 instance provided these things are true (otherwise logging to Sentry will not be
 used).
 
-#. The Sentry client_ is installed and can be imported.
+#. The `Sentry client`_ is installed and can be imported.
 #. There is a ``SENTRY_DSN`` configuration setting available and correctly configured.
 
 To install the client run the following command from within the virtualenv that
@@ -264,6 +281,23 @@ the Avalon WSGI application is installed in.
 .. code-block:: bash
 
     $ pip install raven
+
+Statsd
+======
+
+Statsd_ is a daemon that listens for metrics sent over UDP and periodically pushes
+them to Graphite_.
+
+The Avalon WSGI application will optionally record the execution time of each endpoint
+if the `Statsd client`_ is installed. The Statsd service to send metrics to can be
+configured with the ``STATSD_HOST`` and ``STATSD_PORT`` configuration settings.
+
+To install the client run the following command from within the virtualenv that
+the Avalon WSGI application is installed in.
+
+.. code-block:: bash
+
+    $ pip install statsd
 
 Deployment
 ^^^^^^^^^^
@@ -311,7 +345,10 @@ That's it! The Avalon WSGI application should now be running on your server.
 .. _documentation: http://docs.python.org/2/library/time.html#time.strftime
 .. _logging: http://docs.python.org/2/library/logging.html#logrecord-attributes
 .. _Sentry: https://getsentry.com/welcome/
-.. _client: https://pypi.python.org/pypi/raven
+.. _Sentry client: https://pypi.python.org/pypi/raven
 .. _Global-Interpreter-Lock: https://wiki.python.org/moin/GlobalInterpreterLock
-.. _Free: https://github.com/getsentry/sentry
+.. _Free Software: https://github.com/getsentry/sentry
 .. _Fabric: http://www.fabfile.org/
+.. _Statsd: https://codeascraft.com/2011/02/15/measure-anything-measure-everything/
+.. _Statsd client: https://github.com/jsocol/pystatsd
+.. _Graphite: http://graphite.readthedocs.org/en/latest/

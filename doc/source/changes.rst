@@ -1,6 +1,12 @@
 Change Log
 ==========
 
+0.5.0 - Future Release
+----------------------
+* Add optional support for recording method execution times to Statsd. Enabling
+  timing requires installing the `pystatsd <https://github.com/jsocol/pystatsd>`_
+  client and setting configuration values to point to your statsd instance.
+
 0.4.0 - 2014-11-24
 ------------------
 * Change to Mutagen for reading audio tags now that it supports Python 3.
