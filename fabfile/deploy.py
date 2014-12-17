@@ -74,3 +74,9 @@ def rollback():
 def restart():
     """Restart the Avalon app under supervisor."""
     sudo("supervisorctl restart avalon")
+
+
+@task
+def supervisor():
+    """Tell supervisord to reload its configuration files."""
+    sudo("supervisorctl update")

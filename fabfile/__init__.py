@@ -17,7 +17,6 @@ from tunic.api import get_current_path
 
 from . import build
 from . import deploy
-from . import supervisor
 
 env.remote_build_path = '/tmp/build'
 
@@ -28,10 +27,6 @@ env.remote_deploy_owner = 'root:dev'
 env.remote_deploy_current = get_current_path(env.remote_deploy_base)
 
 env.remote_deploy_current_share = env.remote_deploy_current + '/share/avalonms'
-
-env.remote_supervisor_config = '/etc/supervisor/conf.d'
-
-env.app_user = 'avalon'
 
 
 @task
