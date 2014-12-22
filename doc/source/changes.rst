@@ -6,6 +6,9 @@ Change Log
 * Add optional support for recording method execution times to Statsd. Enabling
   timing requires installing the `pystatsd <https://github.com/jsocol/pystatsd>`_
   client and setting configuration values to point to your statsd instance.
+* Remove ``supervisor.config`` and ``supervisor.user`` tasks from bundled Fabric
+  script and move ``supervisor.restart`` to ``deploy.supervisor`` (along with
+  having Supervisor gracefully reload instead of restart).
 
 0.4.0 - 2014-11-24
 ------------------
