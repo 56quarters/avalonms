@@ -188,10 +188,14 @@ is available at ``/var/www/avalon/current/share/avalonms/avalon-supervisor-gunic
 (or ``ext/avalon-supervisor-gunicorn.conf`` in the codebase).
 
 When you installed Supervisor earlier (if you're on Debian) it created a directory that
-configurations can be placed into: ``/etc/supervisor/conf.d``. Create a symlink in this
-directory to the bundled Supervisor configuration file. ::
+configurations can be placed into: ``/etc/supervisor/conf.d``. Copy the bundled Supervisor
+configuration file into this directory and set the owner and permissions appropriately.
 
-    ln -s /var/www/avalon/current/share/avalonms/avalon-supervisor-gunicorn.conf /etc/supervisor/conf.d/
+.. code-block:: bash
+
+    $ cp /var/www/avalon/current/share/avalonms/avalon-supervisor-gunicorn.conf /etc/supervisor/conf.d/
+    $ chown root:root /etc/supervisor/conf.d/avalon-supervisor-gunicorn.conf
+    $ chmod 644 /etc/supervisor/conf.d/avalon-supervisor-gunicorn.conf
 
 Nginx
 =====
