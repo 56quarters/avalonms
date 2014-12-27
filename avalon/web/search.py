@@ -278,7 +278,7 @@ class AvalonTextSearch(object):
         The trie factory is expected to return search tries with the
         same interface as the :class:`SearchTrie` class above. These
         instances may be mutable but will not be modified after they
-        are constructed (either in the __init__() or  .reload() methods).
+        are constructed in the .reload() method.
 
         Note that meta data from each of the stores will be loaded and
         the tries will be constructed immediately upon instantiation of
