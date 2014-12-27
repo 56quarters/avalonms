@@ -113,7 +113,7 @@ The application will...
 * Load music collection meta data from a database (as specified by the configuration
   files described below).
 * Build structures that can be used to search and query a music collection.
-* Begin serving HTTP requests with a JSON API.
+* Begin serving HTTP requests with a JSON `API <doc>`_.
 
 Running
 ^^^^^^^
