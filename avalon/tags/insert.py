@@ -14,7 +14,7 @@ from __future__ import absolute_import, unicode_literals
 import sys
 import sqlalchemy.exc
 
-from avalon import six
+from avalon.packages import six
 import avalon.exc
 import avalon.util
 

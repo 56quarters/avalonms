@@ -7,7 +7,7 @@ import uuid
 
 import pytest
 import mock
-from avalon import six
+from avalon.packages import six
 import avalon.cache
 import avalon.compat
 import avalon.elms

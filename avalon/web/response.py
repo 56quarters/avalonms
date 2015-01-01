@@ -20,7 +20,7 @@ import flask
 # json module since simplejson renders named tuples as JSON
 # objects and the stdlib json renders them as JSON lists.
 import simplejson
-from avalon import six
+from avalon.packages import six
 
 
 __all__ = [

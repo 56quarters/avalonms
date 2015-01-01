@@ -11,7 +11,7 @@
 
 from __future__ import absolute_import, unicode_literals
 import avalon
-from avalon import six
+from avalon.packages import six
 
 __all__ = [
     'to_text',
