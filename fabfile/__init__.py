@@ -12,7 +12,14 @@
 
 import os.path
 
-from fabric.api import env, lcd, task, local, warn_only
+from fabric.api import (
+    env,
+    hide,
+    lcd,
+    task,
+    local,
+    quiet,
+    warn_only)
 from tunic.api import get_current_path
 
 from . import build
@@ -55,6 +62,15 @@ def lint():
     """Run pylint on the project using our configuration."""
     with warn_only():
         local('pylint --rcfile .pylintrc avalon')
+
+
+@task
+def coverage():
+    with quiet():
+        local('coverage run --source avalon ./env/bin/py.test test')
+
+    with hide('running'):
+        local("coverage report  --omit 'avalon/packages*','avalon/settings.py' --o --show-missing")
 
 
 @task
