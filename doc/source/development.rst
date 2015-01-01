@@ -75,17 +75,29 @@ Or, run with Gunicorn:
 
     $ gunicorn --preload avalon.app.wsgi:application
 
+Memory Profiling
+~~~~~~~~~~~~~~~~
+
+The Avalon Music Server WSGI application can optionally log the memory used by
+various internal data structures. This can be useful for minimizing the resource
+footprint of the server when adding new features.
+
+When enabled, memory usage will be writen to the configured logger. This feature
+is only enabled when the Pympler_ package is installed and the configured log
+level is ``DEBUG``.
+
 Contributing
 ~~~~~~~~~~~~
 
-Next, code up your feature or bug fix and create a `pull request`_. If you're new to Git or
-GitHub, take a look at the `GitHub help`_ site.
+Next, code up your feature or bug fix and create a `pull request`_. If you're new to
+Git or GitHub, take a look at the `GitHub help`_ site.
 
 Useful Commands
 ~~~~~~~~~~~~~~~
 
-The Avalon Music Server uses tox_ to run tests in isolated virtualenvs. You can run the tests
-using the command below. Make sure that you have entered the virtualenv you created earlier.
+The Avalon Music Server uses tox_ to run tests in isolated virtualenvs. You can run
+the tests using the command below. Make sure that you have entered the virtualenv
+you created earlier.
 
 .. code-block:: bash
 
@@ -110,3 +122,4 @@ web browser.
 .. _pull request: https://help.github.com/articles/be-social/#pull-requests
 .. _GitHub help: https://help.github.com/
 .. _tox: https://testrun.org/tox/latest/
+.. _Pympler: https://pypi.python.org/pypi/Pympler
