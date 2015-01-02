@@ -33,6 +33,10 @@ class TestTokenize(object):
         tokens = avalon.web.search.tokenize("")
         assert 0 == len(tokens)
 
+    def test_tokenize_all_whitespace(self):
+        """Test that we get an expected empty set with whitespace input."""
+        tokens = avalon.web.search.tokenize("         \n ")
+        assert 0 == len(tokens)
 
     def test_tokenize_single_word(self):
         """Test that a single word doesn't result in duplicate tokens."""

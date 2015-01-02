@@ -39,7 +39,8 @@ def tokenize(text):
     * Each part: "This", "is", "giving", and "up"
     * Each trailing portion: "is giving up", "giving up"
 
-    ``None`` text or text that is all whitespace will result in an empty set.
+    ``None`` text, blank strings, or text that is all whitespace will result
+    in an empty set being returned.
 
     :param unicode text: Text to split into tokens for searching in a trie
     :return: Set of substrings that the element corresponding to the input
