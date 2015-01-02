@@ -241,4 +241,19 @@ class TestSearchTrie(object):
 
 
 class TestAvalonTextSearch(object):
-    pass
+    def test_tokenize_name(self):
+        """Test the logic used for splitting album, artist, etc. names up."""
+        tokens = avalon.web.search.AvalonTextSearch._tokenize_name("Die While We're Young")
+
+        # Whole term
+        assert "die while we're young" in tokens
+
+        # Each part
+        assert "die" in tokens
+        assert "while" in tokens
+        assert "we're" in tokens
+        assert "young" in tokens
+
+        # Combinations of tailing parts
+        assert "while we're young" in tokens
+        assert "we're young" in tokens

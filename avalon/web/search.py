@@ -336,31 +336,40 @@ class AvalonTextSearch(object):
         elements to the search trie.
         """
         for elm in elms:
-            self._add_to_trie(elm, trie)
+            tokens = self._tokenize_name(elm.name)
+            for token in tokens:
+                trie.add(token, elm)
 
     @staticmethod
-    def _add_to_trie(elm, trie):
-        """Add an element to the trie, indexed under the entire name of
-        the element, each individual portion of the name (delineated via
-        whitespace), and possible combinations of the trailing portion of
+    def _tokenize_name(text):
+        """Get a list of each individual portion of the given text (delineated
+        via whitespace), and possible combinations of the trailing portion of
         the name.
 
-        For example, the song "This is giving up" will be indexed under:
-        The entire term: "This is giving up",
-        Each part: "This", "is", "giving", and "up"
-        Each trailing portion: "is giving up", "giving up",
-        """
-        term = searchable(elm.name)
-        parts = term.split()
+        For example, the text "This is giving up" result in a list of the following
+        substrings:
 
-        trie.add(term, elm)
+        * The entire term: "This is giving up",
+        * Each part: "This", "is", "giving", and "up"
+        * Each trailing portion: "is giving up", "giving up"
+
+        :param unicode text: Text to split into tokens for searching in a trie
+        :return: List of substrings that the element corresponding to the input
+            text should be indexed under.
+        :rtype: list
+        """
+        term = searchable(text)
+        parts = term.split()
+        tokens = [term]
+
         for part in parts:
-            trie.add(part, elm)
+            tokens.append(part)
 
         # Skipping the first and last elements since they are covered by
         # indexing the entire term and each part of the term (respectively)
         for i in range(1, len(parts) - 1):
-            trie.add(' '.join(parts[i:]), elm)
+            tokens.append(' '.join(parts[i:]))
+        return tokens
 
     def search_albums(self, needle):
         """Search albums by name (case insensitive).
