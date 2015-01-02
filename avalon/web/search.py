@@ -28,6 +28,42 @@ __all__ = [
 ]
 
 
+def tokenize(text):
+    """Get a set of each combination of parts of the given text (delineated
+    via whitespace) that an item should be indexed under in a search trie.
+
+    For example, the text "This is giving up" result in a set of the following
+    substrings:
+
+    * The entire term: "This is giving up",
+    * Each part: "This", "is", "giving", and "up"
+    * Each trailing portion: "is giving up", "giving up"
+
+    ``None`` text or text that is all whitespace will result in an empty set.
+
+    :param unicode text: Text to split into tokens for searching in a trie
+    :return: Set of substrings that the element corresponding to the input
+        text should be indexed under.
+    :rtype: set
+    """
+    if not text:
+        return set()
+
+    term = searchable(text)
+    parts = term.split()
+
+    if not parts:
+        return set()
+
+    tokens = set(parts)
+    tokens.add(term)
+    # Skipping the first and last elements since they are covered by
+    # indexing the entire term and each part of the term (respectively)
+    for i in range(1, len(parts) - 1):
+        tokens.add(' '.join(parts[i:]))
+    return tokens
+
+
 def searchable(query):
     """Convert an input string to a consistent searchable form by
     removing accents, diaretics, and converting it to lowercase.
@@ -331,45 +367,15 @@ class AvalonTextSearch(object):
 
         return self
 
-    def _add_all_to_tree(self, elms, trie):
+    @staticmethod
+    def _add_all_to_tree(elms, trie):
         """Add a normalized version of the name of each of the given
         elements to the search trie.
         """
         for elm in elms:
-            tokens = self._tokenize_name(elm.name)
+            tokens = tokenize(elm.name)
             for token in tokens:
                 trie.add(token, elm)
-
-    @staticmethod
-    def _tokenize_name(text):
-        """Get a list of each individual portion of the given text (delineated
-        via whitespace), and possible combinations of the trailing portion of
-        the name.
-
-        For example, the text "This is giving up" result in a list of the following
-        substrings:
-
-        * The entire term: "This is giving up",
-        * Each part: "This", "is", "giving", and "up"
-        * Each trailing portion: "is giving up", "giving up"
-
-        :param unicode text: Text to split into tokens for searching in a trie
-        :return: List of substrings that the element corresponding to the input
-            text should be indexed under.
-        :rtype: list
-        """
-        term = searchable(text)
-        parts = term.split()
-        tokens = [term]
-
-        for part in parts:
-            tokens.append(part)
-
-        # Skipping the first and last elements since they are covered by
-        # indexing the entire term and each part of the term (respectively)
-        for i in range(1, len(parts) - 1):
-            tokens.append(' '.join(parts[i:]))
-        return tokens
 
     def search_albums(self, needle):
         """Search albums by name (case insensitive).

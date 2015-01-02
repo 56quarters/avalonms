@@ -5,6 +5,42 @@ from __future__ import absolute_import, unicode_literals
 import avalon.web.search
 
 
+class TestTokenize(object):
+    def test_tokenize_success(self):
+        """Test the logic used for splitting album, artist, etc. names up."""
+        tokens = avalon.web.search.tokenize("Die While We're Young")
+
+        # Whole term
+        assert "die while we're young" in tokens
+
+        # Each part
+        assert "die" in tokens
+        assert "while" in tokens
+        assert "we're" in tokens
+        assert "young" in tokens
+
+        # Combinations of tailing parts
+        assert "while we're young" in tokens
+        assert "we're young" in tokens
+
+    def test_tokenize_none(self):
+        """Test that we get an expeted empty set with None input."""
+        tokens = avalon.web.search.tokenize(None)
+        assert 0 == len(tokens)
+
+    def test_tokenize_empty_string(self):
+        """Test that we get an expected empty set with no input."""
+        tokens = avalon.web.search.tokenize("")
+        assert 0 == len(tokens)
+
+
+    def test_tokenize_single_word(self):
+        """Test that a single word doesn't result in duplicate tokens."""
+        tokens = avalon.web.search.tokenize("Reject")
+        assert "reject" in tokens
+        assert 1 == len(tokens)
+
+
 class TestSearchable(object):
     def test_searchable_no_input(self):
         """Ensure that None input is handle reasonably."""
@@ -239,21 +275,3 @@ class TestSearchTrie(object):
         results3 = trie.search('bi')
         assert 2 == len(results3)
 
-
-class TestAvalonTextSearch(object):
-    def test_tokenize_name(self):
-        """Test the logic used for splitting album, artist, etc. names up."""
-        tokens = avalon.web.search.AvalonTextSearch._tokenize_name("Die While We're Young")
-
-        # Whole term
-        assert "die while we're young" in tokens
-
-        # Each part
-        assert "die" in tokens
-        assert "while" in tokens
-        assert "we're" in tokens
-        assert "young" in tokens
-
-        # Combinations of tailing parts
-        assert "while we're young" in tokens
-        assert "we're young" in tokens
