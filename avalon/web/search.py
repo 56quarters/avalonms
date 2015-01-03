@@ -35,9 +35,12 @@ def tokenize(text):
     For example, the text "This is giving up" result in a set of the following
     substrings:
 
-    * The entire term: "This is giving up",
-    * Each part: "This", "is", "giving", and "up"
+    * The entire term: "this is giving up",
+    * Each part: "this", "is", "giving", and "up"
     * Each trailing portion: "is giving up", "giving up"
+
+    Note that the input text is first normalized with the :func:`searchable`
+    function before being worked on.
 
     ``None`` text, blank strings, or text that is all whitespace will result
     in an empty set being returned.
