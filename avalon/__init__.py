@@ -12,10 +12,6 @@
 
 from __future__ import absolute_import, unicode_literals
 
-__all__ = [
-    '__version__',
-    'DEFAULT_ENCODING'
-]
 
 __version__ = '0.4.0'
 

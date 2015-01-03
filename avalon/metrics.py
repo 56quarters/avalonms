@@ -19,14 +19,6 @@ from __future__ import absolute_import, unicode_literals
 import functools
 
 
-__all__ = [
-    'MetricsBridge',
-    'MetricsTimer',
-    'timed',
-    'bridge'
-]
-
-
 class MetricsBridge(object):
     """Simple holder class for a :class:`statsd.StatsClient` instance.
 

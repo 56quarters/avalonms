@@ -27,12 +27,6 @@ import avalon.tags.insert
 import avalon.util
 
 
-__all__ = [
-    'CONFIG_ENV_VAR',
-    'bootstrap',
-    'build_config'
-]
-
 CONFIG_ENV_VAR = 'AVALON_CONFIG'
 
 

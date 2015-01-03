@@ -19,15 +19,6 @@ import avalon.log
 import avalon.util
 
 
-__all__ = [
-    'searchable',
-    'strip_accents',
-    'AvalonTextSearch',
-    'SearchTrie',
-    'TrieNode'
-]
-
-
 def tokenize(text):
     """Get a set of each combination of parts of the given text (delineated
     via whitespace) that an item should be indexed under in a search trie.

@@ -16,10 +16,6 @@ import os
 import avalon.log
 import avalon.compat
 
-__all__ = [
-    'TagCrawler'
-]
-
 
 class TagCrawler(object):
     """Use the given metadata loader to read information for

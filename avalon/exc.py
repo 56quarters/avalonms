@@ -12,21 +12,6 @@
 
 from __future__ import absolute_import, unicode_literals
 
-__all__ = [
-    'ApiError',
-    'AvalonError',
-    'ConnectionError',
-    'DatabaseError',
-    'InvalidParameterNameError',
-    'InvalidParameterTypeError',
-    'InvalidParameterValueError',
-    'OperationalError',
-    'PermissionError',
-    'ServiceMisconfiguredError',
-    'ServiceUnavailableError',
-    'ServiceUnknownError'
-]
-
 
 class AvalonError(Exception):
     """Base for all exceptions.

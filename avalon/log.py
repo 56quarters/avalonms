@@ -18,13 +18,6 @@ import avalon.exc
 import avalon.util
 
 
-__all__ = [
-    'DEFAULT_LOGGER_NAME',
-    'AvalonLogConfig',
-    'get_error_log',
-    'initialize'
-]
-
 DEFAULT_LOGGER_NAME = "avalon.error"
 
 

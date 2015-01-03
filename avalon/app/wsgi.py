@@ -30,10 +30,6 @@ import sys
 from avalon.app.bootstrap import bootstrap, CONFIG_ENV_VAR
 
 
-__all__ = [
-    'application'
-]
-
 try:
     # Handle keyboard interrupts during bootstrap quietly by
     # just exiting. This has the added benefit of handling uWSGI

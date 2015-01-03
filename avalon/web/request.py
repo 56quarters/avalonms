@@ -16,11 +16,6 @@ import uuid
 import avalon.exc
 
 
-__all__ = [
-    'Parameters'
-]
-
-
 class Parameters(object):
     """Logic for accessing query string parameters of interest."""
 

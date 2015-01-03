@@ -16,17 +16,6 @@ import uuid
 from avalon.compat import to_uuid_input
 
 
-__all__ = [
-    'NS_ALBUMS',
-    'NS_ARTISTS',
-    'NS_GENRES',
-    'NS_TRACKS',
-    'get_album_id',
-    'get_artist_id',
-    'get_genre_id',
-    'get_track_id'
-]
-
 NS_ALBUMS = uuid.UUID('7655e605-6eaa-40d8-a25f-5c6c92a4d31a')
 NS_ARTISTS = uuid.UUID('fe4df0f6-2c55-4ba6-acf3-134eae3e710e')
 NS_GENRES = uuid.UUID('dd8dbd9c-8ed7-4719-80c5-71d978665dd0')

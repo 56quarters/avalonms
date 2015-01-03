@@ -30,17 +30,6 @@ import avalon.web.filtering
 import avalon.web.search
 
 
-__all__ = [
-    'configure_logger',
-    'configure_sentry_logger',
-    'new_controller',
-    'new_dao',
-    'new_db_engine',
-    'new_crawler',
-    'new_id_cache'
-]
-
-
 def configure_logger(logger, config):
     """Configure the server-wide logger for the Avalon Music Server based
     on the given configuration, making sure to only add handlers to the logger,

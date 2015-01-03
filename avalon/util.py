@@ -27,18 +27,6 @@ import resource
 import os
 
 
-__all__ = [
-    'get_size_in_mb',
-    'get_mem_usage',
-    'is_perm_error',
-    'get_current_gname',
-    'get_current_uname',
-    'get_gname',
-    'get_uname',
-    'partition'
-]
-
-
 def get_size_in_mb(obj):
     """Get the size of a given object in MB.
 

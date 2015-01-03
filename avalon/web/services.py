@@ -16,12 +16,6 @@ import functools
 import avalon.log
 
 
-__all__ = [
-    'intersection',
-    'AvalonMetadataService',
-    'AvalonMetadataServiceConfig'
-]
-
 # Disable warning about constant that's really a function
 # pylint: disable=invalid-name
 _set_intersection = lambda x, y: x.intersection(y)

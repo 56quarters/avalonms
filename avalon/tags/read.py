@@ -16,13 +16,6 @@ import collections
 import avalon.compat
 
 
-__all__ = [
-    'Metadata',
-    'MetadataLoader',
-    'MetadataDateParser',
-    'MetadataTrackParser'
-]
-
 Metadata = collections.namedtuple('Metadata', [
     'path',
     'album',

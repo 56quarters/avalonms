@@ -13,11 +13,6 @@ from __future__ import absolute_import, unicode_literals
 import avalon
 from avalon.packages import six
 
-__all__ = [
-    'to_text',
-    'to_uuid_input'
-]
-
 
 def to_text(value, encoding=None):
     """Convert the given text or binary type to text using

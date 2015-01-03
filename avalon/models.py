@@ -33,20 +33,6 @@ import avalon.exc
 import avalon.log
 
 
-__all__ = [
-    'get_engine',
-    'get_metadata',
-    'get_session_factory',
-    'Album',
-    'Artist',
-    'Genre',
-    'ReadOnlyDao',
-    'SessionHandler',
-    'SessionHandlerConfig',
-    'Track'
-]
-
-
 # Ignore pylint warning about abstract method since overriding it
 # is optional and SQLAlchemy will do the right thing if it is missing.
 # pylint: disable=abstract-method,too-many-public-methods
