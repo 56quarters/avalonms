@@ -124,7 +124,7 @@ class IdLookupCache(object):
         normalizing the case of the name value using a default dictionary
         configured to return None for missing entries.
         """
-        mapping = collections.defaultdict(_missing_entry)
+        mapping = collections.defaultdict(lambda: None)
         for model in all_models:
             elm = id_name_elm_from_model(model)
             mapping[elm.name.lower()] = elm.id
@@ -140,11 +140,6 @@ def get_frozen_mapping(table):
     for key in table:
         out[key] = frozenset(table[key])
     return out
-
-
-def _missing_entry():
-    """Factory to return None for missing entries in a default dictionary"""
-    return None
 
 
 class TrackStore(object):
