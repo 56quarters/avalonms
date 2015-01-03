@@ -12,15 +12,12 @@
 
 By default the application will attempt to read the path of an installation
 specific configuration file from the :data:`AVALON_CONFIG` environmental
-variable. If configuration cannot be loaded a message will be printed to
-STDERR.
+variable.
 
 Note that this module should typically not be imported directly, instead it
 is meant to be used by a WSGI application server such as Gunicorn, uWSGI, or
 Apache with mod_wsgi. Importing it has the side-effect of bootstrapping the
-entire Avalon Music Server application. Additionally, if a SIGINT is raised
-during  bootstrap of the application, the interpreter will exit with a status
-of one.
+entire Avalon Music Server application.
 
 This module will run the application using the built in Flask server in debug
 mode when invoked as :data:`__main__`. Note that running the Avalon Music Server
