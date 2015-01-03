@@ -10,17 +10,16 @@ import avalon.cache
 import avalon.models
 
 
-class TestFunctions(object):
-    def test_get_frozen_mapping(self):
-        mapping = {'foo': set(['zing', 'zam', 'zowey'])}
-        frozen = avalon.cache.get_frozen_mapping(mapping)
+def test_get_frozen_mapping():
+    mapping = {'foo': set(['zing', 'zam', 'zowey'])}
+    frozen = avalon.cache.get_frozen_mapping(mapping)
 
-        assert 'foo' in frozen
-        assert frozen['foo'] == frozenset(['zing', 'zam', 'zowey'])
-        assert isinstance(frozen['foo'], frozenset)
+    assert 'foo' in frozen
+    assert frozen['foo'] == frozenset(['zing', 'zam', 'zowey'])
+    assert isinstance(frozen['foo'], frozenset)
 
-        with pytest.raises(AttributeError):
-            frozen['foo'].add('blah')
+    with pytest.raises(AttributeError):
+        frozen['foo'].add('blah')
 
 
 class TestIdLookupCache(object):
@@ -206,7 +205,6 @@ class TestIdNameStore(object):
 
 
 class TestTrackStore(object):
-
     def setup(self):
         album = avalon.models.Album()
         album.id = uuid.UUID("350c49d9-fa38-585a-a0d9-7343c8b910ed")
