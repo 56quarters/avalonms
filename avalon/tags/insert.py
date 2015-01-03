@@ -12,11 +12,12 @@
 
 from __future__ import absolute_import, unicode_literals
 import sys
-import sqlalchemy.exc
 
+import sqlalchemy.exc
 from avalon.packages import six
 import avalon.exc
 import avalon.util
+
 
 __all__ = [
     'TrackFieldLoader',
@@ -47,7 +48,12 @@ class TrackFieldLoader(object):
     """
 
     def __init__(self, session, tags):
-        """Set the database session and tags."""
+        """Set the database session and tags to insert.
+
+        :param sqlalchemy.orm.Session session: Database session to use.
+        :param list tags: List of audio metadata namedtuples. See the
+            types in :mod:`avalon.tags.read` for more information.
+        """
         self._session = session
         self._tags = tags
 
@@ -102,7 +108,12 @@ class TrackLoader(object):
     write_batch_size = 1000
 
     def __init__(self, session, tags, id_cache):
-        """Set the database session, tags, and ID lookup cache."""
+        """Set the database session, tags, and ID lookup cache.
+
+        :param sqlalchemy.orm.Session session: Database session to use.
+        :param list tags: List of audio metadata namedtuples. See the
+            types in :mod:`avalon.tags.read` for more information.
+        """
         self._session = session
         self._tags = tags
         self._id_cache = id_cache
@@ -157,7 +168,10 @@ class Cleaner(object):
     """Cleaner for removing already inserted entities."""
 
     def __init__(self, session):
-        """Set the database session."""
+        """Set the database session.
+
+        :param sqlalchemy.orm.Session session: Database session to use.
+        """
         self._session = session
 
     def clean_type(self, cls):
