@@ -1,8 +1,8 @@
 Change Log
 ==========
 
-0.5.0 - Future Release
-----------------------
+0.5.0 - 2015-01-04
+------------------
 * Add optional support for recording method execution times to Statsd. Enabling
   timing requires installing the `pystatsd <https://github.com/jsocol/pystatsd>`_
   client and setting configuration values to point to your statsd instance.
