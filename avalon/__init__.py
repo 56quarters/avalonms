@@ -13,7 +13,7 @@
 from __future__ import absolute_import, unicode_literals
 
 
-__version__ = '0.5.0pre'
+__version__ = '0.5.0'
 
 # Character sets are hard, let's go shopping!
 DEFAULT_ENCODING = 'utf-8'
