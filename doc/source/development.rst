@@ -86,6 +86,20 @@ When enabled, memory usage will be writen to the configured logger. This feature
 is only enabled when the Pympler_ package is installed and the configured log
 level is ``DEBUG``.
 
+To enable this do the following.
+
+Install the profiler.
+
+.. code-block:: bash
+
+    $ pip install pympler
+
+Change the Avalon Music Server log level in your local ``settings.py`` file.
+
+.. code-block:: python
+
+    LOG_LEVEL = logging.DEBUG
+
 Contributing
 ~~~~~~~~~~~~
 
