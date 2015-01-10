@@ -11,8 +11,7 @@ import random
 
 import os
 import codecs
-from avalon import six
-import avalon.app.scan
+from avalon.packages import six
 import avalon.cache
 import avalon.models
 import avalon.ids
