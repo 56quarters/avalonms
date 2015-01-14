@@ -15,6 +15,7 @@ along with functionality to manage connections to the backing database.
 
 from __future__ import absolute_import, unicode_literals
 import uuid
+import sys
 from contextlib import contextmanager
 
 from sqlalchemy import (
@@ -31,6 +32,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
 import avalon.exc
 import avalon.log
+from avalon.packages import six
 
 
 # Ignore pylint warning about abstract method since overriding it
@@ -258,8 +260,11 @@ class SessionHandler(object):
             # to create tables or insert into it.
             self.validate()
         except OperationalError as e:
-            raise avalon.exc.ConnectionError(
-                'Could not connect to %s database: %s' % (self._engine.name, e))
+            six.reraise(
+                avalon.exc.ConnectionError,
+                avalon.exc.ConnectionError(
+                    'Could not connect to %s database: %s' % (self._engine.name, e)),
+                sys.exc_info()[2])
 
         self._session_factory.configure(bind=self._engine)
 
@@ -270,8 +275,11 @@ class SessionHandler(object):
             # error until we try to rescan (and delete / insert) a collection.
             self._metadata.create_all(self._engine)
         except OperationalError as e:
-            raise avalon.exc.OperationalError(
-                'Could not initialize required schema: %s' % e)
+            six.reraise(
+                avalon.exc.OperationalError,
+                avalon.exc.OperationalError(
+                    'Could not initialize required schema: %s' % e),
+                sys.exc_info()[2])
 
     def validate(self):
         """Ensure our database engine is valid by attempting a connection.
