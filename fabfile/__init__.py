@@ -70,7 +70,7 @@ def coverage():
         local('coverage run --source avalon ./env/bin/py.test test')
 
     with hide('running'):
-        local("coverage report  --omit 'avalon/packages*','avalon/settings.py' --o --show-missing")
+        local("coverage report  --omit 'avalon/packages/*','avalon/settings.py' --show-missing")
 
 
 @task
