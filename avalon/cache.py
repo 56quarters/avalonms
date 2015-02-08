@@ -90,9 +90,9 @@ class IdLookupCache(object):
             formed and valid.
 
         :param sqlalchemy.orm.Session session: Optional database
-            session that can be used when loading meta data instead
-            of loading meta data on a newly created session. This
-            should only used when inserting newly scanned meta data
+            session that can be used when loading metadata instead
+            of loading metadata on a newly created session. This
+            should only used when inserting newly scanned metadata
             into a music collection (when we're inside of a transaction
             that has not yet been committed).
         :return: This object

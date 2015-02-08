@@ -18,7 +18,7 @@ from os.path import join
 from avalon.log import DEFAULT_LOGGER_NAME
 
 
-# Database connection string for storing or reading music meta data. By
+# Database connection string for storing or reading music metadata. By
 # default a local SQLite database is used.
 DATABASE_URL = 'sqlite:///' + join(gettempdir(), 'avalon.sqlite')
 

@@ -66,7 +66,7 @@ class TrackFieldLoader(object):
         """
         queued = {}
         for tag in self._tags:
-            # Create new models from each bit of tag meta data
+            # Create new models from each bit of tag metadata
             # and remove duplicates by unique ID
             obj = self._get_new_obj(cls, id_gen, field, tag)
             queued[obj.id] = obj
@@ -130,7 +130,7 @@ class TrackLoader(object):
             self._insert_batch(cls, id_gen, batch)
 
     def _insert_batch(self, cls, id_gen, batch):
-        """Insert new instances of the given class using the tag meta data
+        """Insert new instances of the given class using the tag metadata
         contained in the given batch, flushing the session afterwards.
         """
         queued = []

@@ -121,13 +121,13 @@ def new_db_engine(config):
 
 def new_crawler(path):
     """Construct a new tag crawler capable finding all audio files
-    under a given path and reading their audio meta data.
+    under a given path and reading their audio metadata.
 
-    Files that to not have valid audio meta data will be ignored and
+    Files that to not have valid audio metadata will be ignored and
     the error will be logged.
 
     :param str path: Root path of the music collection to crawl
-    :return: New tag crawler to read all audio meta data under the root
+    :return: New tag crawler to read all audio metadata under the root
     :rtype: avalon.tags.crawl.TagCrawler
     """
     track_parser = avalon.tags.read.MetadataTrackParser(re.match)
@@ -165,7 +165,7 @@ def new_controller(dao, id_cache):
     """Construct a new web request handler using the given DAO.
 
     :param avalon.cache.ReadOnlyDao dao: Read-only DAO for various
-        music meta data stores that will be loaded
+        music metadata stores that will be loaded
     :param avalon.cache.IdLookupCache id_cache: ID-name cache used
         by the request handler for translating by-name requests into
         ID based lookups

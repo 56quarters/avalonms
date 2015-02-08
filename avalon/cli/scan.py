@@ -8,7 +8,7 @@
 #
 
 
-"""Scan the music collection and insert meta data into the database."""
+"""Scan the music collection and insert metadata into the database."""
 
 from __future__ import absolute_import, unicode_literals
 
@@ -32,7 +32,7 @@ from avalon.models import Album, Artist, Genre, Track
 
 
 class AvalonCollectionScanner(object):
-    """High-level logic for reading meta data from a music collection
+    """High-level logic for reading metadata from a music collection
     and inserting it into a SQL database of some sort.
     """
     _logger = avalon.log.get_error_log()
@@ -42,7 +42,7 @@ class AvalonCollectionScanner(object):
         to use for scanning the music collection.
 
         :param avalon.models.SessionHandler database: Database session
-            handler to use for inserting meta data into a database.
+            handler to use for inserting metadata into a database.
         :param avalon.cache.IdLookupCache id_cache: In-memory store for
             looking up IDs of albums, artists, and genres based on their
             name.
@@ -51,33 +51,33 @@ class AvalonCollectionScanner(object):
         self._id_cache = id_cache
 
     def _clean_existing_tags(self, session):
-        """Remove all existing meta data from the database using the
+        """Remove all existing metadata from the database using the
         given session.
 
         The session is expected to be using a transaction that will allow
         the deletion of existing data to be rolled back if needed.
 
         :param sqlalchemy.orm.Session session: Session to use for removing
-            all existing meta data from the database.
+            all existing meta ata from the database.
         """
-        self._logger.info("Removing old meta data...")
+        self._logger.info("Removing old metadata...")
         cleaner = avalon.tags.insert.Cleaner(session)
         for cls in (Album, Artist, Genre, Track):
             cleaner.clean_type(cls)
 
     def _insert_new_tags(self, session, tag_meta):
         """Insert new entries into the album, artist, genre, and track
-        tables based on the given audio tag meta data.
+        tables based on the given audio tag metadata.
 
         The session is expected to be using a transaction that will allow
         the insertion of data to be rolled back if needed.
 
         :param sqlalchemy.orm.Session session: Session to use for inserting
-            new meta data into the database.
+            new metadata into the database.
         :param list tag_meta: List of :class:`avalon.tags.read.Metadata` instances
-            resulting from reading audio meta data from a music collection.
+            resulting from reading audio metadata from a music collection.
         """
-        self._logger.info("Inserting new tag meta data for associated attributes...")
+        self._logger.info("Inserting new tag metadata for associated attributes...")
         field_loader = avalon.tags.insert.TrackFieldLoader(session, tag_meta)
         field_loader.insert(Album, avalon.ids.get_album_id, 'album')
         field_loader.insert(Artist, avalon.ids.get_artist_id, 'artist')
@@ -90,16 +90,16 @@ class AvalonCollectionScanner(object):
         self._logger.info("Building ID-name lookup for associated attributes...")
         self._id_cache.reload(session=session)
 
-        self._logger.info("Inserting new tag meta data for songs...")
+        self._logger.info("Inserting new tag metadata for songs...")
         track_loader = avalon.tags.insert.TrackLoader(session, tag_meta, self._id_cache)
         track_loader.insert(Track, avalon.ids.get_track_id)
 
     def scan_path(self, path):
         """Recursively scan the given path for files, attempt to read audio
-        meta data from them, and insert the resulting meta data into a
+        metadata from them, and insert the resulting metadata into a
         database of some sort.
 
-        Deletion of existing meta data and insertion of new meta data is
+        Deletion of existing metadata and insertion of new metadata is
         done within the context of a transaction such that the database
         will be left in a consistent state.
 
@@ -111,7 +111,7 @@ class AvalonCollectionScanner(object):
         crawler = avalon.app.factory.new_crawler(path)
         tag_meta = crawler.get_tags()
 
-        self._logger.info("Loaded meta data for %s songs", len(tag_meta))
+        self._logger.info("Loaded metadata for %s songs", len(tag_meta))
 
         with self._database.scoped_session(read_only=False) as session:
             self._clean_existing_tags(session)
@@ -139,7 +139,7 @@ def get_opts(prog):
         '--database-url',
         metavar='URL',
         help='Database URL connection string for the database to '
-             'write music collection meta data to. If not specified '
+             'write music collection metadata to. If not specified '
              'the value from the default configuration file and '
              'configuration file override will be used. The URL must '
              'be one supported by SQLAlchemy. See documentation '

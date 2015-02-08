@@ -73,10 +73,9 @@ class _BaseFields(object):
     name = Column(String)
 
 
-# Declarative base that also includes id and name fields
-# (common to all meta data types) that should be used as
-# the base for all models. Ignore pylint warning about invalid
-# name since this is a class, not a constant.
+# Declarative base that also includes id and name fields (common to all
+# metadata types) that should be used as the base for all models. Ignore
+# pylint warning about invalid name since this is a class, not a constant.
 # pylint: disable=invalid-name
 _Base = declarative_base(cls=_BaseFields)
 
@@ -181,7 +180,7 @@ def get_engine(url, factory=None):
 def get_metadata():
     """Accessor for metadata about the base for all models.
 
-    :return: Meta data describing all declared schemas
+    :return: Metadata describing all declared schemas
     :rtype: sqlalchemy.schema.MetaData
     """
     return _Base.metadata
@@ -200,7 +199,7 @@ class SessionHandlerConfig(object):
     """Configuration for the handler.
 
     :ivar sqlalchemy.engine.Engine engine: Database engine to use
-    :ivar sqlalchemy.schema.MetaData metadata: Database meta data
+    :ivar sqlalchemy.schema.MetaData metadata: Database metadata
     :ivar sqlalchemy.schema.MetaData session_factory: Session factory
         to use
     """

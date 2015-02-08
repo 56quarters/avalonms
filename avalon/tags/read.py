@@ -8,7 +8,7 @@
 #
 
 
-"""Functionality for reading audio meta data from local files using Mutagen."""
+"""Functionality for reading audio metadata from local files using Mutagen."""
 
 from __future__ import absolute_import, unicode_literals
 import collections
@@ -48,11 +48,11 @@ class MetadataLoader(object):
         self._date_parser = date_parser
 
     def get_from_path(self, path):
-        """Return audio meta data of the given file in a normalized form
+        """Return audio metadata of the given file in a normalized form
          (:class:`Metadata`).
 
-         :param unicode path: Path to a media file to read meta data from
-         :returns: Meta data for the given file it is a supported type
+         :param unicode path: Path to a media file to read metadata from
+         :returns: Metadata for the given file it is a supported type
          :rtype: Metadata
          :raises ValueError: If there are errors encoding the file path,
             the track number of the audio tag cannot be parsed, or the
@@ -131,8 +131,8 @@ class MetadataDateParser(object):
         :class:`ValueError` if the year could not be parsed using any
         known format.
 
-        :param str val: Track year meta data to parse a year out of
-        :return: The parsed year of the audio file meta data
+        :param str val: Track year metadata to parse a year out of
+        :return: The parsed year of the audio file metadata
         :rtype: int
         :raises ValueError: If the year could not be parsed from the
             given date string
@@ -174,9 +174,9 @@ class MetadataTrackParser(object):
         """Attempt to parse the given track string, raise a
         :class:`ValueError` if the track string could not be parsed.
 
-        :param str val: Track number meta data string to parse a track
+        :param str val: Track number metadata string to parse a track
             number out of
-        :return: The parsed track number of the audio file meta data
+        :return: The parsed track number of the audio file metadata
         :rtype: int
         :raises ValueError: If the track number could not be parsed from
             the given track number string.

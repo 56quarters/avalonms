@@ -25,11 +25,11 @@ class TagCrawler(object):
     _logger = avalon.log.get_error_log()
 
     def __init__(self, loader, root, walk_impl=None):
-        """Set the meta data loader, music collection root and optionally
+        """Set the metadata loader, music collection root and optionally
         the :func:`os.walk` implementation to use (to allow for easier unit
         testing).
 
-        :param avalon.tags.read.MetadataLoader loader: Meta data loader for
+        :param avalon.tags.read.MetadataLoader loader: Metadata loader for
             reading discovered audio files from disk
         :param str root: Base path to the music collection to crawl recursively
         :param function walk_impl: Implementation of a function to recursively
@@ -59,13 +59,13 @@ class TagCrawler(object):
         logging a warning if there was an issue reading the file
         or parsing the tag info.
 
-        :return: List of all audio file meta data under the music collection
+        :return: List of all audio file metadata under the music collection
             root path that could be read
         :rtype: list
         """
         files = self._get_files()
         self._logger.info(
-            "Attempting to load meta data for %s files...", len(files))
+            "Attempting to load metadata for %s files...", len(files))
 
         # Note that we're passing args[0] of each exception to the
         # calls to the logger. This is because the logger expects a
@@ -81,7 +81,7 @@ class TagCrawler(object):
             except IOError as e:
                 # IOError usually just means we tried to read an audio
                 # tag from a file that isn't an actual audio file (like
-                # a .jpg) or a file that doesn't have meta data (.wav).
+                # a .jpg) or a file that doesn't have metadata (.wav).
                 # Just let it pass at INFO.
                 self._logger.info(avalon.compat.to_text(e.args[0]))
         return out

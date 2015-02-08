@@ -8,7 +8,7 @@
 #
 
 
-"""API endpoints for the in-memory meta data stores."""
+"""API endpoints for the in-memory metadata stores."""
 
 from __future__ import absolute_import, unicode_literals
 import functools

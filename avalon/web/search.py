@@ -8,7 +8,7 @@
 #
 
 
-"""Text searching functionality for music meta data."""
+"""Text searching functionality for music metadata."""
 
 from __future__ import absolute_import, unicode_literals
 from unicodedata import normalize, category
@@ -312,7 +312,7 @@ class AvalonTextSearch(object):
         instances may be mutable but will not be modified after they
         are constructed in the .reload() method.
 
-        Note that meta data from each of the stores will be loaded and
+        Note that metadata from each of the stores will be loaded and
         the tries will be constructed immediately upon instantiation of
         this class.
         """
