@@ -2,6 +2,12 @@
 #
 
 from __future__ import absolute_import, unicode_literals
+import uuid
+
+import mock
+import pytest
+import avalon.cache
+import avalon.elms
 import avalon.web.search
 
 
@@ -58,6 +64,13 @@ class TestSearchable(object):
     def test_searchable_accent_mixed_case(self):
         """Ensure that accents are removed and case is converted."""
         word = 'Verás'
+        assert 'veras' == avalon.web.search.searchable(word)
+
+    def test_searchable_accent_mixed_case_whitespace(self):
+        """Ensure that accents are removed, case is converted, and leading
+        and trailing whitespace is stripped.
+        """
+        word = ' Verás '
         assert 'veras' == avalon.web.search.searchable(word)
 
 
@@ -279,3 +292,164 @@ class TestSearchTrie(object):
         results3 = trie.search('bi')
         assert 2 == len(results3)
 
+
+@pytest.fixture
+def album_store():
+    return mock.Mock(spec=avalon.cache.AlbumStore)
+
+
+@pytest.fixture
+def artist_store():
+    return mock.Mock(spec=avalon.cache.ArtistStore)
+
+
+@pytest.fixture
+def genre_store():
+    return mock.Mock(spec=avalon.cache.GenreStore)
+
+
+@pytest.fixture
+def track_store():
+    return mock.Mock(spec=avalon.cache.TrackStore)
+
+
+def trie_factory():
+    return avalon.web.search.SearchTrie(
+        node_factory=avalon.web.search.TrieNode)
+
+
+class TestAvalonTextSearch(object):
+    def setup(self):
+        self.album_id = uuid.UUID('0c254968-90cb-56d5-9af8-7bf21962fa42')
+        self.artist_id = uuid.UUID('1212bd9c-5fb5-524a-b748-7ece590f8875')
+        self.genre_id = uuid.UUID('8794d7b7-fff3-50bb-b1f1-438659e05fe5')
+
+        self.album = avalon.elms.IdNameElm(
+            id=self.album_id,
+            name='So Long And Thanks For All the Shoes')
+
+        self.artist = avalon.elms.IdNameElm(
+            id=self.artist_id,
+            name='NOFX')
+
+        self.genre = avalon.elms.IdNameElm(
+            id=self.genre_id,
+            name='Punk')
+
+        self.track1 = avalon.elms.TrackElm(
+            id=uuid.uuid4(),
+            name="It's My Job To Keep Punk Rock Elite",
+            length=80,
+            track=1,
+            year=1997,
+            album='So Long and Thanks for All the Shoes',
+            album_id=self.album_id,
+            artist='NOFX',
+            artist_id=self.artist_id,
+            genre='Punk',
+            genre_id=self.genre_id)
+
+        self.track2 = avalon.elms.TrackElm(
+            id=uuid.uuid4(),
+            name="180 Degrees",
+            length=130,
+            track=5,
+            year=1997,
+            album='So Long And Thanks For All The Shoes',
+            album_id=self.album_id,
+            artist='NOFX',
+            artist_id=self.artist_id,
+            genre='Punk',
+            genre_id=self.genre_id)
+
+    def test_search_albums_indexed_under_all_tokens(
+            self, album_store, artist_store, genre_store, track_store):
+        """Test that an album (and hence all types) are indexed under every
+        suffix combination of the name.
+        """
+        album_store.get_all.return_value = frozenset([self.album])
+        artist_store.get_all.return_value = frozenset([self.artist])
+        genre_store.get_all.return_value = frozenset([self.genre])
+        track_store.get_all.return_value = frozenset([self.track1, self.track2])
+
+        text_search = avalon.web.search.AvalonTextSearch(
+            album_store, artist_store, genre_store, track_store, trie_factory)
+
+        text_search.reload()
+        assert 1 == len(text_search.search_albums('So Long and Thanks for All the Shoes'))
+        assert 1 == len(text_search.search_albums('Long and Thanks for All the Shoes'))
+        assert 1 == len(text_search.search_albums('and Thanks for All the Shoes'))
+        assert 1 == len(text_search.search_albums('Thanks for All the Shoes'))
+        assert 1 == len(text_search.search_albums('for All the Shoes'))
+        assert 1 == len(text_search.search_albums('All the Shoes'))
+        assert 1 == len(text_search.search_albums('the Shoes'))
+        assert 1 == len(text_search.search_albums('Shoes'))
+
+    def test_search_tracks_includes_album_results(
+            self, album_store, artist_store, genre_store, track_store):
+        """Test that track searches include album results."""
+        album_store.get_all.return_value = frozenset([self.album])
+        artist_store.get_all.return_value = frozenset([self.artist])
+        genre_store.get_all.return_value = frozenset([self.genre])
+        track_store.get_all.return_value = frozenset([self.track1, self.track2])
+        track_store.get_by_album.side_effect = lambda id: frozenset(
+            [self.track1, self.track2]) if id == self.album_id else frozenset()
+
+        text_search = avalon.web.search.AvalonTextSearch(
+            album_store, artist_store, genre_store, track_store, trie_factory)
+
+        text_search.reload()
+        results = text_search.search_tracks('So Long')
+        assert self.track1 in results
+        assert self.track2 in results
+
+    def test_search_tracks_includes_artist_results(
+            self, album_store, artist_store, genre_store, track_store):
+        """Test that track searches include artist results."""
+        album_store.get_all.return_value = frozenset([self.album])
+        artist_store.get_all.return_value = frozenset([self.artist])
+        genre_store.get_all.return_value = frozenset([self.genre])
+        track_store.get_all.return_value = frozenset([self.track1, self.track2])
+        track_store.get_by_artist.side_effect = lambda id: frozenset(
+            [self.track1, self.track2]) if id == self.artist_id else frozenset()
+
+        text_search = avalon.web.search.AvalonTextSearch(
+            album_store, artist_store, genre_store, track_store, trie_factory)
+
+        text_search.reload()
+        results = text_search.search_tracks('NOFX')
+        assert self.track1 in results
+        assert self.track2 in results
+
+    def test_search_tracks_includes_genre_results(
+            self, album_store, artist_store, genre_store, track_store):
+        """Test that track searches include genre results."""
+        album_store.get_all.return_value = frozenset([self.album])
+        artist_store.get_all.return_value = frozenset([self.artist])
+        genre_store.get_all.return_value = frozenset([self.genre])
+        track_store.get_all.return_value = frozenset([self.track1, self.track2])
+        track_store.get_by_genre.side_effect = lambda id: frozenset(
+            [self.track1, self.track2]) if id == self.genre_id else frozenset()
+
+        text_search = avalon.web.search.AvalonTextSearch(
+            album_store, artist_store, genre_store, track_store, trie_factory)
+
+        text_search.reload()
+        results = text_search.search_tracks('Punk')
+        assert self.track1 in results
+        assert self.track2 in results
+
+    def test_search_tracks_includes_track_results(
+            self, album_store, artist_store, genre_store, track_store):
+        """Test that track searches include track name match results."""
+        album_store.get_all.return_value = frozenset([self.album])
+        artist_store.get_all.return_value = frozenset([self.artist])
+        genre_store.get_all.return_value = frozenset([self.genre])
+        track_store.get_all.return_value = frozenset([self.track1, self.track2])
+
+        text_search = avalon.web.search.AvalonTextSearch(
+            album_store, artist_store, genre_store, track_store, trie_factory)
+
+        text_search.reload()
+        assert self.track1 in text_search.search_tracks("It's my job")
+        assert self.track2 in text_search.search_tracks('180')

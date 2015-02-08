@@ -61,7 +61,8 @@ def tokenize(text):
 
 def searchable(query):
     """Convert an input string to a consistent searchable form by
-    removing accents, diaretics, and converting it to lowercase.
+    removing accents, diaretics, converting it to lowercase, and
+    removing leading and trailing whitespace.
 
     None input will be converted to an empty string.
 
@@ -71,7 +72,7 @@ def searchable(query):
     """
     if query is None:
         return ''
-    return strip_accents(query).lower()
+    return strip_accents(query).lower().strip()
 
 
 def strip_accents(query):
