@@ -31,7 +31,7 @@ def _flush_session(session):
     except sqlalchemy.exc.OperationalError as e:
         six.reraise(
             avalon.exc.OperationalError,
-            avalon.exc.OperationalError('%s' % e),
+            avalon.exc.OperationalError('{0}'.format(e)),
             sys.exc_info()[2])
 
 
@@ -85,7 +85,7 @@ class TrackFieldLoader(object):
             # anyway) with some additional information to help with
             # find invalid audio tags.
             raise AttributeError(
-                "Invalid tag field [%s] for [%s]" % (field, tag.path))
+                "Invalid tag field {0} for {1}".format(field, tag.path))
         obj = model_cls()
         obj.id = id_gen(val)
         obj.name = val
@@ -172,4 +172,7 @@ class Cleaner(object):
         try:
             self._session.query(cls).delete()
         except sqlalchemy.exc.OperationalError as e:
-            raise avalon.exc.OperationalError('%s' % e)
+            six.reraise(
+                avalon.exc.OperationalError,
+                avalon.exc.OperationalError('{0}'.format(e)),
+                sys.exc_info()[2])

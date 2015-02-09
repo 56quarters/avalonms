@@ -38,7 +38,7 @@ def to_text(value, encoding=None):
         return value
     if isinstance(value, six.binary_type):
         return value.decode(encoding)
-    raise TypeError("Cannot convert type %s to text" % type(value))
+    raise TypeError("Cannot convert type {0} to text".format(type(value)))
 
 
 def to_uuid_input(value):
@@ -63,4 +63,4 @@ def to_uuid_input(value):
         # Our values are all unicode objects which is what the uuid
         # functions expect in Python 3 so just return it verbatim.
         return value
-    raise TypeError("Cannot convert type %s to UUID input" % type(value))
+    raise TypeError("Cannot convert type {0} to UUID input".format(type(value)))

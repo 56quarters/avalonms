@@ -22,7 +22,7 @@ def install_sigint_handler():
     """Install a simple signal handler to quietly exit on SIGINT."""
 
     def handler(signum, _):
-        print("Exiting on signal %s..." % signum, file=sys.stderr)
+        print("Exiting on signal {0}...".format(signum), file=sys.stderr)
         sys.exit(1)
 
     signal.signal(signal.SIGINT, handler)

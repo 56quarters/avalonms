@@ -35,6 +35,7 @@ import avalon.log
 from avalon.packages import six
 
 
+
 # Ignore pylint warning about abstract method since overriding it
 # is optional and SQLAlchemy will do the right thing if it is missing.
 # pylint: disable=abstract-method,too-many-public-methods
@@ -171,10 +172,10 @@ def get_engine(url, factory=None):
         return factory(url)
     except ArgumentError as e:
         raise avalon.exc.ConnectionError(
-            'Invalid connection URL: %s' % e)
+            'Invalid connection URL: {0}'.format(e))
     except ImportError as e:
         raise avalon.exc.ConnectionError(
-            'Invalid database adapter: %s' % e)
+            'Invalid database adapter: {0}'.format(e))
 
 
 def get_metadata():
@@ -262,7 +263,7 @@ class SessionHandler(object):
             six.reraise(
                 avalon.exc.ConnectionError,
                 avalon.exc.ConnectionError(
-                    'Could not connect to %s database: %s' % (self._engine.name, e)),
+                    'Could not connect to {0} database: {1}'.format(self._engine.name, e)),
                 sys.exc_info()[2])
 
         self._session_factory.configure(bind=self._engine)
@@ -277,7 +278,7 @@ class SessionHandler(object):
             six.reraise(
                 avalon.exc.OperationalError,
                 avalon.exc.OperationalError(
-                    'Could not initialize required schema: %s' % e),
+                    'Could not initialize required schema: {0}'.format(e)),
                 sys.exc_info()[2])
 
     def validate(self):

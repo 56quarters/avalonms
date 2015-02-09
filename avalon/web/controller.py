@@ -142,5 +142,5 @@ class AvalonController(object):
         self._logger.exception(
             'Unhandled exception processing %s: %s', request.url, e)
 
-        err = avalon.exc.ServiceUnknownError('%s' % e)
+        err = avalon.exc.ServiceUnknownError('{0}'.format(e))
         return avalon.web.response.render(error=err), err.http_code

@@ -96,7 +96,7 @@ class Parameters(object):
             # We're raising a KeyError here (instead of a subclass
             # of ApiError) since this isn't something that can be
             # triggered by user input, only bugs in Avalon.
-            raise KeyError("Invalid field name '%s'" % field)
+            raise KeyError("Invalid field name '{0}'".format(field))
 
         if field not in self._request.args:
             return default

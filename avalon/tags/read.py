@@ -67,9 +67,9 @@ class MetadataLoader(object):
         try:
             file_ref = self._impl.File(path, easy=True)
         except IOError as e:
-            raise IOError("Could not open [%s]: %s" % (path, e))
+            raise IOError("Could not open {0}: {1}".format(path, e))
         if file_ref is None:
-            raise IOError("Invalid or unsupported audio file [%s]" % path)
+            raise IOError("Invalid or unsupported audio file {0}".format(path))
         return file_ref
 
     def _to_metadata(self, path, file_ref):
@@ -145,7 +145,7 @@ class MetadataDateParser(object):
                 return self._parser(val, fmt).year
             except ValueError:
                 pass
-        raise ValueError("Could not parse year from value [%s]" % val)
+        raise ValueError("Could not parse year from value {0}".format(val))
 
 
 class MetadataTrackParser(object):
@@ -187,4 +187,4 @@ class MetadataTrackParser(object):
         match = self._parser(self.fmt_fraction, val)
         if match is not None:
             return int(match.group(1))
-        raise ValueError("Could not parse track from value [%s]" % val)
+        raise ValueError("Could not parse track from value {0}".format(val))

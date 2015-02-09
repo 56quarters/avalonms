@@ -59,7 +59,7 @@ def initialize(logger, config):
     except IOError as e:
         if avalon.util.is_perm_error(e):
             raise avalon.exc.PermissionError(
-                'Insufficient permission to create or open log [%s]' % e.filename)
+                'Insufficient permission to create or open log {0}'.format(e.filename))
         raise
 
     handler.setFormatter(logging.Formatter(config.fmt, config.date_fmt))
