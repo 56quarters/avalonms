@@ -133,9 +133,7 @@ class TrackLoader(object):
         """Insert new instances of the given class using the tag metadata
         contained in the given batch, flushing the session afterwards.
         """
-        queued = []
-        for tag in batch:
-            queued.append(self._get_new_obj(cls, id_gen, tag))
+        queued = [self._get_new_obj(cls, id_gen, tag) for tag in batch]
         self._session.add_all(queued)
         _flush_session(self._session)
 
