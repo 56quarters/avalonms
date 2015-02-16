@@ -35,7 +35,6 @@ import avalon.log
 from avalon.packages import six
 
 
-
 # Ignore pylint warning about abstract method since overriding it
 # is optional and SQLAlchemy will do the right thing if it is missing.
 # pylint: disable=abstract-method,too-many-public-methods
