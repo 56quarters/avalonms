@@ -25,6 +25,14 @@ Check out your fork of the source code.
 
     $ git clone https://github.com/you/avalonms.git
 
+Add the canonical Avalon Music Server repo as ``upstream``. This might be
+useful if you have to keep your branch / repo up to date before creating
+a pull request.
+
+.. code-block:: base
+
+    $ git remote add upstream https://github.com/tshlabs/avalonms.git
+
 Create and set up a branch for your awesome new feature or bug fix.
 
 .. code-block:: bash
