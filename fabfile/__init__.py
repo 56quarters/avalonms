@@ -95,7 +95,8 @@ def pypi():
 
     Note this task is meant to be run from inside the virtualenv.
     """
-    local('python setup.py register sdist bdist_wheel upload')
+    local('python setup.py sdist bdist_wheel')
+    local('twine upload dist/*')
 
 
 @task
