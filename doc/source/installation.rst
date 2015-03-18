@@ -214,12 +214,16 @@ If you have a directory for configurations, create a new file named ``api_exampl
 with the contents below. If you only have a single configuration file, add the contents below
 inside the ``http`` section. ::
 
+    upstream avalon {
+             server localhost:8000;
+    }
+
     server {
        listen 80;
        server_name api.example.com;
 
        location /avalon {
-                proxy_pass http://localhost:8000;
+                proxy_pass http://avalon;
                 proxy_set_header Host $host;
                 proxy_set_header X-Real-IP $remote_addr;
        }
