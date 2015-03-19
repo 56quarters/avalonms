@@ -79,21 +79,21 @@ Example requests
 Possible error responses
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-========================== ================= ========================================= ============= ===================================
-Error type                 Code              Message key                               HTTP code     Description
-========================== ================= ========================================= ============= ===================================
-InvalidParameterNameError  100               avalon.service.error.invalid_input_name   400           An error that indicates that the
-                                                                                                     name of a field specified is not a
-                                                                                                     valid field.
--------------------------- ----------------- ----------------------------------------- ------------- -----------------------------------
-InvalidParameterTypeError  101               avalon.service.error.invalid_input_type   400           An error that indicates the type of
-                                                                                                     a parameter is not valid for that
-                                                                                                     particular parameter.
--------------------------- ----------------- ----------------------------------------- ------------- -----------------------------------
-InvalidParameterValueError 102               avalon.service.error.invalid_input_value  400           An error that indicates the value
-                                                                                                     of a parameter is not valid for
-                                                                                                     that particular parameter.
-========================== ================= ========================================= ============= ===================================
+================= ========================================= ============= ===================================
+Code              Message key                               HTTP code     Description
+================= ========================================= ============= ===================================
+100               avalon.service.error.invalid_input_name   400           An error that indicates that the
+                                                                          name of a field specified is not a
+                                                                          valid field.
+----------------- ----------------------------------------- ------------- -----------------------------------
+101               avalon.service.error.invalid_input_type   400           An error that indicates the type of
+                                                                          a parameter is not valid for that
+                                                                          particular parameter.
+----------------- ----------------------------------------- ------------- -----------------------------------
+102               avalon.service.error.invalid_input_value  400           An error that indicates the value
+                                                                          of a parameter is not valid for
+                                                                          that particular parameter.
+================= ========================================= ============= ===================================
 
 Success output format
 ^^^^^^^^^^^^^^^^^^^^^
