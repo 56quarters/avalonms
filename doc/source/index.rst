@@ -9,7 +9,7 @@
    isn't an option.
 
 Avalon Music Server
-===================
+-------------------
 
 The Avalon Music Server is a Python WSGI application and several CLI scripts
 that, together, scan metadata from a music collection, store it in a database,
@@ -50,7 +50,7 @@ the Avalon Music Server in a production environment, how to interact with it usi
 JSON web service, and how to set up an environment to develop it.
 
 Contents
-========
+~~~~~~~~
 .. toctree::
    :maxdepth: 2
    
@@ -59,12 +59,13 @@ Contents
    usage
    api
    ids
-   development
+   developers
+   maintainers
    changes
 
 
 Indices and tables
-==================
+~~~~~~~~~~~~~~~~~~
 
 * :ref:`genindex`
 * :ref:`modindex`

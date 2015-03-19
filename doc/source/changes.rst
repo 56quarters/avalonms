@@ -5,6 +5,7 @@ Change Log
 ----------------------
 * Packaging fixes (use ``twine`` for uploads to PyPI, stop using the setup.py
   ``register`` command).
+* Add documentation of the steps for performing a release (:doc:`maintainers`).
 
 0.5.0 - 2015-01-04
 ------------------

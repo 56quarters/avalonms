@@ -91,10 +91,7 @@ def push_tags():
 
 @task
 def pypi():
-    """Build a source package and upload to PyPI.
-
-    Note this task is meant to be run from inside the virtualenv.
-    """
+    """Build a source package and upload to PyPI."""
     local('python setup.py sdist bdist_wheel')
     local('twine upload dist/*')
 
