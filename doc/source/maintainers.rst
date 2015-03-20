@@ -31,9 +31,6 @@ on the nature of the changes being included in this release.
 
 Do not commit.
 
-.. _semantic versioning: http://semver.org/
-.. _PEP-440: https://www.python.org/dev/peps/pep-0440/
-
 Change Log
 ~~~~~~~~~~
 
@@ -81,4 +78,7 @@ If the package metadata has changed since the last release, login to
 PyPI and update the description field or anything else that needs it.
 
 https://pypi.python.org/pypi/avalonms
+
+.. _semantic versioning: http://semver.org/
+.. _PEP-440: https://www.python.org/dev/peps/pep-0440/
 

@@ -14,8 +14,6 @@ reference the ``pip``, ``virtualenv``, and ``python`` instances installed in
 the ``env`` environment. This ensures that they run in the context of the
 environment where we've set up the Avalon Music Server.
 
-.. _virtualenv: https://virtualenv.pypa.io/en/latest/
-
 Environment Setup
 ~~~~~~~~~~~~~~~~~
 
@@ -65,8 +63,6 @@ Install the checkout in "development mode".
 
     $ pip install -e .
 
-.. _fork: https://help.github.com/articles/fork-a-repo
-
 Running The Server
 ~~~~~~~~~~~~~~~~~~
 
@@ -112,16 +108,12 @@ Change the Avalon Music Server log level in your local ``settings.py`` file.
 
     LOG_LEVEL = logging.DEBUG
 
-.. _Pympler: https://pypi.python.org/pypi/Pympler
 
 Contributing
 ~~~~~~~~~~~~
 
 Next, code up your feature or bug fix and create a `pull request`_. If you're new to
 Git or GitHub, take a look at the `GitHub help`_ site.
-
-.. _GitHub help: https://help.github.com/
-.. _tox: https://testrun.org/tox/latest/
 
 Useful Commands
 ~~~~~~~~~~~~~~~
@@ -148,4 +140,9 @@ web browser.
 
     $ fab clean docs
 
+.. _virtualenv: https://virtualenv.pypa.io/en/latest/
+.. _fork: https://help.github.com/articles/fork-a-repo
+.. _Pympler: https://pypi.python.org/pypi/Pympler
 .. _pull request: https://help.github.com/articles/be-social/#pull-requests
+.. _GitHub help: https://help.github.com/
+.. _tox: https://testrun.org/tox/latest/

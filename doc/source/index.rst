@@ -56,7 +56,8 @@ Contents
    
    requirements
    installation
-   usage
+   cli
+   server
    api
    ids
    developers
