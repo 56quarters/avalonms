@@ -118,8 +118,6 @@ are used.
                     existing prefix, e.g. 'avalon.prd' or 'avalon.dev'.
 =================== ===============================================================
 
-.. _SQLAlchemy: http://docs.sqlalchemy.org/en/latest/core/engines.html#database-urls
-
 Architecture
 ^^^^^^^^^^^^
 
@@ -238,6 +236,7 @@ Restart the Avalon WSGI application if it's already running.
 
 That's it! The Avalon WSGI application should now be running on your server.
 
+.. _SQLAlchemy: http://docs.sqlalchemy.org/en/latest/core/engines.html#database-urls
 .. _Gunicorn: http://gunicorn.org
 .. _uWSGI: http://uwsgi-docs.readthedocs.org/en/latest/
 .. _documentation: http://docs.python.org/2/library/time.html#time.strftime
