@@ -126,8 +126,9 @@ Architecture
 Database
 ========
 
-The Avalon Music Server writes music meta data to a database when it scans a music
-collection and reads the meta back when the WSGI application starts.
+The Avalon Music Server CLI tool ``avalon-scan`` writes music metadata to a database
+when it scans a music collection. The WSGI application and reads the meta back when it
+starts.
 
 In each case, when connecting to a database for the first time, the CLI script and
 the WSGI application will attempt to create the required database schema if it does
