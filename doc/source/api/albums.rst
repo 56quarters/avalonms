@@ -21,7 +21,7 @@ Name          Required?     Type          Mutiple?      Description
                                                         not case sensitive and unicode characters will be normalized if
                                                         possible before being compared (in the ``query`` and fields
                                                         being compared). The ``query`` is compared using prefix
-                                                        matching against each portion of the album (delimitted by
+                                                        matching against each portion of the album (delimited by
                                                         whitespace).
 ============= ============= ============= ============= ===============================================================
 
