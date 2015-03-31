@@ -7,8 +7,10 @@ Name          Required?     Type          Mutiple?      Description
 ``limit``     No            ``integer``   No            If there are more than ``limit`` results, only ``limit`` will
                                                         be returned. This must be a positive ``integer``. If the
                                                         ``offset`` parameter is present, the ``limit`` will be applied
-                                                        after the ``offset``. If the ``limit`` is not an integer an
+                                                        after the ``offset``. If the ``limit`` is not an integer
                                                         error code ``101`` (invalid parameter type) will be returned.
+                                                        If the ``limit`` is not positive error code ``102`` (invalid
+                                                        parameter value) will be returned.
 ------------- ------------- ------------- ------------- ---------------------------------------------------------------
 ``offset``    No            ``integer``   No            Skip the first ``offset`` entries returned as part of a result
                                                         set. This must be a positive ``integer``. This parameter does
