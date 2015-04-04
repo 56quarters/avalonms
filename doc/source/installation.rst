@@ -163,7 +163,7 @@ Avalon WSGI Application
 =======================
 
 We won't configure the Avalon WSGI application here, as part of installation. For
-more information about the available configuration settings for it, see the :doc:`usage`
+more information about the available configuration settings for it, see the :doc:`server`
 section.
 
 Gunicorn
