@@ -1,8 +1,8 @@
 Change Log
 ==========
 
-0.5.1 - Future release
-----------------------
+0.5.1 - 2015-04-04
+------------------
 * Packaging fixes (use ``twine`` for uploads to PyPI, stop using the setup.py
   ``register`` command).
 * Add documentation of the steps for performing a release (:doc:`maintainers`).
