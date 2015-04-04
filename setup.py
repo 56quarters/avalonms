@@ -13,6 +13,7 @@ from __future__ import absolute_import, print_function
 import sys
 from glob import glob
 
+import codecs
 from os.path import join
 from setuptools import setup, find_packages
 import avalon
@@ -39,9 +40,8 @@ CLASSIFIERS = [
 
 
 def get_contents(filename):
-    """Get the contents of the given file."""
-    with open(filename, 'rb') as handle:
-        return handle.read().decode(avalon.DEFAULT_ENCODING)
+    with codecs.open(filename, 'rb', encoding=avalon.DEFAULT_ENCODING) as handle:
+        return handle.read()
 
 
 # If this is a version of Python prior to 2.7, argparse was
