@@ -52,6 +52,7 @@ def sort_filter(elms, params):
     try:
         elms.sort(key=sort_key, reverse=reverse)
     except AttributeError:
+        # TODO: Should this include the 'order' field name in the payload?
         raise avalon.exc.InvalidParameterNameError(
             "Invalid order-by field '{field}'", field=field)
     return elms
