@@ -193,9 +193,9 @@ configuration file into this directory and set the owner and permissions appropr
 
 .. code-block:: bash
 
-    $ cp /var/www/avalon/current/share/avalonms/avalon-supervisor-gunicorn.conf /etc/supervisor/conf.d/
-    $ chown root:root /etc/supervisor/conf.d/avalon-supervisor-gunicorn.conf
-    $ chmod 644 /etc/supervisor/conf.d/avalon-supervisor-gunicorn.conf
+    $ sudo cp /var/www/avalon/current/share/avalonms/avalon-supervisor-gunicorn.conf /etc/supervisor/conf.d/
+    $ sudo chown root:root /etc/supervisor/conf.d/avalon-supervisor-gunicorn.conf
+    $ sudo chmod 644 /etc/supervisor/conf.d/avalon-supervisor-gunicorn.conf
 
 Nginx
 =====
