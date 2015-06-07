@@ -55,6 +55,11 @@ Source
 
 The source is available at https://github.com/tshlabs/avalonms
 
+Download
+--------
+
+Python packages are available at https://pypi.python.org/pypi/avalonms
+
 Changes
 -------
 
