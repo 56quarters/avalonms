@@ -59,23 +59,21 @@ def convert_parameters(func):
     return wrapper
 
 
-class AvalonControllerConfig(object):
-    """Configuration for the Avalon web application."""
-
-    def __init__(self):
-        self.api_endpoints = None
-        self.filters = []
-
-
 class AvalonController(object):
     """Avalon web application with web-exposed metadata endpoints."""
 
     _logger = avalon.log.get_error_log()
 
-    def __init__(self, config):
-        """Set the endpoints and filters for the controller."""
-        self._api = config.api_endpoints
-        self._filters = config.filters
+    def __init__(self, api_endpoints, filters):
+        """Set the endpoints and filters for the controller.
+
+        :param avalon.web.services.AvalonMetadataService api_endpoints: Service
+            layer for fetching metadata by various criteria
+        :param list filters: List of callable filters that will be used to limit
+            or sort the results before being returned
+        """
+        self._api = api_endpoints
+        self._filters = list(filters)
 
     def _filter(self, results, params):
         """Apply each of the filter callbacks to the results."""

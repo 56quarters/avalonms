@@ -197,8 +197,4 @@ def new_controller(dao, id_cache):
         avalon.web.filtering.sort_filter,
         avalon.web.filtering.limit_filter]
 
-    controller_config = avalon.web.controller.AvalonControllerConfig()
-    controller_config.api_endpoints = service
-    controller_config.filters = filters
-
-    return avalon.web.controller.AvalonController(controller_config)
+    return avalon.web.controller.AvalonController(service, filters)
