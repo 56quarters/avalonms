@@ -24,7 +24,7 @@ from tunic.api import (
     VirtualEnvInstallation)
 
 
-@task()
+@task
 def install():
     """Upload and install artifacts and mark a new release as 'current'."""
     setup = ProjectSetup(env.remote_deploy_base)
