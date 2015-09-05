@@ -78,7 +78,6 @@ def push():
     """Push locally committed changes to remote repos."""
     local('git push origin')
     local('git push github')
-    local('git push bitbucket')
 
 
 @task
@@ -86,7 +85,6 @@ def push_tags():
     """Push local tags to remote repos."""
     local('git push --tags origin')
     local('git push --tags github')
-    local('git push --tags bitbucket')
 
 
 @task
