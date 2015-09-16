@@ -23,7 +23,7 @@ def tokenize(text):
     """Get a set of each combination of parts of the given text (delineated
     via whitespace) that an item should be indexed under in a search trie.
 
-    For example, the text "This is giving up" result in a set of the following
+    For example, the text "This is giving up" results in a set of the following
     substrings:
 
     * The entire term: "this is giving up",

@@ -24,7 +24,11 @@ class Parameters(object):
          'order', 'genre', 'genre_id', 'limit', 'offset', 'query'])
 
     def __init__(self, request):
-        """Set the query string params to use."""
+        """Set the query string params to use based on the current request.
+
+        :param flask.request request: Current request object to use
+            for getting query string parameters.
+        """
         self._request = request
 
     def get_int(self, field, default=None):
