@@ -10,12 +10,6 @@ All of these instructions are based on a machine running Debian Linux, but
 they should be applicable to any UNIX-like operating system (with a few
 modifications).
 
-.. note::
-
-    The ``$`` character at the beginning of each of the commands listed below
-    just indicates the start of the command prompt, don't actually enter this
-    in your terminal!
-
 Quick Start Installation
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
