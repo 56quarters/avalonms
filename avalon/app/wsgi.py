@@ -41,5 +41,3 @@ except KeyboardInterrupt:
     print("Caught SIGINT during bootstrap, exiting", file=sys.stderr)
     sys.exit(1)
 
-if __name__ == '__main__':
-    application.run(debug=True, use_reloader=False)

@@ -66,18 +66,10 @@ Install the checkout in "development mode".
 Running The Server
 ~~~~~~~~~~~~~~~~~~
 
-The Avalon Music Server WSGI application can be run using the builtin Flask
-development server or it can be run with Gunicorn (which was installed above
-from the ``requirements-prod.txt`` file). Make sure that you have entered the
-virtualenv you created earlier.
-
-Running with the development server:
-
-.. code-block:: bash
-
-    $ python -m avalon.app.wsgi
-
-Or, run with Gunicorn:
+The Avalon Music Server WSGI application can be run with Gunicorn (which
+was installed above from the ``requirements-prod.txt`` file) or any other
+WSGI application server. Make sure that you have entered the virtualenv
+you created earlier.
 
 .. code-block:: bash
 
