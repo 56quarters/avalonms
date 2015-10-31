@@ -64,6 +64,15 @@ LOG_PATH = None
 LOGGER_NAME = DEFAULT_LOGGER_NAME
 
 
+# Base path to use for handling requests to the WSGI application. For
+# example, with a value of '/avalon' the heartbeat endpoint will be at
+# '/avalon/heartbeat'. With a value of '/' the heartbeat endpoint will
+# be at '/heartbeat'. Note that this value must begin with a '/', may
+# not end with a '/', and will apply to all URLs handled by the Avalon
+# Music Server
+REQUEST_PATH = '/avalon'
+
+
 # Configuration for logging unexpected errors to a centralized
 # third-party error aggregation service. Enabling this logging
 # requires supplying a Sentry DSN configuration string below and

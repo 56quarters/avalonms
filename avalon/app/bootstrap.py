@@ -20,12 +20,12 @@ from flask import Flask, Config
 import avalon
 import avalon.exc
 import avalon.ids
+import avalon.log
 import avalon.metrics
 import avalon.web.response
 import avalon.app.factory
 import avalon.tags.insert
 import avalon.util
-
 
 CONFIG_ENV_VAR = 'AVALON_CONFIG'
 
@@ -80,13 +80,15 @@ def bootstrap(config_env=None):
     app.json_decoder = avalon.web.response.AvalonJsonDecoder
     app.json_encoder = avalon.web.response.AvalonJsonEncoder
 
-    app.add_url_rule('/avalon/heartbeat', view_func=controller.get_heartbeat)
-    app.add_url_rule('/avalon/version', view_func=controller.get_version)
+    request_path = app.config['REQUEST_PATH']
+    path_resolver = _EndpointPathResolver(request_path)
 
-    app.add_url_rule('/avalon/albums', view_func=controller.get_albums)
-    app.add_url_rule('/avalon/artists', view_func=controller.get_artists)
-    app.add_url_rule('/avalon/genres', view_func=controller.get_genres)
-    app.add_url_rule('/avalon/songs', view_func=controller.get_songs)
+    app.add_url_rule(path_resolver('version'), view_func=controller.get_version)
+    app.add_url_rule(path_resolver('heartbeat'), view_func=controller.get_heartbeat)
+    app.add_url_rule(path_resolver('albums'), view_func=controller.get_albums)
+    app.add_url_rule(path_resolver('artists'), view_func=controller.get_artists)
+    app.add_url_rule(path_resolver('genres'), view_func=controller.get_genres)
+    app.add_url_rule(path_resolver('songs'), view_func=controller.get_songs)
 
     # Catch-all for any unexpected errors that ensures we still render
     # a JSON payload in the same format the client is expecting while
@@ -94,11 +96,50 @@ def bootstrap(config_env=None):
     app.register_error_handler(Exception, controller.handle_unknown_error)
 
     log.info(
-        "Avalon Music Server %s running as %s:%s using %s MB memory",
-        avalon.__version__, avalon.util.get_current_uname(),
-        avalon.util.get_current_gname(), avalon.util.get_mem_usage())
+        "Avalon Music Server %s running with request path %s as %s:%s "
+        "using %s MB memory", avalon.__version__, request_path,
+        avalon.util.get_current_uname(), avalon.util.get_current_gname(),
+        avalon.util.get_mem_usage())
 
     return app
+
+
+class _EndpointPathResolver(object):
+    """Logic for combining a user supplied 'REQUEST_PATH' setting and
+    each of the various endpoints supported by the Avalon Music Server
+    and figuring out the path they should live at.
+    """
+    _logger = avalon.log.get_error_log()
+
+    def __init__(self, base):
+        """Set the user supplied request base.
+
+        :param unicode base: User supplied request base. By default this
+            is '/avalon' but may be anything (including just a '/') as long
+            as it starts with a '/'.
+        """
+        self._base = base
+
+    def __call__(self, endpoint):
+        """Determine the appropriate path for the given endpoint based the
+        user supplied REQUEST_PATH setting, ensuring that the user has given
+        us a reasonable value.
+        """
+        assert not endpoint.startswith('/'), "Endpoint should not start with '/'"
+
+        base = self._base
+        if not base.startswith('/'):
+            raise ValueError("The REQUEST_PATH setting must start with a '/'")
+        if base != '/' and base.endswith('/'):
+            raise ValueError("The REQUEST_PATH setting must not end with a '/'")
+
+        if base == '/':
+            path = base + endpoint
+        else:
+            path = base + '/' + endpoint
+
+        self._logger.debug("Resolved path %s for %s endpoint", path, endpoint)
+        return path
 
 
 def build_config(env_var=None):

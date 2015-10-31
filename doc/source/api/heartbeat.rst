@@ -14,6 +14,9 @@ Path and method
 
 ``GET /avalon/heartbeat``
 
+.. note::
+
+    This path may be different depending on your ``REQUEST_PATH`` configuration setting.
 
 Parameters
 ^^^^^^^^^^

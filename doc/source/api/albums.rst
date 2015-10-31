@@ -10,6 +10,10 @@ Path and method
 
 ``GET /avalon/albums``
 
+.. note::
+
+    This path may be different depending on your ``REQUEST_PATH`` configuration setting.
+
 
 Filtering Parameters
 ^^^^^^^^^^^^^^^^^^^^

@@ -96,6 +96,13 @@ are used.
                     application write to the file itself, set this to the path
                     of the file.
 
+``REQUEST_PATH``    Base path to use for handling requests to the WSGI application. For
+                    example, with a value of '/avalon' the heartbeat endpoint will be at
+                    '/avalon/heartbeat'. With a value of '/' the heartbeat endpoint will
+                    be at '/heartbeat'. Note that this value must begin with a '/', may
+                    not end with a '/', and will apply to all URLs handled by the Avalon
+                    Music Server. The default is '/avalon'.
+
 ``SENTRY_DSN``      URL that describes how to log errors to a centralized 3rd party
                     error-logging service, Sentry_. This functionality is disabled
                     by default. Enabling this logging requires supplying a Sentry
