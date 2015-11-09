@@ -1,6 +1,12 @@
 Change Log
 ==========
 
+0.6.0 - 2015-11-09
+------------------
+* Add ``REQUEST_PATH`` configuration setting to allow the base URL for the server
+  to be customized. The default will remain ``/avalon``.
+* Minor code and documentation cleanup.
+
 0.5.1 - 2015-04-04
 ------------------
 * Packaging fixes (use ``twine`` for uploads to PyPI, stop using the setup.py
