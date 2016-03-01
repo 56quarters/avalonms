@@ -4,6 +4,9 @@ Avalon Music Server
 .. image:: https://travis-ci.org/tshlabs/avalonms.png?branch=master
     :target: https://travis-ci.org/tshlabs/avalonms
 
+.. image:: https://img.shields.io/pypi/v/avalonms.svg
+    :target: https://pypi.python.org/pypi/avalonms
+             
 The Avalon Music Server is a Python WSGI application and several CLI scripts
 that, together, scan metadata from a music collection, store it in a database,
 and expose it as a JSON web service. It is available under the MIT license.
