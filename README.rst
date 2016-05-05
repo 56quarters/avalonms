@@ -51,7 +51,7 @@ Then, start the application using a WSGI server like `Gunicorn <http://gunicorn.
 Documentation
 -------------
 
-The latest documentation is available at https://avalonms.readthedocs.org/en/latest/
+The latest documentation is available at https://avalonms.readthedocs.io/en/latest/
 
 Source
 ------
@@ -66,4 +66,4 @@ Python packages are available at https://pypi.python.org/pypi/avalonms
 Changes
 -------
 
-The change log is available at https://avalonms.readthedocs.org/en/latest/changes.html
+The change log is available at https://avalonms.readthedocs.io/en/latest/changes.html
