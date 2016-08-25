@@ -3,6 +3,7 @@
 _build
 dist/
 env
+.env
 .project
 .pydevproject
 .settings
