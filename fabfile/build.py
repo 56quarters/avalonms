@@ -16,8 +16,8 @@ from fabric.api import hide, local, task
 def build_released():
     """Build a wheel from a released version on PyPI."""
     with hide('stdout'):
-        local("pip wheel --requirement requirements-prod.txt")
-        local("pip wheel avalonms")
+        local("pip wheel -w wheelhouse --requirement requirements-prod.txt")
+        local("pip wheel -w wheelhouse avalonms")
 
 
 @task(name='local')
@@ -25,7 +25,7 @@ def build_local():
     """Build a wheel from the local checkout."""
     with hide('stdout'):
         local(
-            "pip wheel "
+            "pip wheel -w wheelhouse "
             "--requirement requirements.txt "
             "--requirement requirements-prod.txt")
-        local("pip wheel --no-deps .")
+        local("pip wheel -w wheelhouse --no-deps .")
