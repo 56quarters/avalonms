@@ -22,7 +22,7 @@ import avalon
 DESCRIPTION = 'Avalon Music Server'
 AUTHOR = 'TSH Labs'
 EMAIL = 'projects@tshlabs.org'
-URL = 'http://www.tshlabs.org/'
+URL = 'https://github.com/tshlabs/avalonms'
 LICENSE = 'MIT'
 CLASSIFIERS = [
     "Development Status :: 4 - Beta",
@@ -82,4 +82,3 @@ setup(
             'avalon-scan = avalon.cli.scan:main'
         ]
     })
-
