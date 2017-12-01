@@ -32,10 +32,9 @@ CLASSIFIERS = [
     "Topic :: Internet :: WWW/HTTP",
     "Topic :: Multimedia :: Sound/Audio",
     "Programming Language :: Python",
-    "Programming Language :: Python :: 2.6",
     "Programming Language :: Python :: 2.7",
-    "Programming Language :: Python :: 3.3",
-    "Programming Language :: Python :: 3.4"
+    "Programming Language :: Python :: 3.4",
+    "Programming Language :: Python :: 3.5"
 ]
 
 
@@ -44,12 +43,6 @@ def get_contents(filename):
         return handle.read()
 
 
-# If this is a version of Python prior to 2.7, argparse was
-# not included in the standard library and we must list it as
-# an installation dependency.
-_python_version = (sys.version_info[0], sys.version_info[1])
-_argparse_included = (2, 7)
-
 REQUIRES = [
     'flask',
     'mutagen',
@@ -57,8 +50,6 @@ REQUIRES = [
     'sqlalchemy'
 ]
 
-if _python_version < _argparse_included:
-    REQUIRES.append('argparse')
 
 README = get_contents('README.rst')
 
