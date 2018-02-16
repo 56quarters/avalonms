@@ -37,13 +37,13 @@ Other Parameters
 Example request
 ^^^^^^^^^^^^^^^
 
-* http://api.tshlabs.org/avalon/artists
+* http://localhost:8000/avalon/artists
 
-* http://api.tshlabs.org/avalon/artists?query=who
+* http://localhost:8000/avalon/artists?query=who
 
-* http://api.tshlabs.org/avalon/artists?order=id
+* http://localhost:8000/avalon/artists?order=id
 
-* http://api.tshlabs.org/avalon/artists?order=name&limit=10&offset=20
+* http://localhost:8000/avalon/artists?order=name&limit=10&offset=20
 
 
 Possible error responses

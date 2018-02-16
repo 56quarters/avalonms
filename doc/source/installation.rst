@@ -66,9 +66,7 @@ Production Installation
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 This section will describe one potential way to install, configure, and
-run the Avalon Music Server in production. The configuration described is
-very similar to how the reference installation of the Avalon Music Server
-(http://api.tshlabs.org/avalon/version) is set up.
+run the Avalon Music Server in production.
 
 This particular installation uses Gunicorn_, Supervisord_, and Nginx_. We'll
 set it up so that it can be deployed to using the included Fabric_ files in
