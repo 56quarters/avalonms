@@ -25,7 +25,7 @@ Features include:
 * Support for multiple database backends
 * Simple JSON interface including fast prefix matching
 * Unicode output support
-* Python 2.6 -- 3.4
+* Python 2.7 -- 3.6
 
 To install it simply run
 
@@ -53,7 +53,7 @@ Contents
 ~~~~~~~~
 .. toctree::
    :maxdepth: 2
-   
+
    requirements
    installation
    cli
@@ -71,4 +71,3 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-

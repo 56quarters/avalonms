@@ -6,12 +6,11 @@ these requirements should be installed for you.
 
 Python requirements:
 
-* Python 2 >= 2.6 or Python 3 >= 3.3
-* Argparse >= 1.2.1 (Or >= Python 2.7)
-* Flask >= 0.10.1
-* Mutagen >= 1.25.1
-* SimpleJSON >= 3.5.2
-* SQLAlchemy >= 0.9.4
+* Python 2 >= 2.7 or Python 3 >= 3.5
+* Flask >= 1.0.2
+* Mutagen >= 1.42.0
+* SimpleJSON >= 3.16.0
+* SQLAlchemy >= 1.2.18
 
 In addition to the libraries above, you'll need a WSGI compatible server to
 run the Avalon Music Server. Gunicorn_ or uWSGI_ are both excellent choices.
